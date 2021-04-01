@@ -1291,24 +1291,25 @@ export default {
                 var parentElement = document.getElementById("chat-input-id");
                 var editorChild = editorElement.children;
                 var distItem = editorChild[editorChild.length - 1];
-                var distItemChild = distItem.childNodes;
-                var clientOffSet = distItem.clientHeight;
-                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + clientOffSet;
+                let curIndex = this.editor.getSelection();
+                let bounds = this.editor.getBounds(curIndex)
+                var clientOffLeft = bounds.left;
 
-                var clientOffLeft = distItem.offsetLeft;
-                for(let i=0;i<distItemChild.length;i++) {
-                    // console.log("distItemChild[i].text ", distItemChild[i].text);
-                    // console.log("distItemChild[i].clientWidth ", distItemChild[i].clientWidth);
-                    if(distItemChild[i].length != undefined) {
-                        clientOffLeft += distItemChild[i].length * 14;
-                    }
-                    else if(distItemChild[i].clientWidth != undefined) {
-                        clientOffLeft += distItemChild[i].clientWidth;
-                    }
+                var clientOffSet = bounds.top;
+                if(clientOffSet > 108) clientOffSet = 108;//108 is input message absolate height
+                let inputEditTotalWidth = distItem.clientWidth;
+                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + 12;
+
+               
+                let leftWidth = clientOffLeft % inputEditTotalWidth;
+                //200 is show at user dlg width
+                if(inputEditTotalWidth - leftWidth < 200){
+                    clientOffLeft = inputEditTotalWidth - 200;
+                    offsetTop -= 18;// 18 is input edit per width
                 }
 
-                // console.log("top ", offsetTop)
-                // console.log("left ", clientOffLeft);
+                console.log("top--- ", offsetTop)
+                console.log("left-- ", clientOffLeft);
                 this.cursorPosition = {};
                 this.cursorPosition = {
                     "top": offsetTop,
@@ -1538,38 +1539,7 @@ export default {
                 if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
                 }
-                //this.chatMemberDlgVisible = false;
-                // this.chatMemberDlgchat = {};
                 this.chatMemberSearchKey = null;
-
-                var editorElement = document.getElementsByClassName("ql-editor")[0];
-                var parentElement = document.getElementById("chat-input-id");
-                var editorChild = editorElement.children;
-                var distItem = editorChild[editorChild.length - 1];
-                var distItemChild = distItem.childNodes;
-                var clientOffSet = distItem.clientHeight;
-                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + clientOffSet;
-
-                var clientOffLeft = distItem.offsetLeft;
-                for(let i=0;i<distItemChild.length;i++) {
-                    // console.log("distItemChild[i].text ", distItemChild[i].text);
-                    // console.log("distItemChild[i].clientWidth ", distItemChild[i].clientWidth);
-                    if(distItemChild[i].length != undefined) {
-                        clientOffLeft += distItemChild[i].length * 14;
-                    }
-                    else if(distItemChild[i].clientWidth != undefined) {
-                        clientOffLeft += distItemChild[i].clientWidth;
-                    }
-                }
-
-                console.log("top ", offsetTop)
-                console.log("left ", clientOffLeft);
-
-                this.cursorPosition = {
-                    "top": offsetTop,
-                    "left": clientOffLeft
-                }
-                
                 this.chatMemberDlgVisible = true;
                 this.chatMemberDlgchat = this.curChat;
                 canNewLine = false;
