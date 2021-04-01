@@ -3338,6 +3338,27 @@ export default {
             return false;
         },
 
+        async getDistShowMessage(msgFileter, num, type)
+        {
+            let msgList = [];
+            while(this._timelineWindow.canPaginate(type)){
+                //获取历史消息
+                await this._timelineWindow.paginate(type, 20);
+                let tmpList = this._getEvents();
+                let index = 0;
+                msgList = [];
+                tmpList.forEach(item => {
+                    if(msgFileter(item) && item.event.content){
+                        if(!this.isDeleted(item)){
+                            msgList.push(item);
+                            index++;
+                        } 
+                    }
+                })
+                if(index > num) break;
+            }
+            return msgList;
+        },
         async getShowMessage(msgFileter, num, type)
         {
             this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
@@ -3380,7 +3401,7 @@ export default {
             console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
             // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
             let curNum = this.messageList.length;
-            this.getShowMessage(this.messageFilter, curNum + 10, 'f')
+            this.getDistShowMessage(this.messageFilter, curNum + 10, 'f')
                 .then((ret) => {
                     this.messageList = ret
                     this.isRefreshing = false;
