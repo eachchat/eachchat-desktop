@@ -158,10 +158,7 @@
 </template>
 
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services, environment} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/index.js'
 import winHeaderBar from './win-header-login.vue'
 import {ipcRenderer, remote} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
@@ -653,8 +650,6 @@ export default {
   mounted: async function() {
   },
   created: async function() {
-    // this.loginInfo = await services.common.GetLoginModel();
-    // this.curUserInfo = await services.common.GetSelfUserModel();
     var message_sound = global.localStorage.getItem("message_sound");
     var message_notice = global.localStorage.getItem("message_notice");
     var autoStart = global.localStorage.getItem("autoStart");
@@ -713,7 +708,6 @@ export default {
     })
   },
   activated: async function() {
-    // this.recentDevice = await services.common.GetRecentDevice();
     this.localStorePath = global.localStorage.getItem("savefile_path");
     if(!this.localStorePath) this.localStorePath = await confservice.getCurFilesDir();
     console.log("this.recentdeivce ", this.recentDevice);

@@ -50,11 +50,7 @@
     </el-container>
 </template>
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
-import confservice from '../../packages/data/conf_service.js'
-import {services} from '../../packages/data/index.js';
+
 import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';

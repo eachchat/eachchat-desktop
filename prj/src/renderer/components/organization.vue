@@ -127,7 +127,6 @@ import organizationList from './organization-list';
 import contactList from './contact-list'
 import contactRoomList from './contact-room'
 import inviteRoomList from './invite-room'
-import listHeader from './listheader';
 import userInfoContent from './user-info';
 import winHeaderBar from './win-header-login.vue';
 import {ComponentUtil} from '../script/component-util.js'

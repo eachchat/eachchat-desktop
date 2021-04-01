@@ -524,26 +524,6 @@ export default {
                 imageCollectionElement.setAttribute("src", realUrl);
             }
         },
-        getGroupAvatarContent:async function(group) {
-            var targetDir = confservice.getUserThumbHeadPath();
-            var targetPath = path.join(targetDir, group.collection_id + '.png');
-            var groupAvatarElement = document.getElementById(group.collection_id);
-            if(fs.existsSync(targetPath)) {
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    groupAvatarElement.setAttribute("src", reader.result);
-                }
-            }
-            else{
-                console.log("download group avatar", group);
-                await services.common.downloadGroupAvatar(group.collection_content.fromUserAvatar, group.collection_id);
-                //await this.getGroupAvatarContent(group);
-            }
-
-        },
 
         async getObjectFromCollectionModel(collectionModels) {
             var favourites = [];
@@ -665,11 +645,6 @@ export default {
                 for(var i = 0; i < this.searchResults.image.length; i ++){
                     this.getImageCollectionContent(this.searchResults.image[i]);
                 }
-                /*
-                for(var i = 0; i < this.searchResults.group.length; i ++){
-                    this.getGroupAvatarContent(this.searchResults.group[i]);
-                }
-                */
             });
             return;
         },

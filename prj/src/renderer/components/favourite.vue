@@ -68,7 +68,6 @@
     </el-container>
 </template>
 <script>
-import {services} from '../../packages/data/index.js';
 import listHeader from './listheader';
 import favouriteList from './favourite-list'
 import winHeaderBar from './win-header-login.vue';

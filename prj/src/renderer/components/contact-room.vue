@@ -26,7 +26,6 @@
 
 import {ContactRoom} from '../../packages/data/sqliteutil.js'; 
 import "../style/contact-list.css"
-import log from 'electron-log'
 
 
 export default {
