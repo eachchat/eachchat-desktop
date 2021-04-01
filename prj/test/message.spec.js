@@ -116,7 +116,290 @@ describe('Application launch', function () {
     assert.equal(checkRet, true)
   });
 
-  it('send message', async function(){
+  // it('send message', async function(){
+  //   let self = this;
+
+  //   async function sendMsg () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let sendBtnElement = await self.app.client.$('.chat-send');
+  //         sendBtnElement.click();
+  //         console.log("=====clickbtn ");
+  //         resolve();
+  //       }, 2000)
+  //     })
+  //   }
+  //   async function setText () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let inputElement = await self.app.client.$('.ql-editor');
+  //         inputElement.setValue("1234556");
+  //         resolve();
+  //       }, 2000)
+  //     })
+  //   }
+  //   await setText();
+  //   await sendMsg();
+  // })
+
+  // it('send url message', async function(){
+  //   let self = this;
+
+  //   async function sendMsg () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let sendBtnElement = await self.app.client.$('.chat-send');
+  //         sendBtnElement.click();
+  //         console.log("=====clickbtn ");
+  //         resolve();
+  //       }, 2000)
+  //     })
+  //   }
+  //   async function setText () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let inputElement = await self.app.client.$('.ql-editor');
+  //         inputElement.setValue("workly.ai");
+  //         resolve();
+  //       }, 2000)
+  //     })
+  //   }
+  //   async function checkMessage () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let messagePanel = await self.app.client.$('.msg-list');
+  //         let messageList = await messagePanel.$$('li');
+  //         let latestMessage = messageList[messageList.length - 1];
+  //         let checkMessage = messageList[messageList.length - 2];
+  //         let testDecoration = await latestMessage.getCSSProperty('text-decoration');
+  //         let checktestDecoration = await checkMessage.getCSSProperty('text-decoration');
+  //         // if(testDecoration.parsed.hex == '#dddddd'){
+  //         //   resolve(true);
+  //         // }
+  //         // else {
+  //         //   reject(false);
+  //         // }
+  //         console.log("===================== ", checktestDecoration);
+  //         console.log('-------select bgColor-----', testDecoration);
+  //         resolve();
+  //       }, 1000)
+  //     })
+  //   }
+  //   async function clickMessage () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let messagePanel = await self.app.client.$('.msg-list');
+  //         let messageList = await messagePanel.$$('li');
+  //         let latestMessage = messageList[messageList.length - 1];
+  //         latestMessage.click();
+  //         // if(testDecoration.parsed.hex == '#dddddd'){
+  //         //   resolve(true);
+  //         // }
+  //         // else {
+  //         //   reject(false);
+  //         // }
+  //         resolve();
+  //       }, 1000)
+  //     })
+  //   }
+  //   await setText();
+  //   await sendMsg();
+  //   await checkMessage();
+  //   await clickMessage();
+  // })
+
+  // it('send emiji', async function(){
+  //   let self = this;
+
+  //   async function sendMsg () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let sendBtnElement = await self.app.client.$('.chat-send');
+  //         sendBtnElement.click();
+  //         console.log("=====clickbtn ");
+  //         resolve();
+  //       }, 2000)
+  //     })
+  //   }
+  //   async function showEmoji () {
+  //     return new Promise(async (resolve, reject)=>{
+  //       setTimeout(async () => {
+  //         let emojiElement = await self.app.client.$('.chat-input-expression');
+  //         emojiElement.click();
+  //         resolve();
+  //       }, 2000)
+  //     })
+  //   }
+  //   await showEmoji();
+  //   let emojiPanel = await self.app.client.$('.faces');
+  //   let emojiList = await emojiPanel.$$('li');
+  //   let emojiSelect = emojiList[0];
+  //   emojiSelect.click();
+  //   await sendMsg();
+  // })
+
+  it('show history message', async function(){
+    let self = this;
+
+    async function clickMsgMenu () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let msgMenuBtnElement = await self.app.client.$('.chat-input-history');
+          msgMenuBtnElement.click();
+          console.log("=====clickbtn ");
+          resolve();
+        }, 2000)
+      })
+    }
+    async function clickHistoryMenu () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyElement = await self.app.client.$('.history-msg');
+          historyElement.click();
+          resolve();
+        }, 2000)
+      })
+    }
+    async function checkPageShow () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.mxHistoryPage');
+          assert(await historyPanel.isDisplayed())
+          resolve();
+        }, 1000)
+      })
+    }
+    async function checkPageContent () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.MxHistoryMsg-list');
+          let historyList = await historyPanel.$$('li');
+          if(historyList.length != 0) {
+            for(let i = 0; i < historyList.length; i++) {
+              // let isOk = true;
+              // let txtItem = await historyList[i].$('.MxmessageInfoDetailLabel');
+              // if(await txtItem.isDisplayed()) {
+              //   let content = await txtItem.getText();
+              // }
+              assert(await historyList[i].getText().length != 0)
+            }
+            resolve();
+          } else {
+            reject();
+          }
+        }, 1000)
+      })
+    }
+    async function SearchPageContent () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyInputElement = await self.app.client.$('.MxHistoryMsgDlgSearchInput');
+          await historyInputElement.setValue('work');
+          resolve();
+        }, 1000)
+      })
+    }
+    async function checkSearchPageContent () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.MxHistoryMsg-list');
+          let historyList = await historyPanel.$$('li');
+          if(historyList.length != 0) {
+            for(let i = 0; i < historyList.length; i++) {
+              let showText = await historyList[i].getText();
+            }
+            resolve();
+          } else {
+            reject();
+          }
+        }, 1000)
+      })
+    }
+    async function closeHistory () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.MxTitleGoBackImg');
+          historyPanel.click();
+          resolve();
+        }, 1000)
+      })
+    }
+    async function checkPageClose () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.mxHistoryPage');
+          assert(!(await historyPanel.isDisplayed()))
+          resolve();
+        }, 1000)
+      })
+    }
+    await clickMsgMenu();
+    await clickHistoryMenu();
+    await checkPageShow();
+    await checkPageContent();
+    await SearchPageContent();
+    await checkSearchPageContent();
+    await closeHistory();
+    await checkPageClose();
+  })
+
+  it('show file message', async function(){
+    let self = this;
+
+    async function clickMsgMenu () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let msgMenuBtnElement = await self.app.client.$('.chat-input-history');
+          msgMenuBtnElement.click();
+          console.log("=====clickbtn ");
+          resolve();
+        }, 2000)
+      })
+    }
+    async function clickHistoryMenu () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyElement = await self.app.client.$('.history-file');
+          historyElement.click();
+          resolve();
+        }, 2000)
+      })
+    }
+    async function checkPageShow () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.mxFilePage');
+          assert(await historyPanel.isDisplayed())
+          resolve();
+        }, 1000)
+      })
+    }
+    async function closeHistory () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.MxTitleGoBackImg');
+          historyPanel.click();
+          resolve();
+        }, 1000)
+      })
+    }
+    async function checkPageClose () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let historyPanel = await self.app.client.$('.mxFilePage');
+          assert(!(await historyPanel.isDisplayed()))
+          resolve();
+        }, 1000)
+      })
+    }
+    await clickMsgMenu();
+    await clickHistoryMenu();
+    await checkPageShow();
+    await closeHistory();
+    await checkPageClose();
+  })
+
+  it('send file', async function(){
     let self = this;
 
     async function sendMsg () {
@@ -129,16 +412,42 @@ describe('Application launch', function () {
         }, 2000)
       })
     }
-    async function setText () {
+
+    async function selectFile() {
       return new Promise(async (resolve, reject)=>{
         setTimeout(async () => {
-          let inputElement = await self.app.client.$('.ql-editor');
-          inputElement.setValue("1234556");
+          console.log("--------")
+          self.app.electron.remote.ipcMain.on("open-directory-dialog", (e, arg) => {
+            console.log("==============arg is ", arg);
+          });
+          let files = {
+            filePaths: "C:/Users/wangx/Desktop/eachchat 2.0.3.pptx"
+          }
+          // console.log("=======webcontents ", webcontents);
+          // console.log("======toggleDevTools: ",await webcontents.toggleDevTools())
+          // webcontents.send('selectedItem', files);
+          // // webcontents.sendToAll('selectedItem', files)
+          // // webcontents.sendToFrame('selectedItem', files);
+          // console.log("select send file send testingping");
+          // self.app.electron.remote.ipcMain.on("ping", (e) => {
+          //   console.log("=========ipc")
+          // })
           resolve();
         }, 2000)
       })
     }
-    await setText();
+
+    async function setText () {
+      return new Promise(async (resolve, reject)=>{
+        setTimeout(async () => {
+          let fileElement = await self.app.client.$('.chat-input-file');
+          fileElement.click();
+          resolve();
+        }, 2000)
+      })
+    }
+    //await setText();
+    await selectFile();
     await sendMsg();
   })
 
