@@ -3830,7 +3830,7 @@ export default {
   }
 
   .chat-empty {
-    width: 100%;
+    width: calc(100% - 281px);
     min-width: calc(100% - 361px);
     max-width: calc(100% - 281px);
     padding-top: 20px;
@@ -3848,7 +3848,7 @@ export default {
   }
 
   .chat {
-    width: 100%;
+    width: calc(100% - 281px);
     min-width: calc(100% - 361px);
     max-width: calc(100% - 281px);
     background-color: rgba(255, 255, 255, 1);
