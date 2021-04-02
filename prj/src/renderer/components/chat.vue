@@ -1298,7 +1298,7 @@ export default {
                 var clientOffSet = bounds.top;
                 if(clientOffSet > 108) clientOffSet = 108;//108 is input message absolate height
                 let inputEditTotalWidth = distItem.clientWidth;
-                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + 12;
+                var offsetTop = parentElement.offsetTop + 40 + distItem.offsetTop + clientOffSet;
 
                
                 let leftWidth = clientOffLeft % inputEditTotalWidth;
