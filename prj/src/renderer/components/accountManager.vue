@@ -284,9 +284,24 @@ export default {
                     console.log("=========== ret ", ret);
                 }
                 catch(e) {
-                    if (e.httpStatus !== 401 || !e.data || !e.data.flows) {
-                        // doesn't look like an interactive-auth failure
-                        this.$toastMessage({message:"邮箱绑定失败", time: 2000, type:'error'});
+                    console.log("=========== e ", e);
+                    console.log("=========== e ", e.httpStatus);
+                    console.log("=========== e ", e.data);
+                    if (e.httpStatus == 401) {
+                        if(e.data && e.data.errcode == "M_FORBIDDEN") {
+                            this.$toastMessage({message:"登录密码不正确", time: 2000, type:'error'});
+                        }
+                        else if(e.data && e.data.err) {
+                            this.$toastMessage({message:e.data.err, time: 2000, type:'error'});
+                        }
+                        return;
+                    } else {
+                        if(e.data && e.data.error) {
+                            this.$toastMessage({message:e.data.error, time: 2000, type:'error'});
+                        }
+                        else {
+                            this.$toastMessage({message:"邮箱绑定失败", time: 2000, type:'error'});
+                        }
                         return;
                     }
                 }
