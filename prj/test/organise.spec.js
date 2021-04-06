@@ -74,6 +74,10 @@ describe('Application launch', function () {
     return this.app.start()
   })
 
+  afterEach(async function(){
+    await sleep(1000);
+  })
+
   after(function () {
     if (app && app.isRunning()) {
       //return app.stop()
@@ -258,5 +262,19 @@ describe('Application launch', function () {
     let clickElm = await app.client.$("div=成员");
     await clickElm.click();
     await sleep(1000);
+  })
+
+  it("delete contact", async function(){
+    let searchViewElm = await app.client.$(".departmentsdiv");
+    assert.isTrue(await searchViewElm.isExisting());
+    let contacts = await searchViewElm.$$(".contact");
+    assert(contacts.length != 0, 'contact list is empty');
+    await contacts[0].click({ button: 'right' });
+    let elm1 = await searchViewElm.$('');
+    elm1.moveTo({
+      xOffset: 5,
+      yOffset:5
+  })
+
   })
 })
