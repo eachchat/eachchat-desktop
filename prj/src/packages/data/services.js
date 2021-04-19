@@ -393,7 +393,7 @@ const common = {
 
   async InitDbData()
   {
-    Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment(), this.getAllContactRooms()])
+    return Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment(), this.getAllContactRooms()])
   },
 
   async UpdateDepartment(){

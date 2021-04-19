@@ -8,7 +8,7 @@
             <el-menu
                 class="nav-menu">
                 <el-menu-item 
-                    :disabled = 'navEnable || dataIsLoading'
+                    :disabled = 'navEnable || dataIsLoading || dbDataNotFinished'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
@@ -26,14 +26,14 @@
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
-        <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading">
+        <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading && !dbDataNotFinished">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
                 :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
-        <div class="loadingDiv" v-show="navEnable || dataIsLoading">
+        <div class="loadingDiv" v-show="navEnable || dataIsLoading || dbDataNotFinished">
             <div class="loadingInfo">
                 <img class="isLoading" id="isLoadingId" src="../../../static/Img/Main/mainLoading@2x.png">
                 <div class="loadingText">正在加载数据</div>
@@ -114,6 +114,7 @@ export default {
             toSaveDraft: 0,
             navEnable: true,
             dataIsLoading: true,
+            dbDataNotFinished: true, 
             scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
@@ -701,7 +702,9 @@ export default {
 
         await global.services.common.login();
         this.startCheckUpgrade();
-        global.services.common.InitDbData();
+        global.services.common.InitDbData().then(ret => {
+            this.dbDataNotFinished = false;
+        });
         if(global.mxMatrixClientPeg.homeserve == '') {
             var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
             var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
