@@ -46,18 +46,27 @@ if (process.env.NODE_ENV === "development") {
   }
   soundPath = "../../static/sound.wav";
   notificationIco = "../../static/Img/Main/logo@2x.png";
+  iconPath = path.join(__dirname, iconPath);
+  emptyIconPath = path.join(__dirname, emptyIconPath);
+  soundPath = path.join(__dirname, soundPath);
+  notificationIco = path.join(__dirname, notificationIco);
 }else{
-  iconPath = "/static/Img/Main/logo@2x.ico";
-  emptyIconPath = "/static/Img/Main/logo-empty.png";
+  iconPath = "/Img/Main/logo@2x.ico";
+  emptyIconPath = "/Img/Main/logo-empty.png";
   if(process.platform == 'darwin'){
-    iconPath = "/static/Img/Main/IconTemplate@3x.png";
+    iconPath = "/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
-    iconPath = "/static/Img/Main/icon.png";
-    emptyIconPath = "/static/Img/Main/logo-notice.png";
+    iconPath = "/Img/Main/icon.png";
+    emptyIconPath = "/Img/Main/logo-notice.png";
   }
-  soundPath = "/static/sound.wav";
-  notificationIco = "/static/Img/Main/logo@2x.png";
+  soundPath = "/sound.wav";
+  notificationIco = "/Img/Main/logo@2x.png";
+
+  iconPath = path.join(__static, iconPath);
+  emptyIconPath = path.join(__static, emptyIconPath);
+  soundPath = path.join(__static, soundPath);
+  notificationIco = path.join(__static, notificationIco);
 }
 
 const imgViewPageWinURL = process.env.NODE_ENV === 'development'
@@ -92,7 +101,7 @@ if(process.platform != 'darwin') {
 function setImgToNormalIcon() {
   try {
     if(appIcon) {
-      appIcon.setImage(path.join(__dirname, iconPath));
+      appIcon.setImage(iconPath);
     }
   }
   catch(e) {
@@ -103,7 +112,7 @@ function setImgToNormalIcon() {
 function setImgToFlashIcon() {
   try {
     if(appIcon) {
-      appIcon.setImage(path.join(__dirname, emptyIconPath));
+      appIcon.setImage(emptyIconPath);
     }
   }
   catch(e) {
@@ -160,7 +169,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // });
   openDevToolsInDevelopment(mainWindow);
   // 托盘
-  appIcon = new Tray(path.join(__dirname, iconPath));
+  appIcon = new Tray(iconPath);
 
   appIcon.on('mouse-move', function(event, position){
     if(process.platform == "win32") {
@@ -662,8 +671,8 @@ ipcMain.on("showNotice", (event, title, contnet) => {
       notification = new Notification({
         title: title,
         body: contnet,
-        icon: path.join(__dirname, notificationIco),
-        sound: path.join(__dirname, soundPath)
+        icon: notificationIco,
+        sound: soundPath
       })
       notification.show();
       setTimeout(() => {
@@ -1370,6 +1379,7 @@ function createWindow () {
   screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   Menu.setApplicationMenu(null)
+
   mainWindow = new BrowserWindow({
     height: 420,
     width: 360,
@@ -1387,7 +1397,7 @@ function createWindow () {
       nodeIntegration:true,
       enableRemoteModule: true
     },
-    icon: path.join(__dirname, iconPath),
+    icon: iconPath,
     title: "亿洽"
   })
   mainWindow.setResizable(false);
@@ -1419,7 +1429,7 @@ function createWindow () {
       nodeIntegration: true,
       enableRemoteModule: true
     },
-    icon: path.join(__dirname, iconPath),
+    icon: iconPath,
     show: false,
     title: "亿洽"
   })
@@ -1446,7 +1456,7 @@ function createWindow () {
         nodeIntegration: true,
         enableRemoteModule: true
       },
-      icon: path.join(__dirname, iconPath),
+      icon: iconPath,
       show: false,
       title: "亿洽"
     })
