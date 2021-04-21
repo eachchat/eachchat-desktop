@@ -1415,6 +1415,25 @@ function createWindow () {
         globalShortcut.register('CommandOrControl+V', () => {
           content.paste();
         })
+        globalShortcut.register('CommandOrControl+W', () => {
+          mainWindow.hide();
+        })
+        globalShortcut.register('CommandOrControl+Q', () => {
+          app.quit();
+        })
+        globalShortcut.register('CommandOrControl+M', () => {
+          mainWindow.minimize();
+        })
+        globalShortcut.register('CommandOrControl+H', () => {
+          mainWindow.hide();
+        })
+    }
+  }
+  else if(process.platform == 'win32') {
+    if(mainWindow != undefined && mainWindow.isFocused()) {
+      globalShortcut.register('Escape', () => {
+        mainWindow.hide();
+      })
     }
   }
   app.setAppUserModelId('EachChat');
@@ -1602,8 +1621,29 @@ app.on('browser-window-blur', () => {
     mainWindow.webContents.send("isBlur");
   }
   if(process.platform == 'darwin') {
-    if(mainWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
-      globalShortcut.unregister('CommandOrControl+V');
+    if(mainWindow != undefined) {
+      if(globalShortcut.isRegistered('CommandOrControl+V')) {
+        globalShortcut.unregister('CommandOrControl+V');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+W')) {
+        globalShortcut.unregister('CommandOrControl+W');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+Q')) {
+        globalShortcut.unregister('CommandOrControl+Q');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+M')) {
+        globalShortcut.unregister('CommandOrControl+M');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+H')) {
+        globalShortcut.unregister('CommandOrControl+H');
+      }
+    }
+  }
+  else if(process.platform == 'win32') {
+    if(mainWindow != undefined) {
+      if(globalShortcut.isRegistered('Escape')) {
+        globalShortcut.unregister('Escape');
+      }
     }
   }
 })
@@ -1620,8 +1660,27 @@ app.on('browser-window-focus', () => {
         globalShortcut.register('CommandOrControl+V', () => {
           content.paste();
         })
+        globalShortcut.register('CommandOrControl+W', () => {
+          mainWindow.hide();
+        })
+        globalShortcut.register('CommandOrControl+Q', () => {
+          app.quit();
+        })
+        globalShortcut.register('CommandOrControl+M', () => {
+          mainWindow.minimize();
+        })
+        globalShortcut.register('CommandOrControl+H', () => {
+          mainWindow.hide();
+        })
     }
-  }  
+  }
+  else if(process.platform == 'win32') {
+    if(mainWindow != undefined) {
+      globalShortcut.register('Escape', () => {
+        mainWindow.hide();
+      })
+    }
+  }
 })
 
 app.on('activate', () => {
