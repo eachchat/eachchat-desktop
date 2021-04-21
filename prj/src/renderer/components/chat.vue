@@ -1544,6 +1544,9 @@ export default {
                 this.chatMemberDlgchat = this.curChat;
                 canNewLine = false;
             }
+            else if (event.code == "PageUp"){
+                event.preventDefault();
+            }
         },
         atSomeOne(msgItem) {
             var senderId = msgItem.sender.userId ? msgItem.sender.userId : msgItem.event.sender;
