@@ -50,10 +50,11 @@ class Sqlite {
       }
       await sleep(500)
       console.log("sleep end");
-      fs.unlinkSync(environment.path.sqlite);
+      console.log(filename)
+      fs.unlinkSync(filename);
       console.log("file is not sqlcipher,remove " + filename);
       log.info("file is not sqlcipher,remove " + filename);
-      this.db = new sqlite3.Database(this.filename);
+      this.db = new sqlite3.Database(filename);
       this.db.serialize(() => {
         this.db.run("PRAGMA KEY = " + password);
         this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
