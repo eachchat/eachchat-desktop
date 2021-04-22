@@ -3763,7 +3763,13 @@ export default {
                 this.isInvite = true;
             }
             else {
-                // this._loadTimeline(undefined, undefined, undefined)
+                this._loadTimeline(undefined, undefined, undefined, this.chat, this.chat.timeline.length)
+                if(this.messageList.length > 10) {
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.addEventListener('scroll', this.handleScroll);
+                    }
+                }
                 console.log("*** initMessage 。。。。 ");
                 this.toGetShowMessage()
                     .then((ret) => {
@@ -4091,11 +4097,9 @@ export default {
                     let div = document.getElementById("message-show-list");
                     if(div) {
                         div.scrollTop = div.scrollHeight;
-                            if(this.messageList.length < 10) {
-                            setTimeout(() => {
-                                this.initMessage();
-                            }, 500)
-                        }
+                        setTimeout(() => {
+                            this.initMessage();
+                        }, 500)
                     }
                 })
             }, 90)
@@ -4160,11 +4164,9 @@ export default {
                         let div = document.getElementById("message-show-list");
                         if(div) {
                             div.scrollTop = div.scrollHeight;
-                            if(this.messageList.length < 10) {
-                                setTimeout(() => {
-                                    this.initMessage();
-                                }, 500)
-                            }
+                            setTimeout(() => {
+                                this.initMessage();
+                            }, 500)
                         }
                         
                     })
@@ -4230,11 +4232,9 @@ export default {
                         let div = document.getElementById("message-show-list");
                         if(div) {
                             div.scrollTop = div.scrollHeight;
-                            if(this.messageList.length < 10) {
-                                setTimeout(() => {
-                                    this.initMessage();
-                                }, 500)
-                            }
+                            setTimeout(() => {
+                                this.initMessage();
+                            }, 500)
                         }
                     })
                 }, 90)
