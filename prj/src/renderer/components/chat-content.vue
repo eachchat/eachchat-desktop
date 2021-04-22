@@ -2143,6 +2143,7 @@ export default {
       let toGet = async () => {
         for(let i=0;i<this.showGroupList.length;i++) {
           let item = this.showGroupList[i];
+          if(isOtherDomain(item.roomId)) continue;
           var distTimeLineInfo = await this.GetLastShowMessage(item);
           var distTimeLine = distTimeLineInfo[0];
           if(distTimeLine == undefined) continue;
