@@ -44,10 +44,15 @@ export default new Vuex.Store({
     inviteRoomsNum: 0,
     nUpdateInviteRoom: 0,
     sendingEvents: {},
+    sendingEventsTxnIds: [],
   },
   mutations: {
     saveSendingEvents(state, newEvent) {
+      if(newEvent._txnId && state.sendingEventsTxnIds.indexOf(newEvent._txnId) < 0) {
+        state.sendingEventsTxnIds.push(newEvent._txnId);
+      }
       let exitingSendingEvents = state.sendingEvents[newEvent.event.room_id];
+
       if(exitingSendingEvents) {
         let newSendingEvents = exitingSendingEvents.concat([newEvent]);
         state.sendingEvents[newEvent.event.room_id] = newSendingEvents;
@@ -57,6 +62,12 @@ export default new Vuex.Store({
       }
     },
     removeSendingEvents(state, newEvent) {
+      if(newEvent._txnId) {
+        let distTxnIdIndex = state.sendingEventsTxnIds.indexOf(newEvent._txnId);
+        if(distTxnIdIndex >= 0) {
+          state.sendingEventsTxnIds.splice(distTxnIdIndex, 1);
+        }
+      }
       let exitingSendingEvents = state.sendingEvents[newEvent.event.room_id];
       if(exitingSendingEvents) {
         for(let i=0;i<exitingSendingEvents.length;i++) {
@@ -304,10 +315,12 @@ export default new Vuex.Store({
     getSendingEvents: state => (roomId) => {
       return state.sendingEvents[roomId] == undefined ? [] : state.sendingEvents[roomId];
     },
+    getSendingEventsTxnIds: state => (roomId) => {
+      return state.sendingEventsTxnIds[roomId] == undefined ? [] : state.sendingEventsTxnIds[roomId];
+    },
     getInviteRoomsNum: state => () => {
       return state.inviteRoomsNum;
     },
-
     getCurChatId: state => () => {
       return state.curRoomId;
     },

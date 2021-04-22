@@ -3819,7 +3819,6 @@ export default {
             haveNewMsg: false,
             sendingList: [],
             isMute: false,
-            txnId2EventId: {},
             transmitNeedAlert: false,
             curOperate: "",
             imgTimeLineSet: undefined,
@@ -4052,7 +4051,6 @@ export default {
             }
             this.newMsgNum = 0;
             this.curChat = this.chat;
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             this.initSearchKey = '';
             this.inviterInfo = undefined;
             this.isInvite = false;
@@ -4065,16 +4063,24 @@ export default {
             this.CloseFileListPage();
             this.multiToolsClose();
             console.log("chat ============", this.chat);
-            console.log("this.sendingList is ", this.sendingList);
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
-            let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
+            let messageListTmp = this.chat.timeline;
             this.messageList = [];
-            for(var i=messageListTmp.length - 1;i>0;i--){
+            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+            for(let i=messageListTmp.length - 1;i>0;i--){
+                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+                if(exitEventIndex >= 0) {
+                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
+                }
                 if(this.messageFilter(messageListTmp[i])){
                     this.messageList.unshift(messageListTmp[i]);
                 }
+            }
+            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+            for(let i=this.sendingList.length - 1;i>0;i--){
+                this.messageList.unshift(this.sendingList[i]);
             }
 
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
@@ -4114,7 +4120,6 @@ export default {
                 this.newMsgNum = 0;
                 this.haveNewMsg = false;
                 this.curGroupId = this.curChat.roomId;
-                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
                 console.log("***1 searchKeyFromList")
                 this.CloseSearchPage();
                 this.CloseFileListPage();
@@ -4132,7 +4137,6 @@ export default {
                 this.inviterInfo = undefined;
                 this.newMsgNum = 0;
                 this.haveNewMsg = false;
-                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
@@ -4140,10 +4144,21 @@ export default {
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 
-                let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                this.messageList = messageListTmp;
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+                for(let i=messageListTmp.length - 1;i>0;i--){
+                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
+                    }
+                    if(this.messageFilter(messageListTmp[i])){
+                        this.messageList.unshift(messageListTmp[i]);
+                    }
+                }
+                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=this.sendingList.length - 1;i>0;i--){
+                    this.messageList.unshift(this.sendingList[i]);
+                }
                 
-
                 this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
                 this.needScrollTop = true;
                 this.needScrollBottom = true;
