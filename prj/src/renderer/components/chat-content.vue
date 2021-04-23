@@ -2135,8 +2135,8 @@ export default {
       let isOtherDomain = matrix_id => {
         let idSplitInfo = matrix_id.split(":");
         let idDomainKey = idSplitInfo.pop();
-        console.log("curDomainKey ", curDomainKey);
-        console.log("idDomainKey ", idDomainKey);
+        // console.log("curDomainKey ", curDomainKey);
+        // console.log("idDomainKey ", idDomainKey);
         if(curDomainKey == idDomainKey) return false;
         else return true;
       }
@@ -3316,7 +3316,7 @@ export default {
             if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
               if(!item.isRedacted()) {
                 distItem = item;
-                return;
+                return[undefined, undefined];
               }
             }
           })

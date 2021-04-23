@@ -1661,23 +1661,43 @@ app.on('browser-window-focus', () => {
           content.paste();
         })
         globalShortcut.register('CommandOrControl+W', () => {
-          mainWindow.hide();
+          if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+            assistWindow.hide();
+          }
+          else {
+            mainWindow.hide();
+          }
         })
         globalShortcut.register('CommandOrControl+Q', () => {
           app.quit();
         })
         globalShortcut.register('CommandOrControl+M', () => {
-          mainWindow.minimize();
+          if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+            assistWindow.minimize();
+          }
+          else {
+            mainWindow.minimize();
+          }
         })
         globalShortcut.register('CommandOrControl+H', () => {
-          mainWindow.hide();
+          if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+            assistWindow.hide();
+          }
+          else {
+            mainWindow.hide();
+          }
         })
     }
   }
   else if(process.platform == 'win32') {
     if(mainWindow != undefined) {
       globalShortcut.register('Escape', () => {
-        mainWindow.hide();
+        if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+          assistWindow.hide();
+        }
+        else {
+          mainWindow.hide();
+        }
       })
     }
   }
