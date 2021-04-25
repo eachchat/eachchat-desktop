@@ -65,7 +65,6 @@
         "AppImage",
         "deb"
       ],
-      "icon": "./static/Img/Main/logo@6x.png",
       "extraResources": [
         {
           "from": "./extralib/libcrypto.so",
