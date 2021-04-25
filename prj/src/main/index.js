@@ -136,6 +136,7 @@ let countTmp = 1;
 let clickQuit = false;
 
 function checkTrayLeave() {
+  if(!noticeWindow) return;
   clearInterval(leaveInter);
   leaveInter = setInterval(() => {
     trayBounds = appIcon.getBounds();
@@ -157,6 +158,7 @@ const winURL = process.env.NODE_ENV === 'development'
 
 const ipcMain = require('electron').ipcMain;
 ipcMain.on('showMainPageWindow', function(event, arg) {
+  if(!mainWindow) return;
   isLogin = true;
   mainWindow.hide();
   mainWindow.setResizable(true);
@@ -172,6 +174,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   appIcon = new Tray(iconPath);
 
   appIcon.on('mouse-move', function(event, position){
+    if(!noticeWindow) return;
     if(process.platform == "win32") {
       if(isLeave) {
         console.log("=========noticewindowdinfo ", noticeInfo)
@@ -213,6 +216,14 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
         clearFlashIconTimer();
         setImgToNormalIcon();
         ipcMain.removeAllListeners();
+        
+        mainWindow = null;
+        noticeWindow = null;
+        assistWindow = null;
+        soloPage = null;
+        favouriteDetailWindow = null;
+        reportRelationWindow = null;
+        
         app.quit();
       }
     }
@@ -284,6 +295,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
 });
 
 ipcMain.on('checkClick', function(event, ids) {
+  if(!mainWindow) return;
   mainWindow.show();
   mainWindow.focus();
   if(ids.length == 1) {
@@ -295,6 +307,7 @@ ipcMain.on('checkClick', function(event, ids) {
 })
 
 ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
+  if(!noticeWindow) return;
   noticeWindowKeepShow = arg;
   if(!arg && isLeave) {
     noticeWindow.hide();
@@ -302,7 +315,7 @@ ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
 })
 
 ipcMain.on("updateTrayNotice", function(event, arg) {
-  if(process.platform == "win32") {
+  if(process.platform == "win32" && noticeWindow) {
     noticeInfo = arg;
     noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
     noticeWindow.setSize(240, noticeHeight);
@@ -314,6 +327,7 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
 })
 
 ipcMain.on("updateUnreadCount", function(event, arg) {
+  if(!mainWindow) return;
   console.log("==========arg ", arg);
   if(process.platform == 'darwin' && arg != null){
     if(arg == 0) {
@@ -345,10 +359,12 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
 })
 
 ipcMain.on("token-expired", function(event, arg) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("toLogout");
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
+  if(!mainWindow) return;
   isLogin = false;
   clearFlashIconTimer();
   setImgToNormalIcon()
@@ -497,32 +513,38 @@ ipcMain.on('showAnotherWindow', function(event, msgListInfo, path) {
 });
 
 ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
+  if(!soloPage) return;
   soloPage.webContents.send("searchAddedMembers", selectedGroupIds);
   soloPage.focus();
 })
 
 ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
+  if(!soloPage) return;
   soloPage.webContents.send("searchAddedSenders", selectedSenderIds);
   soloPage.focus();
 })
 
 ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("SearchAddSenders", selectedSenderIds);
   mainWindow.focus();
 })
 
 ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("SearchAddGroup", selectedGroupIds);
   mainWindow.focus();
 })
 
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
+  if(!mainWindow) return;
   console.log("=============== ", transmitInfoStr);
   mainWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
   mainWindow.focus();
 })
 
 ipcMain.on("favourite-update-chatlist", function(event, newMsgInfo) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
 })
 
@@ -535,15 +557,18 @@ ipcMain.on('AnotherMin', function(event, arg) {
 });
 
 ipcMain.on('imageViewerFav', function(event, toFavEvent) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("toFavImageViewer", toFavEvent);
 });
 
 ipcMain.on('imageViewerTransmit', function(event, toTransmitEvent) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("toTransmitImageViewer", toTransmitEvent);
   mainWindow.focus();
 });
 
 ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
+  if(!assistWindow) return;
   console.log("=======showImageViewWindow")
   // assistWindow.webContents.on('did-finish-load', function() {
   assistWindow.webContents.send("timelines", imageInfos, distImageInfo, screenSize);
@@ -553,6 +578,7 @@ ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
 })
 
 ipcMain.on('showPersonalImageViewWindow', function(event, url) {
+  if(!assistWindow) return;
   console.log("=======showPersonalImageViewWindow")
   // assistWindow.webContents.on('did-finish-load', function() {
   assistWindow.webContents.send("personalUrl", url, screenSize);
@@ -562,6 +588,7 @@ ipcMain.on('showPersonalImageViewWindow', function(event, url) {
 })
 
 ipcMain.on('leaveGroup', function(event, roomId) {
+  if(!mainWindow) return;
   mainWindow.webContents.send("roLeaveRoom", roomId);
 })
 
@@ -1291,6 +1318,7 @@ ipcMain.on('modifyGroupImg', function(event, arg) {
 });
 
 ipcMain.on('win-close', function(event, arg) {
+  if(!mainWindow) return;
   mainWindow.blur();
   mainWindow.hide();
 });
@@ -1302,7 +1330,7 @@ ipcMain.on('win-min', function(event, arg) {
 
 ipcMain.on('win-max', function(event, arg) {
   console.log("=====index win-max");
-  if(process.platform == 'darwin') {
+  if(mainWindow && process.platform == 'darwin') {
     mainWindow.webContents.send("setIsFullScreen", true);
     mainWindow.setFullScreen(true);
     mainWindow.setMinimizable(true);
@@ -1330,10 +1358,12 @@ ipcMain.on('win-max', function(event, arg) {
 });
 
 ipcMain.on('image-win-close', function(event, arg) {
+  if(!assistWindow) return;
   assistWindow.hide();
 });
 
 ipcMain.on('image-win-min', function(event, arg) {
+  if(!assistWindow) return;
   assistWindow.minimize();
 });
 
@@ -1347,7 +1377,7 @@ ipcMain.on('image-win-max', function(event, arg) {
 });
 
 ipcMain.on('login-win-close', function(event, arg) {
-  if(process.platform == 'linux' || process.platform == "darwin") {
+  if(mainWindow && (process.platform == 'linux' || process.platform == "darwin")) {
     mainWindow.hide();
   }
   else {
@@ -1357,10 +1387,12 @@ ipcMain.on('login-win-close', function(event, arg) {
 });
 
 ipcMain.on('login-win-min', function(event, arg) {
+  if(!mainWindow) return;
   mainWindow.minimize();
 });
 
 ipcMain.on('login-win-max', function(event, arg) {
+  if(!mainWindow) return;
   if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
   }
@@ -1430,7 +1462,7 @@ function createWindow () {
     }
   }
   else if(process.platform == 'win32') {
-    if(mainWindow != undefined && mainWindow.isFocused()) {
+    if(mainWindow && mainWindow.isFocused()) {
       globalShortcut.register('Escape', () => {
         mainWindow.hide();
       })
@@ -1461,6 +1493,7 @@ function createWindow () {
   })
 
   assistWindow.on('maximize', (event) => {
+    if(!assistWindow) return;
     console.log("maximize")
     assistWindow.webContents.send("isNormal", false);
   })
@@ -1538,7 +1571,7 @@ ipcMain.on("openDevTools", function(event) {
 function openDevToolsInDevelopment(mainWindow) {
 
   // Open dev tools initially when in development mode
-  if (process.env.NODE_ENV === "development") {
+  if (mainWindow && process.env.NODE_ENV === "development") {
     mainWindow.webContents.on("did-frame-finish-load", () => {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
@@ -1579,7 +1612,7 @@ function openDevToolsInDevelopment(mainWindow) {
     event.preventDefault();
   })
   mainWindow.on('will-resize', (event) => {
-    if(process.platform == 'darwin'){
+    if(mainWindow && process.platform == 'darwin'){
       mainWindow.webContents.send("setIsFullScreen", false);
       mainWindow.setWindowButtonVisibility(false);
     }
@@ -1597,11 +1630,13 @@ function openDevToolsInDevelopment(mainWindow) {
 
   mainWindow.on('unmaximize', (event) => {
     console.log("unmaximize")
+    if(!mainWindow) return;
     mainWindow.webContents.send("isNormal", true);
   })
 
   mainWindow.on('maximize', (event) => {
     console.log("maximize")
+    if(!mainWindow) return;
     mainWindow.webContents.send("isNormal", false);
     mainWindow.webContents.send("reCalcuate");
   })
@@ -1649,49 +1684,16 @@ app.on('browser-window-blur', () => {
 })
 
 app.on('browser-window-focus', () => {
-  if(mainWindow != undefined) {
-    mainWindow.webContents.send("isFocuse");
-  }
-
+  if(!mainWindow) return;
+  
+  mainWindow.webContents.send("isFocuse");
   mainWindow.webContents.send("setFocuse");
   if(process.platform == 'darwin') {
-    if(mainWindow != undefined) {
-        let content = mainWindow.webContents;
-        globalShortcut.register('CommandOrControl+V', () => {
-          content.paste();
-        })
-        globalShortcut.register('CommandOrControl+W', () => {
-          if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
-            assistWindow.hide();
-          }
-          else {
-            mainWindow.hide();
-          }
-        })
-        globalShortcut.register('CommandOrControl+Q', () => {
-          app.quit();
-        })
-        globalShortcut.register('CommandOrControl+M', () => {
-          if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
-            assistWindow.minimize();
-          }
-          else {
-            mainWindow.minimize();
-          }
-        })
-        globalShortcut.register('CommandOrControl+H', () => {
-          if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
-            assistWindow.hide();
-          }
-          else {
-            mainWindow.hide();
-          }
-        })
-    }
-  }
-  else if(process.platform == 'win32') {
-    if(mainWindow != undefined) {
-      globalShortcut.register('Escape', () => {
+      let content = mainWindow.webContents;
+      globalShortcut.register('CommandOrControl+V', () => {
+        content.paste();
+      })
+      globalShortcut.register('CommandOrControl+W', () => {
         if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
           assistWindow.hide();
         }
@@ -1699,12 +1701,41 @@ app.on('browser-window-focus', () => {
           mainWindow.hide();
         }
       })
-    }
+      globalShortcut.register('CommandOrControl+Q', () => {
+        app.quit();
+      })
+      globalShortcut.register('CommandOrControl+M', () => {
+        if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+          assistWindow.minimize();
+        }
+        else {
+          mainWindow.minimize();
+        }
+      })
+      globalShortcut.register('CommandOrControl+H', () => {
+        if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+          assistWindow.hide();
+        }
+        else {
+          if(!mainWindow) return;
+          mainWindow.hide();
+        }
+      })
+  }
+  else if(process.platform == 'win32') {
+    // globalShortcut.register('Escape', () => {
+    //   if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+    //     assistWindow.hide();
+    //   }
+    //   else {
+    //     mainWindow.hide();
+    //   }
+    // })
   }
 })
 
 app.on('activate', () => {
-  if(isLogin) {
+  if(isLogin && mainWindow) {
     mainWindow.show();
     mainWindow.webContents.send("setFocuse");
   }
