@@ -351,20 +351,40 @@ export default {
             this.isBindEmailSetAddressPage = true;
         },
 
-        toBindAlipay: function(){
+        toBindAlipay(){
 
         },
 
-        unBindAlipay: function(){
+        unBindAlipay(){
 
         },
 
-        toBindWechat: function(){
+        toBindWechat(){
 
         },
 
-        unBindWechat: function(){
+        unBindWechat(){
 
+        },
+
+        async checkAlipayBind(){
+            global.services.common.getBindType("alipay").then(res => {
+                if(res && res.status == 200){
+                    this.bAlipay = true;
+                }
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+
+        async checkWechatBind(){
+            global.services.common.getBindType("weixin").then(res => {
+                if(res && res.status == 200){
+                    this.bWechat = true;
+                }
+            }).catch(e => {
+                console.log(e)
+            });
         },
 
         toBindPhone: function() {
@@ -410,6 +430,9 @@ export default {
         var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
         var userName = ComponentUtil.GetDisplayName("", userId);
         this.ownerAccount = userName;
+
+        this.checkAlipayBind();
+        this.checkWechatBind();
     },
     watch: {
         needUpdate: async function() {

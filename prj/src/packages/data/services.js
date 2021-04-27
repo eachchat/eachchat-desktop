@@ -2750,6 +2750,19 @@ const common = {
     console.log("============== response is ", response);
     return response;
   },
+
+  async getBindType(type){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind/status", 
+        {
+          bind_type: type
+        },
+        {
+          headers:{
+            Authorization: "Bearer " + this.data.login.access_token
+          }
+        });
+  }
 };
 
 const cache = {
