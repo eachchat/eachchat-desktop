@@ -590,6 +590,7 @@ export default {
             this.isSerach = false;
             if(this.searchKeyFromList.length != 0) {
                 this.HistorySearchRoomId = "";
+                this.$emit("CloseSearchPage")
                 // this.initMessage();
             }
         },
@@ -4059,7 +4060,7 @@ export default {
             this.isJumpPage = false;
             this.curGroupId = this.chat.roomId;
             console.log("***1 chat")
-            this.CloseSearchPage();
+            this.isSerach = false;
             this.CloseFileListPage();
             this.multiToolsClose();
             console.log("chat ============", this.chat);
@@ -4121,7 +4122,7 @@ export default {
                 this.haveNewMsg = false;
                 this.curGroupId = this.curChat.roomId;
                 console.log("***1 searchKeyFromList")
-                this.CloseSearchPage();
+                this.isSerach = false;
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 this.needScrollTop = true;
@@ -4140,7 +4141,7 @@ export default {
                 this.isInvite = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
-                this.CloseSearchPage();
+                this.isSerach = false;
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 
@@ -4196,7 +4197,7 @@ export default {
                 this.newMsgNum = 0;
                 this.haveNewMsg = false;
                 this.curGroupId = this.curChat.roomId;
-                this.CloseSearchPage();
+                this.isSerach = false;
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 this.needScrollTop = true;
@@ -4215,7 +4216,7 @@ export default {
                 this.haveNewMsg = false;
                 this.isJumpPage = false;
                 this.curGroupId = this.curChat.roomId;
-                this.CloseSearchPage();
+                this.isSerach = false;
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 

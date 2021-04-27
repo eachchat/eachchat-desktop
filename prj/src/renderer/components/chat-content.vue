@@ -259,7 +259,7 @@
           <div class="win-header-white" v-show="isMsgSearch">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" :updateRoomStata="updateRoomStata" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom"></ChatPage>
+          <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" :updateRoomStata="updateRoomStata" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom" @CloseSearchPage = "CloseSearchPage"></ChatPage>
         </div>
       </div>
       <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
@@ -751,6 +751,10 @@ export default {
     };
   },
   methods: {
+    CloseSearchPage(){
+      this.searchChat = undefined;
+    },
+
     setRemovedTab(ev) {
       console.log('-----setRemovedTab-----', ev)
       const roomId = ev.event.room_id;
@@ -3443,7 +3447,6 @@ export default {
       this.isMsgSearch = searchKey.length == 0 ? false : true;
       if(this.isMsgSearch) {
         this.isEmpty = false;
-        var isSecret = false;
         this.searchKeyFromList = searchKey;
         this.searchChat = chatGroup;
         this.showGroupIconName();
@@ -3460,7 +3463,6 @@ export default {
         this.oldElementGroupDiv = SaveCharGroupDivElement(this.oldElementGroupDiv);
         */
         this.isEmpty = false;
-        var isSecret = false;
 
         if(this.curChat != undefined && this.curChat.roomId != undefined) {
           var charRef = this.$refs.chatPageRef;
