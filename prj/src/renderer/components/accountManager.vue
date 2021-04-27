@@ -26,14 +26,14 @@
                     <label class="emailBinded" v-show="emailAddress.length != 0">{{emailAddress}}</label>
                 </li>
                 <li class="emailBind">
-                    <img class="emailBindImg" src="../../../static/Img/Setup/wechat.png">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/wechat@2x.png">
                     <label class="emailBindLabel">微信</label>
                     <label class="emailBindBtn" @click="toBindWechat" v-show="!bWechat">绑定</label>
                     <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bWechat" @click="unBindWechat">
                     <label class="emailBinded" v-show="bWechat">已绑定</label>
                 </li>
                 <li class="emailBind">
-                    <img class="emailBindImg" src="../../../static/Img/Setup/alipay.png">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/alipay@2x.png">
                     <label class="emailBindLabel">支付宝</label>
                     <label class="emailBindBtn" @click="toBindAlipay" v-show="!bAlipay">绑定</label>
                     <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bAlipay" @click="unBindAlipay">
