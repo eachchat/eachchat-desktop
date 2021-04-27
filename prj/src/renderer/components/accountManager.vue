@@ -25,6 +25,20 @@
                     <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="emailAddress.length != 0" @click="unBindEmail">
                     <label class="emailBinded" v-show="emailAddress.length != 0">{{emailAddress}}</label>
                 </li>
+                <li class="emailBind">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/wechat.png">
+                    <label class="emailBindLabel">微信</label>
+                    <label class="emailBindBtn" @click="toBindWechat" v-show="!bWechat">绑定</label>
+                    <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bWechat" @click="unBindWechat">
+                    <label class="emailBinded" v-show="bWechat">已绑定</label>
+                </li>
+                <li class="emailBind">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/alipay.png">
+                    <label class="emailBindLabel">支付宝</label>
+                    <label class="emailBindBtn" @click="toBindAlipay" v-show="!bAlipay">绑定</label>
+                    <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bAlipay" @click="unBindAlipay">
+                    <label class="emailBinded" v-show="bAlipay">已绑定</label>
+                </li>
             </ul>
             <div class="accountManagerContentPageBind" v-show="isBindPhoneSetNumPage">
                 <label class="toSetAddressLabel">{{toSetAddressLabel}}</label>
@@ -104,6 +118,8 @@ export default {
             clientSecret: '',
             contentElement: undefined,
             dlgElement: undefined,
+            bAlipay: false,
+            bWechat: false
         }
     },
     methods: {
@@ -334,6 +350,23 @@ export default {
             this.isMainPage = false;
             this.isBindEmailSetAddressPage = true;
         },
+
+        toBindAlipay: function(){
+
+        },
+
+        unBindAlipay: function(){
+
+        },
+
+        toBindWechat: function(){
+
+        },
+
+        unBindWechat: function(){
+
+        },
+
         toBindPhone: function() {
             if(this.dlgElement == undefined) {
                 this.dlgElement = document.getElementById("accountManagerDlgId");
@@ -423,7 +456,7 @@ export default {
         right: 0;
         margin: auto;
         width: 440px;
-        height: 200px;
+        height: 294px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -600,7 +633,7 @@ export default {
     }
 
     .emailBindLabel {
-        width: 36px;
+        width: 50px;
         height: 20px;
         font-size:14px;
         font-family: PingFangSC-Regular;
