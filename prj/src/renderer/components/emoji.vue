@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="emojiDiv">
       <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" :style="{fontSize: ind % 2 ? fontSize : null,
         paddingLeft: '1px', paddingRight: '1px'}">{{item}}</span>
     </div>

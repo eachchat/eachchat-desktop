@@ -756,7 +756,7 @@ export default {
     },
 
     setRemovedTab(ev) {
-      console.log('-----setRemovedTab-----', ev)
+      // console.log('-----setRemovedTab-----', ev)
       const roomId = ev.event.room_id;
       let removedRoomIds = localStorage.getItem('removedRoomIds');
       if (!removedRoomIds) return;
