@@ -3842,6 +3842,11 @@ export default {
     justify-content: center;
     align-items: center;  
     position: relative;
+    -webkit-app-region: drag;
+  }
+  * {
+      
+      -webkit-app-region: no-drag;
   }
 
   .chat-empty-bg {
@@ -3899,6 +3904,11 @@ export default {
     display: block;
     margin-top: 12.5px;
     margin-bottom: 7.5px;
+    -webkit-app-region: drag;
+  }
+  * {
+      
+      -webkit-app-region: no-drag;
   }
 
   .chat-label {

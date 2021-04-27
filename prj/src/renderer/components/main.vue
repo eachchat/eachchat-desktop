@@ -910,6 +910,11 @@ export default {
         padding: 0px;
         margin-top: 0px;
         background: rgba(74, 76, 91, 1);
+        -webkit-app-region: drag;
+    }
+    * {
+        
+        -webkit-app-region: no-drag;
     }
 
     .navigate-panel {
