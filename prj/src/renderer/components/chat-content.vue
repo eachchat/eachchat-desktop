@@ -1821,7 +1821,6 @@ export default {
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
-        var isSecret = false;
 
         this.menu = new Menu();
         let unread = groupItem.getUnreadNotificationCount();
@@ -3490,11 +3489,6 @@ export default {
         ipcRenderer.send("stopFlash");
 
         this.curindex = index;
-        isSecret = false;
-        if(this.curChat.key_id != undefined && this.curChat.key_id.length != 0 && this.curChat.group_type == 102) {
-          isSecret = true;
-        }
-
         this.showGroupIconName(this.curChat);
         this.$store.commit("setCurChatId", this.curChat.roomId);
 
