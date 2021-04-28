@@ -119,8 +119,8 @@ export default {
             clientSecret: '',
             contentElement: undefined,
             dlgElement: undefined,
-            bAlipay: false,
-            bWechat: false
+            bAlipay: true,
+            bWechat: true
         }
     },
     methods: {
@@ -354,7 +354,7 @@ export default {
 
         toBindAlipay(){
             ipcRenderer.send("createChildWindow", {type: "thirdpartywindow",
-                size:{width:567,height: 474},
+                size:{width:667,height: 600},
                 browserViewUrl: 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2021001195665067&scope=auth_user&redirect_uri=ENCODED_URL&state=init'})
         },
 
@@ -376,6 +376,7 @@ export default {
                     this.bAlipay = true;
                 }
             }).catch(e => {
+                this.bAlipay = false;
                 console.log(e)
             })
         },
@@ -386,6 +387,7 @@ export default {
                     this.bWechat = true;
                 }
             }).catch(e => {
+                this.bWechat = false;
                 console.log(e)
             });
         },
@@ -432,8 +434,10 @@ export default {
         }
         var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
         var userName = ComponentUtil.GetDisplayName("", userId);
-        this.ownerAccount = userName;
+        this.ownerAccount = userName; 
+    },
 
+    created(){
         this.checkAlipayBind();
         this.checkWechatBind();
     },
