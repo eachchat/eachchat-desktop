@@ -354,8 +354,8 @@ export default {
 
         toBindAlipay(){
             ipcRenderer.send("createChildWindow", {type: "thirdpartywindow",
-                                                    size:{width:567,height: 474}
-                                                    })
+                size:{width:567,height: 474},
+                browserViewUrl: 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2021001195665067&scope=auth_user&redirect_uri=ENCODED_URL&state=init'})
         },
 
         unBindAlipay(){

@@ -1560,13 +1560,17 @@ function createWindow () {
   let childRenderWindow = new ChildWindow();
   childRenderWindow.createChildWindow();
   ipcMain.on("createChildWindow", function(event, arg){
+    console.log("createChildWindow-------------", arg)
+    let type = arg.type;
+    let size = arg.size;
+    let browserViewUrl = arg.browserViewUrl;
     if(type == "thirdpartywindow"){
       const pageUrl = process.env.NODE_ENV === 'development'
       ? `http://localhost:9080/#/` + 'thirdpartyBind'
       : `file://${__dirname}/index.html#` + 'thirdpartyBind';
       childRenderWindow.loadUrl(pageUrl);
       childRenderWindow.setWindowSize(size);
-      childRenderWindow.createWebViewWindow('https://www.baidu.com/')
+      childRenderWindow.createWebViewWindow(browserViewUrl)
       childRenderWindow.showWindow();
     }
     childRenderWindow.childWindow.on('close', (event) => {
