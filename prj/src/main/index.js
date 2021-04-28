@@ -3,6 +3,7 @@ import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
+import {ChildWindow} from './childwindow.js'
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('ignore-certificate-errors');
@@ -157,6 +158,7 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 const ipcMain = require('electron').ipcMain;
+
 ipcMain.on('showMainPageWindow', function(event, arg) {
   if(!mainWindow) return;
   isLogin = true;
@@ -1553,6 +1555,28 @@ function createWindow () {
     }
     event.preventDefault();
     soloPage.hide();
+  })
+
+  let childRenderWindow = new ChildWindow();
+  childRenderWindow.createChildWindow();
+  ipcMain.on("createChildWindow", function(event, arg){
+    if(type == "thirdpartywindow"){
+      const pageUrl = process.env.NODE_ENV === 'development'
+      ? `http://localhost:9080/#/` + 'thirdpartyBind'
+      : `file://${__dirname}/index.html#` + 'thirdpartyBind';
+      childRenderWindow.loadUrl(pageUrl);
+      childRenderWindow.setWindowSize(size);
+      childRenderWindow.createWebViewWindow('https://www.baidu.com/')
+      childRenderWindow.showWindow();
+    }
+    childRenderWindow.childWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      childRenderWindow.childWindow.hide();
+    })
   })
 }
 

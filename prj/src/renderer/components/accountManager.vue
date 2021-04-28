@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron';
 import { ComponentUtil } from '../script/component-util';
 import AlertDlg from './alert-dlg.vue'
 const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -352,7 +353,9 @@ export default {
         },
 
         toBindAlipay(){
-
+            ipcRenderer.send("createChildWindow", {type: "thirdpartywindow",
+                                                    size:{width:567,height: 474}
+                                                    })
         },
 
         unBindAlipay(){
@@ -656,7 +659,6 @@ export default {
     }
 
     .emailBindLabel {
-        width: 50px;
         height: 20px;
         font-size:14px;
         font-family: PingFangSC-Regular;
