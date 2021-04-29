@@ -1568,6 +1568,7 @@ function createWindow () {
       const pageUrl = process.env.NODE_ENV === 'development'
       ? `http://localhost:9080/#/` + 'thirdpartyBind'
       : `file://${__dirname}/index.html#` + 'thirdpartyBind';
+      childRenderWindow.setMainWindow(mainWindow);
       childRenderWindow.loadUrl(pageUrl);
       childRenderWindow.setWindowSize(size);
       childRenderWindow.createWebViewWindow(browserViewUrl)
