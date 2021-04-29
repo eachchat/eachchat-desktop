@@ -28,14 +28,14 @@
                 <li class="emailBind">
                     <img class="emailBindImg" src="../../../static/Img/Setup/wechat@2x.png">
                     <label class="emailBindLabel">微信</label>
-                    <label class="emailBindBtn" @click="toBindWechat" v-show="!bWechat">绑定</label>
+                    <label class="emailBindBtn" @click="createWechat" v-show="!bWechat">绑定</label>
                     <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bWechat" @click="unBindWechat">
                     <label class="emailBinded" v-show="bWechat">已绑定</label>
                 </li>
                 <li class="emailBind">
                     <img class="emailBindImg" src="../../../static/Img/Setup/alipay@2x.png">
                     <label class="emailBindLabel">支付宝</label>
-                    <label class="emailBindBtn" @click="toBindAlipay" v-show="!bAlipay">绑定</label>
+                    <label class="emailBindBtn" @click="createAlipay" v-show="!bAlipay">绑定</label>
                     <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bAlipay" @click="unBindAlipay">
                     <label class="emailBinded" v-show="bAlipay">已绑定</label>
                 </li>
@@ -352,22 +352,39 @@ export default {
             this.isBindEmailSetAddressPage = true;
         },
 
-        toBindAlipay(){
+        createAlipay(){
             ipcRenderer.send("createChildWindow", {type: "thirdpartywindow",
                 size:{width:667,height: 600},
                 browserViewUrl: 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2021001195665067&scope=auth_user&redirect_uri=ENCODED_URL&state=init'})
         },
 
+        toBindAlipay(e, authcode){
+            global.services.common.auth2Bind("alipay", authcode).then(res => {
+                if(res && res.status == 200){
+                    this.bAlipay = true;
+                }
+            }).catch(e => {
+                this.bAlipay = false;
+                console.log(e)
+            })
+        },
+
         unBindAlipay(){
+            global.services.common.auth2Unbind("alipay");
+            this.bAlipay = false;
+        },
+
+        createWechat(){
 
         },
 
-        toBindWechat(){
+        toBindWechat(e, authcode){
 
         },
 
         unBindWechat(){
-
+            global.services.common.auth2Unbind("weixin");
+            this.bAlipay = false;
         },
 
         async checkAlipayBind(){
@@ -440,6 +457,9 @@ export default {
     created(){
         this.checkAlipayBind();
         this.checkWechatBind();
+        ipcRenderer.on("alipay-authcode", this.toBindAlipay);
+        ipcRenderer.on("wechat-authcode", this.toBindWechat);
+
     },
     watch: {
         needUpdate: async function() {
