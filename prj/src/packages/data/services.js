@@ -2762,6 +2762,12 @@ const common = {
             Authorization: "Bearer " + this.data.login.access_token
           }
         });
+  },
+
+  async getLoginType(){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.get(homeServerUel + "/_matrix/client/r0/login", 
+        {});
   }
 };
 

@@ -1434,7 +1434,7 @@ function createWindow () {
     icon: iconPath,
     title: "亿洽"
   })
-  mainWindow.setResizable(false);
+  mainWindow.setResizable(true);
   mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);

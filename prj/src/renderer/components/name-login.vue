@@ -90,9 +90,15 @@
                     <div class="otherlogin" v-show="true">
                         <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin && false">
                             {{$t("loginThroughSMS")}}
-                        </div><div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin && false">
+                        </div>
+                        <div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin && false">
                             {{$t("loginThroughEmail")}}
                             </div>
+                        <div v-show="bAlipay || bWechat">
+                            <span class = "alipay-wechat-login-font">其他登录方式：</span>
+                            <img src="../../../static/Img/Setup/wechat.png" alt="">
+                            <img src="../../../static/Img/Setup/alipay.png" alt="">
+                        </div>
                     </div>
                     <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
                             <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
@@ -329,6 +335,8 @@ export default {
             backupInfo: null,
             backupSigStatus: null,
             backupKeyStored: null,
+            bAlipay: false,
+            bWechat: false
         }
     },
     computed:{
@@ -645,6 +653,21 @@ export default {
                 console.log("***Set item Domain is ", domain);
                 window.localStorage.setItem("Domain", domain);
             }
+            global.services.common.getLoginType().then(res => {
+                if(res && res.data && res.data.flows){
+                    let types = res.data.flows;
+                    types.forEach(element => {
+                        if(element.type == "m.login.OAuth2.alipay"){
+                            this.bAlipay = true;
+                        }
+                        else if(element.type == "m.login.OAuth2.weixin"){
+                            this.bWechat = true;
+                        }
+                    });
+                }
+            }).catch(e => {
+                console.log(e)
+            })
             var host = "";
             // if(address == undefined || address == null) {
             host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
@@ -1766,9 +1789,7 @@ export default {
             );
         },
     }, 
-    // activated: async function() {
-    //     this.checkHomeServer();
-    // },
+
     mounted: async function() {
         if(window.localStorage) {
             this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
@@ -3366,5 +3387,19 @@ export default {
             height: 18px;
             line-height: 18px;
         }
+    }
+
+    .alipay-wechat-login{
+
+    }
+
+    .alipay-wechat-login-font{
+        width: 84px;
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #666666;
+        line-height: 18px;
     }
 </style>
