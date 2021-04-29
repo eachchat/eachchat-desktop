@@ -2764,6 +2764,47 @@ const common = {
         });
   },
 
+  async auth2Bind(type, authCode){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
+    {
+      bind_type: type,
+      auth_code: authCode
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
+  },
+
+  async auth2Login(type, authCode){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login", 
+    {
+      bind_type: type,
+      auth_code: authCode
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
+  },
+
+  async auth2Unbind(type){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/unbind ", 
+    {
+      bind_type: type
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
+  },
+
   async getLoginType(){
     var homeServerUel = global.localStorage.getItem("mx_hs_url");
     return axios.get(homeServerUel + "/_matrix/client/r0/login", 
