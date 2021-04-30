@@ -72,7 +72,11 @@
 <script>
 import { ipcRenderer } from 'electron';
 import { ComponentUtil } from '../script/component-util';
+import {ThirdPartyLogin} from '../../packages/data/ThirdPartyLogin'
 import AlertDlg from './alert-dlg.vue'
+import log from 'electron-log';
+
+
 const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export default {
     name: 'AccountManager',
@@ -353,12 +357,11 @@ export default {
         },
 
         createAlipay(){
-            ipcRenderer.send("createChildWindow", {type: "thirdpartywindow",
-                size:{width:667,height: 600},
-                browserViewUrl: 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2021001195665067&scope=auth_user&redirect_uri=ENCODED_URL&state=init'})
+            ThirdPartyLogin.BindCreateAlipay();
         },
 
         toBindAlipay(e, authcode){
+			log.info("toBindAlipay authcode:" + authcode);
             global.services.common.auth2Bind("alipay", authcode).then(res => {
                 if(res && res.status == 200){
                     this.bAlipay = true;

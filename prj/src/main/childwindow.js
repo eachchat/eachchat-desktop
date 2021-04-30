@@ -1,4 +1,5 @@
 const {BrowserWindow,BrowserView, ipcMain} = require('electron')
+import log from 'electron-log';
 
 class ChildWindow{
     constructor(){
@@ -42,10 +43,7 @@ class ChildWindow{
                                     horizontal: true,
                                     vertical: true});
 
-        this.webView.webContents.loadURL(url).then(res => {
-            console.log("createWebViewWindow------------")
-            console.log(res)
-        });
+        this.webView.webContents.loadURL(url);
         this.webView.webContents.on("did-redirect-navigation", 
         (event, 
         url,
@@ -53,9 +51,12 @@ class ChildWindow{
         isMainFrame,
         frameProcessId,
         frameRoutingId) =>{
-            console.log("did-redirect-navigation")
-            console.log(url)
-            this.mainWindow.webContents.send("alipay-authcode", url);
+            log.info("did-redirect-navigation: " + url)
+            let nIndex = url.indexOf("auth_code=");
+            if(nIndex == -1) return;
+            let authCode = url.slice(nIndex + 10);
+            this.mainWindow.webContents.send("alipay-authcode", authCode);
+            this.childWindow.hide();
         })
     }
 

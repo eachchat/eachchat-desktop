@@ -96,8 +96,8 @@
                             </div>
                         <div v-show="bAlipay || bWechat">
                             <span class = "alipay-wechat-login-font">其他登录方式：</span>
-                            <img src="../../../static/Img/Setup/wechat.png" alt="">
-                            <img src="../../../static/Img/Setup/alipay.png" alt="">
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/wechat.png" @click="showWechatLogin">
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/alipay.png" @click="showAlipayLogin">
                         </div>
                     </div>
                     <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
@@ -243,6 +243,8 @@ import log from 'electron-log';
 import AlertDlg from './alert-dlg.vue'
 import { windowsStore } from 'process';
 import * as Matrix from 'matrix-js-sdk';
+import {ThirdPartyLogin} from '../../packages/data/ThirdPartyLogin.js'
+
 export default {
     name: 'login',
     components:{
@@ -373,6 +375,13 @@ export default {
         }
     },
     methods: {
+        showWechatLogin(){
+        },
+
+        showAlipayLogin(){
+            ThirdPartyLogin.createAlipay();
+        },
+
         isWindows() {
             return environment.os.isWindows || environment.os.isLinux;
         },
@@ -3401,5 +3410,9 @@ export default {
         font-weight: 400;
         color: #666666;
         line-height: 18px;
+    }
+
+    .alipay-wechat-img{
+        vertical-align: middle;
     }
 </style>
