@@ -636,6 +636,26 @@ class _MatrixClientPeg{
         return this.matrixClient;
     }
 
+    async LoginWithAuth2(data){
+        let ops = {
+          baseUrl: data["well_known"]["m.homeserver"]["base_url"],
+          userId: data.user_id,
+          accessToken: data.access_token,
+          deviceId: data.device_id,
+          cryptoCallbacks: {},
+          timelineSupport: true,
+          unstableClientRelationAggregation: true,
+        }
+      Object.assign(ops.cryptoCallbacks, crossSigningCallbacks);
+      this.matrixClient = this._CreateMatrixClient(ops);
+      DMRoomMap.makeShared().start();
+
+      await this.matrixClient.initCrypto();
+      await this.matrixClient.store.startup();
+      DeviceListener.sharedInstance().start();
+      return this.matrixClient;
+    }
+
     ensureMediaConfigFetched() {
       if (this.mediaConfig !== null) return;
 

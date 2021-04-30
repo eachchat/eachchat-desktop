@@ -338,6 +338,7 @@ export default {
             backupSigStatus: null,
             backupKeyStored: null,
             bAlipay: false,
+            sAlipayAuthcode: '',
             bWechat: false
         }
     },
@@ -380,6 +381,32 @@ export default {
 
         showAlipayLogin(){
             ThirdPartyLogin.createAlipay();
+        },
+
+        async loginWithAlipayAuthcode(){
+            let res;
+            try {
+                res = await global.services.common.auth2Login("m.login.OAuth2.alipay" ,this.sAlipayAuthcode);
+                
+            } catch (error) {
+                console.log(error)
+                return;            
+            }
+            if(res.status != 200) return;
+  
+            let matrix = await global.mxMatrixClientPeg.LoginWithAuth2(res.data); 
+            if(matrix) ipcRenderer.removeListener("alipay-authcode", this.getAlipayAuthcode);
+
+            this.loginButtonDisabled = false;
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+
+        getAlipayAuthcode(e, authcode){
+            log.info("getAlipayAuthcode authcode:" + authcode);
+            this.sAlipayAuthcode = authcode;
+            this.loginWithAlipayAuthcode();
         },
 
         isWindows() {
@@ -1510,6 +1537,7 @@ export default {
             this.isLoading = false;
             this.loginButtonDisabled = false;
         },
+
         ldapLogin: async function() {
             if(this.isEmpty(this.username)){
                 var accountInputDom = document.getElementById("accountInputId");
@@ -1800,6 +1828,8 @@ export default {
     }, 
 
     mounted: async function() {
+        ipcRenderer.on("alipay-authcode", this.getAlipayAuthcode)
+
         if(window.localStorage) {
             this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
         }

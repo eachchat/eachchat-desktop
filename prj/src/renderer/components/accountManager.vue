@@ -357,11 +357,11 @@ export default {
         },
 
         createAlipay(){
-            ThirdPartyLogin.BindCreateAlipay();
+            ThirdPartyLogin.createAlipay();
         },
 
         toBindAlipay(e, authcode){
-			log.info("toBindAlipay authcode:" + authcode);
+			log.info("accountmanager toBindAlipay authcode:" + authcode);
             global.services.common.auth2Bind("alipay", authcode).then(res => {
                 if(res && res.status == 200){
                     this.bAlipay = true;

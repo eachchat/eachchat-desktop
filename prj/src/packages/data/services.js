@@ -2782,13 +2782,8 @@ const common = {
     var homeServerUel = global.localStorage.getItem("mx_hs_url");
     return axios.post(homeServerUel + "/_matrix/client/r0/login", 
     {
-      bind_type: type,
+      type: type,
       auth_code: authCode
-    },
-    {
-      headers:{
-        Authorization: "Bearer " + this.data.login.access_token
-      }
     });
   },
 
