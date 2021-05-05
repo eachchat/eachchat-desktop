@@ -7,7 +7,7 @@ class ChildWindow{
         this.webView = undefined;
     }
 
-    createChildWindow(){
+    createChildWindow(iconPath){
         this.childWindow = new BrowserWindow({     
             resizable: true,
             webPreferences: {
@@ -16,7 +16,8 @@ class ChildWindow{
                 enableRemoteModule: true
             },
             show: false,
-            frame:true
+            frame:true,
+            icon: iconPath,
         });
     }
 
@@ -56,6 +57,8 @@ class ChildWindow{
             if(nIndex == -1) return;
             let authCode = url.slice(nIndex + 10);
             this.mainWindow.webContents.send("alipay-authcode", authCode);
+            this.webView.webContents.clearHistory();
+            this.webView.webContents.session.clearCache();
             this.childWindow.hide();
         })
     }
