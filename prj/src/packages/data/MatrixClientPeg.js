@@ -404,7 +404,6 @@ class _MatrixClientPeg{
     _CreateMatrixClient(opts) {
         let indexedDB = window.indexedDB;
         let localStorage = window.localStorage;
-        localStorage.setItem("mx_hs_url", opts.baseUrl);
         localStorage.setItem("mx_user_id", opts.userId);
         localStorage.setItem("mx_access_token", opts.accessToken);
         localStorage.setItem("mx_device_id", opts.deviceId);
