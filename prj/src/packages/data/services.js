@@ -2766,6 +2766,7 @@ const common = {
 
   async auth2Bind(type, authCode){
     var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    let accessToken = localStorage.getItem("mx_access_token");
     return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
     {
       bind_type: type,
@@ -2773,7 +2774,7 @@ const common = {
     },
     {
       headers:{
-        Authorization: "Bearer " + this.data.login.access_token
+        Authorization: "Bearer " + accessToken
       }
     });
   },

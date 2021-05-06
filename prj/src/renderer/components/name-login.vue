@@ -338,8 +338,10 @@ export default {
             backupSigStatus: null,
             backupKeyStored: null,
             bAlipay: false,
+            bBindAlipay: false,
             sAlipayAuthcode: '',
-            bWechat: false
+            bWechat: false,
+            bBindWechat: false,
         }
     },
     computed:{
@@ -377,10 +379,31 @@ export default {
     },
     methods: {
         showWechatLogin(){
+            this.bBindWechat = true;
+            this.bBindAlipay = false;
         },
 
         showAlipayLogin(){
             ThirdPartyLogin.createAlipay();
+            this.bBindAlipay = true;
+            this.bBindWechat = false;
+        },
+
+        showLoginBindView(){
+            ipcRenderer.send("showLoginBindView");
+            this.bAlipay = false;
+            this.bWechat = false;
+            this.loginPageTitle = "绑定 亿洽";
+            this.loginPageTitlellustrate = "请绑定亿恰账号";
+        },
+
+        bindAlipayOrWechat(){
+            if(this.bBindAlipay){
+                global.services.common.auth2Bind("alipay", this.sAlipayAuthcode);
+            }
+            if(this.bBindWechat){
+                global.services.common.auth2Bind("weixin", this.sAlipayAuthcode);
+            }  
         },
 
         async loginWithAlipayAuthcode(){
@@ -390,9 +413,9 @@ export default {
                 
             } catch (error) {
                 console.log(error)
-                return;            
+                this.showLoginBindView();     
             }
-            if(res.status != 200) return;
+            if(!res || res.status != 200) return;
   
             let matrix = await global.mxMatrixClientPeg.LoginWithAuth2(res.data); 
             if(matrix) ipcRenderer.removeListener("alipay-authcode", this.getAlipayAuthcode);
@@ -1532,6 +1555,7 @@ export default {
                 console.log(e)
             }
             this.loginButtonDisabled = false;
+            this.bindAlipayOrWechat();
             console.log(client);
             this.loginToMainPage();
             this.isLoading = false;

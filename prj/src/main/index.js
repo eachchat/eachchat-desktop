@@ -296,6 +296,10 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // setAutoRun(true);
 });
 
+ipcMain.on('showLoginBindView', function(){
+  showMain();
+})
+
 ipcMain.on('checkClick', function(event, ids) {
   if(!mainWindow) return;
   mainWindow.show();
