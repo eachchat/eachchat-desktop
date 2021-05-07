@@ -89,7 +89,6 @@
     "bobolink": "^3.0.0",
     "browser-encrypt-attachment": "^0.3.0",
     "bufferutil": "^4.0.1",
-    "canvasjs": "^1.8.3",
     "chai": "^4.2.0",
     "dotenv": "^8.2.0",
     "electron-log": "^4.2.4",
