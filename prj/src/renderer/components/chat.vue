@@ -64,6 +64,8 @@
                         </div>
                         <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()" v-show="!isSecret">
                         </div>
+                        <div class="chat-screen-shot" id="chat-input-history-id" @click="screenShot()">
+                        </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
@@ -157,6 +159,7 @@
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
         <mxChatTopicDlg v-if="mxChatTopic" @close="mxChatTopicDlgSetting" :roomId="curChat.roomId"></mxChatTopicDlg>
+        <screenShotDlg v-if = 'bShowScreenShotDlg'></screenShotDlg>
         <!-- <mxMemberSelectDlg 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
@@ -211,6 +214,8 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
+import { ScreenShot } from '../../packages/data/screenShot.js';
+import screenShotDlg from "./screen-shot"
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 const {Menu, MenuItem, nativeImage} = remote;
@@ -313,6 +318,7 @@ export default {
         mxHistoryPage,
         mxFilePage,
         mxMemberSelectDlg,
+        screenShotDlg
     },
     methods: {
         closeToBottom() {
@@ -615,6 +621,16 @@ export default {
             this.isScroll = false;
             this.FilelistSearchRoomId = "";
         },
+
+        cancelScreenShot(){
+            console.log("cancelScreenShot")
+            this.bShowScreenShotDlg = false;
+        },
+
+        screenShot(){
+            this.bShowScreenShotDlg = true;
+        },
+
         showMsgHistoryOperate: function() {
             var msgHistoryBtnElement = document.getElementById("chat-input-history-id");
             var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
@@ -3816,6 +3832,7 @@ export default {
     },
     data() {
         return {
+            bShowScreenShotDlg: false,
             newMsgNum: 0,
             haveNewMsg: false,
             sendingList: [],
@@ -4000,6 +4017,9 @@ export default {
                 ipcRenderer.on('checkClipBoard', this.checkClipboard);
                 ipcRenderer.on('toFavImageViewer', this.imageViewerFav);
                 ipcRenderer.on('toTransmitImageViewer', this.imageViewerTransmit);
+                ipcRenderer.on('cancel-screen-shot', this.cancelScreenShot);
+
+                
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
@@ -5062,6 +5082,24 @@ export default {
         height: 24px;
         margin: 8px 6px 8px 6px;
         background-image: url("../../../static/Img/Chat/chatHistory-24px@2x-hover.png");
+        background-size: contain;
+    }
+
+    .chat-screen-shot {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/screenshot.png");
+        background-size: contain;
+    }
+
+    .chat-screen-shot:hover {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/screenshothover.png");
         background-size: contain;
     }
 

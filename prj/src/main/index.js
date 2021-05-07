@@ -1462,9 +1462,10 @@ function createWindow () {
     }
   }
   else if(process.platform == 'win32') {
-    if(mainWindow && mainWindow.isFocused()) {
+    if(mainWindow) {
       globalShortcut.register('Escape', () => {
-        mainWindow.hide();
+        console.log("cancelScreenShot")
+        mainWindow.webContents.send("cancel-screen-shot");
       })
     }
   }
@@ -1671,13 +1672,6 @@ app.on('browser-window-blur', () => {
       }
       if(globalShortcut.isRegistered('CommandOrControl+H')) {
         globalShortcut.unregister('CommandOrControl+H');
-      }
-    }
-  }
-  else if(process.platform == 'win32') {
-    if(mainWindow != undefined) {
-      if(globalShortcut.isRegistered('Escape')) {
-        globalShortcut.unregister('Escape');
       }
     }
   }
