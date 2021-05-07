@@ -5,11 +5,8 @@
 </template>
 
 <script>
-const {desktopCapturer, shell} = require('electron')
+const {desktopCapturer, ipcRenderer, Cookies} = require('electron')
 const {screen} = require('electron').remote
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
 
 export default {
     name:'screenShotDlg',
@@ -46,21 +43,28 @@ export default {
             img.onload = () =>{
                 ctx.drawImage(img, 0, 0);
             }
+        },
+
+        screenShot(){
+            console.log("screenshot func")
+            const thumbSize = this.determineScreenShotSize()
+            let options = { types: ['screen'], thumbnailSize: thumbSize }
+
+            desktopCapturer.getSources(options).then((sources) => {
+                sources.forEach((source) => {
+                    if (source.name === 'Entire Screen' || source.name === 'Screen 1') {
+                        let tmpbmp = source.thumbnail.toBitmap();
+                        this.drowCanvas(tmpbmp);
+                    }
+                })
+            })
         }
     },
 
     mounted(){
-        const thumbSize = this.determineScreenShotSize()
-        let options = { types: ['screen'], thumbnailSize: thumbSize }
-
-        desktopCapturer.getSources(options).then((sources) => {
-            sources.forEach((source) => {
-                if (source.name === 'Entire Screen' || source.name === 'Screen 1') {
-                    let tmpbmp = source.thumbnail.toBitmap();
-                    this.drowCanvas(tmpbmp);
-                }
-            })
-        })
+        console.log("screenshot mount")
+        ipcRenderer.on("screenshot", this.screenShot)
+        this.screenShot();
     },
 
     created(){

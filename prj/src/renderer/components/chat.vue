@@ -159,7 +159,6 @@
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
         <mxChatTopicDlg v-if="mxChatTopic" @close="mxChatTopicDlgSetting" :roomId="curChat.roomId"></mxChatTopicDlg>
-        <screenShotDlg v-if = 'bShowScreenShotDlg'></screenShotDlg>
         <!-- <mxMemberSelectDlg 
             v-if="mxSelectMemberOpen" 
             @close="mxSelectMember"
@@ -214,8 +213,7 @@ import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
 import { models } from '../../packages/data/models.js';
-import { ScreenShot } from '../../packages/data/screenShot.js';
-import screenShotDlg from "./screen-shot"
+import screenShotDlg from "./screenshot"
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 const {Menu, MenuItem, nativeImage} = remote;
@@ -622,13 +620,8 @@ export default {
             this.FilelistSearchRoomId = "";
         },
 
-        cancelScreenShot(){
-            console.log("cancelScreenShot")
-            this.bShowScreenShotDlg = false;
-        },
-
         screenShot(){
-            this.bShowScreenShotDlg = true;
+            ipcRenderer.send("createChildWindow", {type: "screenshotwindow"})
         },
 
         showMsgHistoryOperate: function() {
@@ -3832,7 +3825,6 @@ export default {
     },
     data() {
         return {
-            bShowScreenShotDlg: false,
             newMsgNum: 0,
             haveNewMsg: false,
             sendingList: [],
@@ -4017,8 +4009,6 @@ export default {
                 ipcRenderer.on('checkClipBoard', this.checkClipboard);
                 ipcRenderer.on('toFavImageViewer', this.imageViewerFav);
                 ipcRenderer.on('toTransmitImageViewer', this.imageViewerTransmit);
-                ipcRenderer.on('cancel-screen-shot', this.cancelScreenShot);
-
                 
                 this.editor = this.$refs.chatQuillEditor.quill;
                 console.log(this.$refs.chatQuillEditor);

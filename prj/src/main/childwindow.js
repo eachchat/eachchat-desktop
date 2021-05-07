@@ -1,4 +1,5 @@
 const {BrowserWindow,BrowserView, ipcMain} = require('electron')
+import {globalShortcut} from 'electron'
 import log from 'electron-log';
 
 class ChildWindow{
@@ -19,6 +20,10 @@ class ChildWindow{
             frame:true,
             icon: iconPath,
         });
+    }
+
+    setFullScreen(){
+        this.childWindow.setFullScreen(true);
     }
 
     setWindowSize(size){
@@ -65,10 +70,14 @@ class ChildWindow{
 
     showWindow(){
         this.childWindow.show();
+        this.childWindow.webContents.openDevTools();
     }
 
-    setWebViewUrl(url){
-
+    registerEsc(){
+        globalShortcut.register('Escape', () => {
+            console.log("cancelScreenShot")
+            this.childWindow.hide();
+        })
     }
 }
 
