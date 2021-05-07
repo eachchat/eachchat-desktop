@@ -378,7 +378,7 @@ export default {
         },
 
         createWechat(){
-
+            ThirdPartyLogin.createWechat();
         },
 
         toBindWechat(e, authcode){
