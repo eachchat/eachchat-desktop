@@ -6,6 +6,8 @@ import favourite from '../components/favourite.vue';
 import fileList from '../components/file-list.vue';
 import historyMsg from '../components/history-message.vue';
 import favouriteDetail from '../components/favourite-detail.vue';
+import thirdpartyBind from '../components/thirdpartyBind.vue';
+
 import setup from '../components/setup.vue';
 Vue.use(Router);
 import reportRelationContent from '../components/reportRelationContent.vue';
@@ -63,6 +65,11 @@ export default new Router({
       path:'/favouriteDetail',
       name: "favouriteDetail",
       component: favouriteDetail,
+    },    
+    {
+      path:'/thirdpartyBind',
+      name: "thirdpartyBind",
+      component: thirdpartyBind,
     },    
     {
       path:'/reportRelationContent',

@@ -25,6 +25,20 @@
                     <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="emailAddress.length != 0" @click="unBindEmail">
                     <label class="emailBinded" v-show="emailAddress.length != 0">{{emailAddress}}</label>
                 </li>
+                <li class="emailBind">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/wechat@2x.png">
+                    <label class="emailBindLabel">微信</label>
+                    <label class="emailBindBtn" @click="createWechat" v-show="!bWechat">绑定</label>
+                    <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bWechat" @click="unBindWechat">
+                    <label class="emailBinded" v-show="bWechat">已绑定</label>
+                </li>
+                <li class="emailBind">
+                    <img class="emailBindImg" src="../../../static/Img/Setup/alipay@2x.png">
+                    <label class="emailBindLabel">支付宝</label>
+                    <label class="emailBindBtn" @click="createAlipay" v-show="!bAlipay">绑定</label>
+                    <img class="emailBindedDel" src="../../../static/Img/Setup/del@2x.png" v-show="bAlipay" @click="unBindAlipay">
+                    <label class="emailBinded" v-show="bAlipay">已绑定</label>
+                </li>
             </ul>
             <div class="accountManagerContentPageBind" v-show="isBindPhoneSetNumPage">
                 <label class="toSetAddressLabel">{{toSetAddressLabel}}</label>
@@ -56,8 +70,13 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron';
 import { ComponentUtil } from '../script/component-util';
+import {ThirdPartyLogin} from '../../packages/data/ThirdPartyLogin'
 import AlertDlg from './alert-dlg.vue'
+import log from 'electron-log';
+
+
 const EMAIL_ADDRESS_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export default {
     name: 'AccountManager',
@@ -104,6 +123,8 @@ export default {
             clientSecret: '',
             contentElement: undefined,
             dlgElement: undefined,
+            bAlipay: true,
+            bWechat: true
         }
     },
     methods: {
@@ -334,6 +355,63 @@ export default {
             this.isMainPage = false;
             this.isBindEmailSetAddressPage = true;
         },
+
+        createAlipay(){
+            ThirdPartyLogin.createAlipay();
+        },
+
+        toBindAlipay(e, authcode){
+			log.info("accountmanager toBindAlipay authcode:" + authcode);
+            global.services.common.auth2Bind("alipay", authcode).then(res => {
+                if(res && res.status == 200){
+                    this.bAlipay = true;
+                }
+            }).catch(e => {
+                this.bAlipay = false;
+                console.log(e)
+            })
+        },
+
+        unBindAlipay(){
+            global.services.common.auth2Unbind("alipay");
+            this.bAlipay = false;
+        },
+
+        createWechat(){
+            ThirdPartyLogin.createWechat();
+        },
+
+        toBindWechat(e, authcode){
+
+        },
+
+        unBindWechat(){
+            global.services.common.auth2Unbind("weixin");
+            this.bAlipay = false;
+        },
+
+        async checkAlipayBind(){
+            global.services.common.getBindType("alipay").then(res => {
+                if(res && res.status == 200){
+                    this.bAlipay = true;
+                }
+            }).catch(e => {
+                this.bAlipay = false;
+                console.log(e)
+            })
+        },
+
+        async checkWechatBind(){
+            global.services.common.getBindType("weixin").then(res => {
+                if(res && res.status == 200){
+                    this.bWechat = true;
+                }
+            }).catch(e => {
+                this.bWechat = false;
+                console.log(e)
+            });
+        },
+
         toBindPhone: function() {
             if(this.dlgElement == undefined) {
                 this.dlgElement = document.getElementById("accountManagerDlgId");
@@ -376,7 +454,15 @@ export default {
         }
         var userId = global.mxMatrixClientPeg.matrixClient.getUserId();
         var userName = ComponentUtil.GetDisplayName("", userId);
-        this.ownerAccount = userName;
+        this.ownerAccount = userName; 
+    },
+
+    created(){
+        this.checkAlipayBind();
+        this.checkWechatBind();
+        ipcRenderer.on("alipay-authcode", this.toBindAlipay);
+        ipcRenderer.on("wechat-authcode", this.toBindWechat);
+
     },
     watch: {
         needUpdate: async function() {
@@ -423,7 +509,7 @@ export default {
         right: 0;
         margin: auto;
         width: 440px;
-        height: 200px;
+        height: 294px;
         background: #FFFFFF;
         box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
         border-radius: 4px;
@@ -600,7 +686,6 @@ export default {
     }
 
     .emailBindLabel {
-        width: 36px;
         height: 20px;
         font-size:14px;
         font-family: PingFangSC-Regular;

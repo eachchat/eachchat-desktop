@@ -3,6 +3,7 @@ import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
+import {ChildWindow} from './childwindow.js'
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('ignore-certificate-errors');
@@ -157,6 +158,7 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 const ipcMain = require('electron').ipcMain;
+
 ipcMain.on('showMainPageWindow', function(event, arg) {
   if(!mainWindow) return;
   isLogin = true;
@@ -294,6 +296,10 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // setAutoRun(true);
 });
 
+ipcMain.on('showLoginBindView', function(){
+  showMain();
+})
+
 ipcMain.on('checkClick', function(event, ids) {
   if(!mainWindow) return;
   mainWindow.show();
@@ -388,7 +394,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     mainWindow.center();
     mainWindow.show();
   });
-  mainWindow.setResizable(false);
+  mainWindow.setResizable(true);
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
@@ -1432,7 +1438,8 @@ function createWindow () {
     icon: iconPath,
     title: "亿洽"
   })
-  mainWindow.setResizable(false);
+  //mainWindow.setResizable(false);
+  mainWindow.setResizable(true);
   mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
@@ -1554,6 +1561,37 @@ function createWindow () {
     }
     event.preventDefault();
     soloPage.hide();
+  })
+
+  let childRenderWindow = new ChildWindow();
+  childRenderWindow.createChildWindow(iconPath);
+  ipcMain.on("createChildWindow", function(event, arg){
+    console.log("createChildWindow-------------", arg)
+    let type = arg.type;
+    let size = arg.size;
+    let browserViewUrl = arg.browserViewUrl;
+    if(type == "thirdpartywindow"){
+      const pageUrl = process.env.NODE_ENV === 'development'
+      ? `http://localhost:9080/#/` + 'thirdpartyBind'
+      : `file://${__dirname}/index.html#` + 'thirdpartyBind';
+      childRenderWindow.setMainWindow(mainWindow);
+      childRenderWindow.loadUrl(pageUrl);
+      childRenderWindow.setWindowSize(size);
+      childRenderWindow.createWebViewWindow(browserViewUrl)
+      childRenderWindow.showWindow();
+      if(!isLogin){
+        mainWindow.hide();
+      }
+    }
+    childRenderWindow.childWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      childRenderWindow.childWindow.hide();
+      mainWindow.show();
+    })
   })
 }
 

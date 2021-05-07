@@ -2750,6 +2750,62 @@ const common = {
     console.log("============== response is ", response);
     return response;
   },
+
+  async getBindType(type){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind/status", 
+        {
+          bind_type: type
+        },
+        {
+          headers:{
+            Authorization: "Bearer " + this.data.login.access_token
+          }
+        });
+  },
+
+  async auth2Bind(type, authCode){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    let accessToken = localStorage.getItem("mx_access_token");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
+    {
+      bind_type: type,
+      auth_code: authCode
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + accessToken
+      }
+    });
+  },
+
+  async auth2Login(type, authCode){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login", 
+    {
+      type: type,
+      auth_code: authCode
+    });
+  },
+
+  async auth2Unbind(type){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/unbind ", 
+    {
+      bind_type: type
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
+  },
+
+  async getLoginType(){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.get(homeServerUel + "/_matrix/client/r0/login", 
+        {});
+  }
 };
 
 const cache = {

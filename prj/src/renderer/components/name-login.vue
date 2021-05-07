@@ -90,9 +90,15 @@
                     <div class="otherlogin" v-show="true">
                         <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin && false">
                             {{$t("loginThroughSMS")}}
-                        </div><div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin && false">
+                        </div>
+                        <div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin && false">
                             {{$t("loginThroughEmail")}}
                             </div>
+                        <div v-show="bAlipay || bWechat">
+                            <span class = "alipay-wechat-login-font">其他登录方式：</span>
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/wechat.png" @click="showWechatLogin">
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/alipay.png" @click="showAlipayLogin">
+                        </div>
                     </div>
                     <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
                             <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
@@ -237,6 +243,8 @@ import log from 'electron-log';
 import AlertDlg from './alert-dlg.vue'
 import { windowsStore } from 'process';
 import * as Matrix from 'matrix-js-sdk';
+import {ThirdPartyLogin} from '../../packages/data/ThirdPartyLogin.js'
+
 export default {
     name: 'login',
     components:{
@@ -329,6 +337,11 @@ export default {
             backupInfo: null,
             backupSigStatus: null,
             backupKeyStored: null,
+            bAlipay: false,
+            bBindAlipay: false,
+            sAlipayAuthcode: '',
+            bWechat: false,
+            bBindWechat: false,
         }
     },
     computed:{
@@ -365,6 +378,60 @@ export default {
         }
     },
     methods: {
+        showWechatLogin(){
+            this.bBindWechat = true;
+            this.bBindAlipay = false;
+        },
+
+        showAlipayLogin(){
+            ThirdPartyLogin.createAlipay();
+            this.bBindAlipay = true;
+            this.bBindWechat = false;
+        },
+
+        showLoginBindView(){
+            ipcRenderer.send("showLoginBindView");
+            this.bAlipay = false;
+            this.bWechat = false;
+            this.loginPageTitle = "绑定 亿洽";
+            this.loginPageTitlellustrate = "请绑定亿恰账号";
+        },
+
+        bindAlipayOrWechat(){
+            if(this.bBindAlipay){
+                global.services.common.auth2Bind("alipay", this.sAlipayAuthcode);
+            }
+            if(this.bBindWechat){
+                global.services.common.auth2Bind("weixin", this.sAlipayAuthcode);
+            }  
+        },
+
+        async loginWithAlipayAuthcode(){
+            let res;
+            try {
+                res = await global.services.common.auth2Login("m.login.OAuth2.alipay" ,this.sAlipayAuthcode);
+                
+            } catch (error) {
+                console.log(error)
+                this.showLoginBindView();     
+            }
+            if(!res || res.status != 200) return;
+  
+            let matrix = await global.mxMatrixClientPeg.LoginWithAuth2(res.data); 
+            if(matrix) ipcRenderer.removeListener("alipay-authcode", this.getAlipayAuthcode);
+
+            this.loginButtonDisabled = false;
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+
+        getAlipayAuthcode(e, authcode){
+            log.info("getAlipayAuthcode authcode:" + authcode);
+            this.sAlipayAuthcode = authcode;
+            this.loginWithAlipayAuthcode();
+        },
+
         isWindows() {
             return environment.os.isWindows || environment.os.isLinux;
         },
@@ -645,6 +712,21 @@ export default {
                 console.log("***Set item Domain is ", domain);
                 window.localStorage.setItem("Domain", domain);
             }
+            global.services.common.getLoginType().then(res => {
+                if(res && res.data && res.data.flows){
+                    let types = res.data.flows;
+                    types.forEach(element => {
+                        if(element.type == "m.login.OAuth2.alipay"){
+                            this.bAlipay = true;
+                        }
+                        else if(element.type == "m.login.OAuth2.weixin"){
+                            this.bWechat = true;
+                        }
+                    });
+                }
+            }).catch(e => {
+                console.log(e)
+            })
             var host = "";
             // if(address == undefined || address == null) {
             host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
@@ -1473,11 +1555,13 @@ export default {
                 console.log(e)
             }
             this.loginButtonDisabled = false;
+            this.bindAlipayOrWechat();
             console.log(client);
             this.loginToMainPage();
             this.isLoading = false;
             this.loginButtonDisabled = false;
         },
+
         ldapLogin: async function() {
             if(this.isEmpty(this.username)){
                 var accountInputDom = document.getElementById("accountInputId");
@@ -1766,10 +1850,10 @@ export default {
             );
         },
     }, 
-    // activated: async function() {
-    //     this.checkHomeServer();
-    // },
+
     mounted: async function() {
+        ipcRenderer.on("alipay-authcode", this.getAlipayAuthcode)
+
         if(window.localStorage) {
             this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
         }
@@ -3366,5 +3450,23 @@ export default {
             height: 18px;
             line-height: 18px;
         }
+    }
+
+    .alipay-wechat-login{
+
+    }
+
+    .alipay-wechat-login-font{
+        width: 84px;
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #666666;
+        line-height: 18px;
+    }
+
+    .alipay-wechat-img{
+        vertical-align: middle;
     }
 </style>
