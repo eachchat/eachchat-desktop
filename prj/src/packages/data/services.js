@@ -2767,25 +2767,50 @@ const common = {
   async auth2Bind(type, authCode){
     var homeServerUel = global.localStorage.getItem("mx_hs_url");
     let accessToken = localStorage.getItem("mx_access_token");
-    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
-    {
-      bind_type: type,
-      auth_code: authCode
-    },
-    {
-      headers:{
-        Authorization: "Bearer " + accessToken
-      }
-    });
+    if(type == "weixin") {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
+      {
+        bind_type: type,
+        auth_code: authCode,
+        device_type: "desktop"
+      },
+      {
+        headers:{
+          Authorization: "Bearer " + accessToken
+        }
+      });
+    }
+    else {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
+      {
+        bind_type: type,
+        auth_code: authCode
+      },
+      {
+        headers:{
+          Authorization: "Bearer " + accessToken
+        }
+      });
+    }
   },
 
   async auth2Login(type, authCode){
     var homeServerUel = global.localStorage.getItem("mx_hs_url");
-    return axios.post(homeServerUel + "/_matrix/client/r0/login", 
-    {
-      type: type,
-      auth_code: authCode
-    });
+    if(type == "m.login.OAuth2.weixin") {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login", 
+      {
+        type: type,
+        auth_code: authCode,
+        device_type: "desktop"
+      });
+    }
+    else {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login", 
+      {
+        type: type,
+        auth_code: authCode
+      });
+    }
   },
 
   async auth2Unbind(type){

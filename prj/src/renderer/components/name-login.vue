@@ -342,6 +342,7 @@ export default {
             sAlipayAuthcode: '',
             bWechat: false,
             bBindWechat: false,
+            sWehchatAuthcode: '',
         }
     },
     computed:{
@@ -379,6 +380,7 @@ export default {
     },
     methods: {
         showWechatLogin(){
+            ThirdPartyLogin.createWeChat();
             this.bBindWechat = true;
             this.bBindAlipay = false;
         },
@@ -402,7 +404,7 @@ export default {
                 global.services.common.auth2Bind("alipay", this.sAlipayAuthcode);
             }
             if(this.bBindWechat){
-                global.services.common.auth2Bind("weixin", this.sAlipayAuthcode);
+                global.services.common.auth2Bind("weixin", this.sWehchatAuthcode);
             }  
         },
 
@@ -430,6 +432,32 @@ export default {
             log.info("getAlipayAuthcode authcode:" + authcode);
             this.sAlipayAuthcode = authcode;
             this.loginWithAlipayAuthcode();
+        },
+
+        async loginWithWeChatAuthcode(){
+            let res;
+            try {
+                res = await global.services.common.auth2Login("m.login.OAuth2.weixin" ,this.sWehchatAuthcode);
+                
+            } catch (error) {
+                console.log(error)
+                this.showLoginBindView();     
+            }
+            if(!res || res.status != 200) return;
+  
+            let matrix = await global.mxMatrixClientPeg.LoginWithAuth2(res.data); 
+            if(matrix) ipcRenderer.removeListener("wechat-authcode", this.getWeChatAuthcode);
+
+            this.loginButtonDisabled = false;
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+
+        getWeChatAuthcode(e, authcode) {
+            log.info("getWeChatAuthcode authcode:" + authcode);
+            this.sWehchatAuthcode = authcode;
+            this.loginWithWeChatAuthcode();
         },
 
         isWindows() {
@@ -1853,6 +1881,7 @@ export default {
 
     mounted: async function() {
         ipcRenderer.on("alipay-authcode", this.getAlipayAuthcode)
+        ipcRenderer.on("wechat-authcode", this.getWeChatAuthcode)
 
         if(window.localStorage) {
             this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");

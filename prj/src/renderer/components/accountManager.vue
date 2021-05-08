@@ -378,16 +378,25 @@ export default {
         },
 
         createWechat(){
-            ThirdPartyLogin.createWechat();
+            ThirdPartyLogin.createWeChat();
         },
 
         toBindWechat(e, authcode){
-
+			log.info("accountmanager toBindWechat authcode:" + authcode);
+            global.services.common.auth2Bind("weixin", authcode).then(res => {
+                if(res && res.status == 200){
+                    this.bWechat = true;
+                }
+            }).catch(e => {
+                this.bWechat = false;
+                this.$toastMessage({message: "账号绑定失败", time: 2000, type:'error'});
+                console.log(e)
+            })
         },
 
         unBindWechat(){
             global.services.common.auth2Unbind("weixin");
-            this.bAlipay = false;
+            this.bWechat = false;
         },
 
         async checkAlipayBind(){

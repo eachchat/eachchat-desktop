@@ -45,7 +45,7 @@ class ChildWindow{
                                     vertical: true});
 
         this.webView.webContents.loadURL(url);
-        this.webView.webContents.on("did-redirect-navigation", 
+        this.webView.webContents.on("did-frame-navigate", 
         (event, 
         url,
         isInPlace,
@@ -53,14 +53,32 @@ class ChildWindow{
         frameProcessId,
         frameRoutingId) =>{
             log.info("did-redirect-navigation: " + url)
-            let nIndex = url.indexOf("auth_code=");
-            if(nIndex == -1) return;
-            let authCode = url.slice(nIndex + 10);
-            this.mainWindow.webContents.send("alipay-authcode", authCode);
-            this.webView.webContents.clearHistory();
-            this.webView.webContents.session.clearCache();
-            this.childWindow.hide();
+            if(this.aliPayCodeCheck(url)) return;
+            if(this.weChatCodeCheck(url)) return;
         })
+    }
+
+    aliPayCodeCheck(url) {
+        let nIndex = url.indexOf("auth_code=");
+        if(nIndex == -1) return false;
+        let authCode = url.slice(nIndex + 10);
+        this.mainWindow.webContents.send("alipay-authcode", authCode);
+        this.webView.webContents.clearHistory();
+        this.webView.webContents.session.clearCache();
+        this.childWindow.hide();
+        return true;
+    }
+
+    weChatCodeCheck(url) {
+        let nIndex = url.indexOf("code=");
+        if(nIndex == -1) return false;
+        let endIndex = url.indexOf("&", nIndex);
+        let authCode = url.slice(nIndex + "code=".length, endIndex);
+        this.mainWindow.webContents.send("wechat-authcode", authCode);
+        this.webView.webContents.clearHistory();
+        this.webView.webContents.session.clearCache();
+        this.childWindow.hide();
+        return true;
     }
 
     showWindow(){
