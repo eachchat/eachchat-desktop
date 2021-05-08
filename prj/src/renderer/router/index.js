@@ -7,7 +7,6 @@ import fileList from '../components/file-list.vue';
 import historyMsg from '../components/history-message.vue';
 import favouriteDetail from '../components/favourite-detail.vue';
 import thirdpartyBind from '../components/thirdpartyBind.vue';
-import screenshot from '../components/screenshot.vue';
 
 
 import setup from '../components/setup.vue';
@@ -72,12 +71,7 @@ export default new Router({
       path:'/thirdpartyBind',
       name: "thirdpartyBind",
       component: thirdpartyBind,
-    },   
-    {
-      path:'/screenshot',
-      name: "screenShotDlg",
-      component: screenshot,
-    },    
+    },      
     {
       path:'/reportRelationContent',
       name: "reportRelationContent",
