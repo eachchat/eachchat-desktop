@@ -1,6 +1,6 @@
 <template>
     <div class = "ScreenShotLayers">
-        <canvas id="desktop-canvas" style="border:1px solid #d3d3d3;"></canvas>
+        <canvas id="desktop-canvas" class = "ScreenShotCanvasStyle"></canvas>
     </div>
 </template>
 
@@ -81,5 +81,11 @@ export default {
         top:0px;
         left:0px;
         z-index:3;
+    }
+
+    .ScreenShotCanvasStyle{
+        height: 100%;
+        width: 100%;
+        border:1px solid #d3d3d3;
     }
 </style>
