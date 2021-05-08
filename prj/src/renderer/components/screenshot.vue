@@ -1,6 +1,7 @@
 <template>
-    <div class = "ScreenShotLayers">
+    <div class = "ScreenShotLayers" id = "addEventListenerID">
         <canvas id="desktop-canvas" class = "ScreenShotCanvasStyle"></canvas>
+        <canvas id="shot-canvas" class = "ShotCanvasStyle"></canvas>
     </div>
 </template>
 
@@ -12,11 +13,35 @@ export default {
     name:'screenShotDlg',
     data(){
         return{
-            screenSize:{}
+            screenSize:{},
+            beginPoint:{},
+            endPoint:{},
+            shotCanvas: undefined
         }
     },
 
     methods:{
+        mouseDown(e){
+            this.beginPoint.x = e.clientX;
+            this.beginPoint.y = e.clientY;
+            console.log("keydown")
+        },
+
+        mouseUp(e){
+            this.endPoint.x = e.clientX;
+            this.endPoint.y = e.clientY;
+            console.log("keyup")
+            let ctx = this.shotCanvas.getContext("2d");
+            ctx.rect(this.beginPoint.x, this.beginPoint.y, this.endPoint.x, this.endPoint.y);
+            ctx.strokeStyle="red";
+            ctx.stroke();
+        },
+
+        mouseMove(e){
+            //console.log("move")
+
+        },
+
         determineScreenShotSize () {
             const screenSize = screen.getPrimaryDisplay().size
             this.screenSize.width = screenSize.width;
@@ -60,11 +85,21 @@ export default {
                     }
                 })
             })
+        },
+
+        addScreenShotEventListen(){
+            //let screenLayer = document.getElementById("desktop-canvas");
+            document.addEventListener("mousedown", this.mouseDown);
+            document.addEventListener("mouseup", this.mouseUp);
+            document.addEventListener("mousemove", this.mouseMove);
         }
     },
 
     mounted(){
         console.log("screenshot mount")
+        this.addScreenShotEventListen();
+        this.shotCanvas = document.getElementById('desktop-canvas');
+        //return;
         this.screenShot();
     },
 
@@ -80,12 +115,18 @@ export default {
         position: fixed;
         top:0px;
         left:0px;
-        z-index:3;
+        z-index:11;
     }
 
     .ScreenShotCanvasStyle{
         height: 100%;
         width: 100%;
         border:1px solid #d3d3d3;
+        z-index: 12
+    }
+    .ShotCanvasStyle{
+        height: 100%;
+        width: 100%;
+        z-index: 13;
     }
 </style>
