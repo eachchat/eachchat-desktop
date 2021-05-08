@@ -65,7 +65,6 @@ export default {
 
     mounted(){
         console.log("screenshot mount")
-        ipcRenderer.on("screenshot", this.screenShot)
         this.screenShot();
     },
 
