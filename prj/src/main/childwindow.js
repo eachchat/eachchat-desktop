@@ -21,11 +21,7 @@ class ChildWindow{
             icon: iconPath,
         });
     }
-
-    setFullScreen(){
-        this.childWindow.setFullScreen(true);
-    }
-
+    
     setWindowSize(size){
         this.width = size.width;
         this.height = size.height;
@@ -71,13 +67,6 @@ class ChildWindow{
     showWindow(){
         this.childWindow.show();
         this.childWindow.webContents.openDevTools();
-    }
-
-    registerEsc(){
-        globalShortcut.register('Escape', () => {
-            console.log("cancelScreenShot")
-            this.childWindow.hide();
-        })
     }
 }
 

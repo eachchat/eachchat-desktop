@@ -1,11 +1,11 @@
 <template>
     <div class = "ScreenShotLayers">
-        <canvas id="desktop-canvas" width="250" height="300" style="border:1px solid #d3d3d3;"></canvas>
+        <canvas id="desktop-canvas" style="border:1px solid #d3d3d3;"></canvas>
     </div>
 </template>
 
 <script>
-const {desktopCapturer, ipcRenderer, Cookies} = require('electron')
+const {desktopCapturer, ipcRenderer, shell} = require('electron')
 const {screen} = require('electron').remote
 
 export default {
@@ -18,21 +18,19 @@ export default {
 
     methods:{
         determineScreenShotSize () {
-            const screenSize = screen.getPrimaryDisplay().workAreaSize
-            const maxDimension = Math.max(screenSize.width, screenSize.height);
+            const screenSize = screen.getPrimaryDisplay().size
             this.screenSize.width = screenSize.width;
             this.screenSize.height = screenSize.height;
-
             return {
-                width: maxDimension * window.devicePixelRatio,
-                height: maxDimension * window.devicePixelRatio
+                width: screenSize.width * window.devicePixelRatio,
+                height: screenSize.height * window.devicePixelRatio
             }
         },
 
         drowCanvas(imgData){
             let canvas = document.getElementById('desktop-canvas')
-            canvas.width = this.screenSize.width
-            canvas.height = this.screenSize.height
+            canvas.width = this.screenSize.width * window.devicePixelRatio;
+            canvas.height = this.screenSize.height * window.devicePixelRatio;
             canvas.style.width = this.screenSize.width+'px'
             canvas.style.height = this.screenSize.height+'px'
             const ctx = canvas.getContext('2d')
@@ -41,7 +39,10 @@ export default {
             let img = new Image();
             img.src = imgData;
             img.onload = () =>{
-                ctx.drawImage(img, 0, 0);
+                ctx.drawImage(img, 0, 0, this.screenSize.width * window.devicePixelRatio, this.screenSize.height * window.devicePixelRatio);
+            }
+            img.onerror = (e) =>{
+                console.log(e)
             }
         },
 
@@ -53,7 +54,8 @@ export default {
             desktopCapturer.getSources(options).then((sources) => {
                 sources.forEach((source) => {
                     if (source.name === 'Entire Screen' || source.name === 'Screen 1') {
-                        let tmpbmp = source.thumbnail.toBitmap();
+                        let tmpbmp = source.thumbnail.toDataURL();
+                        ipcRenderer.send("fullScreenMainWindow");
                         this.drowCanvas(tmpbmp);
                     }
                 })
@@ -79,7 +81,6 @@ export default {
         position: fixed;
         top:0px;
         left:0px;
-        background: rgba(0, 0, 0, 0.6);
         z-index:3;
     }
 </style>

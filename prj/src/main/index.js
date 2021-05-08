@@ -369,6 +369,15 @@ ipcMain.on("token-expired", function(event, arg) {
   mainWindow.webContents.send("toLogout");
 })
 
+ipcMain.on('fullScreenMainWindow', function(event, arg){
+  mainWindow.setFullScreen(true);
+})
+
+ipcMain.on('normalScreenMainWindow', function(event, arg){
+  mainWindow.setFullScreen(false);
+})
+
+
 ipcMain.on('showLoginPageWindow', function(event, arg) {
   if(!mainWindow) return;
   isLogin = false;
@@ -1438,6 +1447,7 @@ function createWindow () {
     icon: iconPath,
     title: "亿洽"
   })
+  //mainWindow.setResizable(false);
   mainWindow.setResizable(true);
   mainWindow.hide();
   mainWindow.loadURL(winURL);
@@ -1468,7 +1478,12 @@ function createWindow () {
     }
   }
   else if(process.platform == 'win32') {
-    
+    if(mainWindow) {
+      globalShortcut.register('Escape', () => {
+        console.log("cancelScreenShot")
+        mainWindow.webContents.send("cancel-screen-shot");
+      })
+    }
   }
   app.setAppUserModelId('EachChat');
   assistWindow = new BrowserWindow({
@@ -1576,17 +1591,6 @@ function createWindow () {
       if(!isLogin){
         mainWindow.hide();
       }
-    }
-    else if(type == "screenshotwindow"){
-      const pageUrl = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080/#/` + 'screenshot'
-      : `file://${__dirname}/index.html#` + 'screenshot';
-      childRenderWindow.loadUrl(pageUrl);
-      childRenderWindow.setFullScreen();
-      childRenderWindow.showWindow();
-      childRenderWindow.registerEsc();
-      mainWindow.webContents.send("screenshot")
-      
     }
     childRenderWindow.childWindow.on('close', (event) => {
       if(clickQuit){
