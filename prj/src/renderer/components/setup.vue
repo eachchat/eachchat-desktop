@@ -149,7 +149,7 @@
       </div>
       <!-- <generalSecureBackUpPage  v-show="showGeneralPage"></generalSecureBackUpPage> -->
       <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
-      <AccountManager v-show="showAccountMgr" :needUpdate="needUpdate" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
+      <AccountManager v-if="showAccountMgr" :needUpdate="needUpdate" @accountMgrDlgClose="accountMgrDlgClose"></AccountManager>
       <DeviceManager v-show="showDeviceMgr" @deviceMgrDlgClose="deviceMgrDlgClose"></DeviceManager>
       <OwnerDlg v-show="showOwnerDlg" :updateOwnerInfo="updateOwnerInfo" @CloseownerInfo="CloseownerInfo"></OwnerDlg>
       <UpdateAlertDlg v-show="showUpgradeAlertDlg" :showUpgradeAlertDlg = "showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo"/>
