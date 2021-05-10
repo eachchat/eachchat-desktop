@@ -9,7 +9,7 @@ const ThirdPartyLogin = {
     createWeChat(){
         ipcRenderer.send("createChildWindow", {type: "thirdpartywindow",
             size:{width:667,height: 600},
-            browserViewUrl: 'https://open.weixin.qq.com/connect/qrconnect?appid=wx4fe0ec2a0ad5a9ec&redirect_uri=https://staging.eachchat.net&response_type=code&scope=snsapi_login&state=STATE#wechat_redirect'})
+            browserViewUrl: 'https://open.weixin.qq.com/connect/qrconnect?appid=wx4fe0ec2a0ad5a9ec&redirect_uri=https://chat.workly.ai&response_type=code&scope=snsapi_login&state=STATE#wechat_redirect'})
     },
 }
 
