@@ -96,8 +96,8 @@
                             </div>
                         <div v-show="bAlipay || bWechat">
                             <span class = "alipay-wechat-login-font">其他登录方式：</span>
-                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/wechat.png" @click="showWechatLogin">
-                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/alipay.png" @click="showAlipayLogin">
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/wechat.png" @click="showWechatLogin" v-show='bAlipay'>
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/alipay.png" @click="showAlipayLogin" v-show='bWechat'>
                         </div>
                     </div>
                     <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
