@@ -1439,7 +1439,7 @@ function createWindow () {
     title: "亿洽"
   })
   //mainWindow.setResizable(false);
-  mainWindow.setResizable(true);
+  mainWindow.setResizable(false);
   mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
