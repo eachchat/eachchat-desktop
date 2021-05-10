@@ -3,16 +3,17 @@
         <div class="AlertDlg" id="AlertDlgId">
             <div class="AlertContent">
                 <div class="AlertContentAbstract">
-                    <img class="AlertContentAbstraceIco" src="../../../static/Img/Setup/Alert@2x.png">
+                    <img class="AlertContentAbstraceIco" v-if="iconType=='alert'" src="../../../static/Img/Setup/Alert@2x.png">
+                    <img class="AlertContentAbstraceIco" v-else src="../../../static/Img/Setup/Suc.png">
                     <label class="AlertContentAbstraceContent">{{Abstrace}}</label>
                 </div>
-                <div class="AlertContentDetails">
+                <div class="AlertContentDetails" id="AlertContentDetailsId">
                     <label class="AlertContentDetailsContent">{{Details}}</label>
                 </div>
             </div>
             <div class="AlertFotter">
-                <button class="AlertCancleButton" @click="Close()" v-show="canCancel">取消</button>
-                <button class="AlertConfirmButton" @click="ClearCache()">确认</button>
+                <button class="AlertCancleButton" id="cancleButtonId" @click="Close()" v-show="canCancel">取消</button>
+                <button class="AlertConfirmButton" @click="ClearCache()">确定</button>
             </div>
         </div>
     </div>
@@ -20,10 +21,7 @@
 
 <script>
 import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
-import {ipcRenderer, remote} from 'electron'
 export default {
     name: 'AlertDlg',
     props: {
@@ -33,6 +31,14 @@ export default {
                 "Details": '',
                 "Abstrace": ''
             }
+        },
+        width: {
+            type: Number,
+            default: 440,
+        },
+        height: {
+            type: Number,
+            default: 179,
         },
         canCancel: {
             type: Boolean,
@@ -49,14 +55,24 @@ export default {
         alertType: {
             type: String,
             default: ''
+        },
+        contentLeft: {
+            type: Number,
+            default: 42,
+        },
+        iconType: {
+            type: String,
+            default: "alert"
+        },
+        haveBG: {
+            type: Boolean,
+            default: false
         }
     },//['AlertContnts'],
     data () {
         return {
             Abstrace: '',
             Details: '',
-            dlgWidth: 440,
-            dlgHeight: 179,
         }
     },
     methods: {
@@ -66,40 +82,18 @@ export default {
         ClearCache: function() {
             this.$emit("clearCache", this.alertType);
         },
-        calcImgPosition: function() {
-            if(this.AlertDlgElement == null) {
-                this.AlertDlgElement = document.getElementById("AlertDlgId");
-            }
-            if(this.AlertLayersElement == null) {
-                this.AlertLayersElement = document.getElementById("AlertLayersId");
-            }
-            // console.log("remote.b")
-            var showScreenHeight = this.AlertLayersElement.offsetHeight;
-            var showScreenWidth = this.AlertLayersElement.offsetWidth;
-            console.log("showScreenHeight ", showScreenHeight)
-            console.log("showScreenWidth ", showScreenWidth)
-            var left = (showScreenWidth - this.dlgWidth) / 2;
-            var top = (showScreenHeight - this.dlgHeight) / 2;
-
-            console.log("left ", left)
-            console.log("top ", top)
-            var ret = {
-                "left": left,
-                "top": top
-            }
-
-            return ret;
-        },
     },
     components: {
     },
     created: async function () {
-        this.serverapi = new APITransaction('139.198.15.253', 8888)
+        console.log(this.AlertContnts)
     },
     mounted: function() {
+        console.log(this.AlertContnts)
     },
     watch: {
         AlertContnts: async function() {
+            console.log("AlertContent")
             if(this.AlertContnts.Details == undefined || (this.AlertContnts.Details != undefined && this.AlertContnts.Details.length == 0)) {
                 return;
             }
@@ -110,6 +104,13 @@ export default {
             if(this.AlertLayersElement == null) {
                 this.AlertLayersElement = document.getElementById("AlertLayersId");
             }
+            if(this.haveBG) {
+                console.log("=========hav bg is ", this.haveBG);
+                this.AlertLayersElement.style.backgroundColor = "rgba(0, 0, 0, 0.6)"
+            }
+            else {
+                this.AlertLayersElement.style.backgroundColor = "rgba(0, 0, 0, 0)"
+            }
 
             this.Details = this.AlertContnts.Details;
             this.Abstrace = this.AlertContnts.Abstrace;
@@ -117,11 +118,37 @@ export default {
             console.log("Alertcontent is ", this.AlertContnts);
             console.log("Details is ", this.Details);
             console.log("Abstrace is ", this.Abstrace);
-            
-            var showPosition = this.calcImgPosition();
-            console.log("showPositon is ", showPosition)
-            this.AlertDlgElement.style.left = showPosition.left.toString() + "px";
-            this.AlertDlgElement.style.top = showPosition.top.toString() + "px";
+        },
+        width: function() {
+            if(this.width == 0) return;
+            console.log("width is ok ", this.width);
+            if(this.AlertDlgElement == null) {
+                this.AlertDlgElement = document.getElementById("AlertDlgId");
+            }
+            this.AlertDlgElement.style.width = this.width.toString() + "px";
+            if(this.width < 340) {
+                var cancelElement = document.getElementById("cancleButtonId");
+                cancelElement.style.marginLeft = "auto";
+            }
+            else {
+                var cancelElement = document.getElementById("cancleButtonId");
+                cancelElement.style.marginLeft = "180px";
+            }
+        },
+        height:function() {
+            if(this.height == 0) return;
+            console.log("width is ok ", this.height);
+            if(this.AlertDlgElement == null) {
+                this.AlertDlgElement = document.getElementById("AlertDlgId");
+            }
+            this.AlertDlgElement.style.height = this.height.toString() + "px";
+        },
+        contentLeft: function() {
+            if(this.contentLeft == 0) return;
+            var detailContentElement = document.getElementById("AlertContentDetailsId");
+            if(detailContentElement) {
+                detailContentElement.style.marginLeft = this.contentLeft.toString() + "px";
+            }
         }
     }
 }
@@ -134,7 +161,6 @@ export default {
         position: fixed;
         top:0px;
         left:0px;
-        background: rgba(0, 0, 0, 0.6);
         z-index: 3;
     }
 
@@ -142,8 +168,14 @@ export default {
         position: absolute;
         width: 440px;
         height: 179px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
         display: block;
         background: rgba(255, 255, 255, 1);
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
     }
 
     .AlertContent {
@@ -171,7 +203,7 @@ export default {
         font-size: 16px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
         vertical-align: top;
         margin-left: 16px;
     }
@@ -188,52 +220,53 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         vertical-align: top;
     }
 
-    .AlertferFotter {
-        width: 100%;
+    .AlertFotter {
+        width: 90%;
         height: 72px;
         display: inline-block;
         text-align: center;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     .AlertConfirmButton {
         width: 100px;
         height: 32px;
-        margin-left: 5px;
+        margin-left: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-right: 110px;
+        // margin-right: 110px;
         background: rgba(36, 179, 107, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .AlertConfirmButton:hover {
         width: 100px;
         height: 32px;
-        margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-right: 110px;
+        // margin-right: 110px;
         background: rgba(36, 179, 107, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .AlertCancleButton {
         width: 100px;
         height: 32px;
-        margin-right: 5px;
+        margin-right: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
-        margin-left: 110px;
+        margin-left: 170px;
         background: white;
         border-radius:4px;
         border:1px solid rgba(221,221,221,1);

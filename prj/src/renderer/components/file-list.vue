@@ -7,7 +7,7 @@
         </div>
         <div class="FileListDlgContent">
             <div class="search">
-                <input class="FileListDlgSearchInput" placeholder="搜索..." v-model="searchKey" @input="search" @keyup.enter="search">
+                <input class="FileListDlgSearchInput" placeholder="搜索" v-model="searchKey" @input="search" @keyup.enter="search">
                 <img class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" @click="search">
             </div>
             <ul class="file-list">
@@ -40,7 +40,7 @@ import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, JsonMsgContentTo
 import {services, environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import {ipcRenderer, remote} from 'electron'
+import {ipcRenderer} from 'electron'
 import winHeaderBar from './win-header.vue'
 import confservice from '../../packages/data/conf_service.js'
 import {shell} from 'electron'
@@ -172,7 +172,6 @@ export default {
         },
         getAppBaseData:async function() {
             // Init services
-            await services.common.init();
             this.selfUserInfo = await services.common.GetSelfUserModel();
             // Set accessToken in services
             this.loginInfo = await services.common.GetLoginModel();
@@ -421,7 +420,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         -webkit-app-region: drag;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -472,7 +471,7 @@ export default {
         border: 0px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         font-size: 12px;
         color: rgba(153, 153, 153, 1);
         background-color: rgba(1, 1, 1, 0);
@@ -539,7 +538,7 @@ export default {
         font-size: 14px;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         white-space: nowrap;
         text-overflow: ellipsis;
     }
@@ -552,7 +551,7 @@ export default {
         font-size: 12px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         color: rgba(153, 153, 153, 1);
     }
 
@@ -581,7 +580,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }
@@ -595,7 +594,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }
@@ -609,7 +608,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         background-color: rgba(0, 0, 0, 0);
         text-align:center;
     }

@@ -18,9 +18,9 @@ class ConfService {
                     // OImage放置原图
 
     constructor() {
-        this.appName = 'EachChat';
+        this.appName = 'EachChat2.0';
         this.companyName = 'Workly';
-        this.productName = 'EachChat';
+        this.productName = 'EachChat2.0';
         this.localAnyBoxDirName = 'AnyBoxSpaces';
         this.filesDirName = 'EachChatFile';
         this.filesFilesDirName = 'Files';
@@ -53,15 +53,18 @@ class ConfService {
         if(!fs.existsSync(this.filesPath)){
             fs.ensureDirSync(this.filesPath);
         }
-        this.uid = uid;
+        this.uid = Base64.encode(uid, true);
     }
     getCurFilesDir() {
-        var userFilesPath = path.join(this.filesPath, this.uid);
+        var userFilesPath = global.localStorage.getItem("savefile_path");
+        if(userFilesPath) return userFilesPath;
+        userFilesPath = path.join(this.filesPath, this.uid);
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
         }
         return userFilesPath;
     }
+
     getEachChatFilesDir() {
         this.filesPath = path.join(this.base, this.filesDirName);
         if(!fs.existsSync(this.filesPath)){
@@ -106,7 +109,7 @@ class ConfService {
         }
         var YearMonth = curYeat + '-' + Appendzero(curMonth);
         // console.log("YearMonth is ", YearMonth);
-        var userFilesPath = path.join(this.filesPath, this.uid);
+        var userFilesPath = this.getCurFilesDir();
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
         }
@@ -117,7 +120,7 @@ class ConfService {
         return userCurFilesPath;
     }
     getVoiceFilePath() {
-        var userFilesPath = path.join(this.filesPath, this.uid);
+        var userFilesPath = this.getCurFilesDir();
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
         }
@@ -128,7 +131,7 @@ class ConfService {
         return userVoiceFilePath;
     }
     getUserThumbHeadPath() {
-        var userFilesPath = path.join(this.filesPath, this.uid);
+        var userFilesPath = this.getCurFilesDir();
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
         }
@@ -139,7 +142,7 @@ class ConfService {
         return userCurHeadPath;
     }
     getUserThumbHeadLocalPath(uid) {
-        var userFilesPath = path.join(this.filesPath, this.uid);
+        var userFilesPath = this.getCurFilesDir();
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
         }
@@ -150,7 +153,7 @@ class ConfService {
         return path.join(userCurHeadPath, uid + ".png");
     }
     getUserHDHeadPath() {
-        var userFilesPath = path.join(this.filesPath, this.uid);
+        var userFilesPath = this.getCurFilesDir();
         if(!fs.existsSync(userFilesPath)){
             fs.ensureDirSync(userFilesPath);
         }
@@ -165,7 +168,7 @@ class ConfService {
         let curYeat = curDate.getFullYear();
         let curMonth = curDate.getMonth();
         var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, this.uid);
+        var userImagePath = this.getCurFilesDir();
         if(!fs.existsSync(userImagePath)){
             fs.ensureDirSync(userImagePath);
         }
@@ -186,7 +189,7 @@ class ConfService {
             curMonth = distdate.getMonth() + 1;
         }
         var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, this.uid);
+        var userImagePath = this.getCurFilesDir();
         if(!fs.existsSync(userImagePath)){
             fs.ensureDirSync(userImagePath);
         }
@@ -207,7 +210,7 @@ class ConfService {
             curMonth = distdate.getMonth() + 1;
         }
         var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, this.uid);
+        var userImagePath = this.getCurFilesDir();
         if(!fs.existsSync(userImagePath)){
             fs.ensureDirSync(userImagePath);
         }
@@ -228,7 +231,7 @@ class ConfService {
             curMonth = distdate.getMonth() + 1;
         }
         var YearMonth = curYeat + '-' + Appendzero(curMonth);
-        var userImagePath = path.join(this.filesPath, this.uid);
+        var userImagePath = this.getCurFilesDir();
         if(!fs.existsSync(userImagePath)){
             fs.ensureDirSync(userImagePath);
         }

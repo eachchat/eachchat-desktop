@@ -19,7 +19,7 @@ const { VueLoaderPlugin } = require('vue-loader')
  * that provide pure *.vue files that need compiling
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
-let whiteListedModules = ['vue']
+let whiteListedModules = ['vue', 'element-ui', 'mqtt']
 
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
@@ -101,6 +101,15 @@ let rendererConfig = {
             name: 'fonts/[name]--[folder].[ext]'
           }
         }
+      },
+      {
+        test: /\.wasm$/,
+        loader: "file-loader",
+        type: "javascript/auto", // https://github.com/webpack/webpack/issues/6725
+        options: {
+            name: '[name].[hash:7].[ext]',
+            outputPath: '.',
+        },
       }
     ]
   },

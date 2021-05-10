@@ -1,13 +1,14 @@
 <template>
     <el-container class="mainpage">
         <el-aside class="navigate-panel" width="64px">
-            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()"></mac-window-header>
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :isNormal="isNormal" v-show="!isFullScreen"></mac-window-header>
             <div class="User">
-                <img class="login-logo" id="userHead" @click="personalCenterClicked()">
+                <img class="login-logo img-disable-drag" id="userHead" src="../../../static/Img/User/user-40px@2x.png" @click="personalCenterClicked()" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
             </div>
             <el-menu
                 class="nav-menu">
-                <el-menu-item
+                <el-menu-item 
+                    :disabled = 'navEnable || dataIsLoading || dbDataNotFinished'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
@@ -15,22 +16,34 @@
                     :class="{active: index===curindex}"
                     >
                     <p :class="getCurNavIcon(index)"></p>
-                    <!-- <i :class="getCurNavIcon(index)"></i> -->
+                    <span class="tooltiptext">{{getToolTipContent(index)}}</span>
+                    <p id = 'main-invitenum' v-show = 'index == 1 && getInviteNum() != 0' :class = 'getInviteNumClass()'>{{getInviteNum()}}</p>
                 </el-menu-item>
             </el-menu>
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
+                <span class="tooltiptext">{{getToolTipContent(index)}}</span>
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
-        <el-main class="tabcontainer">
+        <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading && !dbDataNotFinished">
             <!-- <component :is="curView"></component> -->
             <keep-alive>
-                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :receiveSearchKey="searchKey" :updateImg="updateImg"/>
+                <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
-        <personalCenter v-show="showPersonalCenter" :userInfo="selfUserInfo" :key="personalCenterKey"></personalCenter>
-        <UpdateAlertDlg v-show="showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo" :canCancel="upgradeCanCancel"/>
+        <div class="loadingDiv" v-show="navEnable || dataIsLoading || dbDataNotFinished">
+            <div class="loadingInfo">
+                <img class="isLoading" id="isLoadingId" src="../../../static/Img/Main/mainLoading@2x.png">
+                <div class="loadingText">正在加载数据</div>
+            </div>
+        </div>
+        <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
+        <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
+        <UpdateAlertDlg v-show="showUpgradeAlertDlg" :showUpgradeAlertDlg = "showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo"/>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="toChangePassword" :haveBG="true"/>
+        <ChangePassword v-show="showChangePassword" @CloseChangePassword="CloseChangePassword"></ChangePassword>
     </el-container>
 </template>
 
@@ -50,12 +63,21 @@ import {ipcRenderer, remote} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
-import {UserInfo} from '../../packages/data/sqliteutil.js';
+import {UserInfo, Message} from '../../packages/data/sqliteutil.js';
+import { models } from '../../packages/data/models.js';
+import userInfoContent from './user-info';
+import {ComponentUtil} from '../script/component-util.js'
+import AlertDlg from './alert-dlg.vue'
+import ChangePassword from './changePassword.vue'
+import axios from "axios";
+
 import UpdateAlertDlg from './update-alert-dlg.vue'
+import { setInterval } from 'timers';
 export default {
     name: 'mainpage',
     watch: {
         '$route'(to, from){
+            this.toSaveDraft = this.toSaveDraft + 1;
             console.log("========== to.params.user_id is ", to);
             console.log("========== to.params.user_id is ", from);
             if(to.name == "ChatContent") {
@@ -71,6 +93,10 @@ export default {
                 }
                 this.updateImg = !this.updateImg;
                 this.curindex = 0;
+                setTimeout(() => {
+                    this.distUserId = '';
+                    this.distGroupId = '';
+                }, 500);
             }
             else if(to.name == "organization") {
                 if(to.params.searchKey != undefined) {
@@ -82,16 +108,33 @@ export default {
     },
     data () {
         return {
+            setToRealAll: [],
+            isNormal: true,
+            isFullScreen: false,
+            toSaveDraft: 0,
+            navEnable: true,
+            dataIsLoading: true,
+            dbDataNotFinished: true, 
+            scrollToRecentUnread: false,
+            showChangePassword: false,
+            alertContnets: {},
+            showAlertDlg: false,
+            displayName: '',
+            userInfo: undefined,
+            isOwn: true,
+            userInfoTipKey: 1,   //用户信息弹窗强制更新
+            pagePosition:{},
+            userType: "mainUserInfo",
             unReadCount: 0,
             updateImg: false,
             upgradeInfo: {},
-            upgradeCanCancel: true,
             showUpgradeAlertDlg:false,
             searchKey: '',
             distGroupId: '',
             distUserId: '',
             curindex: -1,
             curView: 'ChatContent',
+            organizationClick: 0,
             //serverapi: new ServerApi('http', '139.198.15.253'),
             Navigate:[
                 {    
@@ -121,16 +164,85 @@ export default {
             ],
             elementImg: null,
             ipcInited: false,
-            
-            selfUserInfo:{},
+    
             showPersonalCenter:false,
+            showPersonalInfo: false,
             personalCenterKey: 0,
+            loadingInterval: undefined,
+            loadingElement: undefined,
+            curRotate: 0,
         }
     },
     methods: {
+        toDataOk() {
+            console.log("=====================kdkdkdkkdk")
+            this.dataIsLoading = false;
+        },
+        getInviteNumClass() {
+            let count = this.getInviteNum();
+            if(count > 99) {
+                if(this.curindex == 1)
+                    return "group-unread-99";
+                else
+                    return 'group-unread-99-nofocus';
+            }
+            else {
+                if(this.curindex == 1)
+                    return "group-unread";
+                else 
+                    return 'group-unread-nofocus';
+            }
+        },
+
+        getInviteNum(){
+            return this.$store.getters.getInviteRoomsNum();
+        },
+
+        matrixSyncEnd: function(ret){
+            this.navEnable = !ret;
+            if(this.loadingInterval) {
+                clearInterval(this.loadingInterval);
+            }
+        },
+
+        CloseChangePassword: function() {
+            this.showChangePassword = false;
+        },
+        showChangePasswordAlertPage: function() {
+            this.alertContnets = {
+                "Details": "建议您修改登录密码",
+                "Abstrace": "提示"
+            };
+            this.showAlertDlg = true;
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+            this.alertContnets = {};
+        },
+        toChangePassword: function() {
+            this.closeAlertDlg();
+            this.showChangePassword = true;
+        },
+        showPersonalInfoHanlder: async function(value){
+            if(value){
+                this.personalCenterKey ++;
+                const userId = window.localStorage.getItem("mx_user_id");
+
+                let userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
+                if(userInfo){
+                    this.showPersonalCenter = true;
+                    this.showPersonalInfo = true;
+                    this.userInfo = userInfo;
+                    this.userInfo.displayName = this.displayName;
+                }
+                else{
+                    alert("数据库没有找到用户信息")
+                }
+            }
+        },
         getUnReadCount(unReadCount) {
             if(unReadCount === 0) return "";
-            else return unReadCount > 99 ? "···" : unReadCount;
+            else return unReadCount > 99 ? "..." : unReadCount;
         },
         getUnreadClass(unReadCount) {
             var endPoint = "-unselected";
@@ -141,25 +253,45 @@ export default {
                 else {
                     return "nav-readall" + endPoint;
                 }
+                return "nav-readall";
             }
             else {
                 if(remote.process.platform == 'darwin') {
                     if(this.curindex == 0) {
-                        return "mac-nav-unread";
+                        if(unReadCount > 99) {
+                            return "mac-nav-unread-99";
+                        }
+                        else {
+                            return "mac-nav-unread";
+                        }
                     }
                     else {
-                        return "mac-nav-unread-no-focuse";
+                        if(unReadCount > 99) {
+                            return "mac-nav-unread-no-focuse-99";
+                        }
+                        else {
+                            return "mac-nav-unread-no-focuse";
+                        }
                     }
                 }
                 else {
                     if(this.curindex == 0) {
-                        return "nav-unread";
+                        if(unReadCount > 99) {
+                            return "nav-unread-99";
+                        }
+                        else {
+                            return "nav-unread";
+                        }
                     }
                     else {
-                        return "nav-unread-no-focuse";
+                        if(unReadCount > 99) {
+                            return "nav-unread-no-focuse-99";
+                        }
+                        else {
+                            return "nav-unread-no-focuse";
+                        }
                     }
                 }
-                return "nav-unread";
             }
         },
         closeUpgradeAlertDlg: function() {
@@ -181,41 +313,13 @@ export default {
             this.curindex = 3;
             this.$router.push("/main/setup")
         },
-        getAppBaseData:async function() {
-            // Init services
-            // let config = {
-            //     hostname: "139.198.15.253",
-            //     apiPort: 8888,
-            // };
-            // services.common.init(config);
-            // Set accessToken in services
-            await services.common.init();
-            this.loginInfo = await services.common.GetLoginModel();
-            this.curUserInfo = await services.common.GetSelfUserModel();
-            services.common.InitDbData();
-            var ret = await services.common.GetAllGroups()
-            console.log("the init user id is ,", this.curUserInfo.id)
-            confservice.init(this.curUserInfo.id);
-            this.$store.commit("setUserId", this.curUserInfo.id)
-            console.log("lognInfo is ", this.loginInfo);
+        getAppBaseData:function() {
+            const userId = window.localStorage.getItem("mx_user_id");
+            confservice.init(userId);
+            this.$store.commit("setUserId", userId)
             this.$router.push("/main/ChatContent");
             
             this.curindex = 0;
-            this.showCurUserIcon();
-            // Get data from server and set in database
-            // UserInfo
-            // await services.common.AllUserinfo();
-            // var userInfos = await services.common.GetAllUserinfo();
-            // for (var i = 0; i < userInfos.length; i++) {
-            //     console.log(userInfos[i].user_name);
-            // }
-            
-            // DepartmentInfo
-            // await services.common.AllDepartmentInfo();
-            // var departmentInfos = await services.common.GetAllDepartmentsModel();
-            // for (var i = 0; i < departmentInfos.length; i++) {
-            //     console.log(departmentInfos[i].displayName);
-            // }
         },
         async menuClicked (cur_index, cur_name, cur_link, cur_view) {
             this.curindex = cur_index;
@@ -224,15 +328,35 @@ export default {
             console.log(cur_name);
             console.log(cur_link);
             if(cur_name == "chat") {
-                this.$router.push("/main/ChatContent")
+                if(this.$route.name != "ChatContent") {
+                    this.$router.push("/main/ChatContent")
+                }
+                else {
+                    if(this.unReadCount > 0) {
+                        this.scrollToRecentUnread = !this.scrollToRecentUnread;
+                    }
+                }
             }
             else if(cur_name == "contact list") {
-                this.$router.push("/main/organization")
+                this.organizationClick++;
+                if(this.$route.name != "organization") {
+                    this.$router.push("/main/organization")
+                }
             }
             else if(cur_name == "favourite") {
-                this.$router.push("/main/favourite")
+                if(this.$route.name != "favourite") {
+                    this.$router.push("/main/favourite")
+                }
             }
         },
+
+        getToolTipContent(index){
+            if(index == 0) return "聊天";
+            else if(index == 1) return "联系人";
+            else if(index == 2)return "收藏";
+            else return "设置";
+        },
+
         getCurNavIcon (cur_index) {
             var endding = " active"
             if(cur_index != this.curindex) {
@@ -277,12 +401,32 @@ export default {
             }
             checking();
         },
+        setFullScreen: function(e, isFullScreen) {
+            this.isFullScreen = isFullScreen;
+        },
+        clearAll: function(e, roomIds) {
+            this.setToRealAll = [];
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.setToRealAll = roomIds;
+                }, 200)
+            })
+        },
+        jumpToChat: function(e, roomId) {
+            this.distGroupId = "";
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.distGroupId = roomId;
+                }, 200)
+            })
+        },
         updateSelfImage: function(e, args) {
             var state = args[0];
             var stateInfo = args[1];
             var id = args[2];
             var localPath = args[3];
             var elementImg = document.getElementById("userHead");
+            return;
             if(id != this.curUserInfo.id) {
                 return;
             }
@@ -299,61 +443,240 @@ export default {
         },
         showCurUserIcon: async function() {
             var elementImg = document.getElementById("userHead");
-            // downloadGroupAvatar(this.curUserInfo.avatar_minimal, this.loginInfo.access_token)
-
-            var targetPath = "";
-            // console.log("===========this.curUserInfo.avatar_minimal ", this.curUserInfo.avatar_minimal)
-            // targetPath = path.join(confservice.getEachChatFilesDir(), this.curUserInfo.id);
-            if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(this.curUserInfo.avatar_minimal, this.curUserInfo.id, targetPath))) {
-                elementImg.setAttribute("src", targetPath);
+            var myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(myUserId);
+            var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            if(avaterUrl != "") {
+                elementImg.setAttribute("src", avaterUrl);
+                if(this.$store.getters.getAvater(myUserId) == avaterUrl) {
+                    return;
+                }
+                var userToAvaterInfo = [myUserId, avaterUrl];
+                this.$store.commit("setAvater", userToAvaterInfo);
             }
         },
         personalCenterClicked:async function(){
-            if(this.showPersonalCenter){
-                this.showPersonalCenter = false;
-            }
-            var self = await services.common.GetSelfUserModel();
-            this.selfUserInfo = await UserInfo.GetUserInfo(self.id);
+            console.log("this.showpersonalcenter is ", this.showPersonalCenter);
             this.showPersonalCenter = true;
+            this.showPersonalInfo = false;
+            var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
+            this.displayName = profileInfo.displayname;
             this.personalCenterKey ++;
         },
         startCheckUpgrade: function() {
             async function checkUpgrade(self) {
-                var newVersion = await services.common.GetNewVersion();
+                var newVersion = await global.services.common.GetNewVersion();
                 console.log("newversion is ", newVersion);
-                if(newVersion == undefined)
+                if(newVersion == undefined || newVersion == false)
                 {
                     return;
                 }
-                if(newVersion.osType != undefined && newVersion.osType != "windows") {
-                    return;
-                }
-                if(newVersion.forceUpdate != undefined && newVersion.forceUpdate){
-                    return;
-                    self.showUpgradeAlertDlg = true;
-                    self.upgradeCanCancel = false;
-                    self.upgradeInfo = newVersion;
-                }
                 else {
-                    return;
-                    self.showUpgradeAlertDlg = true;
-                    self.upgradeInfo = newVersion;
+                    var sOsType = newVersion.osType;
+                    var sUrl = newVersion.downloadUrl;
+                    var sDescription = newVersion.description;
+                    //let sDescription = "1.功能更新-托盘增加注销<br>2.功能更新-聊天列表宽度可拖拽调整<br>3.功能更新-当前聊天页面增加新消息提示<br>4.功能更新-增加撤回功<br>5.功能更新-增加群组删除功能<br>6.功能更新-群描述增加邮箱识别<br>7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来<br>8.修复-消息防止xss注入代码<br>9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容<br>10.修复- @用户有时候会无效的bug<br>11.修复-群组头像查看打开大图<br>12.修复- 群组成员编辑菜单位置自适应<br>13.修复 - 群成员信息隐藏公司信息<br>14.UI -整体ui中所有确认与取消的按钮间距调整"
+                    sDescription = sDescription.replace(/\r\n/g, '<br>')
+                    var smd5Hash = newVersion.md5Hash;
+                    var sId = newVersion.id;
+                    var sUpdateTime = newVersion.updateTime;
+                    var sVerCode = newVersion.verCode;
+                    try{
+                        var sVerCodeSplit = sVerCode.split('.');
+                    }
+                    catch(err) {
+                        return;
+                    }
+                    var sMajor_Version_Number = undefined;
+                    var sMinor_Version_Number = undefined;
+                    var sRevision_Number = undefined;
+                    if(sVerCodeSplit.length >= 3) {
+                        sMajor_Version_Number = sVerCodeSplit[0];
+                        sMinor_Version_Number = sVerCodeSplit[1];
+                        sRevision_Number = sVerCodeSplit[2];
+                    }
+                    else if(sVerCodeSplit.length == 2) {
+                        sMajor_Version_Number = sVerCodeSplit[0];
+                        sMinor_Version_Number = sVerCodeSplit[1];
+                    }
+                    else if(sVerCodeSplit.length == 1) {
+                        sMajor_Version_Number = sVerCodeSplit[0];
+                    }
+                    else {
+                        return;
+                    }
+
+                    var packageFile = require("../../../package.json");
+                    var lVersion = packageFile.version;
+
+                    console.log("lVersion is ", lVersion)
+                    var lVerCodeSplit = lVersion.split('.');
+                    var lMajor_Version_Number = undefined;
+                    var lMinor_Version_Number = undefined;
+                    var lRevision_Number = undefined;
+                    if(lVerCodeSplit.length >= 3) {
+                        lMajor_Version_Number = lVerCodeSplit[0];
+                        lMinor_Version_Number = lVerCodeSplit[1];
+                        lRevision_Number = lVerCodeSplit[2];
+                    }
+                    else if(lVerCodeSplit.length == 2) {
+                        lMajor_Version_Number = lVerCodeSplit[0];
+                        lMinor_Version_Number = lVerCodeSplit[1];
+                    }
+                    else if(lVerCodeSplit.length == 1) {
+                        lMajor_Version_Number = lVerCodeSplit[0];
+                    }
+                    else {
+                        return;
+                    }
+                    console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
+                    console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
+                    var sVerName = newVersion.verName;
+                    let sProductName = sUrl.split("/").pop();
+                    var sForceUpdate = newVersion.forceUpdate;
+                    var needUpdate = false;
+   
+                    if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
+                        if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
+                            return;
+                        }
+                        else if(Number.parseInt(lMajor_Version_Number) == Number.parseInt(sMajor_Version_Number)) {
+                            if(lMinor_Version_Number != undefined && sMinor_Version_Number != undefined) {
+                                if(Number.parseInt(lMinor_Version_Number) > Number.parseInt(sMinor_Version_Number)) {
+                                    return;
+                                }
+                                else if(Number.parseInt(lMinor_Version_Number) == Number.parseInt(sMinor_Version_Number)) {
+                                    if(lRevision_Number != undefined && sRevision_Number != undefined) {
+                                        if(Number.parseInt(lRevision_Number) >= Number.parseInt(sRevision_Number)) {
+                                            return;
+                                        }
+                                        else {
+                                            needUpdate = true;
+                                        }
+                                    }
+                                }
+                                else {
+                                    needUpdate = true;
+                                }
+                            }
+                        }
+                        else {
+                            needUpdate = true;
+                        }
+                    }
+                    
+                    if(sForceUpdate != undefined && sForceUpdate){
+                        if(needUpdate) {
+                            self.showUpgradeAlertDlg = true;
+                            self.upgradeInfo = {
+                                "downloadUrl": sUrl,
+                                "description": sDescription,
+                                "verName": sVerName,
+                                "verId": sId,
+                            };
+                        }
+                    }
+                    else {
+                        if(needUpdate) {
+                            self.showUpgradeAlertDlg = true;
+                            self.upgradeInfo = {
+                                "downloadUrl": sUrl,
+                                "description": sDescription,
+                                "verName": sVerName,
+                                "productName": sProductName,
+                                "verId": sId,
+                            };
+                        }
+                    }
                 }
             }
             checkUpgrade(this);
-            setTimeout(() => {
+            setInterval(() => {
                 checkUpgrade(this);
             }, 1000 * 3600)
         },
         startRefreshToken: function() {
             async function refreshToken(self) {
-                services.common.refreshToken();
+               
             }
             setTimeout(() => {
                 refreshToken(this);
             }, 1000 * 3600 * 3.5)
-        }
+        },
+
+        async logoutMenuItemClick(){
+            await global.mxMatrixClientPeg.logout();
+            await global.services.common.logout();
+            ipcRenderer.send("showLoginPageWindow");
+        },
+
+        softLogout: function(errObj) {
+            if (global.mxMatrixClientPeg.isLoggingOut()) return;
+
+            if (errObj != undefined && errObj.httpStatus === 401 && errObj.data && errObj.data['soft_logout']) {
+                console.warn("Soft logout issued by server - avoiding data deletion");
+                global.mxMatrixClientPeg.softLogout();
+                global.mxMatrixClientPeg.logout();
+                ipcRenderer.send("showLoginPageWindow");
+                return;
+            }
+        },
+        async _doBootstrapUIAuth(makeRequest) {
+            let response = null;
+            var checkType = global.mxMatrixClientPeg.checkType;
+            var username = global.mxMatrixClientPeg.account;
+            var password = global.mxMatrixClientPeg.password;
+            if(checkType == "m.login.verCode.msisdn") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        msisdn: username,
+                        ver_code: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+            else if(checkType == "m.login.verCode.email") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        email: username,
+                        ver_code: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+            else if(checkType == "m.login.sso.ldap") {
+                try{
+                    await makeRequest({
+                        type: checkType,
+                        user: username,
+                        password: password,
+                        identifier: {
+                            type: 'm.id.user',
+                            user: global.mxMatrixClientPeg.matrixClient.getUserId(),
+                        },
+                    });
+                }
+                catch(e) {
+                    console.log(e.message);
+                }
+            }
+        },
     },
+
     components: {
         organization,
         ChatContent,
@@ -361,51 +684,237 @@ export default {
         macWindowHeader,
         personalCenter,
         UpdateAlertDlg,
+        userInfoContent,
+        AlertDlg,
+        ChangePassword
     },
     mounted: async function() {
-        await services.common.init();
-        this.selfUserInfo = await services.common.GetSelfUserModel();
-        //await services.common.AllUserinfo();
-        this.$nextTick(() => {
-            // this.showCurUserIcon();
-        }) 
+        this.loadingInterval = setInterval(() => {
+            if(this.loadingElement == undefined) {
+                this.loadingElement = document.getElementById("isLoadingId");
+            }
+            this.loadingElement.style.transform = 'rotate(' + (this.curRotate += 30) + 'deg)';
+            this.loadingElement.style.transition = 'all 1s linear';
+        }, 100);
+        ipcRenderer.on('setUnreadCount', (e, count) => {
+            this.unReadCount = count;
+        })
+
+        await global.services.common.login();
+        this.startCheckUpgrade();
+        global.services.common.InitDbData().then(ret => {
+            this.dbDataNotFinished = false;
+        });
+        if(global.mxMatrixClientPeg.homeserve == '') {
+            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
+            this.supportedIdentity = flows;
+            for (let i = 0; i < flows.length; i++ ) {
+                var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
+                global.services.common.setGmsConfiguration(appServerInfo.data);
+                break;
+            }
+            
+            this.loginState = this.$t("invalidServerAddress");
+            this.organizationButtonDisabled = false;
+
+            var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
+            console.log("========= ret ", ret)
+                if(ret == undefined) {
+                    global.mxMatrixClientPeg.logout();
+                    ipcRenderer.send("showLoginPageWindow");
+                    return;
+                }
+                if(ret.language) {
+                    this.$i18n.locale = ret.language;
+                    console.log("=======language is ", ret.language)
+                }
+                console.log("the matrix client is ", global.mxMatrixClientPeg)
+                this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        }
+        let ops = {
+        }
+        ops.pendingEventOrdering = "detached";
+        ops.lazyLoadMembers = true;
+        await global.mxMatrixClientPeg.matrixClient.startClient(ops);
+
+        const ctx = this;
+        global.mxMatrixClientPeg.matrixClient.on('Session.logged_out', (errObj) => {
+          global.mxMatrixClientPeg.logout();
+          global.services.common.logout();
+          ipcRenderer.send("showLoginPageWindow");
+        })
+        global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
+            console.log("state ", state);
+            console.log("prevState ", prevState);
+            console.log("data ", data);
+          switch(state){
+            case "PREPARED":
+            //   console.clear();
+            //   ctx.matrixSync = true;
+                global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
+              this.$store.dispatch('syncPrepare');
+              console.log('matrix sync prepared.');
+              break;
+            default:
+              break;
+          }
+        })
+        global.mxMatrixClientPeg.matrixClient.on("Session.logged_out", this.softLogout)
+        //await global.mxMatrixClientPeg.matrixClient.bootstrapCrossSigning({
+        //    authUploadDeviceSigningKeys: this._doBootstrapUIAuth,
+        //});
+        // await global.mxMatrixClientPeg.matrixClient.downloadKeys([global.mxMatrixClientPeg.matrixClient.getUserId()]);
+
+/*     global.mxMatrixClientPeg.matrixClient.getMediaConfig().then((config)=>{
+            console.log(config)
+        })
+*/
+        if(global.localStorage.getItem("neetNoticeToChangePwd") == "true") {
+            this.showChangePasswordAlertPage()
+        }
+        setTimeout(() => {
+            this.showCurUserIcon();
+        }, 1000)
         var _this = this;
         document.addEventListener('click',function(e){
-            if(e.target.className.indexOf('personalCenter') == -1){
+            // console.log("e.target.classname is ", e.target.className)
+            if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
-                    _this.showPersonalCenter = false;
+                    // console.log("============")
+                    _this.showPersonalInfo = false;
+                    
+                    if(e.target.id != 'owverInfoEnditID')
+                    {
+                        console.log(e.target.id)
+                        _this.showPersonalCenter = false;    
+                    }
+                        
                 }
 
             }
         });
-        ipcRenderer.on('setUnreadCount', (e, count) => {
-            this.unReadCount = count;
+
+        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
+            let msgs = await Message.FindMessageByMesssageID(eventId);
+            if(msgs.length != 0){
+                msgs[0].file_local_path = finalName;
+                msgs[0].save();
+            }
+            else{
+                let msgValue = {
+                    message_id: eventId,
+                    file_local_path: finalName
+                }
+                let model = await new(await models.Message)(msgValue);
+                model.save();
+            }
         })
     },
     created: async function () {
         ipcRenderer.on('updateUserImage', this.updateSelfImage);
-        await this.getAppBaseData();
-        this.startCheckUpgrade();
-        this.startRefreshToken();
+        ipcRenderer.on('toLogout', this.softLogout);
+        ipcRenderer.on('LogoutMenuItemClick', this.logoutMenuItemClick);
+        ipcRenderer.on('setIsFullScreen', this.setFullScreen);
+        ipcRenderer.on('isNormal', (e, isNormal) => {
+            this.isNormal = isNormal;
+        })
+        ipcRenderer.on('jumpToChat', this.jumpToChat);
+        ipcRenderer.on('clearAll', this.clearAll);
+        console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
+        this.getAppBaseData();
+        
+        // this.startRefreshToken();
     },
 }
 </script>
-
 <style lang="scss" scoped>
+    .group-unread {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgb(255, 255, 255);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+    }
+
+    .group-unread-99 {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgb(255, 255, 255);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+    }
+
+    .group-unread-nofocus {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgba(255, 255, 255, 0.5);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
+    .group-unread-99-nofocus {
+        position: absolute;
+        z-index: 1;
+        display:inline-block;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        color: rgba(255, 255, 255, 0.5);
+        margin-left: 4px;
+        margin-top: -45px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
     .mainpage {
         cursor: default;
         margin: 0 0 0 0;
         width: 100%;
         height: 100%;
-        -webkit-user-select:none;
     }
 
     .nav-menu {
         width: 64px;
         height: 100%;
         padding: 0px;
-        margin-top: 36px;
+        margin-top: 0px;
         background: rgba(74, 76, 91, 1);
+        -webkit-app-region: drag;
+    }
+    * {
+        
+        -webkit-app-region: no-drag;
     }
 
     .navigate-panel {
@@ -425,7 +934,7 @@ export default {
         height: 40px;
         text-align: center;
         line-height: 40px;
-        margin: 40px 0px 10px 0px;
+        margin: 56px 0px 20px 0px;
         border-radius:4px;
     }
 
@@ -433,6 +942,7 @@ export default {
         width: 40px;
         height: 40px;
         border-radius:4px;
+        border-radius: 50%;
     }
 
     .nav-unread {
@@ -448,6 +958,24 @@ export default {
         height: 14px;
         width: 14px;
         line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+        // z-index:-1;
+    }
+
+    .nav-unread-99 {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
         border-radius: 20px;
         background-color: rgba(228, 49, 43, 1);
         // z-index:-1;
@@ -470,9 +998,26 @@ export default {
         background-color: rgba(228, 49, 43, 0.7);
     }
 
+    .nav-unread-no-focuse-99 {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
     .mac-nav-unread {
         position: absolute;
-        top: 136px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -488,9 +1033,27 @@ export default {
         // z-index:-1;
     }
 
+    .mac-nav-unread-99 {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgb(255, 255, 255);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 1);
+        // z-index:-1;
+    }
+
     .mac-nav-unread-no-focuse {
         position: absolute;
-        top: 136px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family: PingFangSC-Medium;
@@ -501,6 +1064,23 @@ export default {
         height: 14px;
         width: 14px;
         line-height: 14px;
+        border-radius: 20px;
+        background-color: rgba(228, 49, 43, 0.7);
+    }
+
+    .mac-nav-unread-no-focuse-99 {
+        position: absolute;
+        top: 124px;
+        left: 36px;
+        font-size: 10px;
+        font-family: PingFangSC-Medium;
+        float: right;
+        color: rgba(255, 255, 255, 0.5);
+        margin: 0px;
+        text-align: center;
+        height: 14px;
+        width: 14px;
+        line-height: 9px;
         border-radius: 20px;
         background-color: rgba(228, 49, 43, 0.7);
     }
@@ -524,7 +1104,7 @@ export default {
 
     .mac-nav-readall-unselected {
         position: absolute;
-        top: 136px;
+        top: 124px;
         left: 36px;
         font-size: 10px;
         font-family:PingFangSC-Medium;
@@ -540,25 +1120,53 @@ export default {
     }
 
     .nav-item {
-        height: 50px;
+        height: 48px;
         text-align: center;
-        line-height: 50px;
+        line-height: 48px;
         background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item.active {
-        height: 50px;
+        height: 48px;
         text-align: center;
         color: rgba(255, 255, 255, 1);
-        line-height: 50px;
+        line-height: 48px;
         background-color: rgba(74, 76, 91, 1);;
     }
 
     .nav-item:hover {
-        height: 50px;
+        height: 48px;
         text-align: center;
-        line-height: 50px;
+        line-height: 48px;
         background-color: rgba(74, 76, 91, 1);;
+    }
+
+    .nav-item .tooltiptext {
+        visibility: hidden;
+        height: 13px;
+        font-size: 11px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        background: #E3E3E5;
+        line-height: 1;
+        border-radius: 2px;
+        padding-top: 4px;
+        padding-right: 4px;
+        padding-bottom: 0px;
+        padding-left: 4px;
+        margin-top: -15px;
+        margin-left: 10px;
+        word-wrap: break-word;
+    
+        /* 定位 */
+        position: fixed;
+        z-index: 1;
+    }
+
+    /* 鼠标移动上去后显示提示框 */
+    .nav-item:hover .tooltiptext {
+        visibility: visible;
     }
 
     .NavChatting {
@@ -569,13 +1177,13 @@ export default {
         height: 24px;
     }
 
-    .NavChatting:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/chathover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavChatting:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/chathover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavChatting.active {
         border: 0px;
@@ -593,13 +1201,13 @@ export default {
         height: 24px;
     }
 
-    .NavOrganization:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/orghover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavOrganization:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/orghover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavOrganization.active {
         border: 0px;
@@ -617,13 +1225,13 @@ export default {
         height: 24px;
     }
 
-    .NavFavourite:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/favhover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavFavourite:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/favhover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavFavourite.active {
         border: 0px;
@@ -660,7 +1268,36 @@ export default {
         height: 20px;
         text-align: center;
         line-height: 20px;
-        background-color: rgba(74, 76, 91, 1);;
+        // background-color: rgba(74, 76, 91, 1);;
+        cursor:pointer;
+    }
+
+    .NavSetUp .tooltiptext {
+        visibility: hidden;
+        height: 13px;
+        font-size: 11px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #000000;
+        background: #E3E3E5;
+        line-height: 1;
+        border-radius: 2px;
+        padding-top: 4px;
+        padding-right: 4px;
+        padding-bottom: 0px;
+        padding-left: 4px;
+        margin-top: -10px;
+        margin-left: 10px;
+        word-wrap: break-word;
+    
+        /* 定位 */
+        position: fixed;
+        z-index: 1;
+    }
+
+    /* 鼠标移动上去后显示提示框 */
+    .NavSetUp:hover .tooltiptext {
+        visibility: visible;
     }
 
     .NavSetUpImg {
@@ -671,13 +1308,13 @@ export default {
         height: 24px;
     }
 
-    .NavSetUpImg:hover {
-        border: 0px;
-        background-image: url("../../../static/Img/Navigate/setup-hover-24px@2x.png");
-        background-size: contain;
-        width: 24px;
-        height: 24px;
-    }
+    // .NavSetUpImg:hover {
+    //     border: 0px;
+    //     background-image: url("../../../static/Img/Navigate/setup-hover-24px@2x.png");
+    //     background-size: contain;
+    //     width: 24px;
+    //     height: 24px;
+    // }
 
     .NavSetUpImg.active {
         border: 0px;
@@ -696,9 +1333,48 @@ export default {
         overflow-y:hidden;
         overflow-x: hidden;
     }
-.macWindowHeader {
-    padding: 0px;
-    margin: 0px;
-    width: 64px;
-}
+
+    .loadingDiv {
+        padding: 0px;
+        width: calc(100% - 70px);
+        height: 100%;
+        vertical-align: top;
+        margin: 0px;
+        overflow-y:hidden;
+        overflow-x: hidden;
+    }
+
+    .loadingInfo {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 145px;
+        height: 100px;
+        text-align: center;
+    }
+
+    .loadingText {
+        font-size: 14px;
+        font-family:PingFangSC-Regular;
+        text-align: center;
+        font-weight: 400;
+        color: rgba(153, 153, 153, 1);
+        height: 20px;
+        line-height: 20px;
+        margin-left: 5px;
+    }
+
+    .isLoading {
+        width: 40px;
+        height: 40px;
+    }
+
+    .macWindowHeader {
+        padding: 0px;
+        margin: 0px;
+        width: 64px;
+    }
 </style>

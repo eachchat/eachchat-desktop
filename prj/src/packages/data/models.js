@@ -67,6 +67,28 @@ var models = {
       return;
     await this.storage.sqlite.connect(); 
 
+    this.contact = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: 'contact',
+        fields: {
+          contact_id:    types.string,
+          matrix_id:    types.string,
+          user_id:      types.string,
+          eachchat_user_id: types.string,
+          display_name: types.string,
+          avatar_url:   types.string,
+          email:        types.string,
+          mobile:       types.string,
+          telephone:    types.string,
+          company:      types.string,
+          title:        types.string,
+          updatetime:   types.string
+          },
+        primaryKey: 'matrix_id'
+      });
+    })();
+
     this.user = await (async () => {
       return await model.Model.create({
         storage: this.storage.sqlite,
@@ -131,7 +153,8 @@ var models = {
           admin_id:      types.string,
           del:           types.integer,
           show_order:    types.integer,
-          updatetime:    types.integer
+          updatetime:    types.integer,
+          department_type: types.string
         },
         primaryKey: "department_id"
       });
@@ -143,6 +166,7 @@ var models = {
         index: 'userinfo',
         fields: {
           user_id:                  types.string,
+          matrix_id:                types.string,
           belong_to_department_id:  types.string,
           user_name:                types.string,
           user_display_name:        types.string,
@@ -293,7 +317,7 @@ var models = {
           timeline_id:           types.string,
           timestamp:             types.integer
         },
-        primaryKey: "favourite_id"
+        primaryKey: "collection_id"
       });
     })();
 
@@ -323,6 +347,19 @@ var models = {
         primaryKey: "key_id"
       });
     })();
+
+    this.room = await (async () => {
+      return await model.Model.create({
+        storage: this.storage.sqlite,
+        index: "room",
+        fields: {  
+          id:          types.string,
+          room_id:      types.string,
+          updatetime:  types.string
+        },
+        primaryKey: "id"
+      });
+    })();
     return true;
   },
 
@@ -330,36 +367,35 @@ var models = {
     if (typeof environment.path.sqlite == "undefined") {
       return undefined;
     }
-    await globalModels.init();
-    let userInfo = await Config.GetCurrentUserID();
-    console.log(userInfo)
-    if(userInfo == undefined)
-      return;
-    let userID = userInfo.user_id;
-    let orgID =  userInfo.org_id;
+
+    let userID = localStorage.getItem("mx_user_id");
+    let base64UserID = Base64.encode(userID, true);
+    let orgID =  localStorage.getItem("Domain");
+    let base64orgID = Base64.encode(orgID, true);
+
     let dbPath;
     let dbFolder;
     if(environment.os.isWindows){
-      dbFolder = environment.path.base + "\\" + orgID; 
+      dbFolder = environment.path.base + "\\" + base64orgID; 
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
-      dbFolder = dbFolder + "\\" + userID;
+      dbFolder = dbFolder + "\\" + base64UserID;
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
       dbPath = dbFolder + "\\eachchat.db";
     }
     else{
-      dbFolder = environment.path.base + "/" + orgID;
+      dbFolder = environment.path.base + "/" + base64orgID;
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
-      dbFolder = dbFolder + "/" +userID;
+      dbFolder = dbFolder + "/" +base64UserID;
       if (!fs.existsSync(dbFolder)) {
         fs.mkdirSync(dbFolder);
       }
-      dbPath = dbFolder + "/achchat.db";
+      dbPath = dbFolder + "/eachchat.db";
     }
     
     var sqlite = new storage.SQLiteStorage({
@@ -371,6 +407,10 @@ var models = {
     }
 
     return sqlite;
+  },
+
+  get Contact() {
+    return this.contact;
   },
 
   get User() {
@@ -423,6 +463,10 @@ var models = {
 
   get Secret(){
     return this.secret;
+  },
+
+  get FavouriteRoom(){
+    return this.room;
   }
 }
 

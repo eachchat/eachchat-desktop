@@ -10,7 +10,7 @@ class HTTP {
   constructor(hostname, port, tls) {
     this.hostname = hostname;
     let httpValue;
-    if(tls == 1)
+    if(parseInt(tls) == 1)
       httpValue = "https";
     else
       httpValue = "http";

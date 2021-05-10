@@ -8,7 +8,7 @@
             <el-container class="ChatCreaterContent">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
                 </div><div class="search-action">
                         
                         <div class="search-delete">
@@ -967,7 +967,7 @@ display: none;
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
     }
 
     .ChatCreaterClose {
@@ -1044,7 +1044,7 @@ display: none;
                                 font-weight:400;
                                 color:rgba(0,0,0,1);
                                 line-height:20px;
-                                letter-spacing:1px;
+                                letter-spacing: 0px;
                                 font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
@@ -1056,7 +1056,7 @@ display: none;
                                     font-weight:400;
                                     color:rgba(153,153,153,1);
                                     line-height:18px;
-                                    letter-spacing:1px;
+                                    letter-spacing: 0px;
                                     height:18px;
                                     font-size:12px;
                                     font-family: PingFangSC-Regular;
@@ -1090,7 +1090,7 @@ display: none;
                         padding-left: 0px;
                         font-family: PingFangSC-Regular;
                         font-weight: 400;
-                        letter-spacing: 1px;
+                        letter-spacing: 0px;
                     }
                 }
                 .organizationSelectAllHeader{
@@ -1115,7 +1115,7 @@ display: none;
                         font-weight:400;
                         color:rgba(0,0,0,1);
                         line-height:20px;
-                        letter-spacing:1px;
+                        letter-spacing: 0px;
                         font-family: PingFangSC-Regular;
                     }
                     .checkBox-label{
@@ -1167,7 +1167,7 @@ display: none;
                                     font-weight:400;
                                     color:rgba(0,0,0,1);
                                     line-height:20px;
-                                    letter-spacing:1px;
+                                    letter-spacing: 0px;
                                     font-family: PingFangSC-Regular;
                                 }
                             }
@@ -1228,7 +1228,7 @@ display: none;
                                 font-weight:400;
                                 color:rgba(0,0,0,1);
                                 line-height:20px;
-                                letter-spacing:1px;
+                                letter-spacing: 0px;
                                 font-family: PingFangSC-Regular;
                                 }
                                 .subUserTitle{
@@ -1240,7 +1240,7 @@ display: none;
                                     font-weight:400;
                                     color:rgba(153,153,153,1);
                                     line-height:18px;
-                                    letter-spacing:1px;
+                                    letter-spacing: 0px;
                                     height:18px;
                                     font-size:12px;
                                     font-family: PingFangSC-Regular;
@@ -1289,7 +1289,7 @@ display: none;
                     font-weight:400;
                     color:rgba(0,0,0,1);
                     line-height:20px;
-                    letter-spacing:1px;
+                    letter-spacing: 0px;
                     text-overflow: ellipsis;
                     overflow: hidden;
                     padding-left: 12px;
@@ -1328,7 +1328,7 @@ display: none;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .selectedContentView {
@@ -1367,7 +1367,7 @@ display: none;
                             font-weight:400;
                             color:rgba(0,0,0,1);
                             line-height:20px;
-                            letter-spacing:1px;
+                            letter-spacing: 0px;
                             text-overflow: ellipsis;
                             overflow: hidden;
                             padding-left: 12px;
@@ -1462,7 +1462,7 @@ display: none;
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
 
     .TransmitFotter {
@@ -1474,35 +1474,34 @@ display: none;
     .TransmitConfirmButton{
         width: 100px;
         height: 32px;
-        margin-left: 5px;
+        margin-left: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
         background: rgba(36, 179, 107, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .TransmitConfirmButton:disabled{
         width: 100px;
         height: 32px;
-        margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
         background: rgba(167, 224, 196, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
+        border:none;
     }
  
     .TransmitCancleButton {
         width: 100px;
         height: 32px;
-        margin-right: 5px;
+        margin-right: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-left: 110px;

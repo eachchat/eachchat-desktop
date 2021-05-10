@@ -143,16 +143,12 @@ class SQLiteStorage extends Storage {
         sql.where([field, operator, value]);
 
       } else if (value instanceof Array) {
-        var whereIn = "('";
-        whereIn += value.join("', '");
-        whereIn += value.join("')");
-
         if (isOr) {
-          sql.whereOr([field, 'in', whereIn]);
+          sql.whereOr([field, 'in', value]);
           continue;
         }
 
-        sql.where([field, 'in', whereIn]);
+        sql.where([field, 'in', value]);
 
       } else if (typeof value === "object") {
         var comparations = [];

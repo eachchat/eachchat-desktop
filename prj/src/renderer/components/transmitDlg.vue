@@ -9,7 +9,7 @@
             <el-container class="TransmitContent" v-show="!showCreateNewChat">
                 <el-aside class="ListView" width="280px">
                     <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
+                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" >
                 </div><div class="search-action">
                         
                         <div class="search-delete">
@@ -23,15 +23,19 @@
                     <div class="searchView" v-if="showSearchView">
                         <ul class="searchGroupList">
                             <li class="searchGroup" v-for="(group, index) in searchGroup" :key="index">
-                                <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                <img ondragstart="return false" class="group-icon" :id="'search' + group.group_id" src="../../../static/Img/User/user-40px@2x.png">
+                                <img
+                                    @click.stop="groupCheckBoxClicked(group)"
+                                    style="height:20px; width:20px; margin:14px 8px 14px 0;"
+                                    :src="groupChecked(group) ? './static/Img/Main/lg.png' : './static/Img/Main/tmk.png'"
+                                >
+                                <img ondragstart="return false" class="group-icon" :id="'search' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
-                                    <p class="group-name">{{ group.group_name }}</p>
+                                    <p class="group-name" :id="getSearchChatNameId(group)">{{ group.name }}</p>
                                 </div>
                             </li>
                         </ul>
                     </div>
-                    <div class="NewChatView" v-show="!showSearchView">
+                    <div class="NewChatView" v-show="!showSearchView && false">
                         <img ondragstart="return false" class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
                         <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
                         <p class="createNewChatTitle">创建新聊天</p>
@@ -43,10 +47,14 @@
                     <div class="RecentChatView" v-show="!showSearchView">
                             <ul class="recentChatList">
                                 <li class="recentChat" v-for="(group, index) in showRecentChat" :key="index">
-                                    <input type="checkBox" class="multiSelectCheckbox" :checked="groupChecked(group)" @click="groupCheckBoxClicked(group)">
-                                    <img ondragstart="return false" class="group-icon" :id="group.group_id" src="../../../static/Img/User/user-40px@2x.png">
+                                    <img
+                                        @click.stop="groupCheckBoxClicked(group)"
+                                        style="height:20px; width:20px; margin:14px 8px 14px 0;"
+                                        :src="groupChecked(group) ? './static/Img/Main/lg.png' : './static/Img/Main/tmk.png'"
+                                    >
+                                    <img ondragstart="return false" class="group-icon" :id="'transmit' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                     <div class="group-info">
-                                        <p class="group-name">{{ group.group_name }}</p>
+                                        <p class="group-name" :id="getTransmitNameId(group)">{{ group.showName ? group.showName : group.name }}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -59,11 +67,11 @@
                     <div class="selectedContentView">
                         <ul class="selectedGroupList">
                             <li class="selectedGroup" v-for="(group,index) in selectedGroups" :key="index">
-                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.group_id" src="../../../static/Img/User/user-40px@2x.png">
+                                <img ondragstart="return false" class="group-icon" :id="'selected' + group.roomId" src="../../../static/Img/User/user-40px@2x.png">
                                 <div class="group-info">
-                                    <p class="group-name">{{ group.group_name }}</p>
+                                    <p class="group-name" :id="getSelectedChatNameId(group)">{{ group.name }}</p>
                                 </div>
-                                <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
+                                <img ondragstart="return false" class="group-delete-icon" src="../../../static/Img/Chat/delete-grey-20px@2x.png" @click="deleteGroupFromSelectedGroups(group)">
                             </li>
                         </ul>
                     </div>
@@ -72,11 +80,11 @@
             <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
             <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确认</button>
+                <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确定</button>
             </div>
             <div class="TransmitFotter" v-show="showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确认</button>
+                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确定</button>
             </div>
         </div>
     </div>
@@ -95,25 +103,29 @@ import * as path from 'path'
 import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
 import conf_service from '../../packages/data/conf_service'
+import {ComponentUtil} from '../script/component-util.js';
 export default {
     name: 'TransmitDlg',
     components:{
         chatCreaterContent,
     },
     props: {
+        transmitMergeInfo: {
+            from_room_id: '',
+            from_room_display_name: '',
+            from_matrix_ids: []
+        },
         collectionInfo: {
             type: Object,
             default: function(){
                 return {};
             }
         },
-        recentGroups: {
-            type: Array,
-            default: function () { 
-                return [];
-            }
-        },
         transmitCollection:{
+            type: Boolean,
+            default: false
+        },
+        transmitImageViewer:{
             type: Boolean,
             default: false
         },
@@ -133,16 +145,10 @@ export default {
                 return [];
             }
         },
-
-    },
-    watch: {
-        recentGroups: function() {
-            for(var i = 0; i < this.recentGroups.length; i ++){
-                if(this.recentGroups[i].key_id != undefined && this.recentGroups[i].key_id.length != 0) {
-                    continue;
-                }
-                this.showRecentChat.push(this.recentGroups[i]);
-                this.getGroupAvatarContent(this.recentGroups[i]);
+        imageViewerImageInfo: {
+            type: Object,
+            default: function(){
+                return {};
             }
         }
     },
@@ -168,6 +174,7 @@ export default {
     },
     data () {
         return {
+            recentGroups: [],
             showRecentChat: [],
             showCreateNewChat: false,
             TransmitDlgElement: null,
@@ -190,6 +197,109 @@ export default {
         }
     },
     methods: {
+        checkIsDisabled(chatItem) {
+            if(this.selectedGroups.length >= 9) {
+                if(this.selectedGroups.indexOf(chatItem) >= 0) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            return false;
+        },
+        async updageTransmitChatNameAndImg() {
+            for(let i=this.showRecentChat.length-1;i>=0;i--) {
+                var distGroup = this.showRecentChat[i];
+                console.log("distGroup is ", distGroup);
+                if(!distGroup) continue;
+                var elementGroupName = document.getElementById(this.getTransmitNameId(distGroup));
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                console.log("distUserId is ", distUserId);
+                if(!distUserId) {
+                    continue;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                this.showRecentChat[i].showName = displayName;
+                elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                
+                this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
+            }
+        },
+        async updageSelectedChatNameAndImg() {
+            for(let i=this.selectedGroups.length-1;i>=0;i--) {
+                var distGroup = this.selectedGroups[i];
+                if(!distGroup) continue;
+                var elementGroupName = document.getElementById(this.getSelectedChatNameId(distGroup));
+            
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
+                    continue;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                this.selectedGroups[i].showName = displayName;
+                elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                    
+                this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
+            }
+        },
+        async updageSearchChatNameAndImg() {
+            for(let i=this.searchGroup.length-1;i>=0;i--) {
+                var distGroup = this.searchGroup[i];
+                if(!distGroup) continue;
+                var elementGroupName = document.getElementById(this.getSearchChatNameId(distGroup));
+                
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
+                    continue;
+                }
+                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+                this.searchGroup[i].showName = displayName;
+                elementGroupName.innerHTML = displayName;//distGroup.name = displayName;
+                
+                this.getGroupAvatarContent(this.searchGroup[i], 'search');
+            }
+        },
+        getSelectedChatNameId(chatGroupItem) {
+            return 'selected-group-name-' + (chatGroupItem ? chatGroupItem.roomId : "");
+        },
+        getSearchChatNameId(chatGroupItem) {
+            return 'search-group-name-' + (chatGroupItem ? chatGroupItem.roomId : "");
+        },
+        getTransmitNameId(chatGroupItem) {
+            return 'transmit-group-name-' + (chatGroupItem ? chatGroupItem.roomId : "");
+        },
+        GetLastShowMessage(chatGroupItem){
+            for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
+                var timeLineTmp = chatGroupItem.timeline[i];
+                if(['m.room.message', 'm.room.encrypted', 'm.room.name', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+                return timeLineTmp;
+                }
+            }
+        },
+        SortGroupByTimeLine(item1, item2){
+            let timeline1 = 0;
+            let timeline2 = 0;
+            if(item1.timeline.length != 0){
+                let msg1 = this.GetLastShowMessage(item1);
+                if(msg1 && msg1.event){
+                timeline1 = msg1.event.origin_server_ts;
+                }
+                else{
+                timeline1 = 0;
+                }
+            }
+            if(item2.timeline.length != 0){
+                let msg2 = this.GetLastShowMessage(item2);
+                if(msg2 && msg2.event){
+                timeline2 = msg2.event.origin_server_ts;
+                }
+                else{
+                timeline2 = 0;
+                }
+            }
+            return timeline2 - timeline1;
+        },
         updateGroupImg(e, arg) {
             var state = arg[0];
             var stateInfo = arg[1];
@@ -215,19 +325,46 @@ export default {
             this.$emit("closeTransmitDlg", "");
             
         },
+        async searchRoom(searchKey) {
+            var searchResult = [];
+            // console.log("search key is ", searchKey);
+            for(var i=0;i<this.recentGroups.length;i++) {
+                // console.log("the room name is ", this.showGroupList[i].name.indexOf(searchKey));
+                
+                var distGroup = this.recentGroups[i];
+                
+                var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
+                if(!distUserId) {
+                    if(this.recentGroups[i].name.indexOf(searchKey) >= 0) {
+                    // console.log("inininin put ");
+                        searchResult.push(this.recentGroups[i]);
+                    }
+                }
+                else {
+                    var displayName = this.recentGroups[i].showName;
+                    if(displayName.indexOf(searchKey) >= 0) {
+                    // console.log("inininin put ");
+                        searchResult.push(this.recentGroups[i]);
+                    }
+                }
+                
+
+            }
+            return searchResult;
+        },
         search:async function () {
             if(this.searchKey == ''){
                 this.showSearchView = false;
                 return;
             }
             this.showSearchView = true;
-            this.searchGroup = await Group.SearchByNameKey(this.searchKey);
+            this.searchGroup = await this.searchRoom(this.searchKey);
 
-            this.$nextTick(function(){
-                for(var i = 0; i < this.searchGroup.length; i ++){
-                    this.getGroupAvatarContent(this.searchGroup[i], 'search');
-                }
-            });
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    this.updageSearchChatNameAndImg();
+                });
+            }, 0)
         },
         searchDeleteClicked(){
             this.searchKey = '';
@@ -237,9 +374,7 @@ export default {
             var index = this.selectedGroups.indexOf(group);
             this.selectedGroups.splice(index, 1);
             this.$nextTick(function(){
-                for(var i = 0; i < this.selectedGroups.length; i ++){
-                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
-                }
+                this.updageSelectedChatNameAndImg();
             });
         },
         groupCheckBoxClicked(group){
@@ -248,12 +383,19 @@ export default {
                 this.selectedGroups.splice(index, 1);
             }
             else{
+                if(this.selectedGroups.length >= 9) {
+                    this.$toastMessage({message:"最多选择9个联系人和群组", time: 2000, type:'error', showWidth:'280px'});
+                    this.selectedGroups.push(group);
+                    this.$nextTick(() => {
+                        var index = this.selectedGroups.indexOf(group);
+                        this.selectedGroups.splice(index, 1);
+                    })
+                    return;
+                }
                 this.selectedGroups.push(group);
             }
             this.$nextTick(function(){
-                for(var i = 0; i < this.selectedGroups.length; i ++){
-                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
-                }
+                this.updageSelectedChatNameAndImg();
             });
         },
         createNewChatButtonClicked:async function() {
@@ -265,7 +407,6 @@ export default {
             var temp = rootDepartmentModels;
             this.rootDepartments =  temp.sort(this.compare("show_order"));
             this.showCreateNewChat = true;
-            
         },
         compare(property){
             return function(a,b){
@@ -277,8 +418,8 @@ export default {
         indexOfGroupInSelected(group){
             var index = -1;
             for(var i = 0; i < this.selectedGroups.length; i ++){
-                var id = group.group_id;
-                if(id == this.selectedGroups[i].group_id){
+                var id = group.roomId;
+                if(id == this.selectedGroups[i].roomId){
                     index = i;
                     break;
                 }
@@ -300,27 +441,26 @@ export default {
         //         })
         // },
         getGroupAvatarContent:async function(group, key='') {
-            var targetDir = confservice.getUserThumbHeadPath();
-            var targetPath = path.join(targetDir, group.group_id + '.png');
-            var groupAvatarElement = document.getElementById(key + group.group_id);
-            if(groupAvatarElement == null) {
-                return;
+            if(!group) return;
+            var groupAvatarElement = document.getElementById(key + group.roomId);
+            // console.log("gtoup name is ", group.name);
+            var distUrl = global.mxMatrixClientPeg.getRoomAvatar(group);
+            // console.log("disturl is ", distUrl);
+            if(!distUrl || distUrl == '') {
+                let defaultGroupIcon;
+                if(global.mxMatrixClientPeg.DMCheck(group))
+                    defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
+                else
+                    defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
+                groupAvatarElement.setAttribute("src", defaultGroupIcon); 
             }
-            if(fs.existsSync(targetPath)) {
-                var showfu = new FileUtil(targetPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    groupAvatarElement.setAttribute("src", reader.result);
-                }
+            if(groupAvatarElement != undefined && distUrl) {
+                console.log("to set src", groupAvatarElement);
+                groupAvatarElement.setAttribute("src", distUrl);
             }
-            else{
-                console.log("download group avatar", group);
-                services.common.downloadGroupAvatar(group.group_avarar, group.group_id);
-                //await this.getGroupAvatarContent(group);
+            else {
+                console.log("groupAvatarElement is kng");
             }
-
         },
         calcImgPosition: function() {
 
@@ -351,25 +491,40 @@ export default {
                 return;
             }
             //
-            this.curUserInfo = await services.common.GetSelfUserModel();
             if(this.transmitCollection){
                 var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
                 this.$emit("closeTransmitDlg", "");
                 if(suc == false) {
-                    this.$toastMessage({message:'转发失败', time:1500, type:'success'});
+                    this.$toastMessage({message:'转发失败', time:1500, type:'error'});
                 }
                 else {
                     this.$toastMessage({message:'转发成功', time:1500, type:'success'});
                 }
                 return;
             }
-            await this.sendMsg(this.selectedGroups, this.transmitMessages);
+            if(this.transmitImageViewer) {
+                var suc = await this.sendImageViewerMsg(this.selectedGroups, this.imageViewerImageInfo);
+                this.$emit("closeTransmitDlg", "");
+                if(suc == false) {
+                    this.$toastMessage({message:'转发失败', time:1500, type:'error'});
+                }
+                else {
+                    this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+                }
+                return;
+            }
+            var suc = await this.sendMsg(this.selectedGroups, this.transmitMessages);
             // for(var i=0;i<this.groupList.length;i++) {
             //     this.groupList[i].checkState = false;
             // }
             // this.selectedChat = [];
             this.$emit("closeTransmitDlg", "");
-            this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+            if(suc == false) {
+                this.$toastMessage({message:'转发失败', time:1500, type:'error'});
+            }
+            else {
+                this.$toastMessage({message:'转发成功', time:1500, type:'success'});
+            }
         },
         createGroupAndTransmit: async function() {
             console.log(this.$refs.chatCreaterContent.getSelectedUsers());
@@ -511,288 +666,230 @@ export default {
                 await this.sendTogetherMsg(distGroups, msgs);
             }
             else {
-                await this.sendSingleMsg(distGroups, msgs);
+                return await this.sendSingleMsg(distGroups, msgs);
             }
         },
         sendTogetherMsg: async function(distGroups, msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            var msgContent = await this.getTogetherMsgContent(msgs);
-            console.log("varcontent is ", msgContent);
+            let haveFailed = false;
+            let togetherContent = await this.getTogetherMsgContent(msgs);
             for(var i=0;i<distGroups.length;i++){
-                var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                 let curTimeSeconds = new Date().getTime();
-                
-                let sendingMsgContentType = 106;
-                let willSendMsgContent = msgContent;
-                let guid = generalGuid();
-                services.common.sendNewMessage(
-                        guid, 
-                        sendingMsgContentType, 
-                        this.curUserInfo.id, 
-                        groupId, 
-                        uid, 
-                        curTimeSeconds, 
-                        willSendMsgContent)
-                    .then((ret) => {
-                        console.log("sendNewMessage ret is ", strMsgContentToJson(ret.message_content));
-                            if(ret == undefined) {
-                                return false;
-                            }
-                            else {
-                                this.$emit('updateChatList', ret);
-                            }
+                try{
+                    global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, togetherContent, curTimeSeconds).then((ret) => {
+                        
+                    }).catch((error) => {
+                        haveFailed = true;
                     })
+                }
+                catch(error) {
+                    haveFailed = true;
+                }
+            }
+            if(haveFailed) {
+                return false;
+            }
+            return true;
+        },
+        sendImageViewerMsg: async function(distGroups, imageViewerImageInfo) {
+            console.log("sendSingleCollectionMsg ", imageViewerImageInfo);
+            
+            for(var i=0;i<distGroups.length;i++){
+                if(imageViewerImageInfo.info != undefined) {
+                    if(imageViewerImageInfo.info.h != undefined)
+                    try{
+                        imageViewerImageInfo.info.h = parseInt(imageViewerImageInfo.info.h);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(imageViewerImageInfo.info.w != undefined)
+                    try{
+                        imageViewerImageInfo.info.w = parseInt(imageViewerImageInfo.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
+                var content = {
+                            msgtype: 'm.image',
+                            body: imageViewerImageInfo.body,
+                            url: imageViewerImageInfo.url,
+                            info:imageViewerImageInfo.info,
+                        };
+                try {
+                    var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                }
+                catch(error) {
+                    return false;
+                }
+                
+                return true;
             }
         },
         sendSingleCollectionMsg: async function(distGroups, collection) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
+            console.log("sendSingleCollectionMsg ", collection);
+            if(collection.collection_content == undefined) {
+                alert("转发失败。")
+                return;
             }
+            let varcontent = collection.collection_content;
             for(var i=0;i<distGroups.length;i++){
-
-                    var curMsg = collection;
-                    console.log("curMsg is ", curMsg);
-                    if(curMsg.collection_type == 105) {
-                        continue;
+                if(varcontent == null || varcontent.length == 0) {
+                    // toDo To Deal The \n
+                    alert("不能发送空白信息。")
+                    return;
+                }
+                if(varcontent.info != undefined) {
+                    if(varcontent.info.h != undefined)
+                    try{
+                        varcontent.info.h = parseInt(varcontent.info.h);
                     }
-                    var isOk = true;
-                    var curMsgContent = {};
-                    let curTimeSeconds = new Date().getTime();
-                    if(curMsg.collection_type == 101) {
-                        if(curMsg.collection_content["text"] == undefined){
-                            isOk = false;
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(varcontent.info.w != undefined)
+                    try{
+                        varcontent.info.w = parseInt(varcontent.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
+                if(varcontent.msgtype == "m.text") {
+                    let sendText = varcontent.body;
+                    
+                    let sendBody = {
+                        msgtype: "m.text",
+                        body: sendText
+                    }
+                    if(sendText.length != 0)
+                    {
+                        sendBody.body = sendText;
+                        try {
+                            var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, sendBody);
                         }
-                        else{
-                            curMsgContent["text"] = curMsg.collection_content["text"];
+                        catch(error) {
+                            return false;
                         }
                     }
-                    else if(curMsg.collection_type == 102) {
-                        curMsgContent["ext"] = curMsg.collection_content["ext"];
-                        curMsgContent["fileName"] = curMsg.collection_content["fileName"];
-                        curMsgContent["url"] = curMsg.collection_content["url"];
-                        curMsgContent["middleImage"] = curMsg.collection_content["middleImage"];
-                        curMsgContent["thumbnailImage"] = curMsg.collection_content["thumbnailImage"];
-                        curMsgContent["imgWidth"] = curMsg.collection_content["imgWidth"];
-                        curMsgContent["imgHeight"] = curMsg.collection_content["imgHeight"];
-                        curMsgContent["fileSize"] = curMsg.collection_content["fileSize"];
+                }
+                else if(varcontent.msgtype == "m.image") {
+                    var content = {
+                                msgtype: 'm.image',
+                                body: varcontent.body,
+                                url: varcontent.url,
+                                info:varcontent.info,
+                            };
+                    try {
+                        var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
                     }
-                    else if(curMsg.collection_type == 103) {
-                        curMsgContent["ext"] = curMsg.collection_content["ext"];
-                        curMsgContent["fileName"] = curMsg.collection_content["fileName"];
-                        curMsgContent["url"] = curMsg.collection_content["url"];
-                        curMsgContent["fileSize"] = curMsg.collection_content["fileSize"];
-                    }
-                    for(var key in curMsgContent) {
-                        if(curMsgContent[key] == undefined) {
-                            isOk = false;
-                        }
-                    }
-                    if(!isOk) {
+                    catch(error) {
                         return false;
                     }
-                    console.log("curMsgCintent is ", curMsgContent);
-
-                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
                     
-                    let sendingMsgContentType = curMsg.collection_type;
-                    let willSendMsgContent = curMsgContent;
-                    let guid = generalGuid();
-                    
-                    services.common.sendNewMessage(
-                            guid, 
-                            sendingMsgContentType, 
-                            this.curUserInfo.id, 
-                            groupId, 
-                            uid, 
-                            curTimeSeconds, 
-                            willSendMsgContent)
-                        .then(async (ret) => {
-                            console.log("send sendNewMessage message ret ", ret)
-                            if(ret == undefined) {
-                                return false;
-                            }
-                            else {
-                                if(curMsg.collection_type == 103) {
-                                    var fileDir = confservice.getFilePath(curMsg.timestamp);
-                                    var filePath = path.join(fileDir, curMsg.collection_content.fileName);
-                                    if(fs.existsSync(filePath)) {
-                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
-                                        var dirTmp = confservice.getFilePath(ret.message_timestamp);
-                                        var pathTmp = path.join(dirTmp, nameTmp);
-                                        var finalPath = await makeFlieNameForConflict(pathTmp);
-                                        try{
-                                            console.log("copy file from ", filePath, " to ", finalPath);
-                                            fs.copyFileSync(filePath, finalPath);
-                                            services.common.SetFilePath(ret.message_id, finalPath);
-                                        }
-                                        catch(error) {
-                                            console.log("copyFile except ", error);
-                                        }
-
-                                    }
-                                }
-                                else if(curMsg.collection_type == 102) {
-                                    var fileDir = confservice.getThumbImagePath(curMsg.timestamp);
-                                    var filePath = path.join(fileDir, curMsg.collection_content.fileName);
-                                    console.log("the img path is ", filePath);
-                                    if(fs.existsSync(filePath)) {
-                                        var nameTmp = strMsgContentToJson(ret.message_content)["fileName"];
-                                        var dirTmp = confservice.getThumbImagePath(ret.message_timestamp);
-                                        var pathTmp = path.join(dirTmp, nameTmp);
-                                        var finalPath = await makeFlieNameForConflict(pathTmp);
-                                        try{
-                                            console.log("copy file from ", filePath, " to ", finalPath);
-                                            fs.copyFileSync(filePath, finalPath);
-                                            services.common.SetFilePath(ret.message_id, finalPath);
-                                            ret.file_local_path = finalPath;
-                                        }
-                                        catch(error) {
-                                            console.log("copyFile except ", error);
-                                        }
-
-                                    }
-                                }
-                                this.$emit('updateChatList', ret);
-                            }
-                        })
                 }
+                else if(varcontent.msgtype == "m.file") {
+                    var body = varcontent.body;
+                    // var showfu = new FileUtil(body);
+                    // var mimetype = showfu.GetMimename();
+                    // showfileObj = showfu.GetUploadfileobj();
+                    // stream = showfu.ReadfileSync(fileinfo.path);
+                    var content = {
+                        msgtype: 'm.file',
+                        body: varcontent.body,
+                        url: varcontent.url,
+                        info: varcontent.info
+                    };
+                    try {
+                        var ret = await global.mxMatrixClientPeg.matrixClient.sendMessage(distGroups[i].roomId, content);
+                    }
+                    catch(error) {
+                        return false;
+                    }
+                    
+                }
+                // console.log("varcontent is ", varcontent);
+            }
         },
         sendSingleMsg: async function(distGroups, msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
+            var haveFailed = false;
             for(var i=0;i<distGroups.length;i++){
                 for(var j=0;j<msgs.length;j++) {
                     var curMsg = msgs[j];
                     console.log("curMsg is ", curMsg);
-                    if(curMsg.message_type == 105) {
+                    var content = curMsg.getContent();
+                    if(content.msgtype == "m.audio") {
                         continue;
                     }
-                    var curMsgContent = strMsgContentToJson(curMsg.message_content);
-                    console.log("curMsgCintent is ", curMsgContent);
-
-                    var uid = await this.getDistUidThroughUids(distGroups[i].contain_user_ids);
-                    var groupId = distGroups[i].group_id == null ? '' : distGroups[i].group_id;
-                    let curTimeSeconds = new Date().getTime();
-                    
-                    let sendingMsgContentType = curMsg.message_type;
-                    let willSendMsgContent = curMsgContent;
-                    let guid = generalGuid();
-
-                    if(curMsg.message_type == 103) {
-                        var filePath = await services.common.GetFilePath(curMsg.message_id);
-                        if(!fs.existsSync(filePath)) {
-                            var fileDir = confservice.getFilePath(curMsg.message_timestamp);
-                            var filePath = path.join(fileDir, strMsgContentToJson(curMsg.message_content)['fileName']);
+                    if(curMsg.event.content.info != undefined) {
+                        if(curMsg.event.content.info.h != undefined)
+                        try{
+                            curMsg.event.content.info.h = parseInt(curMsg.event.content.info.h);
                         }
-                        if(fs.existsSync(filePath)) {
-                            var nameTmp = path.basename(filePath);
-                            var dirTmp = confservice.getFilePath(curTimeSeconds);
-                            var pathTmp = path.join(dirTmp, nameTmp);
-                            var finalPath = await makeFlieNameForConflict(pathTmp);
-                            try{
-                                console.log("copy file from ", filePath, " to ", filePath);
-                                fs.copyFileSync(filePath, finalPath);
-                                services.common.SetFilePath(guid, finalPath);
-                            }
-                            catch(error) {
-                                console.log("copyFile except ", error);
-                            }
+                        catch(err) {
+                            console.log("parse float to int failed");
+                        }
+                        if(curMsg.event.content.info.w != undefined)
+                        try{
+                            curMsg.event.content.info.w = parseInt(curMsg.event.content.info.w);
+                        }
+                        catch(err) {
+                            console.log("parse float to int failed");
                         }
                     }
-                    else if(curMsg.message_type == 102) {
-                        var fileName = strMsgContentToJson(curMsg.message_content)['fileName'];
-                        var ext = path.extname(fileName);
-                        var fileDir = confservice.getThumbImagePath(curMsg.message_timestamp);
-                        var filePath = path.join(fileDir, curMsg.message_id + ext);
-                        if(fs.existsSync(filePath)) {
-                            var dirTmp = confservice.getThumbImagePath(curTimeSeconds);
-                            var pathTmp = path.join(dirTmp, guid + ext);
-                            var finalPath = await makeFlieNameForConflict(pathTmp);
-                            try{
-                                console.log("copy file from ", filePath, " to ", finalPath);
-                                fs.copyFileSync(filePath, finalPath);
-                                services.common.SetFilePath(guid, finalPath);
-                            }
-                            catch(error) {
-                                console.log("copyFile except ", error);
-                            }
-                        }
-                    }
-                    services.common.sendNewMessage(
-                            guid, 
-                            sendingMsgContentType, 
-                            this.curUserInfo.id, 
-                            groupId, 
-                            uid, 
-                            curTimeSeconds, 
-                            willSendMsgContent)
-                        .then(async (ret) => {
-                            console.log("sendNewMessage ret is ", ret);
-                            if(ret == undefined) {
-                                return false;
-                            }
-                            else {
-                                this.$emit('updateChatList', ret);
-                            }
+                    console.log("*** transmit msg is ", curMsg);
+                    global.mxMatrixClientPeg.SendEvent(distGroups[i].roomId, curMsg)
+                        .then((ret) => {
+                            console.log("sendSingleMsg is ", ret);
+                            // if(ret) {
+                            //     this.$emit('updateChatList', ret);
+                            // }
+                            // else {
+                            //     console.log("========= transmit msg failed ", curMsg.getContent());
+                            // }
+                        }).catch((error) => {
+                            haveFailed = true;
                         })
                 }
             }
+            if(haveFailed) {
+                return false;
+            }
+            return true;
         },
         getTogetherMsgContent: async function(msgs) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            var contentTitle = "";
-            var contentText = "";
-            var groupId = this.curChat.group_id;
-            var msgIds = [];
-            var fromId = this.curUserInfo.id;
-            console.log("this.curchat is ", this.curChat.group_type);
-            if(this.curChat.group_type == 102) {
-
-                var nameTemp = this.curChat.group_name;
-                // var userInfos = await services.common.GetDistUserinfo(this.curChat.uid);
-                // var userInfos = await UserInfo.GetUserInfo(this.curChat.uid);
-                // var distUserInfo = userInfos[0];
-                // if(distUserInfo != undefined){
-                //     nameTemp = distUserInfo.user_display_name;
-                // }
-
-                contentTitle = this.curUserInfo.name + "与" + nameTemp + "的聊天记录";
-            }
-            else {
-                contentTitle = "[群聊]";
-            }
-            for(let i=0;i<msgs.length;i++) {
-                if(msgs[i].message_type == 105) {
-                    continue;
-                }
-                if(i < 4) {
-                    if(i == 3) {
-                        contentText = contentText + await this.getMsgContent(msgs[i]);
-                    }
-                    else {
-                        contentText = contentText + await this.getMsgContent(msgs[i]) + "\n";
-                    }
-                }
-                msgIds.push(msgs[i].time_line_id);
-            }
-            console.log("contentText is ", contentText);
-
-            var togetherMsgContent = {
-                "title": contentTitle,
-                "text": contentText,
-                "groupId": groupId,
-                "msgIds": msgIds,
-                "fromId": fromId,
+            var content = {
+                msgtype: "each.chat.merge",
+                body: "[合并消息]",
+                events: [],
+                from_matrix_ids: this.transmitMergeInfo.from_matrix_ids,
+                from_room_id: this.transmitMergeInfo.from_room_id,
+                from_room_display_name: this.transmitMergeInfo.from_room_display_name,
             };
-
-            return togetherMsgContent;
+            msgs.forEach((msg) => {
+                let curContent = msg.getContent();
+                if(curContent.msgtype == "m.audio") {
+                    return;
+                }
+                if(msg.event.content.info != undefined) {
+                    if(msg.event.content.info.h != undefined)
+                    try{
+                        msg.event.content.info.h = parseInt(msg.event.content.info.h);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                    if(msg.event.content.info.w != undefined)
+                    try{
+                        msg.event.content.info.w = parseInt(msg.event.content.info.w);
+                    }
+                    catch(err) {
+                        console.log("parse float to int failed");
+                    }
+                }
+                content.events.push(msg);
+            })
+            return content;
         },
         getMsgContent: async function(msg) {
             if(this.msg === null) {
@@ -863,26 +960,38 @@ export default {
     created() {
             //this.curUserInfo = await services.common.GetSelfUserModel();
             //console.log("this.curuser info is ", this.curUserInfo);
-            var showPosition = this.calcImgPosition();
-            console.log(showPosition);
-            this.dlgPosition.left = showPosition.left.toString() + "px";
-            this.dlgPosition.top = showPosition.top.toString() + "px";
-            console.log(this.recentGroups);
+            // var showPosition = this.calcImgPosition();
+            // console.log(showPosition);
+            // this.dlgPosition.left = showPosition.left.toString() + "px";
+            // this.dlgPosition.top = showPosition.top.toString() + "px";
     },
     mounted: function() {
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);
-        setTimeout(() => {
-            this.$nextTick(function(){
-                console.log(this.recentGroups.length)
-                for(var i = 0; i < this.recentGroups.length; i ++){
-                    if(this.recentGroups[i].key_id != undefined && this.recentGroups[i].key_id.length != 0) {
-                        continue;
+        var favGroups = [];
+        var norGroups = [];
+        if(global.mxMatrixClientPeg.matrixClient) {
+            global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+                if(r.getMyMembership() != "leave" && r.getMyMembership() != "invite") {
+                    let tags = r.tags;
+                    if(tags && tags['m.favourite']){
+                        favGroups.push(r);
                     }
-                    this.showRecentChat.push(this.recentGroups[i]);
-                    this.getGroupAvatarContent(this.recentGroups[i]);
+                    else{
+                        norGroups.push(r);
+                    }
                 }
             });
-        }, 0)
+            favGroups.sort(this.SortGroupByTimeLine);
+            norGroups.sort(this.SortGroupByTimeLine);
+            this.recentGroups = favGroups.concat(norGroups);
+            this.showRecentChat = this.recentGroups;
+            console.log("*** this.showRecentChat is ", this.showRecentChat);
+            setTimeout(() => {
+                this.$nextTick(function(){
+                    this.updageTransmitChatNameAndImg();
+                });
+            }, 0)
+        }
     },
     
 }
@@ -900,21 +1009,30 @@ display: none;
         top:0px;
         left:0px;
         background: rgba(0, 0, 0, 0.6);
-        z-index: 3;
+        z-index:3;
     }
 
     .TransmitDlg {
         position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        padding: 0px;
         width: 624px;
         height: 468px;
-        display: block;
+        text-align: center;
+        box-shadow: 0px 0px 30px 0px rgba(103, 103, 103, 0.24);
+        border-radius: 4px;
         background: rgba(255, 255, 255, 1);
     }
 
     .TransmitHeader {
-        width: 100%;
         height: 56px;
         background: rgba(255, 255, 255, 1);
+        margin-left: 10px;
+        border-radius: 4px;
     }
 
     .TransmitHeaderTitle {
@@ -922,11 +1040,11 @@ display: none;
         height: 56px;
         line-height: 56px;
         display: inline-block;
-        margin-left: 32px;
         vertical-align: top;
         font-family: PingFangSC-Medium;
         font-weight: 500;
-        letter-spacing: 2px;
+        letter-spacing: 0px;
+        text-align: left;
     }
 
     .TransmitClose {
@@ -981,7 +1099,7 @@ display: none;
                     font-weight:400;
                     color:rgba(0,0,0,1);
                     line-height:20px;
-                    letter-spacing:1px;
+                    letter-spacing: 0px;
                     font-family: PingFangSC-Regular;
                 }
             }
@@ -993,11 +1111,11 @@ display: none;
                 font-weight:400;
                 color:rgba(153,153,153,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .RecentChatView {
-                height: 214px;
+                height: 264px;
                 overflow: scroll;
                 .recentChatList{
                     list-style: none;
@@ -1021,8 +1139,8 @@ display: none;
                             width: 32px;
                             height: 32px;
                             display: inline-block;
-                            border-radius: 4px;
-
+                            border-radius: 50px;
+                            object-fit:cover;
                         }
                         .group-info{
                             display: inline-block;
@@ -1037,7 +1155,7 @@ display: none;
                             font-weight:400;
                             color:rgba(0,0,0,1);
                             line-height:20px;
-                            letter-spacing:1px;
+                            letter-spacing: 0px;
                             text-overflow: ellipsis;
                             overflow: hidden;
                             padding-left: 12px;
@@ -1074,8 +1192,8 @@ display: none;
                             width: 32px;
                             height: 32px;
                             display: inline-block;
-                            border-radius: 4px;
-
+                            border-radius: 50px;
+                            object-fit:cover;
                         }
                         .group-info{
                             display: inline-block;
@@ -1090,7 +1208,7 @@ display: none;
                             font-weight:400;
                             color:rgba(0,0,0,1);
                             line-height:20px;
-                            letter-spacing:1px;
+                            letter-spacing: 0px;
                             text-overflow: ellipsis;
                             overflow: hidden;
                             padding-left: 12px;
@@ -1118,8 +1236,9 @@ display: none;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
+                text-align: left;
             }
             .selectedContentView {
                 height: 292px;
@@ -1139,9 +1258,10 @@ display: none;
                             width: 32px;
                             height: 32px;
                             display: inline-block;
-                            border-radius: 4px;
+                            border-radius: 50px;
                             margin-top: 8px;
                             margin-bottom: 8px;
+                            object-fit:cover;
                         }
                         .group-info{
                             display: inline-block;
@@ -1156,7 +1276,7 @@ display: none;
                             font-weight:400;
                             color:rgba(0,0,0,1);
                             line-height:20px;
-                            letter-spacing:1px;
+                            letter-spacing: 0px;
                             text-overflow: ellipsis;
                             overflow: hidden;
                             padding-left: 12px;
@@ -1252,7 +1372,7 @@ display: none;
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:18px;
-        letter-spacing:1px;
+        letter-spacing: 0px;
     }
     
 
@@ -1268,9 +1388,8 @@ display: none;
     //     font-size: 14px;
     //     text-indent: 4px;
     //     color: rgba(153, 153, 153, 1);
-    //     letter-spacing:1px;
+    //     letter-spacing: 0px;
     //     font-weight:400;
-    //     font-family:Microsoft Yahei;
     //     line-height:20px;
     //     padding: 16px;
     // }
@@ -1287,9 +1406,8 @@ display: none;
     //     font-size: 14px;
     //     text-indent: 4px;
     //     color: rgba(153, 153, 153, 1);
-    //     letter-spacing:1px;
+    //     letter-spacing: 0px;
     //     font-weight:400;
-    //     font-family:Microsoft Yahei;
     //     line-height:20px;
     //     padding: 16px;
     //     outline: none;
@@ -1304,37 +1422,36 @@ display: none;
     .TransmitConfirmButton{
         width: 100px;
         height: 32px;
-        margin-left: 5px;
+        margin-left: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
         background: rgba(36, 179, 107, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
+        border:none;
     }
  
     .TransmitConfirmButton:disabled{
         width: 100px;
         height: 32px;
-        margin-left: 5px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-right: 110px;
         background: rgba(167, 224, 196, 1);
-        border:1px solid rgba(221,221,221,1);
         color: white;
         border-radius:4px;
         font-family: PingFangSC-Regular;
         font-weight: 400;
+        border:none;
     }
  
     .TransmitCancleButton {
         width: 100px;
         height: 32px;
-        margin-right: 5px;
+        margin-right: 10px;
         margin-top: 20px;
         margin-bottom: 20px;
         margin-left: 110px;
@@ -1343,74 +1460,5 @@ display: none;
         border:1px solid rgba(221,221,221,1);
         font-family: PingFangSC-Regular;
         font-weight: 400;
-    }
- .multiSelectCheckbox {
-        display: inline-block;
-        position:relative;
-        width: 20px;
-        height: 20px;
-        background-color: rgba(255, 255, 255, 1);
-        border: 1px solid rgb(221,221,221);
-        border-radius: 4px;
-        font-size: 10px;
-        margin-top: 14px;
-        margin-bottom: 14px;
-        vertical-align:top;
-        cursor: pointer;
-        -webkit-appearance:none;
-        -webkit-user-select:none;
-        user-select:none;
-        -webkit-transition:background-color ease 0.1s;
-        transition:background-color ease 0.1s;
-        float: left;
-        outline: none;
-    }
-
-    .multiSelectCheckbox:checked {
-        background-color: rgb(36, 179, 107);
-        cursor: pointer;
-        outline: none;
-    }
-    .multiSelectCheckbox:indeterminate {
-        background-color: rgb(36, 179, 107);
-        cursor: pointer;
-        outline: none;
-    }
-    .multiSelectCheckbox:indeterminate::after{
-        content:'';
-        top:7px;
-        left:4px;
-        font-size: 10px;
-        position: absolute;
-        background:transparent;
-        border:#fff solid 2px;
-        border-top:none;
-        border-right:none;
-        border-left: none;
-        height:1px;
-        width:10px;
-        // -moz-transform:rotate(-45deg);
-        // -ms-transform:rotate(-45deg);
-        // -webkit-transform:rotate(-45deg);
-        // transform:rotate(-45deg);
-        outline: none;
-    }
-    .multiSelectCheckbox:checked::after {
-        content:'';
-        top:3px;
-        left:3px;
-        font-size: 10px;
-        position: absolute;
-        background:transparent;
-        border:#fff solid 2px;
-        border-top:none;
-        border-right:none;
-        height:6px;
-        width:10px;
-        -moz-transform:rotate(-45deg);
-        -ms-transform:rotate(-45deg);
-        -webkit-transform:rotate(-45deg);
-        transform:rotate(-45deg);
-        outline: none;
     }
 </style>

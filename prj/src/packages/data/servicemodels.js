@@ -95,6 +95,7 @@ const servicemodels = {
         del:          undefined,
         show_order:    undefined,
         updatetime:     undefined,
+        department_type: undefined
       }
   
       var responsemap = 
@@ -107,7 +108,8 @@ const servicemodels = {
         "adminId" : "admin_id",
         "del" : "del",
         "showOrder" : "show_order",
-        "updateTimestamp": "updatetime"
+        "updateTimestamp": "updatetime",
+        "departmentType": "department_type"
       }
       
       for(var key in responsemap){
@@ -120,6 +122,7 @@ const servicemodels = {
     async UsersModel(useritem){
       var userinfovalue={
         user_id:                  undefined,
+        matrix_id:                undefined,
         belong_to_department_id:  undefined,
         user_name:                undefined,
         user_display_name:        undefined,
@@ -145,7 +148,8 @@ const servicemodels = {
   
       var userinfomap = 
       {
-        "id":                 "user_id",                
+        "id":                 "user_id",     
+        "matrixId":           "matrix_id",           
         "departmentId":       "belong_to_department_id", 
         "userName":           "user_name",               
         "displayName":        "user_display_name",       
@@ -610,6 +614,65 @@ const servicemodels = {
       }
       let secretModel = await new(await models.Secret)(secretValue);
       return secretModel; 
+    },
+
+    async ContactModel(contactInfo){
+      let contactValue = {
+        contact_id:       null,
+        matrix_id:        null,
+        user_id:          null,
+        eachchat_user_id: null,
+        display_name:     null,
+        avatar_url:       null,
+        email:            null,
+        mobile:           null,
+        telephone:        null,
+        company:          null,
+        title:            null,
+        updatetime:       null,
+      };
+
+      var contactMap = {
+        "contactId":      "contact_id",
+        "contactMatrixId": "matrix_id",
+        "userId": "eachchat_user_id",
+        "contactRemarkName": "display_name",
+        "avatarUrl": "avatar_url",
+        "contactEmail": "email",
+        "contactMobile": "mobile",
+        "contactTelephone": "telephone",
+        "contactCompany": "company",
+        "contactTitle": "title",
+        "updateTimestamp":"updatetime"
+      };
+
+      for(let key in contactMap)
+      {  
+        contactValue[contactMap[key]] = contactInfo[key];
+      }
+      let contactModel = await new(await models.Contact)(contactValue);
+      return contactModel;
+    },
+
+    async ContactRoom(room){
+      let roomValue = {
+        id:          "",
+        room_id:      "",
+        update_time:  ""
+      }
+
+      let map = {
+        id: "id",
+        roomId: "room_id",
+        updateTimestamp: 'updatetime' 
+      }
+      for(let key in map)
+      {  
+        roomValue[map[key]] = room[key];
+      }
+      let roomModel = await new(await models.FavouriteRoom)(roomValue);
+      return roomModel;
+
     }
 }
 

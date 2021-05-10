@@ -2,22 +2,14 @@
     <el-container>
         <el-aside width="280px">
             <div class="list-header">
-                <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        
-                        <div class="search-delete">
-                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                            
-                        </div><div class="search-search">
-                    
-                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                        </div>
-                        </div>
+                <div class="searchDiv">
+                    <eSearch @toSearch="search"/>
+                </div>
             </div>
             <div class="list-content">
                 <div class="organization-view">
-                    <div class="item" @click="messageMenuItemClicked()">
+                    <div :class='["item", {"active-tab": this.favouriteType == "message"}]'
+                        @click="messageMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
                         <div class="item-info">
                             <p class="item-title">消息</p>
@@ -28,7 +20,8 @@
                     </div>
                 </div>
                 <div class="organization-view">
-                    <div class="item" @click="imageMenuItemClicked()">
+                    <div :class='["item", {"active-tab": this.favouriteType == "image"}]'
+                        @click="imageMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
                         <div class="item-info">
                             <p class="item-title">图片</p>
@@ -39,7 +32,9 @@
                     </div>
                 </div>
                 <div class="organization-view">
-                    <div class="item" @click="fileMenuItemClicked()">
+                    <div 
+                        :class='["item", {"active-tab": this.favouriteType == "file"}]'
+                        @click="fileMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
                         <div class="item-info">
                             <p class="item-title">文件</p>
@@ -49,7 +44,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="organization-view">
+                <!-- <div class="organization-view">
                     <div class="item" @click="groupMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/group@2x.png">
                         <div class="item-info">
@@ -59,7 +54,7 @@
                             <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </el-aside>
         <el-container class="right-container">
@@ -73,11 +68,11 @@
     </el-container>
 </template>
 <script>
-import {services} from '../../packages/data/index.js';
 import listHeader from './listheader';
 import favouriteList from './favourite-list'
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
+import eSearch from './searchbar.vue'
 export default {
     name: 'favourite',
     data() {
@@ -87,6 +82,14 @@ export default {
             listKey: 1,
             showSearchView: false,
             searchFavouriteInfo:{},
+        }
+    },
+
+    watch:{
+        searchKey: function(){
+            if(this.searchKey.length == 0){
+                this.showSearchView = false;
+            }
         }
     },
 
@@ -102,26 +105,20 @@ export default {
         },
 
         searchDeleteClicked(){
-            this.searchKey = '';
-            this.showSearchView = false;
-            this.favouriteType = 'message';
-            this.listKey ++;
-        },
-        search:async function () {
             
-            if(this.searchKey == ''){
+        },
+        search:async function (searchKey) {
+            this.searchKey = searchKey;
+            if(searchKey == ''){
                 this.showSearchView = false;
                 this.favouriteType = 'message';
-                this.listKey ++;
-                return;
             }
-            this.showSearchView = true;
+            else{
+                this.showSearchView = true;
+            }
             this.listKey ++;
         },
-        searchDeleteClicked(){
-            this.searchKey = '';
-            this.showSearchView = false;
-        },
+
         messageMenuItemClicked() {
             this.showSearchView = false;
             this.favouriteType = 'message';
@@ -146,7 +143,8 @@ export default {
     components: {
         listHeader,
         favouriteList,
-        winHeaderBar
+        winHeaderBar,
+        eSearch
     },
     created() {
         this.showSearchView = false;
@@ -161,10 +159,15 @@ export default {
 /*隐藏滚轮*/
 display: none;
 }
+
+
+.active-tab.active-tab.active-tab{
+    background-color: #dddddd;
+}
+
 .list-header {
     width: 100%;
     height: 56px;
-    line-height: 56px;
     background-color: rgb(255, 255, 255);
     border: 0px;
     margin: 0px 0px 0px 0px;
@@ -234,9 +237,7 @@ display: none;
     font-weight:400;
     color:rgba(0,0,0,1);
     line-height:20px;
-    letter-spacing:1px;
     font-family: PingFangSC-Regular;
-    font-weight: 400;
 }
 .item-arrow {
     display: inline-block;
@@ -272,16 +273,16 @@ display: none;
         border: hidden;
     }
 }
-    .search {
-        margin: 12px 0px 0px 16px;
+    .searchDiv {
         text-align: left;
-        width: calc(100% - 86px);
+        width: calc(100% - 20px);
         height: 32px;
-        border: 1px solid rgb(221, 221, 221);
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;
         display: inline-block;
+        margin-top: 12.5px;
+        margin-bottom: 7.5px;
     }
     .search-action{
         border: 1px solid rgb(221, 221, 221);
@@ -332,8 +333,7 @@ display: none;
     .search-input {
         display: inline-block;
         position: absolute;
-        text-indent: 10px;
-        width: 194px;
+        width: 248px;
         padding: 0;
         margin: 0px;
         height: 32px;
@@ -348,6 +348,5 @@ display: none;
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:18px;
-        letter-spacing:1px;
     }
 </style>

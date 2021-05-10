@@ -1,6 +1,7 @@
 import { models, globalModels } from './models.js';
 import { model } from '../core/index.js';
 import { JsonMsgContentToString } from '../core/Utils.js';
+var pinyin = require("pinyin");
 
 const sqliteutil = {
     async GetMaxMsgSequenceID(userid){
@@ -47,41 +48,6 @@ const sqliteutil = {
         }
         foundUsers[0].group_max_updatetime = updatetime;
         foundUsers[0].save();
-    },
-
-    async GetMaxUserUpdatetime(userid){
-        let groups = await(await models.User).find({
-            id: userid
-        });
-        if(groups.length == 0)
-        {
-            return 0;
-        }
-        let item = groups[0];
-        return item.user_max_updatetime;
-    },
-
-    async UpdateMaxUserUpdatetime(userid, updatetime){
-        var foundUsers = await(await models.User).find({
-            id: userid
-          });
-        if(foundUsers.length == 0){
-            return;
-        }
-        foundUsers[0].user_max_updatetime = updatetime;
-        foundUsers[0].save();
-    },
-
-    async GetMaxDepartmentUpdatetime(userid){
-        let groups = await(await models.User).find({
-            id: userid
-        });
-        if(groups.length == 0)
-        {
-            return 0;
-        }
-        let item = groups[0];
-        return item.department_max_updatetime;
     },
 
     async UpdateMaxDepartmentUpdatetime(userid, updatetime){
@@ -146,7 +112,9 @@ const sqliteutil = {
             collection_id: collectionId
         });
         if(collections.length != 0){
-            collections[0].destroy();
+            collections.forEach(item=>{
+                item.destroy();
+            });
         }
     },
 
@@ -229,12 +197,57 @@ const Department = {
                 return departments[index];
         }        
     },
+
+    async GetBelongDepartmentsByDepartmentID(departmentID){
+        if(!departmentID)
+            return;
+        let departments = [];
+        let department = await this.GetDepartmentInfoByDepartmentID(departmentID);
+        if(department)
+            departments.unshift(department);
+        if(department.parent_id == '')
+            return departments;
+        let sub = await this.GetBelongDepartmentsByDepartmentID(department.parent_id);
+        if(!sub)
+            return;
+        return sub.concat(departments);
+    },
+
+    async GetBelongDepartmentsByMatrixID(matrixID){
+        let department = await this.GetDepartmentInfoByMatrixID(matrixID);
+        console.log(department)
+        if(department)
+            return await this.GetBelongDepartmentsByDepartmentID(department.department_id);
+    },
+
+    async GetBelongCompanyNameByMatriID(matrixID){
+        let departments = await this.GetBelongDepartmentsByMatrixID(matrixID);
+        for(let item of departments){
+            if(item.department_type === 'company')
+                return item.display_name;
+        }
+    },
+
+    async GetMaxDeparmentUpdateTime(){
+        let departments = await (await models.Department).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(departments.length == 0)
+            return 0;
+        return departments[0].updatetime;
+    },
+
     async GetAllDepartment(){
         let departments = await (await models.Department).find({
 
         });
         return departments;
     },
+
     async GetSubDepartment(departmentID){
         let departments = await (await models.Department).find({
             parent_id: departmentID
@@ -258,6 +271,12 @@ const Department = {
             return await this.GetDepartmentInfoByDepartmentID(userinfo.belong_to_department_id);
     },
 
+    async GetDepartmentInfoByMatrixID(matrixID){
+        let userinfo = await UserInfo.GetUserInfoByMatrixID(matrixID);
+        if(userinfo != undefined)
+            return await this.GetDepartmentInfoByDepartmentID(userinfo.belong_to_department_id);
+    },
+
     async GetDepartmentInfoByDepartmentID(departmentID){
         let departments = await (await models.Department).find({
             department_id: departmentID
@@ -271,21 +290,69 @@ const Department = {
         let departments = await (await models.Department).find({
             display_name: "%"+key
         });
+        departments.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        })
         return departments;
+    },
+
+    async DeleteDepartmentByID(id){
+        let departments = await(await models.Department).find({
+            department_id: id
+        })
+        if(departments.length != 0)
+            departments[0].destroy();
     }
 };
 
 const UserInfo = {
+    async DeleteUserByUserID(userID){
+        let userinfos = await(await models.UserInfo).find({
+            user_id: userID
+        })
+        if(userinfos.length != 0)
+            userinfos[0].destroy();
+    },
+
+    async DeleteUserByMatrixID(matrixID){
+        let userinfos = await(await models.UserInfo).find({
+            matrix_id: matrixID
+        })
+        if(userinfos.length != 0)
+            userinfos[0].destroy();
+    },
+
+    async GetMaxUpdateTime(){
+        let userinfos = await(await models.UserInfo).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(userinfos.length == 0)
+            return 0;
+        return userinfos[0].updatetime;
+    },
+        
     async GetAllUserInfo(){
         let userinfos = await(await models.UserInfo).find({
 
         });
         return userinfos;
     },
-    async GetSubUserinfo(departmentID){
+    async GetSubUserinfo(departmentID, uid){
         let userinfos = await(await models.UserInfo).find({
             belong_to_department_id: departmentID
         })
+        userinfos.sort((item1, item2) => {
+            return pinyin.compare(item1.user_display_name, item2.user_display_name)
+        });
+        if (uid) {
+            userinfos = userinfos.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
         return userinfos;
     },
 
@@ -298,13 +365,28 @@ const UserInfo = {
         return userinfos;
     },
 
+    async GetUserInfoByMatrixID(matrixID){
+        let userinfos = await(await models.UserInfo).find({
+            matrix_id: matrixID
+        })
+        if(userinfos.length == 1)
+            return userinfos[0];
+        return undefined;
+    },
+
     async GetUserInfo(userID){
         let userinfos = await(await models.UserInfo).find({
             user_id: userID
         })
-        if(userinfos.length != 0)
+        if(userinfos.length == 1)
             return userinfos[0];
         return undefined;
+    },
+
+    async GetUserInfos(matrixIDArray){
+        return await(await models.UserInfo).find({
+            matrix_id: matrixIDArray
+        });
     },
     
     async GetUserAddress(userID){
@@ -347,17 +429,29 @@ const UserInfo = {
             array = infos;
             if(infos[0].manager_id == "" || userID == infos[0].manager_id)
                 return array;
-            return array.concat(await this.GetLeaders(infos[0].manager_id));
+            let leader = await this.GetLeaders(infos[0].manager_id);
+            if(leader)
+                return array.concat(leader);
+            else 
+                return array;
         }
     },
 
-    async SearchByNameKey(key){
+    async SearchByNameKey(key, uid){
         let infos = await(await models.UserInfo).find({
             user_display_name:  "%"+key,
             _user_name:          "%"+key,
-            _user_title:         "%"+key,
-            _display_name_py:    "%"+key
+            _display_name_py:    "%"+key,
+            $size: 20
         })
+        infos.sort((item1, item2) => {
+            return pinyin.compare(item1.user_display_name, item2.user_display_name)
+        });
+        if (uid) {
+            infos = infos.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
         return infos;
     },
 
@@ -592,6 +686,15 @@ const Group = {
 }
 
 const Collection = {
+    async DeleteFavouriteByType(type){
+        let favs = await (await models.Collection).find({
+            collection_type: type
+        });
+        for(let item of favs){
+            await item.destroy();
+        }
+    },
+
     async FindItemByFavouriteID(favouriteID){
         let collections = await (await models.Collection).find({
             favourite_id: favouriteID
@@ -708,30 +811,6 @@ const Config = {
             return;
         }
         return foundUsers[0];
-    },
-
-    async GetCurrentUserID(){
-        let login = await (await globalModels.Login).find();
-        if(login.length != 0)
-            return login[0];
-    },
-
-    async SetLoginInfo(userID, orgID){
-        let login = await (await globalModels.Login).find();
-        if(login.length == 0){
-            const LoginModel = await globalModels.Login;
-            let loginvalue = {
-                user_id: userID,
-                org_id:  orgID
-            }
-            let loginmodel = new LoginModel(loginvalue);
-            loginmodel.save();
-        }
-        else{
-            login[0].user_id = userID;
-            login[0].org_id = orgID;
-            login[0].save();
-        }
     }
 }
 
@@ -775,6 +854,134 @@ const Secret = {
 
 }
 
+const Contact = {
+    async GetAllContact(uid){
+        let contacts =  await (await models.Contact).find()
+        contacts.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        });
+        if (uid) {
+            contacts = contacts.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
+        return contacts;
+    },
+
+    async DeleteAllContact(){
+        await(await models.Contact).truncate();
+    },
+
+    async GetMaxUpdateTime(){
+        let contacts = await (await models.Contact).find(
+            {
+                $order: {
+                    by: 'updatetime',
+                    reverse: true
+                    },
+                $size: 1
+            });
+        if(contacts.length != 0)
+            return contacts[0].updatetime;
+        return 0;
+    },
+
+    async GetContactInfo(id){
+        let contacts = await (await models.Contact).find(
+            {
+                matrix_id: id
+            });
+        if(contacts.length != 0)
+            return contacts[0];
+        return null;
+    },
+
+    async DeleteContact(id){
+        let contacts = await (await models.Contact).find(
+            {
+                matrix_id: id
+            });
+        if(contacts.length != 0)
+            await contacts[0].destroy();
+    },
+
+    async UpdateContact(matrixID,
+                        remarkName,
+                        email,
+                        mobile,
+                        telephone,
+                        company,
+                        title){
+        let contacts = await (await models.Contact).find(
+            {
+                matrix_id: matrixID
+            });
+        if(contacts.length != 0)
+        {
+            contacts[0].display_name = remarkName;
+            contacts[0].email = email;
+            contacts[0].mobile = mobile;
+            contacts[0].telephone = telephone;
+            contacts[0].company = company;
+            contacts[0].title = title;
+            await contacts[0].save();
+        }
+    },
+
+    async SearchByNameKey(key, uid){
+        let contacts = await(await models.Contact).find({
+            display_name:  "%"+key,
+            _matrix_id:          "%"+key,
+            //_title:         "%"+key,
+            $size: 20
+        })
+        contacts.sort((item1, item2) => {
+            return pinyin.compare(item1.display_name, item2.display_name)
+        });
+        if (uid) {
+            contacts = contacts.filter(u => {
+                return u.matrix_id !== uid;
+            })
+        }
+        return contacts;
+    },
+}
+
+const ContactRoom = {
+    async DeleteByRoomID(roomID){
+        let rooms = await(await models.FavouriteRoom).find({
+            room_id: roomID
+        });
+        if(rooms.length != 0){
+            rooms[0].destroy();
+        }
+    },
+
+    async ExistRoom(roomID){
+        let rooms = await(await models.FavouriteRoom).find({
+            room_id: roomID
+        });
+        return rooms.length != 0;
+    },
+
+    async GetAllRooms(){
+        return await(await models.FavouriteRoom).find();
+    },
+
+    async GetMaxUpdateTime(){
+        let rooms = await (await models.FavouriteRoom).find({
+            $order: {
+                by: 'updatetime',
+                reverse: true
+            },
+            $size: 1
+        });
+        if(rooms.length == 0)
+            return "0";
+        return rooms[0].updatetime
+    }
+}
+
 export{
     sqliteutil,
     Department,
@@ -783,5 +990,7 @@ export{
     Group,
     Collection,
     Config,
-    Secret
+    Secret,
+    Contact,
+    ContactRoom
 }

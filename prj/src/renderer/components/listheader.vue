@@ -3,17 +3,25 @@
         <div class="Search">
             <eSearch :cleanSearchKey="cleanSearchKey" @toSearch="toSearch"/>
         </div>
-        <div class="new-chat-content-div" id="new-chat-button-id" @click="showCreateNewChatDropDown">
-            <img class="new-chat-content-div-img" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
+        <div class="new-chat-content-div" id="new-chat-button-id" @click.stop="showCreateNewChatDropDown">
+            <img class="new-chat-content-div-img img-disable-drag" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
-            <div class="normal-chat" @click="showCreateGroup()">
-                <img class="normal-chat-img" src="../../../static/Img/Main/create-chat-normal-nor-20px@2x.png">
+            <div class="normal-chat " @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->
+                <img class="normal-chat-img img-disable-drag" src="../../../static/Img/Main/jdr.png">
+                <span class="normal-chat-label">发起聊天</span>
+            </div>
+            <div class="normal-chat" @click.stop="openMxXxr()"> <!--mxCreateRoom showCreateGroup-->
+                <img class="normal-chat-img img-disable-drag" src="../../../static/Img/Main/jql.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
-            <div class="secret-chat" @click="showCreateEncryptGroup(true)">
-                <img class="secret-chat-img" src="../../../static/Img/Main/create-secret-chatnor-20px@2x.png">
-                <span class="secret-chat-label">发起密聊</span>
+            <!-- <div class="normal-chat" @click.stop="mxDmDlgChangeErp()"> 
+                <img class="normal-chat-img" src="../../../static/Img/Main/cjml.png">
+                <span class="normal-chat-label">发起密聊</span>
+            </div> -->
+            <div class="secret-chat" @click.stop="mxSquare()"> <!--@click="showCreateEncryptGroup(true)"-->
+                <img class="secret-chat-img img-disable-drag" src="../../../static/Img/Main/jgc.png">
+                <span class="secret-chat-label">发现群聊</span> <!--发起密聊-->
             </div>
         </div>
         <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
@@ -29,6 +37,35 @@
         </chatCreaterDlg>
         <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
         </encryptChatCreater>
+        <mxMemberSelectDlg 
+            v-if="mxSelectMemberOpen" 
+            @close="mxSelectMember"
+            :roomId="newRoomId"
+        >
+        </mxMemberSelectDlg>
+        <mxCreateRoomDlg 
+            v-if="mxCreateRoomOpen" 
+            @close="mxCreateRoom"
+            :mxInvite="mxInvite"
+            @preStep="preStep"
+        >
+        </mxCreateRoomDlg>
+        <mxSquareDlg 
+            v-if="mxSquareOpen"
+            @close="mxSquare" 
+        >
+        </mxSquareDlg>
+        <mxDmDlg
+            v-if="mxDmDlgOpen"
+            :erpDm="erpDm"
+            @close="mxDmDlgChange"
+        >
+        </mxDmDlg>
+        <mxXxr 
+            v-if="mxXxrOpen" 
+            @close="closeMxXxr"
+        >
+        </mxXxr>
     </div>
 </template>
 
@@ -42,6 +79,14 @@ import {strMsgContentToJson} from '../../packages/core/Utils.js'
 import chatCreaterDlg from './chatCreaterDlg.vue'
 import encryptChatCreater from './encryptChatCreater.vue'
 import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
+import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
+import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
+import mxSquareDlg from './mxSquareDlg.vue'
+import mxDmDlg from './mxDmDlg.vue'
+import mxXxr from './mxXxr.vue'
+
+
+
 export default {
     name: 'listHeadbar',
     props: {
@@ -64,9 +109,84 @@ export default {
             disabledusers: [],
             showCreateNewChat: false,
             isSecret: false,
+            mxCreateRoomOpen: false,
+            mxSelectMemberOpen: false,
+            newRoomId: '',
+            mxSquareOpen: false,
+            mxDmDlgOpen: false,
+            erpDm: false,
+            roomInfo: undefined,
+            mxXxrOpen: false,
+            mxInvite: []
         }
     },
     methods: {
+        preStep() {
+            this.mxCreateRoomOpen = false;
+            this.mxXxrOpen = true;
+        },
+        openMxXxr() {
+            this.mxXxrOpen = true;
+        },
+        closeMxXxr(data) {
+            this.mxXxrOpen = false;
+            this.showCreateNewChat = false;
+            if (data && data.invite) {
+                this.mxInvite = [...data.invite];
+                console.log('check data', data);
+                this.mxCreateRoomOpen = true;
+            }
+        },
+        mxDmDlgChangeErp: function(close) {
+            console.log('mxDmDlgErp???', close)
+            if (close) {
+                if (close.data) this.$emit(close.handler, close.data);
+                this.showCreateNewChat = false;
+                return this.mxDmDlgOpen = false;
+            }
+            this.erpDm = true;
+            this.mxDmDlgOpen = true;
+        },
+        mxDmDlgChange: function(close) {
+            console.log('mxDmDlg???', close)
+            if (close) {
+                if (close.data) this.$emit(close.handler, close.data);
+                this.showCreateNewChat = false;
+                return this.mxDmDlgOpen = false;
+            }
+            this.erpDm = false;
+            this.mxDmDlgOpen = true;
+        },
+        mxSquare: function(close) {
+            console.log('???', close)
+            if (close) {
+                if (close.data) this.$emit(close.handler, close.data);
+                this.showCreateNewChat = false;
+                return this.mxSquareOpen = false;
+            }
+            this.mxSquareOpen = true;
+        },
+        mxSelectMember: function(close) {
+            // if (close.data) this.$emit(close.handler, close.data);
+            this.showCreateNewChat = false;
+            this.mxSelectMemberOpen = false;
+        },
+        mxCreateRoomNextStep: function(res) {
+            console.log('--mxCreateRoomNextStep--', res);
+            // this.newRoomId = res.room_id;
+            this.mxCreateRoomOpen = false;
+            // this.mxSelectMemberOpen = true;
+            this.roomInfo = res;
+            this.mxXxrOpen = true;
+        },
+        mxCreateRoom: function(close) {
+            console.log('???', close)
+            if (close) {
+                this.showCreateNewChat = false;
+                return this.mxCreateRoomOpen = false;
+            }
+            this.mxCreateRoomOpen = true;
+        },
         showCreateNewChatDropDown: function() {
             this.showCreateNewChat = true;
             var createNewChatBtnElement = document.getElementById("new-chat-button-id");
@@ -274,12 +394,16 @@ export default {
     components: {
         chatCreaterDlg,
         eSearch,
-        encryptChatCreater
+        encryptChatCreater,
+        mxCreateRoomDlg,
+        mxMemberSelectDlg,
+        mxSquareDlg,
+        mxDmDlg,
+        mxXxr
     },
     created: async function () {
-        await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
-        this.curUserInfo = await services.common.GetSelfUserModel();
+        // this.loginInfo = await services.common.GetLoginModel();
+        // this.curUserInfo = await services.common.GetSelfUserModel();
         document.addEventListener('click',this.closeInfoTip)
     }
 }
@@ -287,9 +411,9 @@ export default {
 
 <style lang="scss" scoped>
     .ListHeadBar {
-        height: 41px;
-        width: 280px;
-        line-height: 41px;
+        height: 32px;
+        width: 100%;
+        line-height: 32px;
         -webkit-app-region: drag;
     }
     * {
@@ -320,8 +444,7 @@ export default {
         position: absolute;
         background-color: rgba(255, 255, 255, 1);
         width: 128px;
-        height: 80px;
-        border-radius: 4px;
+        height: 120px;
         box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);;
         border:1px solid rgba(221,221,221,1);
         border-radius: 4px;
@@ -389,7 +512,7 @@ export default {
         margin-top: 0px;
         margin-bottom: 2.5px;
         margin-right: 0px;
-        margin-left: 0px;
+        margin-left: 8px;
         color: rgb(211, 211, 211)
     }
 

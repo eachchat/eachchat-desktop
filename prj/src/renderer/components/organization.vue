@@ -1,82 +1,164 @@
 <template>
     <el-container>
-        <el-aside width="292px">
+        <el-aside width="280px">
             <div class="list-header">
-                <div class="search">
-                    <input class="search-input" v-model="searchKey" @input="search" placeholder="搜索..." >
-                </div><div class="search-action">
-                        
-                        <div class="search-delete">
-                            <img ondragstart="return false" class="icon-delete" v-show="searchKey" @click="searchDeleteClicked()" src="../../../static/Img/Navigate/searchDelete-20px@2x.png">
-                            
-                        </div><div class="search-search">
-                    
-                            <img ondragstart="return false" class="icon-search" src="../../../static/Img/Chat/search-20px@2x.png" >
-                        </div>
+                <div class="searchDiv">
+                    <div class="SearchInput">
+                        <eSearch @toSearch="search"/>
                     </div>
+                    <div class='chat-tool-invite-div'>
+                        <img class="img-disable-drag" src="../../../static/Img/Organization/Image/addContact-24px@2x.png" height="30px" @click='AddContact()'>
+                    </div>
+                </div>
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
+                    <div v-if="searchContacts.length" class='grid-content'>联系人</div>
                     <li class="manager"
-                        v-for="(manager, index) in searchUsers"
-                        @click="searchUserMenuItemClicked(manager.user_id)" 
-                        :key="index">
-                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
-                        <div class="manager-info">
-                        <p v-html="msgContentHightLight(manager.user_display_name)" class="manager-name">{{ manager.user_display_name }}</p>
-                        <p v-html="msgContentHightLight(manager.user_title)" class="manager-title">{{ manager.user_title }}</p>
+                        v-for="contact in searchContacts"
+                        @click="SearchContactItemClicked(contact.matrix_id)" 
+                        :key="contact.matrix_id">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
+                        <p  class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
+                    <div v-if="searchUsers.length" class='grid-content'>组织</div>
+                    <li class="manager"
+                        v-for="manager in searchUsers"
+                        @click="searchUserMenuItemClicked(manager.user_id)" 
+                        :key="manager.user_id">
+                        <img ondragstart="return false" class="manager-icon" :id="getSearchUserIconId(manager.user_id)" src="../../../static/Img/User/user-40px@2x.png">
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(manager.user_display_name)" class="contact-list-name">{{ manager.user_display_name }}</p>
+                        <p class="contact-list-titile">{{ manager.user_title }}</p>
+                        </div>
+                    </li>
+                    <div v-if="searchDeparements.length" class='grid-content'>部门</div>
+                    <li class="manager"
+                        v-for="department in searchDeparements"
+                        @click="searchDeparmentItemClicked(department.department_id)" 
+                        :key="department.department_id">
+                        <img ondragstart="return false" class="department-icon" :id="getSearchUserIconId(department.department_id)" src="../../../static/Img/Organization/Image/department@2x.png">
+                        <div class="department-info">
+                        <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
+                        </div>
+                    </li>
+                    <div v-if="searchRooms.length" class='grid-content'>群聊</div>
+                    <li class="manager"
+                        v-for="room in searchRooms"
+                        @click="searchRoomItemClicked(room.room_id)" 
+                        :key="room.room_id">
+                        <img ondragstart="return false" class="department-icon" :src="room.avatar_url">
+                        <div class="department-info">
+                        <p v-html="msgContentHightLight(room.name)" class="department-name">{{ room.name }}</p>
+                        </div>
+                    </li> 
                 </ul>
             </div>
-            <div class="organization-view" v-show="!showSearchView">
+            <div v-show="!showSearchView" class = 'departmentsdiv'>
                 <ul class="departments-list">
-                    <li class="department"
-                        v-for="(department, index) in departments"
-                        @click="departmentMenuItemClicked(department)" 
-                        :key="index">
-                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Navigate/organization_list@2x.png"><div class="department-info">
-                            <p class="department-name">{{ department.display_name }}</p>
+                    <li :class='["department", {"active-tab": this.activeTab == "invite"}]'
+                        @click="inviteRoomItemClick()">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
+                        <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
+                        <div :class="getInviteRoomClass()">
+                            <p class="department-name">邀请</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                    <li :class='["department", {"active-tab": this.activeTab == "groupchat"}]'
+                        @click="roomItemClick()">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
+                            <p class="department-name">群聊</p>
+                        </div>
+                        <div align="center" class="item-arrow">
+                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                    <li :class='["department", {"active-tab": this.activeTab == "department"}]'
+                        @click="departmentMenuItemClicked(departmentMenu)">
+                        <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/organization-40px@2x.png"><div class="department-info">
+                            <p class="department-name">{{ departmentMenu.display_name }}</p>
+                        </div>
+                        <div align="center" class="item-arrow">
+                            <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
+                        </div>
+                    </li>
+                    <li class="contact"
+                        v-for="contact in contactList"
+                        @click="SearchContactItemClicked(contact.matrix_id)" 
+                        @contextmenu="rightClick($event, contact)"
+                        :key="contact.matrix_id">
+                        <img ondragstart="return false" class="contact-icon" :id="getSearchUserIconId(contact.matrix_id)" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                        <div class="contact-list-info">
+                        <p v-html="msgContentHightLight(contact.display_name)" class="contact-list-name">{{ contact.display_name }}</p>
+                        <p class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
                 </ul>
             </div>
         </el-aside>
         <el-container class="right-container">
-            
-            <organizationList :parentInfo="currentDepartment" :key="organizationListTimer"></organizationList>
-
+            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
+            <!-- <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList> -->
+            <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
+            </contactRoomList>
+            <inviteRoomList v-show = 'bInviteRoomShow' :key = 'inviteRoomKey'></inviteRoomList>
         </el-container>
-        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-show="showSearchUserInfoTips" :key="searchUserInfoKey"></userInfoContent> 
+        <userInfoContent :userInfo="searchUserInfo" :isOwn="isOwn" :originPosition="searchUserInfoPosition" v-if="showSearchUserInfoTips" :key="searchUserInfoKey" :userType="contactType"></userInfoContent> 
         <div class="win-header">
             <winHeaderBar @Close="Close" @Min="Min" @Max="Max"></winHeaderBar>
         </div>
+        <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="ClearCache"/>
+        <addContact v-if="showChatContactDlg" @closeAddContactDlg='closeAddContactDlg' @showInputContact="HandleInputContact"></addContact>
+        <InputContactInfo v-if='showInputContactDlg' @closeInputContact="CloseInputContactDlg">
+        </InputContactInfo>
     </el-container>
 </template>
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import {services, environment} from '../../packages/data/index.js';
-import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
-import confservice from '../../packages/data/conf_service.js'
-import {Department, UserInfo} from '../../packages/data/sqliteutil.js';
+
+import {environment} from '../../packages/data/index.js';
+import {Contact, ContactRoom, Department, UserInfo} from '../../packages/data/sqliteutil.js';
 import organizationList from './organization-list';
-import listHeader from './listheader';
+import contactList from './contact-list'
+import contactRoomList from './contact-room'
+import inviteRoomList from './invite-room'
 import userInfoContent from './user-info';
-import winHeaderBar from './win-header.vue';
-import {ipcRenderer} from 'electron'
+import winHeaderBar from './win-header-login.vue';
+import {ComponentUtil} from '../script/component-util.js'
+import '../style/organise.css'
+import {ipcRenderer, remote} from 'electron'
+const {Menu, MenuItem} = remote;
+import AlertDlg from './alert-dlg.vue'
+import addContact from './add-contact';
+import InputContactInfo from './input-contact-info';
+import eSearch from './searchbar.vue'
+
 export default {
     name: 'organization',
     props: {
         receiveSearchKey: {
             type: String,
             default: ''
+        },
+        organizationClick:{
+            type: Number,
+            default: 0
         }
     },
     watch: {
+        organizationClick: function(){
+            global.services.common.GetAllContact().then(async() => {
+                this.UpdateContact();
+            }) 
+            this.contactListKey++;
+            this.inviteRoomKey++;
+        },
+
         receiveSearchKey: function() {
             console.log("can search is ", this.canSearch);
             if(this.canSearch) {
@@ -92,25 +174,155 @@ export default {
     },
     data() {
         return {
+            organizeMenuName : '',
+            contactMenuName: '',
+            bOrganizeShow: false,
+            bContactRoomShow: false,
             canSearch: false,
             departments: [],
             isOwn: false,
             dialogVisible: false,
             usersSelected: [],
+            rootDepartment:{},
             currentDepartment: {},
             organizationListTimer: '',
 
             searchKey:'',
             searchUsers: [],
+            searchContacts:[],
+            searchDeparements: [],
+            searchRooms: [],
             showSearchView: false,
             showSearchUserInfoTips: false,
             searchUserInfo:{},
             searchUserInfoKey: 0,
             searchUserInfoPosition:{},
-            //arrowImageSrc: "../../../static/Image/right_arrow@2x.png"
+            contactType:"organise",
+            contactListKey: 0,
+            inviteRoomKey: 0,
+            bInviteRoomShow: false,
+            contactList: [],
+            departmentMenu:{
+                display_name: this.$t("organizeMenuName")
+            },
+            contactMenu:{
+                display_name: this.$t("contactMenuName")
+            },
+            rootDepartmentID: '',
+            myMatrixId: '',
+            myDoman:'',
+            showAlertDlg: false,
+            alertContents: {},
+            showChatContactDlg: false,
+            showInputContactDlg: false,
+            cleanSearchKey: false,
+            activeTab: ''
         }
     },
-    methods: {
+    methods: {  
+        getInviteRoomClass: function(){
+            if(this.getInviteNum() == 0)
+                return 'inviteroom-info-zeroinvite';
+            return 'inviteroom-info';
+        },
+
+        UpdateContact: async function(){
+            this.contactList = await Contact.GetAllContact();
+            this.$nextTick(function(){
+                    this.contactList.forEach(item => {
+                        this.getUserImg(item, 'contact')
+                    })
+            });
+        },
+
+        getInviteNumClass() {
+            let count = this.getInviteNum();
+            if(count > 99) {
+                return "group-unread-99";
+            }
+            else {
+                return "group-unread";
+            }
+        },
+
+        getInviteNum(){
+            return this.$store.getters.getInviteRoomsNum();
+        },
+        
+        CloseInputContactDlg: async function(){
+            this.showInputContactDlg = false;
+            this.contactList = await Contact.GetAllContact();
+            this.$nextTick(function(){
+                this.contactList.forEach(item => {
+                    this.getUserImg(item, 'contact')
+                })
+            });
+        },
+
+        HandleInputContact: async function(){
+            this.showChatContactDlg = false;
+            this.showInputContactDlg = true;
+            this.UpdateContact();
+        },
+
+        AddContact(){
+            this.showChatContactDlg = true;
+            this.showInputContactDlg = false;
+        },
+
+        closeAddContactDlg: async function(){
+            this.showChatContactDlg = false;
+            this.showInputContactDlg = false;
+            this.UpdateContact();
+        }, 
+
+        rightClick(e, contact) {
+            this.menu = new Menu();
+            this.menu.append(new MenuItem({
+                    label: "删除",
+                    click: () => {
+                        this.DeleteContact(contact);
+                    }
+                })); 
+            this.menu.popup(remote.getCurrentWindow());
+        },
+        CloseAlertDlg: function(){
+            this.showAlertDlg = false;
+        },
+
+        ClearCache: async function(){
+            this.showAlertDlg = false;
+            let ret = await global.services.common.DeleteContact(this.deleteContact.matrix_id)
+            if(ret){
+                for(let index in this.contactList){
+                    if(this.contactList[index].matrix_id == this.deleteContact.matrix_id){
+                        this.contactList.splice(index, 1);
+                        return;
+                    }
+                }
+            }
+        },
+
+        DeleteContact(contact){
+            this.deleteContact = contact;
+            this.showAlertDlg = true;
+            this.alertContents = {
+                "Details": this.$t("DeleteContactAlertTitle") + ' ' + contact.display_name + ' ?',
+                "Abstrace": this.$t("DeleteContactAlertDetail")
+            }
+        },
+
+        GetContactTitle: function(user){
+            let userDoman = ComponentUtil.GetDomanName(user.matrix_id);
+            if(userDoman == this.myDoman)
+                return user.title;
+            let usertitle = '';
+            if(user.company && user.company.length != 0)
+                usertitle = user.company + " ";
+            usertitle += user.title;
+            return usertitle;
+        },
+
         Close: function() {
             ipcRenderer.send("win-close");
         },
@@ -123,141 +335,208 @@ export default {
         isWindows() {
             return environment.os.isWindows;
         },
-        searchDeleteClicked(){
-            this.searchKey = '';
-            this.showSearchView = false;
-        },
-        search:async function () {
+
+        search:async function (searchKey) {
+            this.searchKey = searchKey;
             console.log("this.searchKey ", this.searchKey)
             if (this.searchKey == ''){
                 this.showSearchView = false;
                 return;
             }
-            var departmentResults = await Department.SearchByNameKey(this.searchKey);
-            console.log(departmentResults);
-            var userResults = await UserInfo.SearchByNameKey(this.searchKey);
-            console.log("yonghujieguo");
-            console.log(this.searchKey);
-            console.log(userResults);
-            this.searchUsers = userResults;
+            this.searchDeparements = await Department.SearchByNameKey(this.searchKey);
+            this.searchUsers = await UserInfo.SearchByNameKey(this.searchKey);
+            this.searchContacts = await Contact.SearchByNameKey(this.searchKey);
+            let allContactRooms = await ContactRoom.GetAllRooms();
+            this.searchRooms = [];
+            allContactRooms.forEach(item => {
+                let room = this.matrixClient.getRoom(item.room_id);
+                if(!room)
+                    return;
+                item.name = room.name;
+                if(room.name.indexOf(this.searchKey) == -1)
+                    return;
+                var RoomAvatar = room.getAvatarUrl(this.matrixClient.getHomeserverUrl(), null, null, undefined, false);
+                
+                if(RoomAvatar)
+                    item.avatar_url = RoomAvatar;
+                else
+                    item.avatar_url = './static/Img/User/group-40px@2x.png';
+                this.searchRooms.push(item);
+            })
+            
             this.showSearchView = true;
             this.$nextTick(function(){
-                var users = this.searchUsers;
-                for(var i = 0; i < this.searchUsers.length; i ++){
-                    this.getUserImg(this.searchUsers[i]);
-                }
+                this.searchContacts.forEach(item => {
+                    this.getUserImg(item, 'contact')
+                })
+
+                this.searchUsers.forEach(item => {
+                    this.getUserImg(item, 'organise')
+                })
+
+                this.searchDeparements.forEach(item => {
+                    this.getDepartmentImage(item);
+                })
             });
         },
         getSearchUserIconId(id){
-            
             return 'search' + id;
         },
-        getUserImg: async function (userInfo){
+
+        getContactIconId(id){
+            return 'contact' + id;
+        },
+
+        getDepartmentImage: async function(department){
+            if(department.parent_id != this.rootDepartmentID) return;
+
+            let element = document.getElementById(this.getSearchUserIconId(department.department_id));
+            element.setAttribute('src', './static/Img/Organization/Image/department-40px@2x.png')
+        },
+
+        getUserImg: async function (userInfo, type){
             //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.user_id == undefined || userInfo == null) {
+            if(userInfo == null || userInfo.matrix_id == undefined) {
                 return "";
             }
-            var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.acatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.user_id));
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
+            global.mxMatrixClientPeg.matrixClient.getProfileInfo(userInfo.matrix_id).then(profileInfo => {
+                if(!profileInfo.avatar_url) return;
+                let userIconElement;
+                if(type == 'contact'){
+                    userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.matrix_id));
+                    if(userInfo.display_name.length == 0)
+                        userInfo.display_name = ComponentUtil.GetDisplayName(profileInfo.displayname, userInfo.matrix_id);
                 }
-            }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
-            }
+                else 
+                    userIconElement = document.getElementById(this.getSearchUserIconId(userInfo.user_id));
+                let validUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                if(userIconElement)
+                    userIconElement.setAttribute("src", validUrl);
+                    
+                if(this.$store.getters.getAvater(userInfo.user_id) == validUrl) {
+                    return;
+                }
+                var userToAvaterInfo = [userInfo.user_id, validUrl];
+                this.$store.commit("setAvater", userToAvaterInfo);
+            }).catch(e => {
+                console.log("error: ",userInfo)
+                console.log(e)
+            });
         },
-        searchUserMenuItemClicked:async function(id) {
-            
-            if (this.showSearchUserInfoTips&&(this.searchUserInfo.id == id)){
-                this.showSearchUserInfoTips = false;
+
+        searchRoomItemClicked: function(room_id){
+            this.$router.push(
+            {
+                name: 'ChatContent', 
+                params: {
+                    group_id: room_id
+                }
+            })
+        },
+
+        searchDeparmentItemClicked: async function(id){
+            let department = await Department.GetDepartmentInfoByDepartmentID(id);
+            if(!department)
                 return;
+            this.showSearchView = false;
+            this.showSearchUserInfoTips = false;
+            this.bOrganizeShow = true;
+            this.bContactRoomShow = false;
+            this.rootDepartment = this.departments[0];
+            this.currentDepartment = department;
+        },
+
+        GetUserinfo: async function(id, userType){
+            if (this.showSearchUserInfoTips && (this.searchUserInfo.matrix_id == id)){
+                    this.showSearchUserInfoTips = false;
+                    return;
             }
+            
             var iconElement = document.getElementById(this.getSearchUserIconId(id));
             this.searchUserInfoPosition.left = iconElement.getBoundingClientRect().left;
             this.searchUserInfoPosition.top = iconElement.getBoundingClientRect().top;
             console.log(iconElement.getBoundingClientRect());
             var tempUserInfo = {};
             //get userinfo
-            var selfUser = await services.common.GetSelfUserModel();
+            var selfUser = await global.services.common.GetSelfUserModel();
             console.log("is owner is ", this.isOwn);
-            if(id == selfUser.id) {
+            if(selfUser && id == selfUser.id) {
                 this.isOwn = true;
             }
-            var user = await UserInfo.GetUserInfo(id);
-            tempUserInfo.id = user.user_id;
-            tempUserInfo.avatarTUrl = user.avatar_t_url;
-            tempUserInfo.displayName = user.user_display_name;
-            tempUserInfo.title = user.user_title;
-            tempUserInfo.statusDescription = user.status_description;
-            tempUserInfo.workDescription = user.work_description;
-            tempUserInfo.managerId = user.manager_id;
-            tempUserInfo.departmentId = user.belong_to_department_id;
-            
-            //get department
-            var department = await Department.GetDepartmentInfoByUserID(id);
-            tempUserInfo.department = department;
-            //get email
-            var email = await UserInfo.GetUserEmailByUserID(id);
-            tempUserInfo.email = email;
-            //get phone
-            var phone = await UserInfo.GetUserPhoneByUserID(id);
-            var tempPhone = {};
-            for (var i = 0; i < phone.length; i ++){
-                var temp = phone[i];
-                if(temp.phone_type == 'mobile'){
-                    tempPhone.mobile = temp.phone_value;
-                }else{
-                    tempPhone.work = temp.phone_value;
-                }
+            var user;
+            if(userType == 'contact')
+            {
+                tempUserInfo = await ComponentUtil.ShowContactInfo(id);
             }
-            tempUserInfo.phone = tempPhone;
-
-
-            var leaders = await UserInfo.GetLeaders(id);
-            tempUserInfo.leaders = leaders;
-
+            else
+            {
+                tempUserInfo = await ComponentUtil.ShowOrgInfoByUserID(id);
+            }
             this.searchUserInfo = tempUserInfo;
             this.searchUserInfoKey ++;
             this.showSearchUserInfoTips = true;
+            this.contactType = userType;
+        },
+
+        SearchContactItemClicked: async function(id){
+            await this.GetUserinfo(id, 'contact')
+        },
+
+        searchUserMenuItemClicked:async function(id) {
+            await this.GetUserinfo(id, 'organise');
         },
         getOrganizationBaseData:async function() {
-            var rootDepartment = await Department.GetRoot();
-            console.log(rootDepartment);
-            var departments = await Department.GetSubDepartment(rootDepartment.department_id);
-            console.log(departments);
-            var tempDepartments = departments;
-            // for(var i = 0; i < departments.length; i ++){
-                
-            //     //tempDepartments[departments[i].show_order] = departments[i];
-            // }
-            tempDepartments.sort(this.compare("show_order"));
-            this.departments = tempDepartments;
+            var departments = [];
+            departments.push({
+                display_name: this.$t("organizeMenuName"),
+            });
+            departments.push({
+                display_name: this.$t("contactMenuName")
+            })
+            this.departments = departments;
             this.currentDepartment = this.departments[0];
             this.organizationListTimer = new Date().getTime();
+            let root = await Department.GetRoot();
+            this.rootDepartmentID = root.department_id;
         },
+        
+        roomItemClick(){
+            this.activeTab = "groupchat"
+            this.bOrganizeShow = false;
+            this.bContactRoomShow = true;
+            this.bInviteRoomShow = false;
+            this.contactListKey++;
+        },
+
+        inviteRoomItemClick(){
+            this.activeTab = 'invite'
+            this.bOrganizeShow = false;
+            this.bContactRoomShow = false;
+            this.bInviteRoomShow = true;
+            this.inviteRoomKey++;
+        },
+
         departmentMenuItemClicked(department) {
+            this.activeTab = 'department'
+            if(department.display_name == this.organizeMenuName){
+                //组织架构模板
+                this.bOrganizeShow = true;
+                this.bContactRoomShow = false;
+                this.bInviteRoomShow = false;
+            }
+            else if(department.display_name == this.contactMenuName){
+                //联系人模板
+                this.bOrganizeShow = false;
+                this.bContactRoomShow = false;
+                this.bInviteRoomShow = false;
+                this.contactListKey++;
+             }
             this.currentDepartment = department;
             this.organizationListTimer = new Date().getTime();
         },
 
         recentUsersMenuItemClicked:async function() {
             this.dialogVisible = true;
-            /*
-            if (this.showRecentUsersMenuItem) {
-                this.arrowImageSrc = "../../../static/Image/right_arrow@2x.png";
-            }else {
-                this.recentUsers = await services.common.GetRecentUsers();
-                this.arrowImageSrc = "../../../static/Image/down_arrow@2x.png";
-            }
-            this.showRecentUsersMenuItem = !this.showRecentUsersMenuItem;
-            */
         },
         msgContentHightLight: function(curMsg) {
             var showContent = curMsg;
@@ -285,17 +564,31 @@ export default {
     },
     components: {
         organizationList,
-        listHeader,
+        eSearch,
         userInfoContent,
         winHeaderBar,
+        contactList,
+        contactRoomList,
+        AlertDlg,
+        addContact,
+        InputContactInfo,
+        inviteRoomList
     },
+
     created:async function() {
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+        this.organizeMenuName = this.$t("organizeMenuName"),
+        this.contactMenuName = this.$t("contactMenuName"),
+        this.myMatrixId = localStorage.getItem("mx_user_id");
+        this.myDoman = ComponentUtil.GetDomanName(this.myMatrixId);
         console.log("to get organization");
         await this.getOrganizationBaseData();
-        var that = this;
-        document.addEventListener('click',function(e){
+        await this.UpdateContact();
+
+        document.addEventListener('click',(e) => {
             if(e.target.className.indexOf('userInfo') == -1){
-                that.showSearchUserInfoTips = false;
+                this.showSearchUserInfoTips = false;
+                this.UpdateContact();
             }
             
         });
@@ -337,14 +630,19 @@ export default {
 //     background-color: #A8A8A8;
 //     border-radius: 10px;
 // }
+
+.active-tab.active-tab.active-tab{
+    background-color: #dddddd;
+}
+
 ::-webkit-scrollbar {
 /*隐藏滚轮*/
 display: none;
 }
 .list-header {
     width: 100%;
-    //height: 56px;
-    line-height: 56px;
+    height: 56px;
+    //line-height: 56px;
     background-color: rgb(255, 255, 255);
     border: 0px;
     margin: 0px 0px 0px 0px;
@@ -354,9 +652,63 @@ display: none;
 * {
     -webkit-app-region: no-drag;
 }
-.organization-view{
-    margin-top: -13px;
+
+    .SearchInput {
+        width: calc(100% - 55px);
+        height: 34px;
+        line-height: 34px;
+        font-size: 14px;
+        display: inline-block;
+        padding: 0px;
+        margin: 0px 0px 0px 0px;
+    }
+
+  .group-unread {
+    position: relative;
+    z-index: 1;
+    display:inline-block;
+    font-size: 10px;
+    font-family: PingFangSC-Medium;
+    color: rgb(255, 255, 255);
+    top : -40px;
+    margin-left: -15px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+  }
+
+  .group-unread-99 {
+    position: absolute;
+    z-index: 1;
+    display:inline-block;
+    font-size: 10px;
+    font-family: PingFangSC-Medium;
+    color: rgb(255, 255, 255);
+    margin-left: -15px;
+    text-align: center;
+    height: 14px;
+    width: 14px;
+    line-height: 9px;
+    border-radius: 20px;
+    background-color: rgba(228, 49, 43, 1);
+  }
+
+.chat-tool-invite-div {
+    display: inline-block;
+    margin-left: 8px;
 }
+
+.departmentsdiv{
+    width: 100%;
+    height: 90%;
+    padding: 0;
+    margin: 0;
+    overflow: scroll;
+}
+
 .departments-list {
     width: 100%;
     height: 100%;
@@ -382,7 +734,25 @@ display: none;
     margin-top: 10px;
     margin-right: 0px;
     margin-bottom: 10px;
+    border-radius: 50%;
 }
+
+.inviteroom-info-zeroinvite {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 99px);
+    margin-left: -5px;
+}
+
+.inviteroom-info {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: calc(100% - 99px);
+    margin-left: -8px;
+}
+
 .department-info {
     display: inline-block;
     vertical-align: top;
@@ -398,7 +768,6 @@ display: none;
     margin-left: 12px;
     font-size: 14px;
     line-height: 20px;
-    letter-spacing: 1px;
     font-family: PingFangSC-Regular;
     font-weight: 400;
     display: flex;
@@ -418,9 +787,32 @@ display: none;
     width: 7px;
     height: 13px;
 }
+
+.contact {
+    height: 60px;
+    //border-bottom: 1px solid rgb(221, 221, 221);
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-block;
+            margin-left: 16px;
+            margin-top: 10px;
+            margin-right: 0px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-radius: 50%;
+        }
+    }
+.contact:hover {
+    height: 60px;
+    background:rgba(243,244,247,1);
+    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+}
+    
+
 .search-view{
     width: 100%;
-    height: 100%;
+    height: 90%;
     padding: 0;
     margin: 0;
     overflow: scroll;
@@ -432,60 +824,33 @@ display: none;
     list-style: none;
     //border-top: 1px solid rgb(221, 221, 221);
     .manager {
-    height: 60px;
-    //border-bottom: 1px solid rgb(221, 221, 221);
-    .manager-icon {
-    width: 40px;
-    height: 40px;
-    display: inline-block;
-    margin-left: 16px;
-    margin-top: 10px;
-    margin-right: 0px;
-    margin-bottom: 10px;
-    border-radius: 4px;
+        height: 60px;
+        //border-bottom: 1px solid rgb(221, 221, 221);
+            .manager-icon {
+                width: 40px;
+                height: 40px;
+                display: inline-block;
+                margin-left: 16px;
+                margin-top: 10px;
+                margin-right: 0px;
+                margin-bottom: 10px;
+                border-radius: 4px;
+                border-radius: 50%;
+                object-fit:cover;
+            }
+        }
+        .manager:hover {
+            height: 60px;
+            background:rgba(243,244,247,1);
+            box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
+        }
+    }
 }
 .manager-info {
     display: inline-block;
     vertical-align: top;
     height: 100%;
     width: calc(100% - 84px);
-}
-.manager-name {
-    height: 20px;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 2px;;
-    margin-left: 12px;
-    font-size: 14px;
-    line-height: 20px;
-    font-weight:400;
-    letter-spacing:1px;
-    color:rgba(0,0,0,1);
-    font-family: PingFangSC-Regular;
-}
-.manager-title {
-    height: 18px;
-    width: 100%;
-    margin-top: 0px;
-    margin-bottom: 10px;
-    margin-left: 12px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight:400;
-    color:rgba(153,153,153,1);
-    letter-spacing:1px;
-    font-family: PingFangSC-Regular;
-}
-}
-.manager:hover {
-    height: 60px;
-    background:rgba(243,244,247,1);
-    box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
-}
-}
 }
 
 .el-header {
@@ -512,12 +877,12 @@ display: none;
     }
 }
 
-    .search {
-        margin: 12px 0px 0px 16px;
+    .searchDiv {
+        margin-top: 12.5px;
+        margin-bottom: 7.5px;
         text-align: left;
-        width: calc(100% - 86px);
+        width: 280px;
         height: 32px;
-        border: 1px solid rgb(221, 221, 221);
         border-right: none;
         border-top-left-radius: 2px;
         border-bottom-left-radius: 2px;
@@ -572,8 +937,7 @@ display: none;
     .search-input {
         display: inline-block;
         position: absolute;
-        text-indent: 10px;
-        width: 194px;
+        width: 208px;
         padding: 0;
         margin: 0px;
         height: 32px;
@@ -587,6 +951,5 @@ display: none;
         font-weight:400;
         color:rgba(0,0,0,1);
         line-height:18px;
-        letter-spacing:1px;
     }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="toastMessageBox" v-if="show" :style="boxStyle">
+    <div class="toastMessageBox" id="toastMessageBoxId" v-if="show" :style="boxStyle">
         <img class="message-icon" :src="imageSrc">
         <p class="message-content">{{ message }}</p>
     </div>
@@ -15,7 +15,8 @@ export default {
             show: false,
             type: '',
             imageSrc: '',
-            
+            showWidth:'',
+            showHeight: '',
             boxStyle:{},
         }
     },
@@ -33,6 +34,27 @@ export default {
             if (this.type == 'success'){
             this.imageSrc = require('../../../static/Img/Login/toastSuccess@2x.png');
             }
+        },
+        showWidth: function() {
+            if(this.showWidth == null || (this.showWidth && this.showWidth.length == 0)) return;
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    var boxElement = document.getElementById("toastMessageBoxId");
+                    console.log("============ set showWidth")
+                    boxElement.style.width = this.showWidth;
+                })
+            }, 0)
+        },
+        showHeight: function() {
+            console.log("============ set height")
+            if(this.showHeight == null || (this.showHeight && this.showHeight.length == 0)) return;
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    var boxElement = document.getElementById("toastMessageBoxId");
+                    console.log("============ set height")
+                    boxElement.style.height = this.showHeight;
+                })
+            }, 0)
         }
     },
     created(){
@@ -67,6 +89,7 @@ export default {
     .message-content{
         display: inline-block;
         margin-left: 16px;
+        max-width: 65%;
         margin-right: 28px;
         margin-top: 19px;
         margin-bottom: 19px;
@@ -75,7 +98,7 @@ export default {
         font-weight:500;
         color:rgba(0,0,0,1);
         line-height:22px;
-        letter-spacing:2px;
+        letter-spacing: 0px;
         vertical-align: top;
         text-align: left;
         font-family: PingFangSC-Regular;

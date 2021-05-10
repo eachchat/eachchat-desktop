@@ -1,11 +1,11 @@
 <template>
     <div class="atDlg" id="atDlgId">
         <div class="atList-view">
-            <ul class="atList">
-                <li v-for="(item, index) in memberListShow" class="memberItem" @click="atMember(item)">
+            <ul class="atList" id="atListId">
+                <li v-for="item in memberListShow" :key='item.userId' class="memberItem" @click="atMember(item)">
                     <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.user_id)" class="groupMemberInfoImage" src="../../../static/Img/User/user-40px@2x.png">
-                        <label class="groupMemberInfoLabel">{{item.user_display_name}}</label>
+                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" :src="getUserIconSrc(item)" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                        <label class="groupMemberInfoLabel" :id="getNameIdThroughMemberUid(item.userId)">{{item.name}}</label>
                     </div>
                 </li>
             </ul>
@@ -21,6 +21,8 @@ import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
 import { nextTick } from 'process'
+import {ComponentUtil} from '../script/component-util'
+import axios from "axios";
 export default {
     name: 'atDlg',
     data() {
@@ -34,26 +36,33 @@ export default {
             groupId: '',
             ownerId: '',
             atDlgElement: null,
-            searchId: 0,
-            memberIdList:[],
+            searchId: 0
         }
     },
     components: {
     },
-    props: ["GroupInfo", "showPosition", "chatMemberSearchKey"],
+    props: ["GroupInfo", "showPosition", "chatMemberSearchKey", "selectClicked"],
     computed: {
     },
     methods: {
+        getUserIconSrc: function(memberInfo) {
+            var userId = memberInfo.userId;
+            var avater = this.$store.getters.getAvater(userId);
+            if(avater.length == 0) {
+                return "../../../static/Img/User/user-40px@2x.png";
+            }
+            else {
+                return avater;
+            }
+        },
         atMember: function(memberInfo) {
             this.memberListShowOriginal = [];
             this.memberListShow = [];
-            this.memberIdList = [];
-            this.$emit("atMember", memberInfo);
+            this.$emit("clickAtMember", memberInfo);
         },
         Close: function() {
             this.memberListShowOriginal = [];
             this.memberListShow = [];
-            this.memberIdList = [];
             this.$emit("closeChatMemberDlg");
         },
         getClassNameThroughMemberUid: function(memberUid) {
@@ -62,6 +71,9 @@ export default {
         getIdThroughMemberUid: function(memberUid) {
             return "member-img-id-" + memberUid;
         },
+        getNameIdThroughMemberUid: function(memberUid) {
+            return "member-name-id-" + memberUid;
+        },
         getDeleteIdThroughMemberUid: function(memberUid) {
             return "delete-member-id-" + memberUid;
         },
@@ -69,16 +81,54 @@ export default {
             var uid = elementId.slice("member-img-div-id-".length, elementId.length);
             return uid;
         },
-        getMemberImage: async function() {
-            for(var i=0; i < this.memberListShow.length; i++) {
-                var distUserInfo = this.memberListShow[i];
-                // console.log("distuserinfo.uid ", distUserInfo.user_id);
-                var targetPath = '';
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
-                    var distElement = document.getElementById(this.getIdThroughMemberUid(distUserInfo.user_id));
-                    distElement.setAttribute("src", targetPath);
+        getMemberInfo: async function() {
+            this.memberListShow.forEach(async (item)=>{
+                var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(item.userId);
+                item.displayName = fromUserName;
+
+                var distNameElement = document.getElementById(this.getNameIdThroughMemberUid(item.userId));
+                if(distNameElement) {
+                    distNameElement.innerHTML = fromUserName;
                 }
+
+                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(item.userId);
+                if(!item)
+                    return;
+                var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                if(avaterUrl == '')
+                    return;
+                var distElement = document.getElementById(this.getIdThroughMemberUid(item.userId));
+                if(!distElement)
+                    return;
+                try{
+                    var response = await axios.get(avaterUrl);
+                }
+                catch(e) {
+                    return;
+                }
+                distElement.setAttribute("src", avaterUrl);
+            })
+        },
+        getMemberName: async function() {
+            var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(this.msg.sender.userId);
+
+            if(userNameElement != undefined) {
+                userNameElement.innerHTML = fromUserName;
             }
+        },
+        mxGetMembers: async function() {
+            const roomId = this.GroupInfo.roomId;
+            const cli = window.mxMatrixClientPeg.matrixClient;
+            const xie1 = cli.getRoom(roomId);
+            await xie1.loadMembersIfNeeded();
+            const mxMembers = [];
+            for(let key in xie1.currentState.members) {
+                // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
+                let o = xie1.currentState.members[key];
+                let obj = {...o, choosen:false}
+                if (obj.membership != 'leave' && obj.membership != 'invite') mxMembers.push(obj);
+            }
+            return mxMembers;
         },
         updateUserImage: function(e, args) {
             var state = args[0];
@@ -91,46 +141,27 @@ export default {
             distElement.setAttribute("src", localPath);
         },
     },
-    async created () {
-        await services.common.init();
-        this.loginInfo = await services.common.GetLoginModel();
-        console.log("userinfo-tip login info is ", this.loginInfo);
-        this.curUserInfo = await services.common.GetSelfUserModel();
-    },
-    mounted() {
-    },
     watch: {
         GroupInfo: async function() {
-            this.memberListShow = [];
-            this.memberListShowOriginal = [];
-            this.memberIdList = [];
+            if(!this.GroupInfo.currentState)
+                return;
+            this.memberListShow = await this.mxGetMembers();
+            for(var i=0;i<this.memberListShow.length;i++) {
+                if(this.memberListShow[i].userId == this.$store.state.userId) {
+                    this.memberListShow.splice(i, 1);
+                    break;
+                }
+            }
+            console.log("*** this.memberListShow ", this.memberListShow);
+            this.memberListShowOriginal = this.memberListShow;
 
             // console.log("GroupInfo is ", this.GroupInfo);
             if(this.atDlgElement == null) {
                 this.atDlgElement = document.getElementById("atDlgId");
             }
-            if(this.GroupInfo.group_id == undefined) {
-                return;
-            }
-            
-            this.memberIdList = this.GroupInfo.contain_user_ids.split(",");
-            // console.log("this member list is ", this.memberIdList);
-            
-            for(var i=0;i<this.memberIdList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                if(memberInfoTmp.length != 0) {
-                    memberInfoTmp[0].checkState = false;
-                    this.memberListShow.push(memberInfoTmp[0]);
-                    this.memberListShowOriginal.push(memberInfoTmp[0]);
-                }
-
-                if(i == 6){
-                    break;
-                }
-            }
 
             this.$nextTick(() => {
-                this.getMemberImage();
+                this.getMemberInfo();
             })
 
             if(this.showPosition.length != 0) {
@@ -141,25 +172,27 @@ export default {
                     })
                 }, 0)
             }
-
-            for(var i=0;i<this.memberIdList.length;i++) {
-                let memberInfoTmp = await services.common.GetDistUserinfo(this.memberIdList[i]);
-                console.log("memgerinfotmep is ", memberInfoTmp)
-                if(memberInfoTmp.length != 0) {
-                    if(this.memberListShow.indexOf(memberInfoTmp[0]) == -1) {
-                        memberInfoTmp[0].checkState = false;
-                        this.memberListShow.push(memberInfoTmp[0]);
-                        this.memberListShowOriginal.push(memberInfoTmp[0]);
+            this.ownerId = this.GroupInfo.owner;
+            this.groupId = this.GroupInfo.roomId; 
+            
+        },
+        selectClicked: function() {
+            this.$nextTick(() => {
+                var ulDiv = document.getElementById("atListId");
+                var selectedIndex = -1;
+                for(var i=0;i<ulDiv.children.length;i++) {
+                    if(ulDiv.children[i].style.backgroundColor == "rgba(243, 244, 247, 1)" || ulDiv.children[i].style.backgroundColor == "rgb(243, 244, 247)") {
+                        selectedIndex = i;
+                        break;
                     }
                 }
-            }
-
-            this.$nextTick(() => {
-                this.getMemberImage();
+                if(selectedIndex != -1) {
+                    var memberInfo = this.memberListShow[i];
+                    this.memberListShowOriginal = [];
+                    this.memberListShow = [];
+                    this.$emit("atMember", memberInfo);
+                }
             })
-
-            this.ownerId = this.GroupInfo.owner;
-            this.groupId = this.GroupInfo.group_id; 
         },
         showPosition: function() {
             // console.log("this showposition is ", this.showPosition)
@@ -170,12 +203,12 @@ export default {
                 if((this.chatMemberSearchKey != null && this.chatMemberSearchKey.length == 0) || this.chatMemberSearchKey == null) {
                     console.log("toall ========")
                     for(var i=0;i<this.memberListShowOriginal.length;i++) {
-                        if(this.memberListShow.indexOf(this.memberListShowOriginal[i]) == -1) {
+                        if(this.memberListShow.indexOf(this.memberListShowOriginal[i]) == -1 && this.memberListShowOriginal[i].userId != this.$store.state.userId) {
                             this.memberListShow.push(this.memberListShowOriginal[i]);
                         }
                     }
                     
-                    this.getMemberImage();
+                    this.getMemberInfo();
                     
                     if(this.showPosition.length != 0) {
                         setTimeout(() => {
@@ -198,8 +231,9 @@ export default {
 
                 this.searchId = curSearchId;
                 for(var i=0;i<this.memberListShowOriginal.length;i++) {
-                    console.log("searchResult is ", this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey));
-                    if(this.memberListShowOriginal[i].user_display_name.indexOf(this.chatMemberSearchKey) != -1) {
+                    var checkName = this.memberListShowOriginal[i].displayName ? this.memberListShowOriginal[i].displayName : this.memberListShowOriginal[i].name;
+                    console.log("searchResult is ", checkName.indexOf(this.chatMemberSearchKey));
+                    if(checkName.indexOf(this.chatMemberSearchKey) != -1 && this.memberListShowOriginal[i].userId != this.$store.state.userId) {
                         if(searchResult.searchList.indexOf(this.memberListShowOriginal[i]) == -1) {
                             searchResult.searchList.push(this.memberListShowOriginal[i]);
                         }
@@ -209,7 +243,7 @@ export default {
                 console.log("searchResult ", searchResult);
                 if(searchResult.id == this.searchId) {
                     this.memberListShow = searchResult.searchList;
-                    this.getMemberImage();
+                    this.getMemberInfo();
                 }
 
                 if(this.showPosition.length != 0) {
@@ -276,7 +310,7 @@ export default {
         height: 40px;
         padding-left: 16px;
         padding-right: 0px;
-        background-color: rgb(17, 180, 105);
+        background-color: rgba(243, 244, 247, 1);
     }
 
     .groupMemberInfoDiv {
@@ -288,11 +322,11 @@ export default {
 
     .groupMemberInfoImage {
         display: inline-block;
-        padding-top: 8px;
-        padding-bottom: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
         width: 24px;
         height: 24px;
-        border-radius:4px;
+        border-radius:50px;
     }
 
     .groupMemberInfoLabel {
@@ -304,7 +338,7 @@ export default {
         font-size: 14px;
         font-family:PingFangSC-Regular;
         font-weight: 400;
-        letter-spacing: 1px;
+        letter-spacing: 0px;
         padding-left: 8px;
     }
 

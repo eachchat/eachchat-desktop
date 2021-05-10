@@ -13,6 +13,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    host: '',
+    port: 443,
+    domain: '',
     chatGroup: [],
     refreshtoken: "",
     accesstoken: "",
@@ -31,8 +34,113 @@ export default new Vuex.Store({
     isFirstLogin: false,
     soundNotice: true, 
     flashNotice: true,
+    draft: {},
+    quoteMsgMap: {},
+    roomIdToName: {},
+    userToAvater: {},
+    userToName: {},
+    curRoomId: undefined,
+    inviteRooms: [],
+    inviteRoomsNum: 0,
+    nUpdateInviteRoom: 0,
+    sendingEvents: {},
+    sendingEventsTxnIds: [],
   },
   mutations: {
+    saveSendingEvents(state, newEvent) {
+      if(newEvent._txnId && state.sendingEventsTxnIds.indexOf(newEvent._txnId) < 0) {
+        state.sendingEventsTxnIds.push(newEvent._txnId);
+      }
+      let exitingSendingEvents = state.sendingEvents[newEvent.event.room_id];
+
+      if(exitingSendingEvents) {
+        let newSendingEvents = exitingSendingEvents.concat([newEvent]);
+        state.sendingEvents[newEvent.event.room_id] = newSendingEvents;
+      }
+      else {
+        state.sendingEvents[newEvent.event.room_id] = [newEvent];
+      }
+    },
+    removeSendingEvents(state, newEvent) {
+      if(newEvent._txnId) {
+        let distTxnIdIndex = state.sendingEventsTxnIds.indexOf(newEvent._txnId);
+        if(distTxnIdIndex >= 0) {
+          state.sendingEventsTxnIds.splice(distTxnIdIndex, 1);
+        }
+      }
+      let exitingSendingEvents = state.sendingEvents[newEvent.event.room_id];
+      if(exitingSendingEvents) {
+        for(let i=0;i<exitingSendingEvents.length;i++) {
+          if(exitingSendingEvents[i].event.room_id == newEvent.event.room_id) {
+            exitingSendingEvents.splice(i, 1);
+          }
+        }
+        state.sendingEvents[newEvent.event.room_id] = exitingSendingEvents;
+      }
+    },
+    updateInviteState(state, roomObj){
+      for(let index in state.inviteRooms){
+        if(state.inviteRooms[index].roomID === roomObj.roomID 
+          && state.inviteRooms[index].roomState === 0){
+          state.inviteRooms[index].roomState = roomObj.roomState;
+          state.inviteRoomsNum--;
+          return;
+        }
+      }
+    },
+
+    addInviteRooms(state, inviteRoom){
+      if(state.inviteRooms.some(item => item.roomID == inviteRoom.roomID))
+        return;
+      state.inviteRooms.unshift(inviteRoom);
+      state.inviteRoomsNum++;
+    },
+
+    deleteInviteRooms(state, roomID){
+      for(let index in state.inviteRooms){
+        if(state.inviteRooms[index].roomID === roomID){
+          if(state.inviteRooms[index].roomState === 0){
+            state.inviteRoomsNum--;
+          }
+          state.inviteRooms.splice(index, 1);
+          state.nUpdateInviteRoom++;
+          return;
+        }
+      }
+    },
+
+    setCurChatId(state, curRoomId) {
+      state.curRoomId = curRoomId;
+    },
+    setDraft(state, draftInfo) {
+      var roomId = draftInfo[0];
+      var draft = draftInfo[1];
+      state.draft[roomId] = draft;
+    },
+    setAvater(state, userAvaterInfo) {
+      var userId = userAvaterInfo[0];
+      var avater = userAvaterInfo[1];
+      state.userToAvater[userId] = avater;
+    },
+    setShowName(state, userNameInfo) {
+      var userId = userNameInfo[0];
+      var showName = userNameInfo[1];
+      state.userToName[userId] = showName;
+    },
+    setIdToName(state, userNameInfo) {
+      var roomId = userNameInfo[0];
+      var name = userNameInfo[1];
+      state.roomIdToName[roomId] = name;
+    },
+    setHost(state, host){
+      state.host = host;
+    },
+    setPort(state, port) {
+      state.port = port;
+    },
+    setDomain(state, domain) {
+      state.domain = domain;
+    },
     setSoundNotice(state, soundNotice) {
       state.soundNotice = soundNotice;
     },
@@ -204,6 +312,39 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    getSendingEvents: state => (roomId) => {
+      return state.sendingEvents[roomId] == undefined ? [] : state.sendingEvents[roomId];
+    },
+    getSendingEventsTxnIds: state => (roomId) => {
+      return state.sendingEventsTxnIds[roomId] == undefined ? [] : state.sendingEventsTxnIds[roomId];
+    },
+    getInviteRoomsNum: state => () => {
+      return state.inviteRoomsNum;
+    },
+    getCurChatId: state => () => {
+      return state.curRoomId;
+    },
+    getDraft: state => (roomId) => {
+      return state.draft[roomId] == undefined ? "" : state.draft[roomId];
+    },
+    getAvater: state => (userId) => {
+      return state.userToAvater[userId] == undefined ? "" : state.userToAvater[userId];
+    },
+    getShowName: state => (userId) => {
+      return state.userToName[userId] == undefined ? "" : state.userToName[userId];
+    },
+    getChatName: state => (roomId) => {
+      return state.roomIdToName[roomId] == undefined ? "" : state.roomIdToName[roomId];
+    },
+    getHost: state => () => {
+      return state.host;
+    },
+    getPort: state => () => {
+      return state.port;
+    },
+    getDomain: state => () => {
+      return state.domain;
+    },
     soundNotice: state=> () => {
       return state.soundNotice;
     },
@@ -384,9 +525,9 @@ export default new Vuex.Store({
 
   },
   modules,
-  plugins: [
-    createPersistedState(),
-    //createSharedMutations()
-  ],
+  // plugins: [
+  //   createPersistedState(),
+  //   createSharedMutations()
+  // ],
   strict: process.env.NODE_ENV !== 'production'
 })

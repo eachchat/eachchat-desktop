@@ -21,7 +21,6 @@ import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
 import {services, environment} from '../../packages/data/index.js'
 import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
-import {ipcRenderer, remote} from 'electron'
 import Agreement from './agreement.vue'
 import Privacy from './privacy.vue'
 export default {
@@ -49,7 +48,6 @@ export default {
             if(this.AnnouncementLayersElement == null) {
                 this.AnnouncementLayersElement = document.getElementById("AnnouncementLayersId");
             }
-            // console.log("remote.b")
             var showScreenHeight = this.AnnouncementLayersElement.offsetHeight;
             var showScreenWidth = this.AnnouncementLayersElement.offsetWidth;
             console.log("showScreenHeight ", showScreenHeight)

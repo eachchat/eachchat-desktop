@@ -1,15 +1,15 @@
 <template>
     <div class="detailPage" v-if="showView">
-        <div class="detailHeader" v-if="showMessageContent">
-            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromUserId" src="../../../static/Img/User/user-40px@2x.png">
+        <div class="detailHeader">
+            <img ondragstart="return false" class="userIcon" :id="collectionInfo.collection_content.fromMatrixId" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
             <div class="userInfo">
-                <p class="userName">{{ collectionInfo.collection_content.fromUserName }}</p>
+                <p class="userName">{{ userName }}</p>
                 <p class="userTime">{{ formatTimeFilter(collectionInfo.timestamp) }}</p>
             </div>
         </div>
         <div class="detailContent">
             <div class="messageContent" v-if="showMessageContent">
-                <p class="messageText">{{ collectionInfo.collection_content.text }}</p>
+                <p class="messageText" v-html="msgContentShowPhoneAndHightLight(collectionInfo.collection_content.body)">{{ collectionInfo.collection_content.body }}</p>
             </div>
             <div class="imageContent" v-if="!showMessageContent">
                 <img ondragstart="return false" class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
@@ -23,150 +23,73 @@ import * as path from 'path';
 import * as fs from 'fs-extra'
 import {services} from '../../packages/data/index.js';
 import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import { object } from '../../packages/core/types.js';
+import { ComponentUtil } from '../script/component-util'
+
 export default {
     name:'favouriteDetail',
+    props: {
+        collectionInfo:{
+            type: Object,
+            default: {}
+        }
+    },
+
     data() {
         return{
-            collectionInfo: {},
             showMessageContent: true,
             loginInfo:{},
             showView: false,
+            userInfo: {},
+            userName:''
         }
     },
+
     methods:{
-        getAppBaseData:async function() {
-            // Init services
-            // let config = {
-            //     hostname: "139.198.15.253",
-            //     apiPort: 8888,
-            // };
-            // services.common.init(config);
-            // Set accessToken in services
-            // this.loginInfo = await services.common.GetLoginModel();
-            // var curUserInfo = await services.common.GetSelfUserModel();
-            // this.GroupInfo = await Group.FindItemFromGroupByGroupID(this.groupId);
-            // console.log("the init user id is ,", this.GroupInfo)
-            confservice.init(curUserInfo.id);
-            // this.$store.commit("setUserId", this.curUserInfo.id)
-            console.log("lognInfo is ", this.loginInfo);
-            
-            // this.updatePage();
-        },
         getImageCollectionContent:async function(image){
-            //Init services
-            await services.common.init();
-            confservice.init(this.collectionInfo.curUserInfo._attr.id);
-            this.loginInfo = await services.common.GetLoginModel();
-            var targetDir = confservice.getThumbImagePath(image.timestamp);
-            var targetPath = path.join(targetDir, image.collection_content.fileName);
-            var needOpen = false;
+            let url = image.collection_content.url;
             var imageCollectionElement = document.getElementById(image.collection_id);
-            if(fs.existsSync(targetPath)){
-
-                    var showfu = new FileUtil(targetPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        imageCollectionElement.setAttribute("src", reader.result);
-                    }
-
-            }
-            else{
-
-                console.log("download collection image ", image)
-                await services.common.downloadMsgTTumbnail(image.collection_content.timeline_id, image.timestamp, image.collection_content.fileName, false);
-                //await this.getImageCollectionContent(image);
-                // this.checkAndLoadImg(targetPath);
-            }
+            imageCollectionElement.setAttribute("src", url);
         },
-        getUserImg: async function (user_id){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(user_id == undefined) {
-                return "";
+
+        getUserImg: async function (user_id, avaterUrl){
+            if(user_id == undefined || avaterUrl == '') {
+                return;
             }
-            var userId = user_id;
-            
-            confservice.init(this.collectionInfo.curUserInfo._attr.id);
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(userId);
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
+            let userIconElement = document.getElementById(user_id);
+            if(userIconElement){
+                userIconElement.setAttribute("src", avaterUrl);
             }
         },
         formatTimeFilter(secondsTime) {
-            let curDate = new Date();
-            let curDateSecond = curDate.getTime();
-            let cutTime = curDateSecond - secondsTime;
-            let curYeat = curDate.getUTCFullYear();
-            let curMonth = curDate.getUTCMonth() + 1;
-            let curDay = curDate.getDate();
+            return ComponentUtil.formatTimeFilter(secondsTime);
+        },
 
-            let distdate = new Date(secondsTime);
-            let y = distdate.getUTCFullYear();
-            let mon = distdate.getMonth() + 1;
-            let d = distdate.getDate();
-            let h = distdate.getHours();
-            let m = distdate.getMinutes();
-            let s = distdate.getSeconds();
-
-            // console.log(distdate)
-            // console.log(cutTime)
-            // console.log(y + "-" + Appendzero(mon) + "-" + Appendzero(d) + " " + Appendzero(h) + ":" + Appendzero(m) + ":" + Appendzero(s))
-
-            if(cutTime < 24 * 3600 * 1000)
-            {
-                if(curDay - d === 0){
-                return Appendzero(h) + ":" + Appendzero(m);
-                }
-                else{
-                    return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
-                }
-            }
-            else if((cutTime >= 24 * 3600 * 1000 && cutTime < 48 * 3600 * 1000))
-            {
-                if(curDay - d === 1){
-                    return "昨天 " + Appendzero(h) + ":" + Appendzero(m);
-                }   
-                else{
-                    return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
-                }
-            }
-            else
-            {
-                return y + "-" + Appendzero(mon) + "-" + Appendzero(d);
-            }
+        msgContentShowPhoneAndHightLight: function(curMsg){
+            return ComponentUtil.msgContentShowPhoneAndHightLight(curMsg, 'rgba(91, 106, 145, 1)');
         },
     },
     mounted:function() {
         const ipcRenderer = require('electron').ipcRenderer;
-        
         ipcRenderer.on("clickedCollectionInfo", (event, collectionInfo) => {
-            this.collectionInfo = collectionInfo;
             this.showView = true;
-            var favouriteType = collectionInfo.collection_type;
-            
+            this.collectionInfo = collectionInfo;
+            this.userName = collectionInfo.user_name;
+            var favouriteType = this.collectionInfo.collection_type;
+            this.$nextTick(function(){
+                    this.getUserImg(this.collectionInfo.collection_content.fromMatrixId, collectionInfo.avaterUrl);
+            });
             if (favouriteType == 101){
                 this.showMessageContent = true;
-                this.$nextTick(function(){
-                    this.getUserImg(collectionInfo.collection_content.fromUserId);
-            });
+                
             }else if(favouriteType == 102) {
                 this.showMessageContent = false;
-                
                 this.$nextTick(function(){
-                    this.getImageCollectionContent(collectionInfo);
-            });
-        }
-            console.log(this.collectionInfo);
+                    this.getImageCollectionContent(this.collectionInfo);
+                });
+            }
         });
-
+        console.log(this.collectionInfo);
     },
     created(){
     }
@@ -199,6 +122,7 @@ display: none;
         margin: 0px;
         margin-top: 12px;
         margin-bottom: 12px;
+        border-radius: 50%;
     }
     .userInfo{
         display: inline-block;
@@ -215,7 +139,6 @@ display: none;
             font-weight:400;
             color:rgba(0,0,0,1);
             line-height:20px;
-            letter-spacing:1px;
             font-family: PingFangSC-Regular;
         }
         .userTime{
@@ -227,7 +150,6 @@ display: none;
             font-weight:400;
             color:rgba(153,153,153,1);
             line-height:20px;
-            letter-spacing:1px;
             font-family: PingFangSC-Regular;
         }
     }
@@ -250,7 +172,6 @@ display: none;
             font-weight:400;
             color:rgba(0,0,0,1);
             line-height:20px;
-            letter-spacing:1px;
             font-family: PingFangSC-Regular;
         }
     }

@@ -8,3 +8,8 @@
     src: url('./PingFangSC-Regular.ttf');
     font-size: normal;
 }
+@font-face {
+    font-family: 'PingFangSC-Light';
+    src: url('./PingFangSC-Light.ttf');
+    font-size: normal;
+}

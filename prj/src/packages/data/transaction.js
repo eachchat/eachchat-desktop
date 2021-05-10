@@ -229,6 +229,15 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
+  async GetCurrtentInfo(accessToken){
+    var response = await this.commonApi.get(
+      "/api/apps/org/v1/user/profile",
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
   async updateUserWorkDescription(accessToken, workDescription) {
     console.debug("UpdateUser");
     var response = await this.commonApi.patch(
@@ -311,10 +320,20 @@ class APITransaction {
 
   async getNewVersion(accessToken) {
     console.debug("GetNewVersion");
+    let osType;
+    if(environment.os.isWindows){
+      osType = "windows";
+    }
+    else if(environment.os.isOSX){
+      osType = "macos";
+    }
+    else{
+      osType = "linux";
+    }
     var response = await this.commonApi.post(
       "/api/apps/org/v1/version/new",
       {
-        client: "windows"
+        client: osType
       },
       {
         Authorization: "Bearer " + accessToken
@@ -344,7 +363,7 @@ class APITransaction {
         name: name,
         updateTime: updateTime,
         sequenceId: sequenceId,
-        countperpage_value: countperpageValue
+        perPage: countperpageValue
       },
       {
         Authorization: "Bearer " + accessToken
@@ -553,14 +572,13 @@ class APITransaction {
       return this.parseStatus(response);
   }
 
-  async ListAllCollections(accessToken, type, sequenceId, perpage, sortOrder){
+  async ListAllCollections(accessToken, type, sequenceId, perpage){
     var response = await this.commonApi.post(
-      "/api/apps/fav/v1/collection/favorites",
+      "/api/apps/fav/v1/collections",
       {
-        collectionType:type,
+        collectionTypes:type,
         sequenceId:sequenceId,
-        perPage:perpage,
-        sortOrder:sortOrder
+        perPage:perpage
       },
       {
         Authorization: "Bearer " + accessToken
@@ -568,11 +586,42 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async CollectMessage(accessToken, timelineIDs){
+  async searchAll(accessToken, body) {
     var response = await this.commonApi.post(
-      "/api/apps/fav/v1/collection/message",
+      "api/services/search/v1/chats/statistics",
+      body,
       {
-        msgIds:   timelineIDs
+        Authorization: "Bearer " + accessToken
+      });
+
+    return this.parseStatus(response);
+  }
+
+  async searchChat(accessToken, body) {
+    var response = await this.commonApi.post(
+      "api/services/search/v1/chats",
+      body,
+      {
+        Authorization: "Bearer " + accessToken
+      }
+    );
+    return this.parseStatus(response);
+  }
+
+  async CollectMessage(accessToken, eventID, content){
+    let type;
+    if(content.msgtype == "m.image")
+      type = 102;
+    else if(content.msgtype == "m.file")
+      type = 103;
+    else
+      type = 101;
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection",
+      {
+        collectionType: type,
+        collectionId: eventID,
+        content:   content
       },
       {
         Authorization: "Bearer " + accessToken
@@ -592,9 +641,12 @@ class APITransaction {
     return this.parseStatus(response);
   }
 
-  async DeleteCollectionMessage(accessToken, favoriteID){
-    var response = await this.commonApi.delete(
-      "/api/apps/fav/v1/collection/" + favoriteID,
+  async DeleteCollectionMessage(accessToken, collectionIds){
+    var response = await this.commonApi.post(
+      "/api/apps/fav/v1/collection/del",
+      {
+        collectionIds: collectionIds,
+      }, 
       {
         Authorization: "Bearer " + accessToken
       });
@@ -849,7 +901,7 @@ class APITransaction {
     var response = await this.commonApi.post(
       "/api/apps/fav/v1/collection/search",
       {
-        "collectionType":type,
+        "collectionTypes":type,
         "sequenceId":sequenceID,
         "perPage":perPageNum,
         "sortOrder":sortOrder,
@@ -982,7 +1034,136 @@ class APITransaction {
       });
     return this.parseStatus(response);
   }
+
+  async AddContact(accessToken, 
+                    matrixID,
+                    appendFlag,
+                    remarkName,
+                    email,
+                    mobile,
+                    telephone,
+                    company,
+                    title){
+    let response = await this.commonApi.post(
+      "/api/apps/contacts/v1/contact",
+      {
+        matrixId:     matrixID,
+        appendFlag:   appendFlag,
+        remarkName:   remarkName,
+        email:        email,
+        mobile:       mobile,
+        telephone:    telephone,
+        company:      company,
+        title:        title
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async DeleteContact(accessToken, matrixID){
+    var response = await this.commonApi.delete(
+      "/api/apps/contacts/v1/contact",
+      {
+        Authorization: "Bearer " + accessToken
+      },{
+        data:{matrixId: matrixID}
+      });
+    return this.parseStatus(response);
+  }
+
+  async IncrementContact(accessToken, updateTime, sequenceID){
+    let response = await this.commonApi.post(
+      "/api/apps/contacts/v1/increment",
+      {
+        name: "updateContact",
+        updateTime: updateTime,
+        sequenceId: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async UpdateContact(accessToken,
+                      matrixID,
+                      contactID,
+                      remarkName,
+                      email,
+                      mobile,
+                      telephone,
+                      company,
+                      title){
+    var response = await this.commonApi.patch(
+      "/api/apps/contacts/v1/contact",
+      {
+        matrixId: matrixID,
+        contactId: contactID,
+        remarkName: remarkName,
+        email: email,
+        mobile: mobile,
+        telephone: telephone,
+        company: company,
+        title: title
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
+
+  async addRoomToContact(accessToken,
+        roomID){
+    var response = await this.commonApi.post(
+    "/api/apps/contacts/v1/contact/room",
+    {
+      roomId: roomID
+    },
+    {
+      Authorization: "Bearer " + accessToken
+    });
+    return this.parseStatus(response);
+  }
+
+  async deleteRoomFromContact(accessToken, roomID){
+    var response = await this.commonApi.delete(
+      "/api/apps/contacts/v1/contact/room",
+      {
+        Authorization: "Bearer " + accessToken
+      },{
+        data:{roomId: roomID}
+      });
+      return this.parseStatus(response);
+  }
+
+  async updateRoomFromContact(accessToken, name, updateTime, perPage, sequenceID){
+    var response = await this.commonApi.post(
+      "/api/apps/contacts/v1/increment",
+      {
+        name: name,
+        updateTime: updateTime,
+        perPage: perPage,
+        sequenceId: sequenceID
+      },
+      {
+        Authorization: "Bearer " + accessToken
+      });
+      return this.parseStatus(response);
+  }
+
+  async getContactSetting(accessToken){
+    var response = await this.commonApi.get(
+      "api/apps/contacts/v1/contact/setting",
+      {
+        Authorization: "Bearer " + accessToken
+      });
+    return this.parseStatus(response);
+  }
 }
+
+
 
 class MQTTTransaction {}
 

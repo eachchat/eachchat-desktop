@@ -1,5 +1,5 @@
 <template>
-    <div class="login">
+    <div class="login" data-vector-indexeddb-worker-script="../../packages/data/IndexeddbWorker.js">
         <!-- <div class="welcome-panel" v-if="isCheckToken()">
             <p class="welcome-zh-line1">您好，</p><p class="welcome-zh-line2">欢迎使用易企聊!</p>
             <p class="welcome-en">Hello, welcome to user EachChat!</p>
@@ -9,73 +9,100 @@
             <p class="copy-right">版权所有 2019-2020 workly.ai 保留所有权利</p>
         </div> -->
         <!-- <div class="login-panel" v-else style="-webkit-app-region: no-drag"> -->
-            <div class="windowHeader">
-                <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></mac-window-header>
-                <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
-            </div>
+        <div class="windowHeader">
+            <mac-window-header class="macWindowHeader" @Close="Close()" @Min="Min()" @Max="Max()" :showMax="false" :isNormal="true"></mac-window-header>
+            <winHeaderBar @Close="winClose()" @Min="Min()" @Max="Max()" :showMax="false"></winHeaderBar>
+        </div>
+        <!-- <certification v-show="showCertification" :backupInfo="backupInfo"></certification>
+        <generalSecureBackUpPage v-show="showGeneralRecoveryKeyPage"></generalSecureBackUpPage> -->
         <div class="login-panel" v-show="showLoginView">
-            <div class="organization-content" v-show="showOrganizationView">
-                <div class="title">
+            <div class="organization-content" v-show="showOrganizationView" @keydown="keyHandle($event)">
+                <div class="host-title" v-if="showOrganizationViewHost">
+                    服务器设置
+                </div>
+                <div class="title" v-else>
                     <div class="title-ico">
                         <img ondragstart="return false" class="login-logo" src="../../../static/Img/Login/logo@2x.png">
-                    </div><div class="tltle-content">
-                        亿洽
+                    </div>
+                    <div class="tltle-content-win" v-if="isWindows()">
+                        {{$t("appName")}}
+                    </div>
+                    <div class="tltle-content-mac" v-if="!isWindows()">
+                        {{$t("appName")}}
                     </div>
                 </div>
-                <div class="item-organization">
+                <div class="item-organization" id="item-organization-id">
                     <p class="organizaiton-title">
-                        加入您的组织
+                        {{organizationOrHost}}
                     </p>
-                    <input prefix="ios-contact-outline" v-model="organizationAddress" placeholder="请输入组织ID" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="organizationConfirmButtonClicked()"/>
-                    <p class="organization-input-label">.each.chat</p>
+                    <input prefix="ios-contact-outline"  id="organizationInput" v-model="organizationAddress" placeholder="请输入您的组织名称" class="item-input" @input="toDected()" @keyup.delete="resetLoginStateTitle()"/>
+                    <p class="organization-input-label" v-show="false">{{eachChatEndPoint}}</p>
+                    <input prefix="ios-contact-outline" v-model="addressPort" placeholder="" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" v-show="false"/>
                 </div>
                 <div class="organizationLogin-state">
                     <p class="state-title" id="organizationLoginStateLabel">{{loginState}}</p>
+                    <i class="el-icon-loading" v-show="isLoading"></i>
                 </div>
                 <div class="btn-item">
-                    <Button type="success"  @click="organizationConfirmButtonClicked()">确定</Button>
+                    <Button type="success" v-show="showOrganizationViewHost" @click="hostConfirmButtonClicked()">确定</Button>
+                    <Button class="hostCancle" type="cancel" v-show="showOrganizationViewHost" @click="hostCancelButtonClicked()">取消</Button>
+                    <Button class="organizationConfirm" type="success" v-show="showOrganizationViewOrganization" :disabled="organizationButtonDisabled" @click="organizationConfirmButtonClicked()">{{$t("confirm")}}</Button>
                 </div>
-                <div class="organization-finder-tip">
-                    <p class="forget-title">忘记了你的组织ID?</p><p
-                    class="finder-title" @click="organizationFinderClicked()">点击找回</p>
+                <div class="organization-finder-tip" v-show="false">
+                    <p class="forget-title">{{$t("forgetOrganization")}}</p><p
+                    class="finder-title" @click="organizationFinderClicked()">{{$t("retrieveOrganization")}}</p>
                 </div>
-                <!-- <div class="login-footer">
-                    <p class="server-setting" @click="serverSettingClicked()">服务器设置</p>
-                </div> -->
+                <div class="login-footer" v-show="showOrganizationViewHost" @click="organizationFinderBackToLoginClicked()">
+                        <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
+                        <p class="back-title">返回</p>
+                </div>
             </div>
             <div class="account-content" v-show="!showOrganizationView">
                 <div class="username-content" v-show="showUsernameLoginView">
                     <div class="title">
-                            用户名登录
+                        <label class="titleContent">{{loginPageTitle}}</label>
+                        <label class="titleIllustrate">{{loginPageTitlellustrate}}</label>
                     </div>
                     <div class="item-account">
-                        <p class="account-title">
-                            用户名
+                        <p class="account-title" v-show="false">
+                            {{loginPageAccountLabel}}
                         </p>
-                        <input prefix="ios-contact-outline" v-model="username" placeholder="请输入用户名" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
+                        <input prefix="ios-contact-outline" id="accountInputId" v-model="username" :placeholder="loginPageAccountPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()"/>
                     </div>
                     <div class="item-pwd">
-                        <p class="password-title">
-                            密码
+                        <p class="password-title" v-show="false">
+                            {{loginPagePwdLabel}}
                         </p>
-                        <input prefix="ios-lock-outline" type="password" v-model="password" placeholder="请输入密码" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                        <div class="inputDiv" id="inputDivId">
+                            <input prefix="ios-lock-outline" type="password" id="passwordInputId" v-model="password" :placeholder="loginPagePwdPlaceholder" class="item-input" @input="resetLoginStateTitle()" @keyup.delete="resetLoginStateTitle()" @keyup.enter="login()"/>
+                            <img class="el-icon-view" @click="toShowPwd" v-show="!showPwd" src="../../../static/Img/Login/hide-pwd@2x.png">
+                            <img class="el-icon-moon" @click="toShowPwd" v-show="showPwd" src="../../../static/Img/Login/view-pwd@2x.png">
+                        </div>
                     </div>
-                    <div class="accountLogin-state">
+                    <div class="accountLogin-state" v-show="false">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                            <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
+                    <div class="forget-password" @click="toResetPwd" :disabled="forgetPwdButtonDisabled">{{forgetPasswordContent}}</div>
                     <div class="btn item">
-                        <Button type="success" id="loginButton" @click="login()">登录</Button>
+                        <Button :disabled="loginButtonDisabled" type="success" id="loginButton" @click="login()">{{LoginBtnText}}</Button>
                     </div>
                     <div class="otherlogin" v-show="true">
-                        <div class="userphone-login" @click="userPhoneLoginClicked()">
-                            手机验证码登录
-                        </div><div class="useremail-login" @click="userEmailLoginClicked()">
-                            邮箱验证码登录
+                        <div class="userphone-login" @click="userPhoneLoginClicked()" v-show="supportUserPhoneLogin && false">
+                            {{$t("loginThroughSMS")}}
+                        </div>
+                        <div class="useremail-login" @click="userEmailLoginClicked()" v-show="supportEmailLogin && false">
+                            {{$t("loginThroughEmail")}}
                             </div>
+                        <div v-show="bAlipay || bWechat">
+                            <span class = "alipay-wechat-login-font">其他登录方式：</span>
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/wechat.png" @click="showWechatLogin" v-show='bAlipay'>
+                            <img class = "alipay-wechat-img" src="../../../static/Img/Setup/alipay.png" @click="showAlipayLogin" v-show='bWechat'>
+                        </div>
                     </div>
                     <div class="login-footer" @click="organizationFinderBackToLoginClicked()">
                             <img ondragstart="return false" class="back-image" src="../../../static/Img/Login/back-20px@2x.png">
-                            <p class="back-title">返回</p>
+                            <p class="back-title">{{$t("goBack")}}</p>
                     </div>
                 </div>
                 <div class="userphone-content" v-show="showUserphoneLoginView">
@@ -99,6 +126,7 @@
                     </div>
                     <div class="accountLogin-state">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                            <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
                     <div class="btn item">
                         <Button type="success" id="loginButton" @click="login()">登录</Button>
@@ -130,6 +158,7 @@
                     </div>
                     <div class="accountLogin-state">
                             <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                            <i class="el-icon-loading" v-show="isLoading"></i>
                     </div>
                     <div class="btn item">
                         <Button type="success" id="loginButton" @click="login()">登录</Button>
@@ -162,6 +191,7 @@
                 </div>
                 <div class="organizationFinder-state">
                     <p class="state-title" id="accountLoginStateLabel">{{loginState}}</p>
+                    <i class="el-icon-loading" v-show="isLoading"></i>
                 </div>
                 <div class="btn-item">
                     <Button class="server-confirm-button" type="success" :disabled="emialAddressButtonDisabled" @click="organizationFinderConfirmClicked()" >{{ emailSendButtonValue }}</Button>
@@ -176,24 +206,92 @@
             <img ondragstart="return false" class="loading-img" src="../../../static/Img/Login/loading.gif">
             <p class="loading-title">{{ loadingProcess }}</p>
         </div>
+        <div class="server-setting-div" v-show="showOrganizationView && showOrganizationViewOrganization && false">
+            <div class="server-setting" @click="serverSettingClicked()" v-show="showOrganizationView && showOrganizationViewOrganization">{{$t("homeServerAddress")}}</div>
+            <i class="el-icon-caret-bottom" v-show="showOrganizationView && showOrganizationViewOrganization"></i>
+        </div>
+        <div class="domain-dropdown-content" id="domain-dropdown-content-id" v-show="showDomListView">
+            <ul class="domain-list" id="domain-list-id">
+                <li class="domain-item" v-for="domainItem in DomainList" @click="selectDomain(domainItem)" v-html="msgContentHeightLight(domainItem)">
+                </li>
+            </ul>
+        </div>
+        <el-dropdown class="language" size="small" @command="handleCommand" v-show="showOrganizationView && false">
+            <span class="login-setup-language-label" id="login-language-label">
+                简体中文
+            </span>
+            <i class="el-icon-caret-bottom"></i>
+            <el-dropdown-menu>
+                <el-dropdown-item command="zh">简体中文</el-dropdown-item>
+                <el-dropdown-item command="en">English</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
+        <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="AlertConfirm" :width="alertWidth" :height="alertHeight" :contentLeft="alertContentLeft" :iconType="iconType"/>
     </div>
 </template>
 
 <script>
 import os from 'os';
 import {ipcRenderer} from 'electron'
-import {services} from '../../packages/data/index.js'
 import {environment} from '../../packages/data/environment.js'
 import macWindowHeader from './macWindowHeader.vue';
-import winHeaderBar from './win-header.vue';
+import winHeaderBar from './win-header-login.vue';
+import certification from './Certificate.vue';
+import generalSecureBackUpPage from './generalRecoveryCode.vue'
+import {getDefaultHomeServerAddr} from '../../config.js'
+import log from 'electron-log';
+import AlertDlg from './alert-dlg.vue'
+import { windowsStore } from 'process';
+import * as Matrix from 'matrix-js-sdk';
+import {ThirdPartyLogin} from '../../packages/data/ThirdPartyLogin.js'
+
 export default {
     name: 'login',
     components:{
         macWindowHeader,
-        winHeaderBar
+        winHeaderBar,
+        certification,
+        generalSecureBackUpPage,
+        AlertDlg
     },
     data () {
         return {
+            ulElement: undefined,
+            curSelectedIndex: 0,
+            appServerHost: "https://gms.each.chat", //"https://gms.each.chat",//"http://139.198.18.180:8888",//"https://chat.yunify.com",
+            showPwd: false,
+            forgetPwdButtonDisabled: false,
+            iconType: "alert",
+            LoginBtnText: "登录",
+            alertWidth: 0,
+            alertHeight: 0,
+            alertContentLeft: 0,
+            alertContnets: {},
+            showAlertDlg: false,
+            showEmailSendPage: false,
+            sessionId: '',
+            identityServerDomain: null,
+            clientSecret: null,
+            pwdResetClient: null,
+            isRecetPwd: false,
+            toVerfyEmail: false,
+            isLdap: false,
+            isMatrixPwd: false,
+            forgetPasswordContent: '',
+            loginPageTitle: '',
+            loginPageTitlellustrate: '',
+            loginPageAccountLabel: '',
+            loginPageAccountPlaceholder: '',
+            loginPagePwdLabel: '',
+            loginPagePwdPlaceholder: '',
+            toDetect: true,
+            showDomListView: false,
+            DomainList: [],
+            searchId: 0,
+            isLoading: false,
+            backupInfo: {},
+            showGeneralRecoveryKeyPage: false,
+            showCertification: false,
             loginState: '',
             username: '',
             password: '',
@@ -203,6 +301,10 @@ export default {
             tokenExpired: false,
             tokenRefreshing: true,
             loadingProcess: '正在验证登录信息',
+            organizationOrHost: '',
+            eachChatEndPoint: '',
+            showOrganizationViewHost: false,
+            showOrganizationViewOrganization: true,
 
             emailSendButtonValue:'发送',
             userEmailSendCodeValue:'发送验证码',
@@ -213,21 +315,53 @@ export default {
 
             organizationButtonDisabled: false,
             emialAddressButtonDisabled:false,
+            loginButtonDisabled: false,
 
             organizationFinderEmailTime:0,
             organizationAddress:'',
+            addressPort: 443,
             emialAddress:'',
             showLoginView: false,
             showUsernameLoginView: true,
+            defaultIdentity: '',
+            threeAuthType: '',
+            supportedIdentity: [],
             showUserphoneLoginView: false,
             showUseremailLoginView: false,
+            showUserWeiXinView: false,
+            showUserZhifubaoView: false,
             //showServerSettingView: false,
             showOrganizationView: true,
             showOrganizationFinderView: false,
             showLoadingView: true,
+            backupInfo: null,
+            backupSigStatus: null,
+            backupKeyStored: null,
+            bAlipay: false,
+            bBindAlipay: false,
+            sAlipayAuthcode: '',
+            bWechat: false,
+            bBindWechat: false,
+            sWehchatAuthcode: '',
         }
     },
     computed:{
+        supportUserPhoneLogin: function() {
+            let supportedType = this.supportedIdentity.map(x => x['type']);
+            console.log("===========supportedtype ", supportedType)
+            if(supportedType.indexOf("m.login.verCode.msisdn") > 0) {
+                return true;
+            }
+            return false;
+        },
+        supportEmailLogin: function() {
+            let supportedType = this.supportedIdentity.map(x => x['type']);
+            console.log("===========supportedtype ", supportedType)
+            if(supportedType.indexOf("m.login.verCode.email") > 0) {
+                return true;
+            }
+            return false;
+        },
         userPhoneSendColor:function(){
             if(this.userPhoneSendCodeTime > 0){
                 return 'rgba(153, 153, 153, 1)';
@@ -245,17 +379,629 @@ export default {
         }
     },
     methods: {
+        showWechatLogin(){
+            ipcRenderer.on("wechat-authcode", this.getWeChatAuthcode)
+            ThirdPartyLogin.createWeChat();
+            this.bBindWechat = true;
+            this.bBindAlipay = false;
+        },
+
+        showAlipayLogin(){
+            ipcRenderer.on("alipay-authcode", this.getAlipayAuthcode)
+            ThirdPartyLogin.createAlipay();
+            this.bBindAlipay = true;
+            this.bBindWechat = false;
+        },
+
+        showLoginBindView(){
+            ipcRenderer.send("showLoginBindView");
+            this.bAlipay = false;
+            this.bWechat = false;
+            this.loginPageTitle = "绑定 亿洽";
+            this.loginPageTitlellustrate = "请绑定亿恰账号";
+        },
+
+        bindAlipayOrWechat(){
+            if(this.bBindAlipay){
+                global.services.common.auth2Bind("alipay", this.sAlipayAuthcode);
+            }
+            if(this.bBindWechat){
+                global.services.common.auth2Bind("weixin", this.sWehchatAuthcode);
+            }  
+        },
+
+        async loginWithAlipayAuthcode(){
+            let res;
+            try {
+                res = await global.services.common.auth2Login("m.login.OAuth2.alipay" ,this.sAlipayAuthcode);
+                
+            } catch (error) {
+                console.log(error)
+                this.showLoginBindView();     
+            }
+            if(!res || res.status != 200) return;
+  
+            let matrix = await global.mxMatrixClientPeg.LoginWithAuth2(res.data); 
+            if(matrix) ipcRenderer.removeListener("alipay-authcode", this.getAlipayAuthcode);
+
+            this.loginButtonDisabled = false;
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+
+        getAlipayAuthcode(e, authcode){
+            log.info("getAlipayAuthcode authcode:" + authcode);
+            this.sAlipayAuthcode = authcode;
+            this.loginWithAlipayAuthcode();
+        },
+
+        async loginWithWeChatAuthcode(){
+            let res;
+            try {
+                res = await global.services.common.auth2Login("m.login.OAuth2.weixin" ,this.sWehchatAuthcode);
+                
+            } catch (error) {
+                console.log(error)
+                this.showLoginBindView();     
+            }
+            if(!res || res.status != 200) return;
+  
+            let matrix = await global.mxMatrixClientPeg.LoginWithAuth2(res.data); 
+            if(matrix) ipcRenderer.removeListener("wechat-authcode", this.getWeChatAuthcode);
+
+            this.loginButtonDisabled = false;
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+
+        getWeChatAuthcode(e, authcode) {
+            log.info("getWeChatAuthcode authcode:" + authcode);
+            this.sWehchatAuthcode = authcode;
+            this.loginWithWeChatAuthcode();
+        },
+
+        isWindows() {
+            return environment.os.isWindows || environment.os.isLinux;
+        },
+        toShowPwd: function() {
+            console.log("=============")
+            this.showPwd = !this.showPwd;
+            var pwdElement = document.getElementById("passwordInputId");
+            if(this.showPwd) {
+                pwdElement.type = "text";
+            }
+            else {
+                pwdElement.type = "password";
+            }
+        },
+        toResetPwd: function() {
+            if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
+                return;
+            }
+            this.loginPageTitle = "重置密码";
+            this.loginPageAccountLabel = "邮箱";
+            this.loginPageTitlellustrate = "通过邮箱重置密码";
+            this.loginPageAccountPlaceholder = "请输入您的邮箱";
+            this.loginPagePwdLabel = "新密码";
+            this.loginPagePwdPlaceholder = "请输入新密码";
+            this.LoginBtnText = "确定";
+            this.forgetPasswordContent = "";
+            this.forgetPwdButtonDisabled = true;
+            this.username = "";
+            this.password = "";
+            this.isLdap = false;
+            this.isMatrixPwd = false;
+            this.isRecetPwd = true;
+            this.toVerfyEmail = false;
+            var identityUrl = global.localStorage.getItem("mx_i_url");
+            var homeServerUel = global.localStorage.getItem("mx_hs_url");
+            this.pwdResetClient = Matrix.createClient({
+                baseUrl: homeServerUel,
+            });
+            this.clientSecret = this.pwdResetClient.generateClientSecret();
+            this.identityServerDomain = identityUrl ? identityUrl.split("://")[1] : null;
+        },
+        doesServerRequireIdServerParam() {
+            return this.pwdResetClient.doesServerRequireIdServerParam();
+        },
+        resetPassword(emailAddress, newPassword) {
+            this.password = newPassword;
+            return this.pwdResetClient.requestPasswordEmailToken(emailAddress, this.clientSecret, 0).then((res) => {
+                this.sessionId = res.sid;
+                return res;
+            }, function(err) {
+                if (err.errcode === 'M_THREEPID_NOT_FOUND') {
+                    err.message = "该邮箱地址未绑定";
+                } else if (err.httpStatus) {
+                    err.message = err.message + ` (Status ${err.httpStatus})`;
+                }
+                throw err;
+            });
+        },
+        async checkEmailLinkClicked() {
+            const creds = {
+                'sid': this.sessionId,
+                'client_secret': this.clientSecret,
+            };
+            if (await this.doesServerRequireIdServerParam()) {
+                creds.id_server = this.identityServerDomain;
+            }
+
+            try {
+                var ret = await global.mxMatrixClientPeg.setPassword(this.sessionId, this.clientSecret, this.password)
+                console.log("ret is ", ret);
+                return;
+                // await this.pwdResetClient.setPassword({
+                //     // Note: Though this sounds like a login type for identity servers only, it
+                //     // has a dual purpose of being used for homeservers too.
+                //     type: "m.login.email.identity",
+                //     // TODO: Remove `threepid_creds` once servers support proper UIA
+                //     // See https://github.com/matrix-org/synapse/issues/5665
+                //     // See https://github.com/matrix-org/matrix-doc/issues/2220
+                //     threepid_creds: creds
+                //     // threepidCreds: creds,
+                // }, this.password);
+            } catch (err) {
+                console.log("==========err is ", err);
+                if (err.httpStatus === 401) {
+                    err.message = "邮箱验证失败：请确保你已点击邮件中的链接";
+                } else if (err.httpStatus === 404) {
+                    err.message =
+                        '你似乎没有将此邮箱地址同在此主服务器上的任何一个 Matrix 账号绑定。';
+                } else if (err.httpStatus) {
+                    err.message += ` (Status ${err.httpStatus})`;
+                }
+                throw err;
+            }
+        },
+        msgContentHeightLight: function(showContent) {
+            if(this.showOrganizationView) {
+                if(this.organizationAddress.length == 0) {
+                    return showContent
+                }
+                if(showContent.indexOf(this.organizationAddress) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress);
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress + "</span>");
+                    return newInnerHtml;
+                }
+                else if(showContent.indexOf(this.organizationAddress.toLowerCase()) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress.toLowerCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress.toLowerCase() + "</span>");
+                    return newInnerHtml;
+                }
+                else if(showContent.indexOf(this.organizationAddress.toUpperCase()) != -1) {
+                    let splitValue = showContent.split(this.organizationAddress.toUpperCase());
+                    let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.organizationAddress.toUpperCase() + "</span>");
+                    return newInnerHtml;
+                }
+                else{
+                    return showContent;
+                }
+            }
+        },
+        serverSettingClicked: function() {
+            // var distElement = document.getElementById("item-organization-id");
+            // if(distElement != undefined) {
+            //     distElement.style.height = "78px";
+            // }
+            this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            this.showOrganizationViewHost = true;
+            this.showOrganizationViewOrganization = false;
+            this.eachChatEndPoint = '';
+            this.organizationOrHost = this.$t("homeServerAddress");
+        },
+        hostConfirmButtonClicked: async function() {
+            var host = this.organizationAddress;
+            if(host.endsWith("/")) {
+                host = host.substring(0, host.length - 1);
+            }
+            if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                host = "https://" + host;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(serverCheckRet) {
+                this.resetLoginStateTitle();
+                this.showOrganizationViewHost = false;
+                this.eachChatEndPoint = '';
+                this.organizationOrHost = this.$t("joinYourOrganization");
+                this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                this.showOrganizationViewOrganization = true;
+            }
+        },
+        getHostPortTls(BaseUrl) {
+            if(BaseUrl.endsWith("/")) {
+                BaseUrl = BaseUrl.substring(0, BaseUrl.length - 1);
+            }
+            let IHostTls = 1;
+            let IHost = "";
+            let IHostPort = 443;
+            if(BaseUrl.toLowerCase().indexOf("https://") >= 0) {
+                let IHostTmp = BaseUrl.split("https://")[1];
+                if(IHostTmp.indexOf(":") >= 0) {
+                    IHost = IHostTmp.split(":")[0];
+                    IHostPort = IHostTmp.split(":")[1];
+                }
+                else {
+                    IHost = IHostTmp;
+                    IHostPort = 443;
+                }
+                IHostTls = 1;
+            }
+            else if(BaseUrl.toLowerCase().indexOf("http://") >= 0) {
+                let IHostTmp = BaseUrl.split("http://")[1];
+                if(IHostTmp.indexOf(":") >= 0) {
+                    IHost = IHostTmp.split(":")[0];
+                    IHostPort = IHostTmp.split(":")[1];
+                }
+                else {
+                    IHost = IHostTmp;
+                    IHostPort = 80;
+                }
+                IHostTls = 0;
+            }
+            else {
+                IHost = BaseUrl;
+                IHostPort = 443;
+            }
+            return [IHost, IHostPort, IHostTls];
+        },
+        getServerInfo: async function(host) {
+            var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
+            log.info("appServerInfo is ", appServerInfo)
+            if(appServerInfo.status != 200) {
+                this.$toastMessage({message:"Home Server地址不正确，请重新输入", time: 2000, type:'success', showWidth:'280px', showHeight:"100px"});
+                return false;
+            }
+            // if(appServerInfo.data['m.homeserver'] != undefined) {
+            //     global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
+            // }
+            if(appServerInfo.data['m.identity_server'] != undefined) {
+                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identity_server']['base_url']);
+            }
+            // if(appServerInfo.data['m.appserver'] != undefined) {
+            //     var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
+                
+            //     var appServerHostObj = this.getHostPortTls(appServerHostInfo);
+            //     var AHost = appServerHostObj[0];
+            //     var AHostPort = appServerHostObj[1];
+            //     var AHostTls = appServerHostObj[2];
+                
+            //     localStorage.setItem("hostname", AHost);
+            //     localStorage.setItem("apiPort", AHostPort);
+            //     localStorage.setItem("hostTls", AHostTls);
+            //     localStorage.setItem("app_server", appServerHostInfo);
+            // }
+            // if(appServerInfo.data['m.mqttserver'] != undefined) {
+            //     var mqttHostInfo = appServerInfo.data['m.mqttserver']['base_url'];
+                
+            //     var mqttHostObj = this.getHostPortTls(mqttHostInfo);
+            //     var mqttHost = mqttHostObj[0];
+            //     var mqttHostPort = mqttHostObj[1];
+            //     var mqttHostTls = mqttHostObj[2];
+                
+            //     localStorage.setItem("mqttHost", AHost);
+            //     localStorage.setItem("mqttPort", AHostPort);
+            //     localStorage.setItem("mqttTls", AHostTls);
+            // }
+            // if(appServerInfo.data['m.gms'] != undefined) {
+            //     var gmsHostInfo = appServerInfo.data['m.gms']['base_url'];
+            //     localStorage.setItem("gms_url", appServerInfo.data['m.gms']['base_url']);
+            //     localStorage.setItem("gms_tid", appServerInfo.data['m.gms']['tid']);
+            // }
+            return true;
+        },
+        checkHomeServer: async function (domain){            
+            var Domain = "";
+            if(domain != null && domain != undefined) {
+                Domain = domain;
+            }
+            console.log("1 Domain is ", Domain);
+            if(Domain == "") {
+                Domain = window.localStorage.getItem("Domain");
+            }
+            console.log("2 Domain is ", Domain);
+            if(Domain == undefined || Domain == null || Domain == "undefined") {
+                Domain = "";
+            }
+            console.log("4 Domain is ", Domain);
+            this.organizationAddress = Domain;
+            console.log("Domain is ", this.organizationAddress);
+            if(Domain.length == 0) {
+                return false;
+            }
+            
+            var gmsRet = await global.services.common.newGmsConfiguration(Domain, this.appServerHost);
+            console.log("gmsRet is ", gmsRet);
+            if(!gmsRet){
+                if(domain != undefined){
+                    this.$toastMessage({message:"未找到该组织", time: 2000, type:'error', showWidth:'280px'});
+                }
+                this.organizationButtonDisabled = false;
+                return false;
+            }
+            var host = window.localStorage.getItem("mx_hs_url");
+            if(host == null) {
+                return false;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(!serverCheckRet) {
+                return false;
+            }
+            var appserver = window.localStorage.getItem("app_server");
+            var loginSettingRet = await global.services.common.getLoginConfig(appserver);
+            if(!loginSettingRet) {
+                if(domain != undefined){
+                    this.$toastMessage({message:"获取登录配置失败", time: 2000, type:'error', showWidth:'280px'});
+                }
+                this.organizationButtonDisabled = false;
+                return false;
+            }
+            if(domain != undefined) {
+                console.log("***Set item Domain is ", domain);
+                window.localStorage.setItem("Domain", domain);
+            }
+            global.services.common.getLoginType().then(res => {
+                if(res && res.data && res.data.flows){
+                    let types = res.data.flows;
+                    types.forEach(element => {
+                        if(element.type == "m.login.OAuth2.alipay"){
+                            this.bAlipay = true;
+                        }
+                        else if(element.type == "m.login.OAuth2.weixin"){
+                            this.bWechat = true;
+                        }
+                    });
+                }
+            }).catch(e => {
+                console.log(e)
+            })
+            var host = "";
+            // if(address == undefined || address == null) {
+            host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            // }
+            // else {
+            //     host = address
+            // }
+            console.log("=======host si ", host);
+            if(host.indexOf("https://") < 0 && host.indexOf("http://") < 0) {
+                host = "https://" + host;
+            }
+            return global.mxMatrixClientPeg.checkHomeServer(host).then(async (flows) => {
+                console.log("matrix get flows is ", flows)
+                this.supportedIdentity = flows;
+                for (let i = 0; i < flows.length; i++ ) {
+                    this.resetLoginStateTitle();
+                    if(window.localStorage.getItem("Domain") == null) {
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                    // var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
+                    // console.log('appServerInfo is ', appServerInfo);
+                    // if(appServerInfo.status != 200) {
+                    //     this.loginState = this.$t("invalidServerAddress");
+                    //     return false;
+                    // }
+                    // if(appServerInfo.data['m.gms'] != undefined) {
+                    //     var gmsHost = appServerInfo.data['m.gms']['base_url'];
+                    //     var gmsValue = appServerInfo.data['m.gms']['tid'];
+                    //     var gmsRet = await global.services.common.gmsConfiguration(gmsValue, gmsHost);
+                    //     if(!gmsRet){
+                    //         this.loginState = "未找到该组织";
+                    //         this.organizationButtonDisabled = false;
+                    //         return false;
+                    //     }
+                    //     else {
+                    //         this.organizationButtonDisabled = false;
+                    //         return true;
+                    //     }
+                    // }
+                    // else if(appServerInfo.data['m.appserver'] != undefined){
+                    //     global.services.common.setGmsConfiguration(appServerInfo.data);
+                    //     return true;
+                    // }
+                }
+                
+                // this.loginState = this.$t("invalidServerAddress");
+                this.organizationButtonDisabled = false;
+                return false;
+            },(err) => {
+                // this.loginState = this.$t("invalidServerAddress");
+                this.organizationButtonDisabled = false;
+                return false;
+            })
+        },
+        hostCancelButtonClicked: async function() {
+            var host = this.organizationAddress;
+            if(host.endsWith("/")) {
+                host = host.substring(0, host.length - 1);
+            }
+            if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                host = "https://" + host;
+            }
+            var serverCheckRet = await this.getServerInfo(host);
+            if(serverCheckRet) {
+                this.resetLoginStateTitle();
+                this.showOrganizationViewHost = false;
+                this.eachChatEndPoint = '';
+                this.organizationOrHost = this.$t("joinYourOrganization");
+                this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                this.showOrganizationViewOrganization = true;
+            }
+        },
+        handleCommand(command) {
+            var languageElement = document.getElementById("login-language-label");
+            this.$i18n.locale = command;
+            global.mxMatrixClientPeg.setCurLanguage(command);
+            switch(command) {
+                case "zh":
+                    if(languageElement) {
+                        languageElement.innerHTML = "中文"
+                    }
+                    break;
+                case "en":
+                    if(languageElement) {
+                        languageElement.innerHTML = "English"
+                    }
+                    break;
+            }
+        },
         Close: function() {
-            ipcRenderer.send("login-win-close");
+            ipcRenderer.send("win-close");
         },
         Min: function() {
-            ipcRenderer.send("login-win-min");
+            ipcRenderer.send("win-min");
         },
         Max: function() {
-            ipcRenderer.send("login-win-max");
+            ipcRenderer.send("win-max");
+        },
+        winClose: function() {
+            ipcRenderer.send("login-win-close");
         },
         resetLoginStateTitle(){
             this.loginState = "";
+            var accountInputDom = document.getElementById("accountInputId");
+            accountInputDom.style.borderColor = "rgba(221,221,221,1)";
+            var passwordInputDom = document.getElementById("passwordInputId");
+            passwordInputDom.style.borderColor = "rgba(221,221,221,1)";
+            var passwordInputDivDom = document.getElementById("inputDivId");
+            passwordInputDivDom.style.borderColor = "rgba(221,221,221,1)";
+            return;
+        },
+        keyHandle(event) {
+            if(event.code == "ArrowDown" || event.code == "ArrowUp") {
+                if(!this.showDomListView) {
+                    return;
+                }
+                
+                event.preventDefault();
+                if(this.ulElement == undefined) {
+                    this.ulElement = document.getElementById("domain-list-id");
+                }
+                switch(event.keyCode) {
+                    case 38: {
+                        console.log("=======up ", this.curSelectedIndex);
+                        if(this.curSelectedIndex == 0) {
+                            this.curSelectedIndex = this.ulElement.children.length - 1;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                        }
+                        else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        else if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.curSelectedIndex--;
+                            this.ulElement.children[0].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                        }
+                        break;
+                    }
+                    case 40: {
+                        console.log("=======down", this.curSelectedIndex);
+                        if(this.curSelectedIndex == this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
+                            this.ulElement.children[0].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            this.curSelectedIndex = 0;
+                        }
+                        else if(this.curSelectedIndex < this.ulElement.children.length) {
+                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(221, 221, 221, 1)";
+                            if(this.ulElement.children[this.curSelectedIndex-1]){
+                                this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                            }
+                            this.curSelectedIndex++;
+                        }
+                        break;
+                    }
+                }
+            }
+            else if(event.code == "Enter" && !event.ctrlKey) {
+                if(this.showDomListView && this.showOrganizationView) {
+                    if(this.ulElement == undefined) {
+                        this.ulElement = document.getElementById("domain-list-id");
+                    }
+                    var selectedIndex = -1;
+                    for(var i=0;i<this.ulElement.children.length;i++) {
+                        if(this.ulElement.children[i].style.backgroundColor == "rgba(221, 221, 221, 1)" || this.ulElement.children[i].style.backgroundColor == "rgb(221, 221, 221)") {
+                            selectedIndex = i;
+                            break;
+                        }
+                    }
+                    console.log("*** selectedIndex is ", selectedIndex);
+                    if(selectedIndex != -1) {
+                        var domainInfo = this.DomainList[i];
+                        this.DomainList = [];
+                        this.showDomListView = false;
+                        this.selectDomain(domainInfo);
+                    }
+                }
+                else if(!this.showDomListView && this.showOrganizationView) {
+                    this.organizationConfirmButtonClicked();
+                }
+            }
+        },
+        toDected: function() {
+            var orgInputDom = document.getElementById("organizationInput");
+            orgInputDom.style.borderColor = "rgba(221,221,221,1)";
+            this.organizationAddress = this.organizationAddress.trim();
+            if(this.organizationAddress.length == 0 || !this.toDetect) {
+                this.DomainList = [];
+                this.showDomListView = false;
+                return;
+            }
+            
+            var curSearchId = new Date().getTime();
+            console.log("searchkey is ", this.organizationAddress);
+            var searchResult = {
+                "id": curSearchId,
+                "searchList": []
+            };
+            this.searchId = curSearchId;
+            global.services.common.gmsDetector(this.organizationAddress, this.appServerHost)
+                .then((ret) => {
+                    console.log("gmsDetector ret is ", ret);
+                    if(ret.data == undefined || ret.data.results == null) {
+                        this.DomainList = [];
+                        this.showDomListView = false;
+                    }
+                    else {
+                        if(searchResult.id == this.searchId) {
+                            this.DomainList = ret.data.results;
+                            console.log("domainlist is ", this.DomainList);
+                            if(this.DomainList != null && this.DomainList.length != 0) {
+                                this.showDomainPage();
+                            }
+                        }
+                    }
+                })
+        },
+        selectDomain: function(item) {
+            this.toDetect = false;
+            this.DomainList = [];
+            this.showDomListView = false;
+            this.organizationAddress = item;
+            this.$nextTick(() => {
+                this.toDetect = true;
+            })
+            console.log("=============ffff ", this.showDomListView);
+        },
+        showDomainPage: function() {
+            var domainInputElement = document.getElementById("organizationInput");
+            var domainListElement = document.getElementById("domain-dropdown-content-id");
+            var top = domainInputElement.offsetTop + domainInputElement.offsetHeight;
+            var left = domainInputElement.offsetLeft;
+            domainListElement.style.top = top + "px";
+            domainListElement.style.left = left + "px";
+            
+            this.showDomListView = true;
+            console.log("show=====showDomListView========", this.showDomListView);
         },
         organizationConfirmButtonClicked:async function(){
             this.organizationButtonDisabled = true;
@@ -264,23 +1010,74 @@ export default {
                 return;
             }
             if (this.organizationAddress == undefined || this.organizationAddress == ""){
-                this.loginState = "请输入组织ID";
+                var orgInputDom = document.getElementById("organizationInput");
+                orgInputDom.style.borderColor = "red";
                 this.organizationButtonDisabled = false;
                 return;
             }
-            var address = this.organizationAddress + ".each.chat";
-            var result = await services.common.gmsConfiguration(address);
-            console.log(result);
-            if(!result){
-                this.loginState = "未找到该组织";
-                this.organizationButtonDisabled = false;
-                return;
-            }
-            this.organizationButtonDisabled = false;
-            this.resetLoginStateTitle();
-            await services.common.init();
-            this.showLoginView = true;
-            this.showOrganizationView = false;
+            this.showDomListView = false;
+            
+            var domain = this.organizationAddress;// + ".each.chat";
+
+            // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+            // var detectorRet = await services.common.gmsDetector(address);
+            console.log("domain is ", domain);
+            this.checkHomeServer(domain)
+                .then((result) => {
+                    console.log(result);
+                    if(!result){
+                        // this.loginState = this.$t("invalidServerAddress");
+                        this.organizationButtonDisabled = false;
+                        this.isLoading = false;
+                        return;
+                    }
+                    // window.localStorage.setItem("Domain", this.organizationAddress);
+                    // this.defaultIdentity = (result.defaultIdentity != undefined && result.defaultIdentity.identityType != undefined) ? result.defaultIdentity.identityType : '';
+                    this.isLoading = false;
+                    this.organizationButtonDisabled = false;
+                    this.resetLoginStateTitle();
+                    this.defaultIdentity = global.localStorage.getItem("authType");
+                    this.threeAuthType = global.localStorage.getItem("threeAuthType");
+                    if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
+                        this.isLdap = true;
+                        this.isMatrixPwd = false;
+                        this.loginPageTitle = "登录 亿洽";
+                        this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
+                        this.loginPageAccountLabel = "组织ID";
+                        this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");
+                        this.loginPagePwdLabel = "密码";
+                        this.loginPagePwdPlaceholder = global.localStorage.getItem("passwordPlaceHolder");
+                        this.forgetPasswordContent = "";
+                        this.username = "";
+                        this.password = "";
+                        this.showPwd = true;
+                        this.toShowPwd();
+                        this.forgetPwdButtonDisabled = true;
+                    }
+                    else {
+                        this.isLdap = false;
+                        this.isMatrixPwd = true;
+                        this.loginPageTitle = "登录 亿洽";
+                        this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
+                        this.loginPageAccountLabel = "用户名";
+                        this.loginPageAccountPlaceholder = "请输入用户名或邮箱";
+                        this.loginPagePwdLabel = "密码";
+                        this.loginPagePwdPlaceholder = "请输入密码";
+                        this.forgetPasswordContent = "忘记密码";
+                        this.username = "";
+                        this.password = "";
+                        this.showPwd = true;
+                        this.toShowPwd();
+                        this.forgetPwdButtonDisabled = false;
+                    }
+                    this.showLoginView = true;
+                    this.showOrganizationView = false;
+                    this.$nextTick(() => {
+                        var userNameInput = document.getElementById("accountInputId");
+                        userNameInput.focus();
+                    })
+                })
+            
         },
         organizationFinderClicked:async function(){
             this.resetLoginStateTitle();
@@ -294,7 +1091,7 @@ export default {
                 if(result){
                     this.emialAddressButtonDisabled = true;
                     this.time = 61;
-                    this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                    this.$toastMessage({message:"发送成功", time: 2000, type:'success', showWidth:'280px'});
                     this.timer();
                 }
                 else{
@@ -344,23 +1141,59 @@ export default {
                 this.userEmailSendCodeTime = 0;
             }
         },
+        certificationShow() {
+            this.resetLoginStateTitle();
+            this.showLoginView = false;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUserphoneLoginView = false;
+            this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
+            this.showUsernameLoginView = false;
+            this.showGeneralRecoveryKeyPage = false;
+
+            this.showCertification = true;
+        },
+        generalRecoveryKeyPageShow() {
+            this.resetLoginStateTitle();
+            this.showLoginView = false;
+            this.showOrganizationView = false;
+            this.showOrganizationFinderView = false;
+            this.showUserphoneLoginView = false;
+            this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
+            this.showUsernameLoginView = false;
+            this.showCertification = false;
+
+            this.showGeneralRecoveryKeyPage = true;
+        },
         userNameLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
             this.showUserphoneLoginView = false;
             this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
 
             this.showUsernameLoginView = true;
         },
         userPhoneLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
             this.showUsernameLoginView = false;
             this.showUseremailLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
 
             this.showUserphoneLoginView = true;
         },
@@ -371,29 +1204,40 @@ export default {
             this.resetLoginStateTitle();
             if(this.isEmpty(this.username)){
                 this.loginState = '请输入手机号';
+                return;
             }
             if(!this.phoneFormatTest(this.username)){
                 this.loginState = '手机号格式不正确';
                 return;
             }
-            var result = await services.common.MobileCodeLogin(this.username);
-            if(result == true){
+            var result = await global.mxMatrixClientPeg.GetVerCode("msisdn", this.username);
+            console.log("userPhoneSendCodeClicked", result)
+            if(result.status == 200){
                 this.userPhoneSendCodeTime = 61;
-                this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                this.$toastMessage({message:"发送成功", time: 2000, type:'success', showWidth:'280px'});
                 this.userPhoneSendCodeTimer();
-            }else{
-                this.loginState = result.message;
+            }else if(result.status == 429){
+                this.loginState = result.data.error;
+            }
+            else {
+                if(result.data.errcode == "M_TEMPORARY_NOT_BIND_MSISDN") {
+                    this.loginState = "手机号未绑定";
+                }
             }
             
         },
 
         userEmailLoginClicked(){
             this.resetLoginStateTitle();
+            this.username = "";
+            this.password = "";
             this.showLoginView = true;
             this.showOrganizationView = false;
             this.showOrganizationFinderView = false;
             this.showUsernameLoginView = false;
             this.showUserphoneLoginView = false;
+            this.showUserWeiXinView = false;
+            this.showUserZhifubaoView = false;
             
             this.showUseremailLoginView = true;
         },
@@ -410,20 +1254,119 @@ export default {
                 this.loginState = '邮箱格式不正确';
                 return;
             }
-            var result = await services.common.EmailCodeLogin(this.username);
-            if(result == true){
+            var result = await global.mxMatrixClientPeg.GetVerCode("email", this.username);
+            console.log("result is ", result);
+            if(result.status == 200){
                 this.userEmailSendCodeTime = 61;
-                this.$toastMessage({message:"发送成功", time: 2000, type:'success'});
+                this.$toastMessage({message:"发送成功", time: 2000, type:'success', showWidth:'280px'});
                 this.userEmailSendCodeTimer();
-            }else{
-                this.loginState = result.message;
+            }else if(result.status == 429){
+                this.loginState = result.data.error;
+            }
+            else {
+                if(result.data.errcode == "M_EMAIL_NOT_BIND") {
+                    this.loginState = "邮箱未绑定";
+                }
             }
         },
-        organizationFinderBackToLoginClicked(){
+        resetPageToLogin() {
+            this.isLoading = false;
+            this.organizationButtonDisabled = false;
             this.resetLoginStateTitle();
+            this.defaultIdentity = global.localStorage.getItem("authType");
+            this.threeAuthType = global.localStorage.getItem("threeAuthType");
+            if(this.defaultIdentity == "three" && this.threeAuthType == "ldap") {
+                this.isLdap = true;
+                this.isMatrixPwd = false;
+                this.loginPageTitle = "登录 亿洽";
+                this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
+                this.loginPageAccountLabel = "组织ID";
+                this.loginPageAccountPlaceholder = "请输入用户民或邮箱";
+                this.loginPagePwdLabel = "密码";
+                this.loginPagePwdPlaceholder = "请输入密码";
+                this.forgetPasswordContent = "";
+                this.username = "";
+                this.password = "";
+                this.showPwd = true;
+                this.toShowPwd();
+                this.forgetPwdButtonDisabled = true;
+            }
+            else {
+                this.isLdap = false;
+                this.isMatrixPwd = true;
+                this.loginPageTitle = "登录 亿洽";
+                this.loginPageTitlellustrate = "访问 " + window.localStorage.getItem("Domain");
+                this.loginPageAccountLabel = "用户名";
+                this.loginPageAccountPlaceholder = global.localStorage.getItem("userNamePlaceHolder");
+                this.loginPagePwdLabel = "密码";
+                this.loginPagePwdPlaceholder = global.localStorage.getItem("passwordPlaceHolder");
+                this.forgetPasswordContent = "忘记密码";
+                this.username = "";
+                this.password = "";
+                this.showPwd = true;
+                this.toShowPwd();
+                this.forgetPwdButtonDisabled = false;
+            }
             this.showLoginView = true;
-            this.showOrganizationFinderView = false;
-            this.showOrganizationView = true;
+            this.showOrganizationView = false;
+            this.isRecetPwd = false;
+            this.toVerfyEmail = false;
+            this.$nextTick(() => {
+                var userNameInput = document.getElementById("accountInputId");
+                userNameInput.focus();
+            })
+            
+            this.LoginBtnText = "登录";
+            this.username = "";
+            this.password = "";
+
+            var accountInputDom = document.getElementById("accountInputId");
+            if(accountInputDom) {
+                accountInputDom.disabled = false;
+                accountInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                accountInputDom.focus();
+            }
+            var passwordInputDom = document.getElementById("passwordInputId");
+            if(passwordInputDom) {
+                passwordInputDom.disabled = false;
+                passwordInputDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                passwordInputDom.type = "password";
+            }
+            var passwordInputDivDom = document.getElementById("inputDivId");
+            if(passwordInputDivDom) {
+                passwordInputDivDom.disabled = false;
+                passwordInputDivDom.style.backgroundColor = "rgba(255, 255, 255, 0)";
+                passwordInputDivDom.type = "password";
+            }
+        },
+        async organizationFinderBackToLoginClicked(){
+            if(this.isRecetPwd || this.toVerfyEmail) {
+                this.resetPageToLogin();
+            }
+            else if(this.showOrganizationViewHost) {
+                var host = this.organizationAddress;
+                if(host.endsWith("/")) {
+                    host = host.substring(0, host.length - 1);
+                }
+                if(host.indexOf("http://") < 0 && host.indexOf("https://") < 0) {
+                    host = "https://" + host;
+                }
+                var serverCheckRet = await this.getServerInfo(host);
+                if(serverCheckRet) {
+                    this.resetLoginStateTitle();
+                    this.showOrganizationViewHost = false;
+                    this.eachChatEndPoint = '';
+                    this.organizationOrHost = this.$t("joinYourOrganization");
+                    this.organizationAddress = (window.localStorage.getItem("Domain") == undefined || window.localStorage.getItem("Domain") == "undefined") ? "" : window.localStorage.getItem("Domain");
+                    this.showOrganizationViewOrganization = true;
+                }
+            }
+            else {
+                this.resetLoginStateTitle();
+                this.showLoginView = true;
+                this.showOrganizationFinderView = false;
+                this.showOrganizationView = true;
+            }
         },
         isCheckToken() {
             return this.tokenRefreshing;
@@ -447,6 +1390,17 @@ export default {
                 return false;
             }
         },
+        async _checkKeyBackupStatus() {
+            try {
+                const {backupInfo, trustInfo} = await global.mxMatrixClientPeg.matrixClient.checkKeyBackup();
+                const backupKeyStored = Boolean(await global.mxMatrixClientPeg.matrixClient.isKeyBackupKeyStored());
+                this.backupInfo = backupInfo;
+                this.backupSigStatus = trustInfo;
+                this.backupKeyStored = backupKeyStored;
+            } catch (e) {
+                console.log("Unable to fetch check backup status", e);
+            }
+        },
         getOSVersion(){
             var agent = navigator.userAgent;
             var version = '';
@@ -467,136 +1421,522 @@ export default {
             }
             
         },
-        login:async function() {
-            if(this.isEmpty(this.username)&&this.isEmpty(this.password)){
-                if(this.showUsernameLoginView){
-                    this.loginState = "请输入用户名和密码";
-                    return;
-                }else if(this.showUserphoneLoginView){
-                    this.loginState = "请输入手机号和验证码";
-                    return;
-                }else if(this.showUseremailLoginView){
-                    this.loginState = "请输入邮箱账号和验证码";
-                    return;
+        _onKeyBackupStatus(){
+            console.log("========ttt===========")
+            // This just loads the current backup status rather than forcing
+            // a re-check otherwise we risk causing infinite loops
+            this._loadBackupStatus();
+        },
+        async _loadBackupStatus() {
+            console.log("==========yyy=========")
+            try {
+                this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+                this.backupSigStatus = await global.mxMatrixClientPeg.matrixClient.isKeyBackupTrusted(this.backupInfo);
+                this.backupKeyStored = await global.mxMatrixClientPeg.matrixClient.isKeyBackupKeyStored();
+
+                if(this.backupInfo) {
+                    console.log("=========== bootstrapSecretStorage");
+                    await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                    this.certificationShow();
                 }
-                
+                else {
+                    console.log("=========== showCreateRecoveryKey");
+                    this.generalRecoveryKeyPageShow();
+                }
+            } catch (e) {
+                console.log("Unable to fetch key backup status", e);
             }
-            if(this.isEmpty(this.username)){
-                if(this.showUsernameLoginView){
-                    this.loginState = "请输入用户名";
-                    return;
-                }else if(this.showUserphoneLoginView){
-                    this.loginState = "请输入手机号";
-                    return;
-                }else if(this.showUseremailLoginView){
-                    this.loginState = "请输入邮箱账号";
+        },
+        phoneLogin: async function() {
+            try {
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.msisdn", this.username, this.password);
+                console.log("===== ", verCodeRet)
+                if(verCodeRet.status == 200) {
+                    client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                }
+                else if(verCodeRet.status == 429) {
+                    this.loginState = verCodeRet.data.error;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
                     return;
                 }
+                else if(verCodeRet.status == 400) {
+                    this.loginState = this.$t("unboundedAccount")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(verCodeRet.status == 412) {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+            }
+            catch(e) {
+                this.isLoading = false;
+                this.loginButtonDisabled = false;
+                console.log(e)
+                this.loginButtonDisabled = false;
+                return;
+            }
+        },
+        emailLogin: async function() {
+            try {
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.verCode.email", this.username, this.password);
+                console.log("===== ", verCodeRet)
+                if(verCodeRet.status == 200) {
+                    client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                }
+                else if(verCodeRet.status == 429) {
+                    this.loginState = verCodeRet.data.error;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(verCodeRet.status == 400) {
+                    this.loginState = this.$t("unboundedAccount")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(verCodeRet.status == 412) {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else {
+                    this.loginState = this.$t("invalidVerCode")
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+            }
+            catch(e) {
+                this.isLoading = false;
+                this.loginButtonDisabled = false;
+                console.log(e)
+                this.loginButtonDisabled = false;
+                return;
+            }
+        },
+        matrixPwdLogin: async function() {
+            // this.loginState = "登录成功";
+            if(this.isEmpty(this.username)){
+                var accountInputDom = document.getElementById("accountInputId");
+                accountInputDom.style.borderColor = "red";
+                return;
             }
             if(this.isEmpty(this.password)){
-                if(this.showUsernameLoginView){
-                    this.loginState = "请输入密码";
-                    return;
-                }else if(this.showUserphoneLoginView){
-                    this.loginState = "请输入验证码";
-                    return;
-                }else if(this.showUseremailLoginView){
-                    this.loginState = "请输入验证码";
-                    return;
-                }
+                var passwordInputDom = document.getElementById("passwordInputId");
+                passwordInputDom.style.borderColor = "red";
+                return;
             }
+            var reg = new RegExp(global.localStorage.getItem("initPasswordRegex"));
+            if(reg.test(this.password)) {
+                global.localStorage.setItem("neetNoticeToChangePwd", true);
+            }
+            else {
+                global.localStorage.setItem("neetNoticeToChangePwd", false);
+            }
+            this.isLoading = true;
+            this.loginButtonDisabled = true;
             var mac = environment.os.mac;
             var version = this.getOSVersion();
             var hostname = environment.os.hostName;
             // console.log("mac is ", environment.os);
             // console.log("hostname is ", hostname);
-            var config = {};
-            if(this.showUsernameLoginView){
-                config = {
-                    username: this.username,
-                    password: this.password,
-                    identityType: 'password',
-                    model: hostname,
-                    deviceID: mac,
-                    desktopType: version
-            }
-            }else if(this.showUserphoneLoginView){
-                config = {
-                    identityType: 'mobile',
-                    identityValue: this.username,
-                    identityCode: this.password,
-                    model: hostname,
-                    deviceID: mac,
-                    desktopType: version
-                }
-            }else if(this.showUseremailLoginView){
-                config = {
-                    identityType: 'email',
-                    identityValue: this.username,
-                    identityCode: this.password,
-                    model: hostname,
-                    deviceID: mac,
-                    desktopType: version
+
+            var client = undefined;
+            var verCodeRet = undefined;
+            try {
+                client = await global.mxMatrixClientPeg.LoginWithPassword(this.username, this.password, version);
+                console.log("===== ", client)
+                if(client == undefined || client == null) {
+                    this.$toastMessage({message:"创建连接异常", time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
                 }
             }
-            let oldLoginModel = await services.common.GetGlobalLogin();
-            let response = await services.common.login(config);
-            console.log(response);
-            var ret_data = response;
-            if(response != true){
-                var msg = ret_data["message"];
-                var code = ret_data["code"];
-                if(code != 200)
-                    {
-                    console.log("code != 200")
-                    
-                    this.loginState = msg
-                    return
+            catch(e) {
+                // this.isLoading = false;
+                this.loginButtonDisabled = false;
+                if(client == undefined && e.message == "Invalid password") {
+                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(client == undefined) {
+                    this.$toastMessage({message:"登录失败", time: 3000, type:'error', showWidth:'280px'});
+                    // this.loginState = e.message;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                console.log(e)
+            }
+            this.loginButtonDisabled = false;
+            this.bindAlipayOrWechat();
+            console.log(client);
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+
+        ldapLogin: async function() {
+            if(this.isEmpty(this.username)){
+                var accountInputDom = document.getElementById("accountInputId");
+                accountInputDom.style.borderColor = "red";
+                return;
+            }
+            if(this.isEmpty(this.password)){
+                var passwordInputDom = document.getElementById("passwordInputId");
+                passwordInputDom.style.borderColor = "red";
+                return;
+            }
+            this.isLoading = true;
+            this.loginButtonDisabled = true;
+            var mac = environment.os.mac;
+            var version = this.getOSVersion();
+            var hostname = environment.os.hostName;
+            // console.log("mac is ", environment.os);
+            // console.log("hostname is ", hostname);
+
+            var client = undefined;
+            var verCodeRet = undefined;
+            try {
+                verCodeRet = await global.mxMatrixClientPeg.LoginWithVerCode("m.login.sso.ldap", this.username, this.password, version);
+                console.log("===== ", verCodeRet)
+                if(verCodeRet.status == 200) {
+                    client = await global.mxMatrixClientPeg.verCodeLoginMatrixClient(verCodeRet);
+                    console.log("===== ", client)
+                    if(client == undefined || client == null) {
+                        this.$toastMessage({message:"创建连接异常", time: 3000, type:'error', showWidth:'280px'});
+                        this.isLoading = false;
+                        this.loginButtonDisabled = false;
+                        return;
+                    }
+                }
+                else if(verCodeRet.status == 429) {
+                    this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'260px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    // this.loginState = verCodeRet.data.error;
+                    return;
+                }
+                // else if(verCodeRet.status == 400) {
+                //     this.$toastMessage({message:this.$t("unboundedAccount"), time: 3000, type:'error', showWidth:'280px'});
+                //     this.isLoading = false;
+                //     this.loginButtonDisabled = false;
+                //     return;
+                // }
+                // else if(verCodeRet.status == 412) {
+                //     this.$toastMessage({message:this.$t("invalidVerCode"), time: 3000, type:'error', showWidth:'280px'});
+                //     this.isLoading = false;
+                //     this.loginButtonDisabled = false;
+                //     return;
+                // }
+                else {
+                    console.log("**** this.pwd")
+                    await this.matrixPwdLogin();
+                    // this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
+                    // this.isLoading = false;
+                    // this.loginButtonDisabled = false;
+                    return;
                 }
             }
+            catch(e) {
+                // this.isLoading = false;
+                this.loginButtonDisabled = false;
+                if(client == undefined && e.message == "Invalid password") {
+                    this.$toastMessage({message:"用户账号或密码不正确", time: 3000, type:'error', showWidth:'280px'});
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                else if(client == undefined) {
+                    this.$toastMessage({message:e.message, time: 3000, type:'error', showWidth:'280px'});
+                    // this.loginState = e.message;
+                    this.isLoading = false;
+                    this.loginButtonDisabled = false;
+                    return;
+                }
+                console.log(e)
+            }
+            this.loginButtonDisabled = false;
+            console.log(client);
+            this.loginToMainPage();
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+        checkRecoveryKey: async function(client) {
+            client.on('crypto.keyBackupStatus', this._onKeyBackupStatus);
+            await client.downloadKeys([client.getUserId()]);
+            await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")
+            if(client.isCryptoEnabled()) {
+                var crossSigningIsSetUp = client.getStoredCrossSigningForUser(client.getUserId());
+                console.log("var crossSigningIsSetUp ", crossSigningIsSetUp);
+                if(crossSigningIsSetUp) {
+                    await global.mxMatrixClientPeg.fetchKeyInfo();
+                    if(global.mxMatrixClientPeg.keyInfo) {
+                        //recovery page
+                        console.log("certificationShow");
+                        this.backupInfo = await global.mxMatrixClientPeg.matrixClient.getKeyBackupVersion();
+                        if(!await global.mxMatrixClientPeg.matrixClient.hasSecretStorageKey()) {
+                            console.log("=========== showCreateRecoveryKey");
+                            // this.generalRecoveryKeyPageShow();
+                            this.loginToMainPage();
+                            //showCreateRecoveryKey
+                        }
+                        else {
+                            console.log("=========== bootstrapSecretStorage");
+                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                            this.certificationShow();
+                        }
+                    }
+                    else {
+                        await this._checkKeyBackupStatus();
+                        if(this.backupInfo) {
+                            console.log("=========== bootstrapSecretStorage");
+                            await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                            this.certificationShow();
+                        }
+                        else {
+                            console.log("=========== showCreateRecoveryKey");
+                            // this.generalRecoveryKeyPageShow();
+                            this.loginToMainPage();
+                        }
+                    }
+                }
+                else if(await client.doesServerSupportUnstableFeature("org.matrix.e2e_cross_signing")) {
+                    //showCreateRecoveryKey
+                    await this._checkKeyBackupStatus();
+                    if(this.backupInfo) {
+                        console.log("=========== bootstrapSecretStorage");
+                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                        this.certificationShow();
+                    }
+                    else {
+                        console.log("=========== showCreateRecoveryKey");
+                        // this.generalRecoveryKeyPageShow();
+                        this.loginToMainPage();
+                    }
+                }
+                else {
+                    await this._checkKeyBackupStatus();
+                    if(this.backupInfo) {
+                        console.log("=========== bootstrapSecretStorage");
+                        await global.mxMatrixClientPeg.matrixClient.bootstrapSecretStorage({});
+                        this.certificationShow();
+                    }
+                    else {
+                        console.log("=========== showCreateRecoveryKey");
+                        // this.generalRecoveryKeyPageShow();
+                        this.loginToMainPage();
+                    }
+                }
+            }
+        },
+        closeAlertDlg: function() {
+            this.showAlertDlg = false;
+            this.alertContnets = {};
+        },
+        AlertConfirm: function() {
+            if(this.isRecetPwd) {
+                console.log("***** AlertConfirm");
+                this.loginButtonDisabled = false;
+                this.resetPassword(this.username, this.password).then(() => {
+                    this.alertContnets = {
+                        "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
+                        "Abstrace": "发送成功"
+                    };
+                    this.isRecetPwd = false;
+                    this.toVerfyEmail = true;
+                    this.LoginBtnText = "确定";
+                    this.showAlertDlg = true;
+                    this.alertWidth = 330;
+                    this.alertHeight = 230;
+                    this.alertContentLeft = 25;
+                    this.iconType = "suc";
+                    this.LoginBtnText = "我已验证邮箱";
+                    var accountInputDom = document.getElementById("accountInputId");
+                    if(accountInputDom) {
+                        accountInputDom.disabled = true;
+                        accountInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
+                    var passwordInputDom = document.getElementById("passwordInputId");
+                    if(passwordInputDom) {
+                        passwordInputDom.disabled = true;
+                        passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
+                    var passwordInputDivDom = document.getElementById("inputDivId");
+                    if(passwordInputDivDom) {
+                        passwordInputDivDom.disabled = true;
+                        passwordInputDivDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                    }
+                }, (err) => {
+                    this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error', showWidth:"280px", showHeight:"100px"});
+                });
+            }
+            else {
+                this.showAlertDlg = false;
+            }
+        },
+        VerfyEmail: async function() {
+            try {
+                await this.checkEmailLinkClicked();
+                this.loginButtonDisabled = false;
+                
+                this.$toastMessage({message:"密码重置成功", time: 3000, type:'success', showWidth:'280px'});
+
+                this.resetPageToLogin();
+            } catch (err) {
+                this.$toastMessage({message:"邮件认证失败：" + err.message, time: 3000, type:'error', showWidth:'280px', showHeight:"100px"});
+            }
+        },
+        resetPwd: async function() {
+            this.resetPassword(this.username, this.password).then(() => {
+                console.log("***** resetpwd");
+                this.loginButtonDisabled = false;
+                this.alertContnets = {
+                    "Details": "邮件已经发送至" + this.username + "，请查收邮件并点击链接进行密码修改验证",
+                    "Abstrace": "发送成功"
+                };
+                this.isRecetPwd = false;
+                this.toVerfyEmail = true;
+                this.LoginBtnText = "确定";
+                this.showAlertDlg = true;
+                this.alertWidth = 330;
+                this.alertHeight = 230;
+                this.alertContentLeft = 25;
+                this.iconType = "suc";
+                this.LoginBtnText = "我已验证邮箱";
+                var accountInputDom = document.getElementById("accountInputId");
+                if(accountInputDom) {
+                    accountInputDom.disabled = true;
+                    accountInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                }
+                var passwordInputDom = document.getElementById("passwordInputId");
+                if(passwordInputDom) {
+                    passwordInputDom.disabled = true;
+                    passwordInputDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                }
+                var passwordInputDivDom = document.getElementById("inputDivId");
+                if(passwordInputDivDom) {
+                    passwordInputDivDom.disabled = true;
+                    passwordInputDivDom.style.backgroundColor = "rgba(245, 246, 249, 1)";
+                }
+            }, (err) => {
+                this.$toastMessage({message:"重置密码失败：" + err.message, time: 3000, type:'error', showWidth:"280px", showHeight:"80px"});
+            });
+        },
+        login:async function() {
+            if(this.isLdap) {
+                this.ldapLogin();
+            }
+            else if(this.isMatrixPwd) {
+                this.matrixPwdLogin();
+            }
+            else if(this.isRecetPwd) {
+                this.loginButtonDisabled = true;
+                this.resetPwd();
+            }
+            else if(this.toVerfyEmail) {
+                this.loginButtonDisabled = true;
+                this.VerfyEmail();
+            }
+        },
+        loginToMainPage() {
             var elementButton = document.getElementById('loginButton');
             //this.loginButtonValue = "正在加载数据";
             this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
-            this.loginState = "登录成功";
+            // this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;
             this.tokenRefreshing = true;
-            await services.common.UpdateGroups();
-            await services.common.UpdateSecretGroups();
             setTimeout(async () => {
-                ipcRenderer.send('showMainPageWindow', true); 
+                // ipcRenderer.send('showMainPageWindow', true); 
+                ipcRenderer.send("showMainPageWindow")
+                this.$router.push("/main")
             }, 1000);
-        }
-    },
+            
+            this.isLoading = false;
+            this.loginButtonDisabled = false;
+        },
+        keyHasPassphrase(keyInfo) {
+            return (
+                keyInfo.passphrase &&
+                keyInfo.passphrase.salt &&
+                keyInfo.passphrase.iterations
+            );
+        },
+    }, 
+
     mounted: async function() {
+        if(window.localStorage) {
+            this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
+        }
+        this.organizationOrHost = this.$t("joinYourOrganization");
         this.tokenRefreshing = true;
         var mac = environment.os.mac;
         var hostname = environment.os.hostName;
-        await services.common.init();
-        setTimeout(() => {  
-            this.$nextTick(async () => {
-                if(await services.common.GetGlobalLogin() == undefined)//判断数据库存在登陆信息，如果不存在直接返回
-                {
+        
+        // if(window.localStorage) {
+        //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+        // }
+        var host = window.localStorage.getItem("mx_hs_url");
+        if(host == null) {
+            this.tokenRefreshing = false;
+            this.showLoadingView = false;
+            this.showLoginView = true;
+            return;
+        }
+        // this.getServerInfo(host);
+        var domain = window.localStorage.getItem("Domain");
+        console.log("***name-login domain from localstorage is ", domain);
+        this.checkHomeServer()
+            .then((ret) => {
+                console.log("============= check home server ", ret);
+                if(ret == false) {
                     this.tokenRefreshing = false;
                     this.showLoadingView = false;
                     this.showLoginView = true;
-                    return;
+                    return
                 }
-                //如果存在刷新token
-                var ret = await services.common.refreshToken();
-                if(!ret.state) {
-                    if(ret.msg == "tokenExpired") {
-                        this.loginState = "认证已过期，请重新登录。"
+                global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
+                    if(ret == undefined) {
+                        this.tokenRefreshing = false;
+                        this.showLoadingView = false;
+                        this.showLoginView = true;
+                        return;
                     }
-                    this.tokenRefreshing = false;
-                    this.showLoadingView = false;
-                    this.showLoginView = true;
-                    return;
-                }
-                ipcRenderer.send('showMainPageWindow', false);
+                    
+                    // var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
+                    // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
+                    // var result = await services.common.gmsConfiguration(address, host);
+                    // if(!result){
+                    //     this.loginState = "未找到该组织";
+                    //     this.organizationButtonDisabled = false;
+                    //     return;
+                    // }
+                    
+                    if(ret.language) {
+                        this.$i18n.locale = ret.language;
+                    }
+                    ipcRenderer.send("showMainPageWindow")
+                    this.$router.push("/main")
+                })
             })
-
-        }, 1000);
+        
         ipcRenderer.on('dataJsonPort', function(event, message) { // 监听父页面定义的端口
             console.log("wo cao shou dao le ");
         });
@@ -616,7 +1956,7 @@ export default {
     }
 }
 .macWindowHeader {
-    padding: 0px;
+    padding: 0px 0px 0px 12px;
     margin: 0px;
     width: 64px;
 }
@@ -642,7 +1982,6 @@ export default {
     //     padding-left: 30px;
     //     padding-bottom: 10px;
     //     font-size: 24px;
-    //     font-family: 'Microsoft YaHei';
     // }
 
     // .welcome-zh-line2 {
@@ -651,7 +1990,6 @@ export default {
     //     padding-left: 30px;
     //     padding-bottom: 10px;
     //     font-size: 24px;
-    //     font-family: 'Microsoft YaHei';
     // }
 
     // .welcome-en {
@@ -659,7 +1997,6 @@ export default {
     //     padding-left: 30px;
     //     padding-bottom: 30px;
     //     font-size: 15px;
-    //     font-family: 'Microsoft YaHei';
     //     color: rgba(60, 60, 67, 0.6);
     // }
     
@@ -676,7 +2013,6 @@ export default {
     // .welcome-loading {
     //     width: 100%;;
     //     font-size: 12px;
-    //     font-family: 'Microsoft YaHei';
     //     text-align: center;
     //     margin: 0px;
     //     padding: 0px;
@@ -688,7 +2024,6 @@ export default {
     // .copy-right {
     //     width: 100%;;
     //     font-size: 14px;
-    //     font-family: 'Microsoft YaHei';
     //     text-align: center;
     //     margin: 0px;
     //     padding: 0px;
@@ -702,30 +2037,59 @@ export default {
         margin-top: 0px;
         height: calc(100% - 36px);
         overflow: hidden;
+
+    .item-input::placeholder {
+        font-size: 14px;
+        font-family: PingFangSC-Regular;
+        font-weight: 400;
+        color: rgba(153, 153, 153, 1);
+    }
 .account-content{
+    width: 100%;
+    height: 384px;
     .username-content{
-            .title {
-                display: inline-block;
-                vertical-align: top;
-                height:22px;
-                font-size:16px;
-                font-weight:600;
-                color:rgba(39,45,52,1);
-                line-height:22px;
-                font-family: PingFangSC-Medium;
-                font-weight: 600;
-                text-align: center;
-                width: 100%;
-                margin-top: 36px;
+        .title {
+            display: block;
+            vertical-align: top;
+            height:40px;
+            width: 100%;
+            margin-top: 36px;
+            margin-left: 50px;
+        }
+
+        .titleContent {
+            display: block;
+            vertical-align: top;
+            height:22px;
+            font-size:16px;
+            color:rgba(0, 0, 0, 1);
+            line-height:22px;
+            font-family: PingFangSC-Medium;
+            font-weight: 500;
+            text-align: left;
+            width: 100%;
+        }
+
+        .titleIllustrate {
+            display: block;
+            vertical-align: top;
+            height:18px;
+            font-size:12px;
+            color:rgba(102, 102, 102, 1);
+            line-height:18px;
+            font-family: PingFangSC-Regular;
+            font-weight: 400;
+            text-align: left;
+            width: 100%;
+            margin: 2px 0 0 0;
         }
 
 
-
         .item-account{
-            margin-top: 20px;
+            margin-top: 32px;
             width: 260px;
             margin-left: 50px;
-            height: 58px;
+            height: 37px;
             .account-title{
                 width: 100%;
                 margin: 0px;
@@ -734,7 +2098,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .item-input {
@@ -744,7 +2108,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -757,10 +2121,10 @@ export default {
         }
 
         .item-pwd {
-            margin-top: 8px;
+            margin-top: 12px;
             width: 260px;
             margin-left: 50px;
-            height: 58px;
+            height: 37px;
             .password-title{
                 width: 100%;
                 margin: 0px;
@@ -769,17 +2133,19 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
-            .item-input {
+            .inputDiv {
+                display: inline-block;
+                position: absolute;
                 margin-top: 4px;
                 width:260px;
                 height:36px;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -788,6 +2154,65 @@ export default {
                 font-size:14px;
                 outline: none;
                 font-family: PingFangSC-Regular;
+                background-color: rgba(1, 1, 1, 0);
+            }
+            .item-input {
+                display: inline-block;
+                position: absolute;
+                margin-top: 4px;
+                width:209px;
+                height:36px;
+                font-weight:400;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing: 0px;
+                margin: 0 0 0 0;
+                box-sizing: border-box;
+                border:0px solid rgba(221,221,221,1);
+                border-radius:4px;
+                padding-left: 0px;
+                font-size:14px;
+                outline: none;
+                font-family: PingFangSC-Regular;
+                background-color: rgba(1, 1, 1, 0);
+            }
+            .el-icon-view {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                text-align: center;
+            }
+            .el-icon-view:hover {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                cursor: pointer;
+                text-align: center;
+            }
+            .el-icon-moon {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                text-align: center;
+            }
+            .el-icon-moon:hover {
+                display: inline-block;
+                float: right;
+                height: 16px;
+                width: 16px;
+                padding: 10px 10px 10px 10px;
+                color: rgb(51, 51, 51);
+                cursor: pointer;
+                text-align: center;
             }
         }
         .accountLogin-state {
@@ -795,6 +2220,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -802,9 +2228,42 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
+            }
+        } 
+        .forget-password {
+            height: 18px;
+            width: calc(100%-50px);
+            font-size: 12px;
+            font-family: PingFangSC-Regular;
+            font-weight: 400;
+            color: rgba(36, 179, 107, 1);
+            line-height: 18px;
+            letter-spacing: 0px;
+            text-align: right;
+            margin-top: 2px;
+            margin-bottom: 4px;
+            padding-right: 50px;
+        }
+        .forget-password:hover {
+            height: 18px;
+            width: calc(100%-50px);
+            font-size: 12px;
+            font-family: PingFangSC-Regular;
+            font-weight: 400;
+            color: rgba(36, 179, 107, 1);
+            line-height: 18px;
+            letter-spacing: 0px;
+            text-align: right;
+            margin-top: 2px;
+            margin-bottom: 4px;
+            padding-right: 50px;
+            cursor: pointer;
         }
         .btn {
             margin-top: 7px;
@@ -821,7 +2280,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
             }
             
@@ -836,11 +2295,26 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing: 0px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .otherlogin{
             width: 260px;
@@ -857,7 +2331,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
             .useremail-login{
@@ -869,15 +2343,15 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
         }
                 .login-footer{
             width: 100%;
             height: 20px;
-            margin-bottom: 15px;
-            margin-top: 48px;
+            margin-bottom: 20px;
+            margin-top: 53px;
             cursor: pointer;
             .back-image{
                 cursor: pointer;
@@ -897,8 +2371,8 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
-                font-family: PingFangSC-Regular;
+                letter-spacing: 0px;
+                font-family: PingFangSC-Medium;
             }
         }
     }
@@ -938,7 +2412,7 @@ export default {
                 font-size:14px;
                 font-weight:400;
                 color:rgba(0,0,0,1);
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .account-separate{
@@ -961,7 +2435,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0px;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -991,7 +2465,7 @@ export default {
                 font-weight:400;
                 color:rgba(36,179,107,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 cursor: pointer;
                 text-align: right;
@@ -1006,7 +2480,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -1022,6 +2496,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1029,8 +2504,12 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
         .btn {
@@ -1048,7 +2527,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
             }
             
@@ -1063,11 +2542,26 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing: 0px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .otherlogin{
             width: 260px;
@@ -1084,7 +2578,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
             .useremail-login{
@@ -1096,7 +2590,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
         }
@@ -1124,7 +2618,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -1163,7 +2657,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0px;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -1193,7 +2687,7 @@ export default {
                 font-weight:400;
                 color:rgba(36,179,107,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 cursor: pointer;
                 text-align: right;
@@ -1208,7 +2702,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -1224,6 +2718,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1231,8 +2726,12 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
         .btn {
@@ -1250,7 +2749,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
             }
             
@@ -1265,11 +2764,26 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
             }
 
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing: 0px;
+                opacity: 0.8;
+                outline: none;
+            }
         }
         .otherlogin{
             width: 260px;
@@ -1286,7 +2800,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
             .useremail-login{
@@ -1298,7 +2812,7 @@ export default {
                 font-weight: 400;
                 color: #24B36B;
                 line-height: 18px;
-                letter-spacing: 1px;
+                letter-spacing: 0px;
                 cursor: pointer;
             }
         }
@@ -1326,7 +2840,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -1334,6 +2848,20 @@ export default {
 }
 
     .organization-content{
+        .host-title {
+            height: 22px;
+            width: 100%;
+            padding: 0px;
+            margin-bottom: 14px;
+            padding-top: 44px;
+            text-align: center;
+            vertical-align: top;
+            font-size:16px;
+            font-weight:500;
+            color:rgba(39,45,52,1);
+            line-height:22px;
+            font-family: PingFangSC-Medium;
+        }
         .title {
             height: 36px;
             width: 100%;
@@ -1346,7 +2874,7 @@ export default {
                 display: inline-block;
                 width: 36px;
                 height: 36px;
-                margin-left: 117px;
+                margin-left: 128px;
                 padding: 0px;
                 .login-logo{
                     width: 36px;
@@ -1356,7 +2884,7 @@ export default {
                 }
             }
 
-            .tltle-content {
+            .tltle-content-win {
                 display: inline-block;
                 vertical-align: top;
                 height:36px;
@@ -1367,12 +2895,23 @@ export default {
                 padding-left: 8px;
                 font-family: PingFangSC-Medium;
             }
+            .tltle-content-mac {
+                display: inline-block;
+                vertical-align: top;
+                height:36px;
+                font-size:24px;
+                color:rgba(39,45,52,1);
+                line-height:36px;
+                padding-left: 8px;
+                font-family: PingFangSC-Medium;
+            }
         }
+
         .item-organization{
             margin-top: 28px;
             width: 260px;
             margin-left: 50px;
-            height: 58px;
+            height: 66px;
             .organizaiton-title{
                 width: 100%;
                 margin: 0px;
@@ -1381,18 +2920,18 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .item-input {
                 margin-top: 4px;
+                margin-bottom: 4px;
                 width:260px;
                 height:36px;
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
-                margin: 0 0 0 0;
+                letter-spacing: 0px;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
                 border-radius:4px;
@@ -1404,7 +2943,7 @@ export default {
             .organization-input-label{
                 position: absolute;
                 left: 216px;
-                top: 174px;
+                top: 178px;
                 margin: 0px;
                 width:77px;
                 height:20px;
@@ -1432,8 +2971,10 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
             }
             
             button:hover {
@@ -1447,9 +2988,61 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+
+            button:disabled {
+                border: 1px solid #24B36B;
+                background: rgba(167, 224, 196, 1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing: 0px;
+                opacity: 0.8;
+                outline: none;
+            }
+
+            .hostCancle {
+                border: 1px solid rgba(221, 221, 221, 1);
+                background:rgba(255,255,255,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: black;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing: 0px;
+                outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
+            }
+            hostCancle:hover {
+                border: 1px solid #24B36B;
+                background:rgba(36,179,107,1);
+                width: 260px;
+                height: 36px;
+                border-radius:4px;
+                color: white;
+                font-family: PingFangSC-Regular;
+                font-size:14px;
+                font-weight:500;
+                line-height:20px;
+                letter-spacing: 0px;
+                opacity: 0.8;
+                outline: none;
+                margin-bottom: 3px;
+                margin-top: 3px;
             }
 
         }
@@ -1458,6 +3051,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1465,8 +3059,12 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
         .organization-finder-tip{
@@ -1482,7 +3080,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
             .finder-title{
@@ -1493,7 +3091,7 @@ export default {
                 font-weight:400;
                 color:rgba(36,179,107,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 cursor: pointer;
                 font-family: PingFangSC-Regular;
             }
@@ -1502,7 +3100,7 @@ export default {
             width: 100%;
             height: 20px;
             margin-bottom: 15px;
-            margin-top: 91px;
+            margin-top: 82px;
             cursor: pointer;
             .server-setting{
                 cursor: pointer;
@@ -1514,7 +3112,28 @@ export default {
                 font-weight:400;
                 color:rgba(153,153,153,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
+            }
+            .back-image{
+                cursor: pointer;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-left: 24px;
+            }
+            .back-title{
+                cursor: pointer;
+                display: inline-block;
+                
+                height:20px;
+                font-size:14px;
+                margin: 0px;
+                vertical-align: top;
+                font-weight:500;
+                color:rgba(0,0,0,1);
+                line-height:20px;
+                letter-spacing: 0px;
+                font-family: PingFangSC-Regular;
             }
         }
     }
@@ -1539,7 +3158,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:22px;
-                letter-spacing:2px;
+                letter-spacing: 0px;
                 margin: 0px;
                 font-family: PingFangSC-Medium;
             }
@@ -1551,7 +3170,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0px;
                 margin-top: 12px;
                 font-family: PingFangSC-Regular;
@@ -1573,7 +3192,7 @@ export default {
                 font-weight:400;
                 color:rgba(102,102,102,1);
                 line-height:18px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
                 }
                 .item-server-input{
@@ -1583,7 +3202,7 @@ export default {
                 font-weight:400;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 margin: 0 0 0 0;
                 box-sizing: border-box;
                 border:1px solid rgba(221,221,221,1);
@@ -1599,6 +3218,7 @@ export default {
             padding-left: 50px;
             height: 17px;
             .state-title{
+                display: inline-block;
                 text-align: left;
                 margin: 0px;
                 height:17px;
@@ -1606,8 +3226,12 @@ export default {
                 font-weight:400;
                 color:rgba(228,49,43,1);
                 line-height:17px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
+            }
+            .el-icon-loading{
+                display: inline-block;
+                margin: 0px;
             }
         }
             .btn-item{
@@ -1627,7 +3251,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 outline: none;
                 }
                 .server-confirm-button:disabled{
@@ -1643,7 +3267,7 @@ export default {
                 font-size:14px;
                 font-weight:500;
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 opacity: 0.8;
                 }
             }
@@ -1671,7 +3295,7 @@ export default {
                 font-weight:500;
                 color:rgba(0,0,0,1);
                 line-height:20px;
-                letter-spacing:1px;
+                letter-spacing: 0px;
                 font-family: PingFangSC-Regular;
             }
         }
@@ -1698,9 +3322,179 @@ export default {
                 font-weight:400;
                 color:rgba(153,153,153,1);
                 line-height:18px;
-                letter-spacing:2px;
+                letter-spacing: 0px;
                 margin: 0px;
                 margin-top: 20px;
             }
         }
+
+    .server-setting-div {
+        width: 40%;
+        height: 18px;
+        position: absolute;
+        bottom: 15px;
+        left: 30px;
+        
+        .server-setting {
+            float: left;
+            vertical-align: top;
+            font-size: 12px;
+            font-weight:400;
+            font-family: PingFangSC-Regular;
+            color: rgba(153, 153, 153, 1);
+            line-height: 18px;
+            height: 18px;
+            letter-spacing: 0px;
+        }
+
+        .el-icon-caret-bottom {
+            float: left;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+        }
+    }
+
+    
+    .domain-dropdown-content {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 1);
+        width:260px;
+        min-height: 40px;
+        border-radius: 4px;
+        box-shadow:0px 0px 12px 0px rgba(103,103,103,0.14);
+        border:1px solid rgba(221,221,221,1);
+    }
+
+    .domain-dropdown-content div:hover {
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+    }
+
+    .domain-list {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .domain-item {
+        display: block;
+        width:248px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 0px;
+        vertical-align: top;
+        margin: 0 0 0 0;
+        padding-left: 12px;
+        background-color: rgba(0, 0, 0, 0);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing: 0px;
+    }
+    
+    .domain-item:hover {
+        display: block;
+        width:248px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 0px;
+        vertical-align: top;
+        margin: 0 0 0 0;
+        padding-left: 12px;
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing: 0px;
+    }
+    
+    .domain-item-label {
+        width:260px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 0px;
+        vertical-align: top;
+        background-color: rgba(0, 0, 0, 0);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing: 0px;
+    }
+
+    .domain-item-label:hover {
+        width:260px;
+        height:40px;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(51, 51, 51, 1);
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        letter-spacing: 0px;
+        vertical-align: top;
+        background-color: rgba(221, 221, 221, 1);
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        letter-spacing: 0px;
+    }
+
+
+    .language {
+        width: 40%;
+        height: 18px;
+        position: absolute;
+        bottom: 15px;
+        right: 30px;
+
+        .login-setup-language-label {
+            float: right;
+            vertical-align: top;
+            font-size: 12px;
+            font-weight:400;
+            font-family: PingFangSC-Regular;
+            color: rgba(153, 153, 153, 1);
+            line-height: 18px;
+            height: 18px;
+            letter-spacing: 0px;
+        }
+
+        .el-icon-caret-bottom {
+            float: right;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+        }
+    }
+
+    .alipay-wechat-login{
+
+    }
+
+    .alipay-wechat-login-font{
+        width: 84px;
+        height: 18px;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #666666;
+        line-height: 18px;
+    }
+
+    .alipay-wechat-img{
+        vertical-align: middle;
+    }
 </style>

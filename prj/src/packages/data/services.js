@@ -3,7 +3,7 @@ import { servicemodels } from './servicemodels.js';
 import { models, globalModels } from './models.js';
 import { mqttrouter } from './mqttrouter.js';
 import { clientIncrementRouter } from './clientincrementrouter.js';
-import { sqliteutil, Group, Message, Collection, UserInfo, Config, Secret} from './sqliteutil.js'
+import { sqliteutil, Group, Message, Collection, UserInfo, Secret, Contact, Department, ContactRoom} from './sqliteutil.js'
 import { FileStorage } from '../core/index.js';
 import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
@@ -15,7 +15,7 @@ import {Base64} from "js-base64";
 import {environment} from "./environment.js";
 import {globalConfig} from "../core/config.js"
 import {SqliteEncrypt, AESEncrypt} from "../core/encrypt.js"
-
+import log from 'electron-log';
 
 const mqtt = require('mqtt')
 
@@ -50,7 +50,8 @@ const commonData = {
   maxSecretGroupUpdateTime: 0,
   maxSecretMsgSequenceID: 0,
   aseEncryption:  new AESEncrypt(),
-  orgValue: ""
+  orgValue: "",
+  accessToken: ''
 
 }; // model in here
 
@@ -65,7 +66,7 @@ const common = {
 
   callback: undefined,
 
-  reconnectTime: 0,
+  reconnectTime: 1,
 
   async GetGlobalLogin(){
     let globalLogin = await(await globalModels.Login).find();
@@ -87,24 +88,7 @@ const common = {
   },
 
   async GetSelfUserModel(){
-    if(this.data.login == undefined)
-      return;
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return;
-    }
-    this.data.selfuser = foundUsers[0];
-    if(this.config.hostname == undefined){
-      this.config.hostname = foundUsers[0].entry_host;
-      this.config.apiPort = foundUsers[0].entry_port;
-      this.config.hostTls = foundUsers[0].entry_tls;
-      this.config.mqttHost = foundUsers[0].mqtt_host;
-      this.config.mqttPort = foundUsers[0].mqtt_port;
-      this.config.mqttTls = foundUsers[0].mqtt_tls;
-    }
-    return this.data.selfuser;
+    return await UserInfo.GetUserInfoByMatrixID(this.data.login.matrix_id);
   },
 
   async GetDistUserinfo(uid){
@@ -271,22 +255,15 @@ const common = {
     return groups;
   },
 
-  async init() {
-    let ret = await models.init();
-    if(ret != true)
-      return false;
-    if(await this.GetLoginModel() != undefined && await this.GetSelfUserModel() != undefined)
-    {
-      this.initServiceApi();
-      return true;
-    }
-    return false;
+  async ConfigTableInit(){
+    globalModels.init();
   },
 
   async initServiceApi(){
     if(this.api != undefined)
       return;
     console.log("initServiceApi")
+    log.info("this.config.hostname, this.config.apiPort, this.config.hostTls", this.config.hostname, this.config.apiPort, this.config.hostTls);
     this.api = new APITransaction(this.config.hostname, this.config.apiPort, this.config.hostTls);
     this.api.SetService(this);
   },
@@ -317,21 +294,29 @@ const common = {
     this.api.EmailCodeVerify(emailCode);
   },
 
-  async login(config) {
-    if (typeof config != "object") {
-      return;
-    }
-  
+  async login() {
     this.api = null;
-    this.initServiceApi();
-    let result = await this.api.login(config.username, config.password, config.identityType, config.identityValue, config.identityCode, config.model, config.deviceID, config.desktopType);
+    this.config.hostname = localStorage.getItem("hostname");
+    this.config.apiPort = localStorage.getItem("apiPort");
+    this.config.hostTls = localStorage.getItem("hostTls");
+    this.config.mqttHost = localStorage.getItem("mqttHost");
+    this.config.mqttPort = localStorage.getItem("mqttPort");
+    this.config.mqttTls =localStorage.getItem("mqttTls");
 
-    if (!result.ok || !result.success) {
-      return result.data;
-    }
-    let userid = result.data.obj.id;
-    await Config.SetLoginInfo(userid, this.data.orgValue);
+
+    this.initServiceApi();
+    let userID = localStorage.getItem("mx_user_id");
     await models.init();
+    this.accessToken = localStorage.getItem("mx_access_token");
+    this.data.login = {
+      matrix_id: userID,
+      access_token: this.accessToken
+    }
+    //this.initmqtt();
+    return;
+
+
+    let userid = result.data.obj.id;
 
     
     var retmodels = await servicemodels.LoginModel(result)
@@ -402,27 +387,27 @@ const common = {
     return true;
   },
 
+  InitConfServer(userID){
+    confservice.init(userID)
+  },
+
   async InitDbData()
   {
-    Promise.all([this.UpdateGroups(), this.UpdateSecretGroups(), this.UpdateMessages(), this.UpdateSecretMessage(), this.UpdateUserinfo(), this.UpdateDepartment()])
-    //await this.UpdateMessages();
-    //await this.ListAllCollections();
+    return Promise.all([this.GetAllContact(), this.UpdateUserinfo(), this.UpdateDepartment(), this.getAllContactRooms()])
   },
 
   async UpdateDepartment(){
-    let updateTime = await sqliteutil.GetMaxDepartmentUpdatetime(this.data.selfuser.id);
-    if(updateTime == 0)
-      await this.AllDepartmentInfo();
-    else
-      await this.clientIncrement("updateDepartment", updateTime, 0, 0);
+    let updateTime = await Department.GetMaxDeparmentUpdateTime();
+    console.log("max Department updatetime is "+ updateTime)
+    log.info("max Department updatetime is "+ updateTime);
+    await this.clientIncrement("updateDepartment", updateTime, 0, 50);
   },
 
   async UpdateUserinfo(){
-    let updateTime = await sqliteutil.GetMaxUserUpdatetime(this.data.selfuser.id);
-    if(updateTime == 0)
-      await this.AllUserinfo();
-    else
-      await this.clientIncrement("updateUser", updateTime, 0, 0);
+    let updateTime = await UserInfo.GetMaxUpdateTime();
+    console.log("max updatetime in userinfo is "+ updateTime)
+    log.info("max updatetime in userinfo is "+ updateTime)
+    await this.clientIncrement("updateUser", updateTime, 0, 50);
   },
 
   async UpdateGroups()
@@ -463,15 +448,15 @@ const common = {
     else
       httpValue = "http";
     let hostname = environment.os.hostName;
-
-    this.mqttclient = mqtt.connect(httpValue + '://'+ this.config.mqttHost + ':' + this.config.mqttPort,
+    
+    this.mqttclient = mqtt.connect(this.config.mqttHost,
                                       {username: 'client', 
                                       password: 'yiqiliao',
-                                      clientId: this.data.selfuser.id + '|' + hostname,
+                                      clientId: this.data.login.matrix_id + '|' + hostname,
                                       keepalive: 10,
                                       reconnectPeriod: 0});
-    
-    let userid = this.data.selfuser.id;
+
+    let userid = this.data.login.matrix_id;
     let servers = this;
     let mqttclient = this.mqttclient;    
     let api = this.api;
@@ -483,13 +468,6 @@ const common = {
         clearTimeout(servers.retSetTimer);
       if(bClose)
       {
-        //servers.handlemessage(servers.callback);
-        //await servers.UpdateGroups();
-        let maxSequenceIdFromGroup = await sqliteutil.GetMaxMsgSequenceID(servers.data.selfuser.id);
-        await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback);
-        servers.data.maxSecretMsgSequenceID = await Message.GetMaxSecretMsgSequenceID();
-        await servers.ReveiveNewMessage(maxSequenceIdFromGroup, 0, servers.callback, true)
-        //servers.callback("reconnect");
         bClose = false;
       }
       api.SetMqtt(mqttclient);
@@ -527,7 +505,6 @@ const common = {
     this.mqttclient.on("error", function(error){
       console.log("mqtt error----------------- ", error)
     })
-
   },
 
   closemqtt(){
@@ -547,7 +524,6 @@ const common = {
       }
       await mqttrouter(JSON.parse(message.toString()), callback, services);
     })
-    
   },
   async logout() {
     if (typeof this.data.login == "undefined") {
@@ -555,6 +531,14 @@ const common = {
       return undefined;
     }
     await(await globalModels.Login).truncate();
+    await (await models.UserInfo).truncate();
+    await (await models.UserEmail).truncate();
+    await (await models.UserAddress).truncate();
+    await (await models.UserPhone).truncate();
+    await (await models.UserIm).truncate();
+    await (await models.Contact).truncate();
+    await(await models.Department).truncate();
+    await(await models.FavouriteRoom).truncate();
     return await this.api.logout(this.data.login.access_token)
   },
 
@@ -577,10 +561,12 @@ const common = {
     do{
       result = await this.Userinfo(undefined, undefined, 1, index)
       if (!result.ok || !result.success) {
+        log.info("AllUserinfo", result)
         return result;
       }
 
       if (!("obj" in result.data)) {
+        log.info("AllUserinfo", result)
         return result;
       }
 
@@ -590,6 +576,10 @@ const common = {
       {
         index++;
         useritem = result.data.results[item]
+        if(useritem.del == 1){
+          await UserInfo.DeleteUserByUserID(item.id);
+          continue;
+        }
         usermodel = await servicemodels.UsersModel(useritem)
         if(usermodel == undefined)
         {
@@ -614,19 +604,10 @@ const common = {
         await userImModel.save();
       }
     }while(result.data.total > index);
-    var foundUsers = await(await models.User).find({
-      id: this.data.login.user_id
-    });
-    if(foundUsers.length == 0){
-      return true;
-    }
-    foundUsers[0].user_max_updatetime = updateTime;
-    foundUsers[0].save();
     return true;
   },
 
   async Userinfo(filters, perPage, sortOrder, sequenceId){
-    
     return await this.api.getUserinfo(this.data.login.access_token, filters, perPage, sortOrder, sequenceId);
   },
 
@@ -673,12 +654,16 @@ const common = {
       }
 
       if (!("obj" in result.data)) {
+        log.warn("AllDepartmentInfo", result)
         return result;
       }
       for(var item in result.data.results)
       {
         index++;
-        departmentitem = result.data.results[item]
+        departmentitem = result.data.results[item];
+        if(departmentitem.del == 1){
+          continue;
+        } 
         departmentmodel = await servicemodels.DepartmentsModel(departmentitem)
         this.data.department.push(departmentmodel)
         departmentmodel.save();   
@@ -687,7 +672,6 @@ const common = {
           maxUpdatetime = tmpUpdatetime;
       }
     }while(result.data.total > index);  
-    sqliteutil.UpdateMaxDepartmentUpdatetime(this.data.selfuser.id, maxUpdatetime);
     return true;
   },
 
@@ -904,6 +888,16 @@ const common = {
         totalIndex,
         countperpageValue)
       if (!result.ok || !result.success) {
+        this.reconnectTime = this.reconnectTime * 2;
+        if(this.reconnectTime > 30)
+        this.reconnectTime = 30;
+        log.warn("increment again--this.reconnectTime, name, updateTime, sequenceId, countperpageValue---:" + this.reconnectTime, name, updateTime, 0, countperpageValue)
+        setTimeout(() => {
+          if(name === 'updateUser')
+            this.UpdateUserinfo();
+          else
+            this.UpdateDepartment();
+        }, this.reconnectTime * 1000);
         return undefined;
       }
       next = result.data.hasNext;
@@ -914,8 +908,8 @@ const common = {
         item = result.data.results[index];
         await clientIncrementRouter(name, item, this)
       }
-       
     }
+    this.reconnectTime = 1;
   },
 
   async groupIncrement(updateTime, notification, callback = undefined){
@@ -1359,11 +1353,11 @@ const common = {
     return await this.api.uploadFile(this.data.login.access_token, filepath);
   },
 
-  async downloadUpgradeFile(url, fileName) {
-    var targetDir = confservice.getTempPath();
+  async downloadUpgradeFile(url, fileName, versionId) {
+    var targetDir = confservice.getCurFilesDir();
     var targetPath = path.join(targetDir, fileName);
-    ipcRenderer.send('download-upgrade', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]);
-    return ret;
+    ipcRenderer.send('toUpgradePackage', [url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath, versionId]);
+    return true;
   },
 
   async downloadFile(timelineId, message_time, fileName, needOpen, fileSize, url='') {
@@ -1529,25 +1523,29 @@ const common = {
 
   async ListAllCollections(){
     await this.ListMessageCollections();
-    await this.ListPictureCollections();
-    await this.ListFileCollections();
-    await this.ListGroupCollections();
-    await this.ListTopicCollections();
+    //await this.ListPictureCollections();
+    //await this.ListFileCollections();
+    //await this.ListGroupCollections();
+    //await this.ListTopicCollections();
   },
 
   async ListMessageCollections(){
+    await Collection.DeleteFavouriteByType(101);
     return await this.ListCollectionByType([101]);
   },
 
   async ListPictureCollections(){
+    await Collection.DeleteFavouriteByType(102);
     return await this.ListCollectionByType([102]);
   },
   
   async ListFileCollections(){
+    await Collection.DeleteFavouriteByType(103);
     return await this.ListCollectionByType([103]);
   },
 
   async ListGroupCollections(){
+    await Collection.DeleteFavouriteByType(104);
     return await this.ListCollectionByType([104]);
 
   },
@@ -1569,8 +1567,7 @@ const common = {
       result = await this.api.ListAllCollections(this.data.login.access_token,
                                                   type,
                                                   sequenceID,
-                                                  20,
-                                                  order);
+                                                  20);
       if (!result.ok || !result.success) {
         break;
       }
@@ -1581,7 +1578,7 @@ const common = {
         item = result.data.results[index];
         collectionModel = await servicemodels.CollectionModel(item);
 
-        let find = await Collection.FindItemByFavouriteID(item.favoriteId)
+        let find = await Collection.FindItemByCollectionID(item.collectionId)
         if(find == undefined){
           collectionModel.save();
         }
@@ -1596,25 +1593,25 @@ const common = {
     return collections;
   },
 
-  async CollectMessage(timelineIDs){
-    let result = await this.api.CollectMessage(this.data.login.access_token, timelineIDs);
+  async CollectMessage(eventID, content){
+    let result = await this.api.CollectMessage(this.data.login.access_token, eventID, content);
     if (!result.ok || !result.success) {
       return false;
     }
     let item;
     let model;
-    for(let index in result.data.obj){
-      item = result.data.obj[index];
-      model = await servicemodels.CollectionModel(item);
-      let findmodel = await Collection.FindItemByCollectionID(item.collectionId)
-      if(findmodel == undefined){
-        model.save();
-      }
-      else{
-        findmodel.values = model.values;
-        findmodel.save();
-      }
+ 
+    item = result.data.obj;
+    model = await servicemodels.CollectionModel(item);
+    let findmodel = await Collection.FindItemByCollectionID(eventID)
+    if(findmodel == undefined){
+      model.save();
     }
+    else{
+      findmodel.values = model.values;
+      findmodel.save();
+    }
+
     return true;
   },
 
@@ -1644,12 +1641,19 @@ const common = {
     return true;
   },
 
-  async DeleteCollectionMessage(favoriteID){
-    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, favoriteID);
+  async DeleteCollectionMessage(collectionIds){
+    let arrayIds = [];
+    if(Array.isArray(collectionIds)){
+      arrayIds = collectionIds;
+    }
+    else{
+      arrayIds.push(collectionIds);
+    }
+    let result = await this.api.DeleteCollectionMessage(this.data.login.access_token, arrayIds);
     if (!result.ok || !result.success) {
       return false;
     }
-    await sqliteutil.DeleteItemFromCollectionByFavouriteID(favoriteID)
+    await sqliteutil.DeleteItemFromCollectionByCollectionIdID(arrayIds)
   },
 
   async DeleteCollectionGroup(gorupID){
@@ -1866,27 +1870,27 @@ const common = {
   },
 
   async SearchMessageCollection(key){
-    return await this.SearchCollection(101, key);
+    return await this.SearchCollection([101], key);
   },
 
   async SearchPictureCollecion(key){
-    return await this.SearchCollection(102, key);
+    return await this.SearchCollection([102], key);
   },
 
   async SearchFileCollecion(key){
-    return await this.SearchCollection(103, key);
+    return await this.SearchCollection([103], key);
   },
 
   async SearchGroupCollecion(key){
-    return await this.SearchCollection(104, key);
+    return await this.SearchCollection([104], key);
   },
 
   async SearchVoiceCollecion(key){
-    return await this.SearchCollection(105, key);
+    return await this.SearchCollection([105], key);
   },
 
   async SearchPostCollecion(key){
-    return await this.SearchCollection(106, key);
+    return await this.SearchCollection([106], key);
   },
 
   async SearchCollection(type, keyword){
@@ -1979,17 +1983,404 @@ const common = {
     return result.data.results;
   },
 
-  async gmsConfiguration(domainBase64){
+  getUrlFromHostPortTls(appServerObj) {
+    console.log("*** appServerObj ", appServerObj);
+    var protocol = "http://";
+    var port = 80;
+    var host = appServerObj.host;
+    if(appServerObj.tls == true || appServerObj.tls == 1) {
+      protocol = "https://";
+      port = 443;
+    }
+    if(appServerObj.port) {
+      port = appServerObj.port;
+    }
+    console.log("*** protocol ", protocol);
+    console.log("*** port ", port);
+    console.log("*** host ", host);
+    var url = protocol + host + ":" + port.toString();
+    console.log("*** url ", url);
+    return url;
+  },
+
+  getHostPortTls(BaseUrl) {
+    if(BaseUrl.endsWith("/")) {
+      BaseUrl = BaseUrl.substring(0, BaseUrl.length - 1);
+    }
+    let IHostTls = 1;
+    let IHost = "";
+    let IHostPort = 443;
+    if(BaseUrl.toLowerCase().indexOf("https://") >= 0) {
+      let IHostTmp = BaseUrl.split("https://")[1];
+      if(IHostTmp.indexOf(":") >= 0) {
+        IHost = IHostTmp.split(":")[0];
+        IHostPort = IHostTmp.split(":")[1];
+      }
+      else {
+        IHost = IHostTmp;
+        IHostPort = 443;
+      }
+      IHostTls = 1;
+    }
+    else if(BaseUrl.toLowerCase().indexOf("http://") >= 0) {
+      let IHostTmp = BaseUrl.split("http://")[1];
+      if(IHostTmp.indexOf(":") >= 0) {
+        IHost = IHostTmp.split(":")[0];
+        IHostPort = IHostTmp.split(":")[1];
+      }
+      else {
+        IHost = IHostTmp;
+        IHostPort = 80;
+      }
+      IHostTls = 0;
+    }
+    else {
+      IHost = BaseUrl;
+      IHostPort = 443;
+    }
+    return [IHost, IHostPort, IHostTls];
+  },
+
+  /*
+    {
+      "m.homeserver": {
+        "base_url": "https://matrix.each.chat/"
+      },
+      "m.identity_server": {
+        "base_url": "http://matrix.each.chat:8090"
+      },
+      "m.appserver": {
+        "base_url": "http://139.198.18.180:8888/"
+      },
+      "m.mqttserver": {
+        "base_url": "tcp://139.198.18.180:1883/"
+      }
+    }
+  */
+  setGmsConfiguration(IServerInfo) {
+    let IHostInfo = IServerInfo['m.identity_server'];
+    let AHostInfo = IServerInfo['m.appserver'];
+    let mqttInfo = IServerInfo['m.mqttserver'];
+
+    let IHostBaseUrl = IHostInfo['base_url'];
+    let AHostBaseUrl = AHostInfo['base_url'];
+    let mqttBaseUrl = mqttInfo['base_url'];
+
+    let IHostTls = 1;
+    let IHost = "";
+    let IHostPort = 443;
+    let AHostTls = 1;
+    let AHost = "";
+    let AHostPort = 443;
+    let mqttTls = 1;
+    let mqtt = "";
+    let mqttPort = 443;
+
+    var Iobj = this.getHostPortTls(IHostBaseUrl);
+    IHost = Iobj[0];
+    IHostPort = Iobj[1];
+    IHostTls = Iobj[2];
+    var Aobj  = this.getHostPortTls(AHostBaseUrl);
+    AHost = Aobj[0];
+    AHostPort = Aobj[1];
+    AHostTls = Aobj[2];
+
+    mqtt = mqttBaseUrl;
+
+    this.config.hostname = AHost;
+    localStorage.setItem("hostname", this.config.hostname);
+
+    this.config.apiPort = AHostPort;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
+    this.config.hostTls = AHostTls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
+    this.config.mqttHost = mqtt;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+  },
+
+  async searchAllChat(search_key, limit) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var body = {
+      limit: limit,
+      groups: [
+        {
+          filters: [
+            filterBody,
+            filterType
+          ],
+          field: 'room_id'
+        }
+      ]
+    }
+    let result = await this.api.searchAll(this.data.login.access_token, body);
+    // console.log("*** services.js searchAllChat result ", result);
+    // console.log("*** services.js searchAllChat result.ok ", result.ok);
+    // console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data.obj;
+  },
+
+  async searchChatFiles(search_key, room_id, perNum, fOrb, sequenceId) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterRoom = {
+      field: "room_id",
+      operator: "co",
+      value: room_id,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var filterMsgType = {
+      field: "message_type",
+      operator: "co",
+      value: "FILE",
+      logic: 0
+    }
+    var body = {
+      filters: [
+        filterBody,
+        filterType,
+        filterRoom,
+        filterMsgType
+      ],
+      perPage: perNum,
+      sortOrder: fOrb,
+      sequenceId: sequenceId
+    }
+    let result = await this.api.searchChat(this.data.login.access_token, body);
+    console.log("*** services.js searchAllChat result ", result);
+    console.log("*** services.js searchAllChat result.ok ", result.ok);
+    console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data;
+  },
+
+  async searchChatMsg(search_key, room_id, perNum, fOrb, sequenceId) {
+    var filterBody = {
+      field: "body",
+      operator: "co",
+      value: search_key,
+      logic: 0      
+    };
+    var filterRoom = {
+      field: "room_id",
+      operator: "co",
+      value: room_id,
+      logic: 0      
+    };
+    var filterType = {
+      field: "type",
+      operator: "co",
+      value: "CHAT",
+      logic: 0      
+    };
+    var body = {
+      filters: [
+        filterBody,
+        filterType,
+        filterRoom
+      ],
+      perPage: perNum,
+      sortOrder: fOrb,
+      sequenceId: sequenceId
+    }
+    let result = await this.api.searchChat(this.data.login.access_token, body);
+    // console.log("*** services.js searchAllChat result ", result);
+    // console.log("*** services.js searchAllChat result.ok ", result.ok);
+    // console.log("*** services.js searchAllChat result.success ", result.success);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result.data;
+  },
+
+  async gmsDetector(tenant, host='') {
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length-1)
+    }
+    var response = await axios.post(host + "/gms/v1/tenant/names", 
+      {
+        'tenantName': tenant
+      }
+    );
+    console.log("============== response is ", response);
+    return response;
+  },
+
+  async getLoginConfig(host) {
+    // var host = global.localStorage.getItem("app_server");
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length - 1);
+    }
+    var response = undefined;
+    try {
+      var response = await axios.get(host + "/api/services/auth/v1/auth/setting");
+      log.info("getLoginConfig is ", response)
+      if (response.status != 200 
+        || response.data == undefined
+        || response.data.obj == undefined) {
+        return false;
+      };
+    }
+    catch(error) {
+      log.info("getLoginConfig exception ", error);
+      return false;
+    }
+    if(!response) {
+      return false;
+    }
+    var loginSettingObj = response.data.obj;
+    global.localStorage.setItem("authType", loginSettingObj['authType']);
+    global.localStorage.setItem("threeAuthType", loginSettingObj['threeAuthType']);
+    global.localStorage.setItem("userNamePlaceHolder", loginSettingObj['userNamePlaceHolder']);
+    global.localStorage.setItem("passwordPlaceHolder", loginSettingObj['passwordPlaceHolder']);
+    global.localStorage.setItem("matrixEmail", loginSettingObj['matrixEmail']);
+    global.localStorage.setItem("threeEmail", loginSettingObj['threeEmail']);
+    global.localStorage.setItem("initPasswordRegex", loginSettingObj['initPasswordRegex']);
+    return true;
+  },
+
+  async newGmsConfiguration(domain, host) {
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length - 1);
+    }
+    var response = undefined;
+    try{
+      response = await axios.post(host + "/gms/v1/configuration", 
+        {
+          'tenantName': domain
+        }
+      );
+      log.info("newGmsConfiguration", response)
+      if (response.status != 200 
+        || response.data == undefined
+        || response.data.obj == undefined) {
+        return false;
+      }
+    }
+    catch(error) {
+      log.info("newGmsConfiguration exception ", error);
+      return false;
+    }
+    if(!response) {
+      return;
+    }
+    let entry = response.data.obj.entry;
+    let mqtt = response.data.obj.mqtt;
+    let channel = response.data.obj.channel;
+    let defaultIdentity = response.data.obj.defaultIdentity;
+    let favorite = response.data.obj.favorite;
+    let identities = response.data.obj.identities;
+    let im = response.data.obj.im;
+    let matrix = response.data.obj.matrix;
+    let notification = response.data.obj.notification;
+    let org = response.data.obj.org;
+    let team = response.data.obj.team;
+    if(entry.tls == true)
+      entry.tls = 1
+    else
+      entry.tls = 0;
+    
+    if(mqtt.tls == true)
+      mqtt.tls = 1;
+    else
+      mqtt.tls = 0;
+
+    if(entry.host) {
+      var finalUrl = this.getUrlFromHostPortTls(entry);
+      log.info("appserver url ", finalUrl)
+      localStorage.setItem("app_server", finalUrl);
+      var entryHost = entry.host;
+      var entryHostPort = entry.port;
+      var entryHostTls = entry.tls;
+    }
+    else {
+      var entryObj = this.getHostPortTls(entry);
+      var entryHost = entryObj[0];
+      var entryHostPort = entryObj[1];
+      var entryHostTls = entryObj[2];
+    }
+    console.log("======= ", entryObj);
+    this.config.hostname = entryHost;
+    localStorage.setItem("hostname", this.config.hostname);
+
+    this.config.apiPort = entryHostPort;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
+    this.config.hostTls = entryHostTls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
+    this.config.mqttHost = mqtt.host;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+
+    this.config.mqttPort = mqtt.port;
+    localStorage.setItem("mqttPort", this.config.mqttPort);
+
+    this.config.mqttTls = mqtt.tls;
+    localStorage.setItem("mqttTls", this.config.mqttTls);
+    
+    // localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
+    localStorage.setItem("mx_hs_url", matrix.homeServer);
+    // localStorage.setItem("mx_i_url", matrix.identityServer);
+
+    return response.data.obj;
+  },
+
+  async gmsConfiguration(domainBase64, host=''){
+    // let value = Base64.encode("139.198.15.253", true);
+    // this.data.orgValue = value;
+    // this.config.hostname = "139.198.18.180";
+    // this.config.apiPort = 8888;
+    // this.config.hostTls = 0;
+    // this.config.mqttHost = "139.198.18.180";
+    // this.config.mqttPort = 1883;
+    // this.config.mqttTls = 1;
+    // return true;
+    
+    if(host.endsWith("/")) {
+      host = host.substring(0, host.length-1)
+    }
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
     if(globalConfig.gmsEnv == "develop")//测试环境
-      response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
+      // response = await axios.get(host + "/" + value);
     else if(globalConfig.gmsEnv == "preRelease")//预发布环境
-      response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/configuration/" + value);
+      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
+      // response = await axios.get(host + "/" + value);
     else//正式环境
-      response = await axios.get("https://gms.each.chat/api/sys/gms/v1/configuration/" + value);
-    
+      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
+      console.log("the url is ", host + "/gms/v1/configuration/" + value);
+      // response = await axios.get(host + "/" + value);
+    log.info("gmsConfiguration", response)
+
     if (response.status != 200 
       || response.data == undefined
       || response.data.obj == undefined) {
@@ -1998,7 +2389,6 @@ const common = {
     
     let entry = response.data.obj.entry;
     let mqtt = response.data.obj.mqtt;
-    let identities = response.data.obj.identities;
     if(entry.tls == true)
       entry.tls = 1
     else
@@ -2010,12 +2400,24 @@ const common = {
       mqtt.tls = 0;
 
     this.config.hostname = entry.host;
+    localStorage.setItem("hostname", this.config.hostname);
+
     this.config.apiPort = entry.port;
+    localStorage.setItem("apiPort", this.config.apiPort);
+
     this.config.hostTls = entry.tls;
+    localStorage.setItem("hostTls", this.config.hostTls);
+
     this.config.mqttHost = mqtt.host;
+    localStorage.setItem("mqttHost", this.config.mqttHost);
+
     this.config.mqttPort = mqtt.port;
+    localStorage.setItem("mqttPort", this.config.mqttPort);
+
     this.config.mqttTls = mqtt.tls;
-    return identities;
+    localStorage.setItem("mqttTls", this.config.mqttTls);
+
+    return response.data.obj;
   },
 
   async gmsGetUser(key){
@@ -2150,6 +2552,284 @@ const common = {
     {
       this.data.maxSecretGroupUpdateTime = groupModel.updatetime;
     }
+  },
+
+  async AddContact(contactInfo){
+    let result = await this.api.AddContact(this.data.login.access_token, 
+                                          contactInfo.matrix_id,
+                                          true,
+                                          contactInfo.display_name,
+                                          contactInfo.email,
+                                          contactInfo.mobile,
+                                          contactInfo.telephone,
+                                          contactInfo.company,
+                                          contactInfo.title);
+    log.info("AddContact", result)
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    let item = result.data.obj;
+    let contactModelValue = await servicemodels.ContactModel(item);
+    await contactModelValue.save();
+    ipcRenderer.send("updateContact")
+    return true;
+  },
+
+  async GetAllContact(){
+    let result;
+    let updateTime = await Contact.GetMaxUpdateTime();
+    let sequenceID = 0;
+    let contactModel;
+    let existModel = null;
+    while(1){
+      result = await this.api.IncrementContact(this.data.login.access_token, updateTime, sequenceID);
+      log.info("GetAllContact", result)
+      if (!result.ok || !result.success) {
+        await Contact.DeleteAllContact();
+        return result;
+      }
+      for(let item of result.data.results){
+        sequenceID++;
+        if(item.del == 1)
+        {
+          await Contact.DeleteContact(item.contactMatrixId);
+          continue;
+        }
+        contactModel = await servicemodels.ContactModel(item);
+        existModel = await Contact.GetContactInfo(contactModel.matrix_id);
+        if(existModel && existModel.avatar_url){
+          contactModel.avatar_url = existModel.avatar_url;
+        }
+        await contactModel.save();
+      }
+      if(!result.data.hasNext)
+        return;
+      //updateTime = result.data.obj.updateTime;
+    }
+  },
+
+  async DeleteContact(matrixID){
+    let result = await this.api.DeleteContact(this.data.login.access_token, matrixID);
+    log.info("DeleteContact", result);
+    console.log(result)
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await Contact.DeleteContact(matrixID);
+    return true;
+  },
+
+  async UpdateContact(matrixID,
+                      remarkName,
+                      email,
+                      mobile,
+                      telephone,
+                      company,
+                      title){
+    let contactInfo = await Contact.GetContactInfo(matrixID);
+    if(!contactInfo)
+        return;
+    if(contactInfo.display_name == remarkName &&
+      contactInfo.email == email &&
+      contactInfo.mobile == mobile &&
+      contactInfo.telephone == telephone &&
+      contactInfo.company == company &&
+      contactInfo.title == title)
+      return true;
+    
+    let result = await this.api.UpdateContact(this.data.login.access_token,
+                                              matrixID,
+                                              contactInfo.contact_id,
+                                              remarkName,
+                                              email,
+                                              mobile,
+                                              telephone,
+                                              company,
+                                              title);
+    log.info("UpdateContact", result);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    await Contact.UpdateContact(matrixID,
+                                remarkName,
+                                email,
+                                mobile,
+                                telephone,
+                                company,
+                                title);
+    ipcRenderer.send("updateContact")
+    return true;
+  },
+
+  async addRoomToContact(roomID){
+    let result = await this.api.addRoomToContact(this.data.login.access_token, roomID);
+    log.info("addRoomToContact", result);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    let room = result.data.obj;
+    let roomModel = await servicemodels.ContactRoom(room);
+    roomModel.save();
+  },
+
+  async deleteRoomFromContact(roomID){
+    let result = await this.api.deleteRoomFromContact(this.data.login.access_token, roomID);
+    log.info("deleteRoomFromContact", result);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    console.log(roomID)
+    await ContactRoom.DeleteByRoomID(roomID)
+  },
+
+  async getAllContactRooms(){
+    let updateTime = await ContactRoom.GetMaxUpdateTime();
+    let sequenceID = 0;
+    let perPage = 20;
+    let bNext = true;
+    while(bNext){
+      let result = await await this.api.updateRoomFromContact(this.data.login.access_token, 
+                                                              'updateContactRoom', 
+                                                              updateTime, 
+                                                              perPage, 
+                                                              sequenceID);
+      log.info("getAllContactRooms", result);
+      if (!result.ok || !result.success) {
+        return false;
+      }
+      bNext = result.data.hasNext;
+      for(let item of result.data.results){
+        sequenceID++;
+        if(item.del == 1){
+          await ContactRoom.DeleteByRoomID(item.roomId);
+          continue;
+        }
+        let roomModel = await servicemodels.ContactRoom(item);
+        await roomModel.save();
+      }
+    }
+  },
+
+  async updateRoomFromContact(updateTime, perPage, sequenceID){
+    let result = await this.api.updateRoomFromContact(this.data.login.access_token, 
+                                                'updateContactRoom', 
+                                                updateTime, 
+                                                perPage, 
+                                                sequenceID);
+    log.info("updateRoomFromContact", result);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    for(let item of result.data.results){
+      if(item.del == 0)
+        continue;
+      let roomModel = await servicemodels.ContactRoom(item);
+      await roomModel.save();
+    }
+  },
+
+  async getContactSetting(){
+    let result = await this.api.getContactSetting(this.data.login.access_token);
+    log.info("getContactSetting", result);
+    if (!result.ok || !result.success) {
+      return false;
+    }
+    return result;
+  },
+
+  async gmsHomeServers(filter) {
+    //var host = global.localStorage.getItem("app_server");
+    var response = await axios.post("https://gms.each.chat/gms/v1/matrix/servernames", 
+      {
+        filters: filter,
+        sortOrder: 1,
+        sequenceId: 0,
+        perPage: 50
+      }
+    );
+    console.log("============== response is ", response);
+    return response;
+  },
+
+  async getBindType(type){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind/status", 
+        {
+          bind_type: type
+        },
+        {
+          headers:{
+            Authorization: "Bearer " + this.data.login.access_token
+          }
+        });
+  },
+
+  async auth2Bind(type, authCode){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    let accessToken = localStorage.getItem("mx_access_token");
+    if(type == "weixin") {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
+      {
+        bind_type: type,
+        auth_code: authCode,
+        device_type: "desktop"
+      },
+      {
+        headers:{
+          Authorization: "Bearer " + accessToken
+        }
+      });
+    }
+    else {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/bind", 
+      {
+        bind_type: type,
+        auth_code: authCode
+      },
+      {
+        headers:{
+          Authorization: "Bearer " + accessToken
+        }
+      });
+    }
+  },
+
+  async auth2Login(type, authCode){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    if(type == "m.login.OAuth2.weixin") {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login", 
+      {
+        type: type,
+        auth_code: authCode,
+        device_type: "desktop"
+      });
+    }
+    else {
+      return axios.post(homeServerUel + "/_matrix/client/r0/login", 
+      {
+        type: type,
+        auth_code: authCode
+      });
+    }
+  },
+
+  async auth2Unbind(type){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/login/oauth2/unbind ", 
+    {
+      bind_type: type
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
+  },
+
+  async getLoginType(){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.get(homeServerUel + "/_matrix/client/r0/login", 
+        {});
   }
 };
 

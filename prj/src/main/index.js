@@ -1,10 +1,12 @@
-import { app, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
+import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import axios from "axios"
-import fs from 'fs'
+import fs from 'fs-extra'
 import * as path from 'path'
-import {services } from '../packages/data/index.js';
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
-
+import {ChildWindow} from './childwindow.js'
+app.allowRendererProcessReuse = false;
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+app.commandLine.appendSwitch('ignore-certificate-errors');
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -14,7 +16,11 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
-let mainPageWindow
+let noticeWindow
+let noticeInfo = {}
+let noticeHeight
+let noticeWindowKeepShow = false
+let assistWindow
 let soloPage = null
 let favouriteDetailWindow
 let reportRelationWindow
@@ -23,59 +29,97 @@ let flashIconTimer = null;
 let iconPath 
 let soundPath
 let notificationIco
+let screenSize
 let notification = null
 var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 let isLogin = false;
+let toHide = false;
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
+  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
   if(process.platform == 'darwin'){
-    iconPath = "../../static/Img/Main/macMenuIcon.png";
+    iconPath = "../../static/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
     iconPath = "../../static/Img/Main/icon.png";
+    emptyIconPath = "../../static/Img/Main/logo-notice.png";
   }
-  
-  emptyIconPath = "../../static/Img/Main/logo-empty.ico";
   soundPath = "../../static/sound.wav";
   notificationIco = "../../static/Img/Main/logo@2x.png";
+  iconPath = path.join(__dirname, iconPath);
+  emptyIconPath = path.join(__dirname, emptyIconPath);
+  soundPath = path.join(__dirname, soundPath);
+  notificationIco = path.join(__dirname, notificationIco);
 }else{
-  iconPath = "/static/Img/Main/logo@2x.ico";
+  iconPath = "/Img/Main/logo@2x.ico";
+  emptyIconPath = "/Img/Main/logo-empty.png";
   if(process.platform == 'darwin'){
-    iconPath = "/static/Img/Main/macMenuIcon.png";
+    iconPath = "/Img/Main/IconTemplate@3x.png";
   }
   else if(process.platform == 'linux') {
-    iconPath = "/static/Img/Main/icon.png";
+    iconPath = "/Img/Main/icon.png";
+    emptyIconPath = "/Img/Main/logo-notice.png";
   }
-  emptyIconPath = "/static/Img/Main/logo-empty.ico";
-  soundPath = "/static/sound.wav";
-  notificationIco = "/static/Img/Main/logo@2x.png";
+  soundPath = "/sound.wav";
+  notificationIco = "/Img/Main/logo@2x.png";
+
+  iconPath = path.join(__static, iconPath);
+  emptyIconPath = path.join(__static, emptyIconPath);
+  soundPath = path.join(__static, soundPath);
+  notificationIco = path.join(__static, notificationIco);
 }
 
-let iShouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-  console.log("isShouldQuit ", iShouldQuit);
-  try{
-    if(isLogin) {
-      mainPageWindow.show();
-      mainPageWindow.focus();
-    }
-    else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
-    return true;
-  }
-  catch(error) {
-    console.log("========= ", error);
-    return true;
-  }
-});
-console.log("isShouldQuit: " + iShouldQuit)
-if (iShouldQuit) {
-  app.exit();
-}
+const imgViewPageWinURL = process.env.NODE_ENV === 'development'
+? `http://localhost:9080/#/ImgView`
+: `file://${__dirname}/index.html#ImgView`;
 
+const trayNoticeURL = process.env.NODE_ENV === 'development'
+? `http://localhost:9080/#/trayNotice`
+: `file://${__dirname}/index.html#trayNotice`;
+
+if(process.platform != 'darwin') {
+  const singleInstanceLock = app.requestSingleInstanceLock();
+  if(!singleInstanceLock) {
+    app.quit();
+  }
+  else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+        try{
+          mainWindow.show();
+          mainWindow.focus();
+          return true;
+        }
+        catch(error) {
+          console.log("========= ", error);
+          return true;
+        }
+    })
+  }
+}
 //ClearDB(1);
+
+function setImgToNormalIcon() {
+  try {
+    if(appIcon) {
+      appIcon.setImage(iconPath);
+    }
+  }
+  catch(e) {
+    console.log("setImgToNormalIcon Exception and details is ", e);
+  }
+}
+
+function setImgToFlashIcon() {
+  try {
+    if(appIcon) {
+      appIcon.setImage(emptyIconPath);
+    }
+  }
+  catch(e) {
+    console.log("setImgOfFlashIcon Exception and details is ", e);
+  }
+}
 
 let resizableValue = false;
 
@@ -90,57 +134,158 @@ const queue = new Bobolink({
 });
 let timeTmp = 0;
 let countTmp = 1;
+let clickQuit = false;
+
+function checkTrayLeave() {
+  if(!noticeWindow) return;
+  clearInterval(leaveInter);
+  leaveInter = setInterval(() => {
+    trayBounds = appIcon.getBounds();
+    point = screen.getCursorScreenPoint();
+    if(!(trayBounds.x < point.x && trayBounds.y < point.y && point.x < (trayBounds.x + trayBounds.width) && point.y < (trayBounds.y + trayBounds.height))) {
+      clearInterval(leaveInter);
+      isLeave = true;
+      console.log("======notice hide");
+      if(!noticeWindowKeepShow) {
+        noticeWindow.hide();
+      }
+    }
+  }, 100);
+}
 
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
 const ipcMain = require('electron').ipcMain;
+
 ipcMain.on('showMainPageWindow', function(event, arg) {
-  mainPageWindow = new BrowserWindow({
-    minHeight:600,
-    minWidth:960,
-    height: 600,
-    useContentSize: true,
-    width:960,
-    webPreferences: {
-      webSecurity:false,
-    },
-    frame:false,
-    icon: path.join(__dirname, iconPath)
-  })
+  if(!mainWindow) return;
   isLogin = true;
-  const mainPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/main`
-  : `file://${__dirname}/index.html#main`
-  mainPageWindow.hide();
-  mainPageWindow.loadURL(mainPageWinURL);
-  //mainPageWindow.webContents.on('did-finish-load', function(){
-    mainWindow.close();
-    mainPageWindow.show();
-  //});
-  openDevToolsInDevelopment(mainPageWindow);
+  mainWindow.hide();
+  mainWindow.setResizable(true);
+  mainWindow.setMinimumSize(720, 600);
+  mainWindow.setSize(960, 600);
+  mainWindow.center();
+  // mainWindow.webContents.on('did-finish-load', function(){
+  // mainWindow.maximize();
+  mainWindow.show();
+  // });
+  openDevToolsInDevelopment(mainWindow);
   // 托盘
-  appIcon = new Tray(path.join(__dirname, iconPath));
+  appIcon = new Tray(iconPath);
 
   appIcon.on('mouse-move', function(event, position){
-    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
-    // if(isLeave) {
-    //   console.log("****************************************")
-    //   isLeave = false;
-    //   checkTrayLeave();
-    // }
+    if(!noticeWindow) return;
+    if(process.platform == "win32") {
+      if(isLeave) {
+        console.log("=========noticewindowdinfo ", noticeInfo)
+        if(noticeInfo && Object.keys(noticeInfo).length == 0) {
+          noticeWindow.hide();
+        }
+        else {
+          isLeave = false;
+          checkTrayLeave();
+          console.log("======notice show", position);
+          let showX = screenSize.width - position.x > 260 ? position.x + 20 : screenSize.width - 20 - 240 ;
+          let showY = screenSize.height - noticeHeight;
+          console.log("final show posision ", screenSize.width - 20 - 240, " y ", screenSize.height - noticeHeight)
+          noticeWindow.setPosition(showX, showY)
+          noticeWindow.setAlwaysOnTop(true);
+          noticeWindow.show();
+        }
+      }
+    }
   });
 
   let contextMenu = Menu.buildFromTemplate([
     {
+      label: "显示主界面",
+      click: ()=> {
+        showMain();
+      }
+    },
+    {
+      label: "注销",
+      click: function() {
+        mainWindow.webContents.send("LogoutMenuItemClick");
+      }
+    },
+    {
       label: "退出",
       click: function() {
+        clickQuit = true;
+        clearFlashIconTimer();
+        setImgToNormalIcon();
+        ipcMain.removeAllListeners();
+        
+        mainWindow = null;
+        noticeWindow = null;
+        assistWindow = null;
+        soloPage = null;
+        favouriteDetailWindow = null;
+        reportRelationWindow = null;
+        
         app.quit();
       }
     }
   ]);
 
+  if(process.platform == 'darwin'){
+    nativeTheme.on('updated', () => {
+      if(nativeTheme.shouldUseDarkColors) {
+        console.log("i am black")
+        setImgToNormalIcon();
+      }
+      else {
+        console.log("i am white");
+        setImgToNormalIcon();
+      }
+    })
+    var template = [
+      {
+        label: app.name || '',
+        submenu:[
+          {
+            label: `退出${app.name || ''}`,
+            role: "quit"
+          }
+        ]
+      },
+      {
+          label: '编辑',
+          submenu: [
+              {
+
+                  label: '复制',
+                  role: 'copy'
+              },
+              {
+
+                  label: '剪切',
+                  role: 'cut'
+              },
+              {
+                  label: '全选',
+                  role: 'selectAll',
+              },
+              {
+                label: '粘贴',
+                role: 'paste'
+              },
+              {
+
+                label: '撤销',
+                role: 'redo'
+            },
+          ]
+      }
+    ]
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    
+  }
+
+  
   appIcon.setToolTip("EachChat");
   appIcon.setContextMenu(contextMenu);
 
@@ -151,7 +296,44 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   // setAutoRun(true);
 });
 
+ipcMain.on('showLoginBindView', function(){
+  showMain();
+})
+
+ipcMain.on('checkClick', function(event, ids) {
+  if(!mainWindow) return;
+  mainWindow.show();
+  mainWindow.focus();
+  if(ids.length == 1) {
+    mainWindow.webContents.send('jumpToChat', ids[0]);
+  }
+  else{
+    mainWindow.webContents.send('clearAll', ids);
+  }
+})
+
+ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
+  if(!noticeWindow) return;
+  noticeWindowKeepShow = arg;
+  if(!arg && isLeave) {
+    noticeWindow.hide();
+  }
+})
+
+ipcMain.on("updateTrayNotice", function(event, arg) {
+  if(process.platform == "win32" && noticeWindow) {
+    noticeInfo = arg;
+    noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
+    noticeWindow.setSize(240, noticeHeight);
+    let showX = screenSize.width - 20 - 240;
+    let showY = screenSize.height - noticeHeight;
+    noticeWindow.setPosition(showX, showY)
+    noticeWindow.webContents.send("updateTrayNotice", arg);
+  }
+})
+
 ipcMain.on("updateUnreadCount", function(event, arg) {
+  if(!mainWindow) return;
   console.log("==========arg ", arg);
   if(process.platform == 'darwin' && arg != null){
     if(arg == 0) {
@@ -164,72 +346,59 @@ ipcMain.on("updateUnreadCount", function(event, arg) {
       app.dock.setBadge(arg.toString());
     }
   }
-  mainPageWindow.webContents.send("setUnreadCount", arg);
+  else if(process.platform == "linux") {
+    if(arg == 0) {
+      setImgToNormalIcon();
+    }
+    else {
+      setImgToFlashIcon();
+    }
+  }
+  else if(process.platform == "win32") {
+    if(arg == 0) {
+      clearFlashIconTimer();
+      setImgToNormalIcon()
+    }
+  }
+  console.log("==========arg ", arg);
+  mainWindow.webContents.send("setUnreadCount", arg);
 })
 
 ipcMain.on("token-expired", function(event, arg) {
-  if(isLogin) {
-    console.log("logout")
-    if(process.platform == 'darwin'){
-      app.dock.setBadge("");
-    }
-    // services.common.closemqtt();
-    Menu.setApplicationMenu(null)
-    queue.destory();
-    mainWindow = new BrowserWindow({
-      webPreferences: {
-        nodeIntegration: true,//添加这个即可
-      },
-      height: 420,
-      useContentSize: true,
-      width: 360,
-      frame: false,
-      resizable: resizableValue,
-      /**
-       * Across Domains Problem
-       */
-      webPreferences: {webSecurity:false}
-    })
-    mainWindow.hide();
-    mainPageWindow.close();
-    appIcon.destroy();
-    mainWindow.loadURL(winURL);
-    openDevToolsInDevelopment(mainWindow);
-    
-    mainWindow.webContents.on('dom-ready', function(){
-      mainWindow.show();            
-    });
-    isLogin = false;
-  }
+  if(!mainWindow) return;
+  mainWindow.webContents.send("toLogout");
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
+  if(!mainWindow) return;
+  isLogin = false;
+  clearFlashIconTimer();
+  setImgToNormalIcon()
+  if(mainWindow.isFullScreen()) {
+    mainWindow.setFullScreen(false);
+    toHide = false;
+  }
   Menu.setApplicationMenu(null)
-  mainWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
-    height: 420,
-    useContentSize: true,
-    width: 360,
-    frame: false,
-    resizable: resizableValue,
-    /**
-     * Across Domains Problem
-     */
-    webPreferences: {webSecurity:false},
-    icon: path.join(__dirname, iconPath)
-  })
-  mainWindow.hide();
-  mainPageWindow.close();
-  appIcon.destroy();
+  //mainWindow.hide();
+  mainWindow.setMinimumSize(360, 420);
+  if(mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  }
+  mainWindow.setSize(360, 420)
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
-  isLogin = false;
   queue.destory();
+  appIcon.destroy();
   mainWindow.webContents.on('dom-ready', function(){
-    mainWindow.show();            
+    mainWindow.center();
+    mainWindow.show();
   });
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.setResizable(true);
+  }
+  else{
+    mainWindow.setResizable(false);
+  }
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
@@ -242,7 +411,56 @@ ipcMain.on('setAutoRun', function(event, isAutoRun) {
   })
 });
 
-ipcMain.on('showAnotherWindow', function(event, groupId, path) {
+ipcMain.on('showTransTmpWindow', function(event, msgListInfo, path) {
+  var title = "";
+  var tmp = undefined;
+  var width = 615;
+  var height = 508;
+  if(process.platform == "darwin") {
+    height = 470;
+    width = 600;
+  }
+  if(path == "historyMsgList") {
+    title = "聊天记录";
+  }
+  else if(path == "fileList") {
+    title = "文件列表";
+  }
+  else if(path == "searchMessageList") {
+    title = "聊天记录";
+  }
+  else if(path == "searchFilesList") {
+    title = "文件列表";
+  }
+  else if(path == "TransmitMsgList") {
+    title = msgListInfo.title;
+  }
+  tmp = new BrowserWindow({
+    height: height,
+    //useContentSize: true,
+    resizable: false,
+    width:width,
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+      enableRemoteModule: true
+    },
+    frame:true,
+    title:title
+  })
+  const sonPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/` + path
+  : `file://${__dirname}/index.html#` + path;
+  tmp.loadURL(sonPageWinURL);
+  //openDevToolsInDevelopment(soloPage);
+  tmp.webContents.on('did-finish-load', function() {
+    tmp.webContents.send("msgListInfo", msgListInfo.list);
+  });
+  tmp.show();
+});
+
+ipcMain.on('showAnotherWindow', function(event, msgListInfo, path) {
+  console.log("========== msgListInfo ", msgListInfo);
   var title = "";
   var width = 615;
   var height = 508;
@@ -263,56 +481,81 @@ ipcMain.on('showAnotherWindow', function(event, groupId, path) {
     title = "文件列表";
   }
   else if(path == "TransmitMsgList") {
-    title = "聊天记录";
+    title = msgListInfo.title;
   }
-  soloPage = new BrowserWindow({
-    height: height,
-    //useContentSize: true,
-    resizable: resizableValue,
-    width:width,
-    webPreferences: {webSecurity:false},
-    frame:true,
-    title:title
-  })
-  const sonPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + path
-  : `file://${__dirname}/index.html#` + path;
-  soloPage.loadURL(sonPageWinURL);
-  //openDevToolsInDevelopment(soloPage);
-  soloPage.webContents.on('did-finish-load', function() {
-    soloPage.webContents.send("distGroupInfo", groupId);
-  });
-  soloPage.show();
+  if(!soloPage) {
+    soloPage = new BrowserWindow({
+      height: height,
+      //useContentSize: true,
+      resizable: false,
+      width:width,
+      webPreferences: {
+        webSecurity:false,
+        nodeIntegration:true,
+        enableRemoteModule: true
+      },
+      frame:true,
+      title:title
+    })
+    const sonPageWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + path
+    : `file://${__dirname}/index.html#` + path;
+    soloPage.loadURL(sonPageWinURL);
+    //openDevToolsInDevelopment(soloPage);
+    soloPage.webContents.on('did-finish-load', function() {
+      soloPage.webContents.send("msgListInfo", msgListInfo.list);
+    });
+    soloPage.show();
+    soloPage.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      soloPage.hide();
+    })
+  }
+  else {
+    soloPage.setTitle(title);
+    soloPage.webContents.send("msgListInfo", msgListInfo.list);
+    soloPage.show();
+  }
 });
 
 ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
+  if(!soloPage) return;
   soloPage.webContents.send("searchAddedMembers", selectedGroupIds);
   soloPage.focus();
 })
 
 ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
+  if(!soloPage) return;
   soloPage.webContents.send("searchAddedSenders", selectedSenderIds);
   soloPage.focus();
 })
 
 ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
-  mainPageWindow.webContents.send("SearchAddSenders", selectedSenderIds);
-  mainPageWindow.focus();
+  if(!mainWindow) return;
+  mainWindow.webContents.send("SearchAddSenders", selectedSenderIds);
+  mainWindow.focus();
 })
 
 ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
-  mainPageWindow.webContents.send("SearchAddGroup", selectedGroupIds);
-  mainPageWindow.focus();
+  if(!mainWindow) return;
+  mainWindow.webContents.send("SearchAddGroup", selectedGroupIds);
+  mainWindow.focus();
 })
 
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
+  if(!mainWindow) return;
   console.log("=============== ", transmitInfoStr);
-  mainPageWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
-  mainPageWindow.focus();
+  mainWindow.webContents.send("transmitFromSoloDlg", transmitInfoStr);
+  mainWindow.focus();
 })
 
 ipcMain.on("favourite-update-chatlist", function(event, newMsgInfo) {
-  mainPageWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
+  if(!mainWindow) return;
+  mainWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
 })
 
 ipcMain.on('AnotherClose', function(event, arg) {
@@ -322,30 +565,92 @@ ipcMain.on('AnotherClose', function(event, arg) {
 ipcMain.on('AnotherMin', function(event, arg) {
   soloPage.minimize();
 });
+
+ipcMain.on('imageViewerFav', function(event, toFavEvent) {
+  if(!mainWindow) return;
+  mainWindow.webContents.send("toFavImageViewer", toFavEvent);
+});
+
+ipcMain.on('imageViewerTransmit', function(event, toTransmitEvent) {
+  if(!mainWindow) return;
+  mainWindow.webContents.send("toTransmitImageViewer", toTransmitEvent);
+  mainWindow.focus();
+});
+
+ipcMain.on('showImageViewWindow', function(event, imageInfos, distImageInfo) {
+  if(!assistWindow) return;
+  console.log("=======showImageViewWindow")
+  // assistWindow.webContents.on('did-finish-load', function() {
+  assistWindow.webContents.send("timelines", imageInfos, distImageInfo, screenSize);
+  // });
+  assistWindow.show();
+  assistWindow.center();
+})
+
+ipcMain.on('showPersonalImageViewWindow', function(event, url) {
+  if(!assistWindow) return;
+  console.log("=======showPersonalImageViewWindow")
+  // assistWindow.webContents.on('did-finish-load', function() {
+  assistWindow.webContents.send("personalUrl", url, screenSize);
+  // });
+  assistWindow.show();
+  assistWindow.center();
+})
+
+ipcMain.on('leaveGroup', function(event, roomId) {
+  if(!mainWindow) return;
+  mainWindow.webContents.send("roLeaveRoom", roomId);
+})
+
+ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
+  console.log("*** updage size is ", sizeInfo);
+  if(isHeaderImg) {
+    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 48, true);
+  }
+  else {
+    assistWindow.setSize(parseInt(sizeInfo.w) + 18, parseInt(sizeInfo.h) + 98, true);
+  }
+  assistWindow.center();
+})
+
 // 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
-    favouriteDetailWindow = new BrowserWindow({
-      webPreferences: {
-        nodeIntegration: true,//添加这个即可
-      },
-    height: 468,
-    resizable: resizableValue,
-    width:600,
-    webPreferences: {webSecurity:false},
-    //frame:false,
-    title:"收藏详情"
+    if(!favouriteDetailWindow){
+      favouriteDetailWindow = new BrowserWindow({
+        height: 468,
+        resizable: resizableValue,
+        width:600,
+        fullscreenable: false,
+        webPreferences: {
+          webSecurity:false,
+          nodeIntegration:true,
+          enableRemoteModule: true
+        },
+        //frame:false,
+        title: collectionInfo.title  
+      })
+    const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + 'favouriteDetail'
+    : `file://${__dirname}/index.html#` + 'favouriteDetail';
+    favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
+    //openDevToolsInDevelopment(favouriteDetailWindow);
+    favouriteDetailWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      favouriteDetailWindow.hide();
+    })
     
-  })
-  const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + 'favouriteDetail'
-  : `file://${__dirname}/index.html#` + 'favouriteDetail';
-  favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
-  //openDevToolsInDevelopment(favouriteDetailWindow);
-  favouriteDetailWindow.webContents.on('did-finish-load', function() {
-    favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
-  });
+    favouriteDetailWindow.webContents.on('did-finish-load', function() {
+      favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
+    });
+  }
+    
+  favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
   favouriteDetailWindow.show();
-  openDevToolsInDevelopment(favouriteDetailWindow);
+
 });
 
 ipcMain.on('favouriteDetailClose', function(event, arg) {
@@ -357,49 +662,61 @@ ipcMain.on('favouriteDetailMin', function(event, arg) {
 });
 // 汇报关系窗口
 ipcMain.on('showReportRelationWindow', function(event, leaders) {
-  reportRelationWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
-    height: 340,
-    resizable: resizableValue,
-    width: 520,
-    webPreferences: {webSecurity:false},
-    //frame:false,
-    title:"汇报关系"
-  })
-  const reportRelationWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + 'reportRelationContent'
-  : `file://${__dirname}/index.html#` + 'reportRelationContent';
-  reportRelationWindow.loadURL(reportRelationWinURL);
-  //openDevToolsInDevelopment(reportRelationWindow);
-  reportRelationWindow.webContents.on('did-finish-load', function() {
-    reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
-  });
+  if(!reportRelationWindow){
+    reportRelationWindow = new BrowserWindow({
+      height: 340,
+      resizable: resizableValue,
+      width: 520,
+      fullscreenable: false,
+      webPreferences: {
+        webSecurity:false,
+        nodeIntegration:true,
+        enableRemoteModule: true
+      },
+      //frame:false,
+      title:"汇报关系"
+    })
+    const reportRelationWinURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/#/` + 'reportRelationContent'
+    : `file://${__dirname}/index.html#` + 'reportRelationContent';
+    reportRelationWindow.loadURL(reportRelationWinURL);
+    reportRelationWindow.webContents.on('did-finish-load', function() {
+      reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
+    });
+    reportRelationWindow.on("close", (event) => {
+      if(clickQuit){
+        app.quit()
+        return;
+      }
+      event.preventDefault();
+      reportRelationWindow.hide();
+    })
+  }
+  reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
   reportRelationWindow.show();
-  openDevToolsInDevelopment(reportRelationWindow);
+  //openDevToolsInDevelopment(reportRelationWindow);
 });
 
 ipcMain.on("showNotice", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
-  if(process.platform == 'darwin'){
-    if(!mainPageWindow.isFocused()) {
+  if(process.platform == 'darwin' || process.platform == 'linux'){
+    if(!mainWindow.isFocused()) {
       if(notification != null) {
         notification.close();
       }
       notification = new Notification({
         title: title,
         body: contnet,
-        icon: path.join(__dirname, notificationIco),
-        sound: path.join(__dirname, soundPath)
+        icon: notificationIco,
+        sound: soundPath
       })
       notification.show();
       setTimeout(() => {
         notification.close();
-      }, 2000)
+      }, 4000)
       notification.on("click", () => {
-        mainPageWindow.show();
+        mainWindow.show();
       })
     }
   }
@@ -408,15 +725,15 @@ ipcMain.on("showNotice", (event, title, contnet) => {
 
 ipcMain.on("stopFlash", (event) => {
   clearFlashIconTimer();
-  appIcon.setImage(path.join(__dirname, iconPath));
+  setImgToNormalIcon();
 })
 
 // 闪烁任务栏
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
-  if(!mainPageWindow.isFocused()) {
-    mainPageWindow.flashFrame(true);
+  if(!mainWindow.isFocused()) {
+    mainWindow.flashFrame(true);
   }
   
   clearFlashIconTimer();
@@ -424,31 +741,32 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
   flashIconTimer = setInterval(function() {
     count++;
     if (count % 2 === 0) {
-      appIcon.setImage(path.join(__dirname, emptyIconPath));
+      setImgToFlashIcon()
     } else {
-      appIcon.setImage(path.join(__dirname, iconPath));
+      setImgToNormalIcon();
     }
   }, 500);
-  if(process.platform == 'darwin'){
-    if(!mainPageWindow.isFocused()) {
-      if(notification != null) {
-        notification.close();
-      }
-      notification = new Notification({
-        title: title,
-        body: contnet,
-        icon: path.join(__dirname, notificationIco),
-        sound: path.join(__dirname, soundPath)
-      })
-      notification.show();
-      setTimeout(() => {
-        notification.close();
-      }, 2000)
-      notification.on("click", () => {
-        mainPageWindow.show();
-      })
-    }
-  }
+
+  // if(!mainWindow.isFocused()) {
+  //   if(notification != null) {
+  //     notification.close();
+  //   }
+  //   notification = new Notification({
+  //     title: title,
+  //     body: contnet,
+  //     icon: path.join(__dirname, notificationIco),
+  //     sound: path.join(__dirname, soundPath)
+  //   })
+  //   notification.show();
+  //   setTimeout(() => {
+  //     notification.close();
+  //   }, 4000)
+  //   notification.on("click", () => {
+  //     clearFlashIconTimer();
+  //     setImgToNormalIcon();
+  //     mainWindow.show();
+  //   })
+  // }
 
 });
 
@@ -472,10 +790,10 @@ function downloadExist(distTemp) {
 }
 
 function showMain() {
-  mainPageWindow.show();
+  mainWindow.show();
 
   clearFlashIconTimer();
-  appIcon.setImage(path.join(__dirname, iconPath));
+  setImgToNormalIcon();
 }
 
 function clearFlashIconTimer() {
@@ -485,6 +803,83 @@ function clearFlashIconTimer() {
 }
 
 const downloadingList = [];
+
+ipcMain.on("updateContact", function(event, args){
+  event.sender.send("updateContact")
+})
+
+ipcMain.on("export_key", function(event, args) {
+  console.log("========================= ", args);
+  var theKey = args[0];
+  var thePath = args[1];
+  var distpath = thePath;
+  // const blob = new Blob([theKey], {
+  //     type: 'text/plain;charset=us-ascii',
+  // });
+  var buffer = theKey;
+  console.log("args is ", buffer);
+  var distPathTmp = distpath + '_tmp';
+  fs.writeFile(distPathTmp, buffer, async err => {
+    if(err) {
+      console.log("ERROR ", err.message)
+      event.sender.send("ERROR", err.message);
+    }
+    else {
+      var finalName = await makeFlieNameForConflict(distpath);
+      console.log("get final name ", finalName)
+      fs.renameSync(distPathTmp, finalName);
+      event.sender.send("exportSuc");
+    }
+  })
+})
+
+ipcMain.on('open-export-dialog', function(event) {
+  dialog.showOpenDialog(mainWindow,{
+    title: "导出到",
+    properties: ["openDirectory"]
+  }).then(files => {
+    console.log("======files is ", files)
+    event.sender.send('exportPath', files);
+  })
+});
+
+ipcMain.on('open-download-recoveryKey-dialog', function(event) {
+  dialog.showOpenDialog(mainWindow,{
+    title: "导出到",
+    properties: ["openDirectory"]
+  }).then(files => {
+    console.log("======files is ", files)
+    event.sender.send('downloadRecoveryKeyPath', files);
+  })
+});
+
+ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
+  // var path = args[0];
+  // var buffer = args[1];
+  // var eventId = args[2];
+  // var needOpen = args[3];
+  var path = path;
+  var buffer = buffer;
+  var eventId = eventId;
+  var needOpen = needOpen;
+  console.log("args is ", buffer);
+  var distPath = path + '_tmp';
+  fs.outputFile(distPath, buffer, async err => {
+    if(err) {
+      console.log("ERROR ", err.message)
+      event.sender.send("ERROR", err.message, eventId);
+    }
+    else {
+      var finalName = await makeFlieNameForConflict(path);
+      console.log("get final name ", finalName)
+      fs.renameSync(distPath, finalName);
+      if(needOpen) {
+          shell.openExternal(finalName);
+      }
+      event.sender.send("SAVED_FILE", finalName, eventId);
+    }
+  })
+})
 
 function downloadFile(event, arg) {
   return function f() {
@@ -569,15 +964,46 @@ function downloadFile(event, arg) {
   }
 }
 
-ipcMain.on("download-upgrade", function(event, arg) {
+let updateVersion = false;
+let updateCancel = false;
+ipcMain.on("cancelUpdatePackage", function(event, arg) {
+  updateCancel = true;
+})
+
+ipcMain.on("intallUpgradePackage", function(event, distPath){
+  if(process.platform == 'win32'){
+    shell.openExternal(distPath);
+  } 
+  else if(process.platform == "darwin") {
+    console.log(distPath)
+    shell.openPath(distPath);
+  }
+  else//(process.platform == 'linux')
+    shell.showItemInFolder(distPath);
+  
+  clickQuit = true;
+  app.quit();
+})
+
+ipcMain.on("toUpgradePackage", function(event, arg) {
+  console.log("before updateCancel", updateCancel)
+  console.log("before updateVersion", updateVersion)
+
+  updateCancel = false;
+  if(updateVersion) return;
+  updateVersion = true;
+  console.log("after updateCancel", updateCancel)
+  console.log("after updateVersion", updateVersion)
+
   // url, this.data.login.access_token, this.api.commonApi.baseURL, this.config.apiPort, targetPath]
-  // console.log("args is ", arg);
+  // console.log("toUpgradePackage is ", arg);
   var distUrl = arg[0];
   var token = arg[1];
   var baseURL = arg[2];
   var port = arg[3];
   // console.log("downloadingList is ", downloadingList);
   var distPath = arg[4];
+  var versionId = arg[5];
   var distTemp = distPath + "_tmp";
 
   if (typeof port == "number") {
@@ -588,12 +1014,12 @@ ipcMain.on("download-upgrade", function(event, arg) {
     baseURL: baseURL + ":" + String(port)
   });
 
-  var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
+  var path = distUrl;
   var headers = {
     Authorization: "Bearer " + token
   };
   var appendix = {
-    timeout: 35000,
+    timeout: 60000 * 5,
     responseType: "stream"
   };
 
@@ -601,6 +1027,41 @@ ipcMain.on("download-upgrade", function(event, arg) {
     headers: headers,
   }, appendix);
 
+  if(fs.existsSync(distTemp)) {
+      fs.unlinkSync(distTemp);
+  }
+
+  if(fs.existsSync(distPath)) {
+      fs.unlinkSync(distPath);
+  }
+
+  try{
+    sender.get(path, config)
+      .then(function (ret) {
+        event.sender.send('getTotleSize', ret.headers['content-length']);
+        ret.data.pipe(fs.createWriteStream(distTemp))
+        .on('finish', function() {
+          updateVersion = false;
+          if(updateCancel){
+            updateCancel = false;
+            return;
+          } 
+          console.log("finished ")
+          
+          try{
+            fs.renameSync(distTemp, distPath);
+            event.sender.send('finishUpdateDownload', distPath);
+          }
+          catch(e) {
+            console.log("rename file failed and details is ", e);
+			event.sender.send('finishUpdateDownload', distPath);
+          }
+        });
+    })
+  }
+  catch(err) {
+    console.log("iiiiiiiiiiiiii ", err)
+  }
 })
 
 ipcMain.on("download-file", function(event, arg) {
@@ -666,74 +1127,6 @@ function downloadAvarar(event, arg) {
     });
   };
 }
-
-ipcMain.on("download-avarar", function(event, arg) {
-  let baseURL = arg[0];
-  queue.put(downloadAvarar(event, arg));
-});
-
-function downloadUserAvarar(event, arg) {
-  return function f() {
-    return new Promise(resolve => {
-      var baseURL = arg[0];
-      // console.log("downloadingList is ", downloadingList);
-      var userId = arg[1];
-      var token = arg[2];
-      var distPath = arg[3];
-      var sequenceId = arg[4];
-      var distTemp = distPath + "_tmp";
-      // console.log("distPath is ", distPath);
-      if(downloadExist(distTemp)) {
-        console.log("distTemp is downloading ", distTemp);
-        return;
-      }
-    
-      if(downloadingList.indexOf(baseURL) != -1){
-        return;
-      }
-      downloadingList.push(baseURL);
-      var headers={Authorization:"Bearer " + token};
-      var appendix = {
-              timeout: 35000,
-              responseType: "stream"
-          };
-      var config = Object.assign({
-        headers: headers,
-      }, appendix);
-      axios.get(baseURL,config)
-        .then(function (ret) {
-          ret.data.pipe(fs.createWriteStream(distTemp)
-            .on('finish', function() {
-              try{
-                if(fs.existsSync(distPath)) {
-                  // fs.unlinkSync(distPath);
-                  resolve(true);
-                }
-                fs.renameSync(distTemp, distPath);
-                var index = downloadingList.indexOf(baseURL);
-                downloadingList.splice(index, 1);
-                // let a = (new Date()).getTime();
-                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadUserAvarar distPath is ", distPath);
-                // timeTmp = a;
-                // countTmp += 1;
-                event.sender.send('updateUserImage', [true, '', userId, distPath, sequenceId]);
-                resolve(true);
-              }
-              catch(e) {
-                console.log("rename file failed and details is ", e);
-              }
-            }));
-        });
-    }).then(ret => {
-      console.log("====ret is ", ret);
-    });
-  };
-}
-
-ipcMain.on("download-user-avarar", function(event, arg) {
-  let baseURL = arg[0];
-  queue.put(downloadUserAvarar(event, arg));
-});
 
 function downloadImage(event, arg) {
   return function f() {
@@ -890,30 +1283,39 @@ ipcMain.on("download-mgs-oimage", function(event, arg) {
 });
 
 ipcMain.on('open-directory-dialog', function(event, arg) {
-  dialog.showOpenDialog(mainPageWindow,{
+  dialog.showOpenDialog(mainWindow,{
     properties: [arg, 'multiSelections']
-  },function(files) {
+  }).then(files=>{
     event.sender.send('selectedItem', files);
   })
 });
+
+ipcMain.on("change-save-file-path", function(event, arg){
+  dialog.showOpenDialog(mainWindow,{
+    properties: [arg, 'openDirectory']
+  }).then(folder=>{
+    event.sender.send('selected-save-file-path', folder);
+  })
+})
+
 ipcMain.on('open-image-dialog', function(event, arg) {
-  dialog.showOpenDialog({
+  dialog.showOpenDialog(mainWindow,{
     properties: [arg, ],
     filters: [
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
-  },function(files) {
+  }).then(files=>{
     event.sender.send('selectedImageItem', files);
   })
 });
 ipcMain.on('open-image-dialog-avatar', function(event, arg) {
-  dialog.showOpenDialog({
+  dialog.showOpenDialog(mainWindow, {
     properties: [arg, ],
     filters: [
       { name: 'Images', extensions: ['bmp', 'jpg', 'webp', 'tif', 'jpeg', 'png', 'gif', 'tiff']},
     ]
-  },function(files) {
-    if(files && files.length > 0) {
+  }).then(files=> {
+    if(files.filePaths && files.filePaths.length > 0) {
       event.sender.send('selectedAvatarImageItem', files);
     }
   })
@@ -926,36 +1328,82 @@ ipcMain.on('modifyGroupImg', function(event, arg) {
 });
 
 ipcMain.on('win-close', function(event, arg) {
-  mainPageWindow.hide();
+  if(!mainWindow) return;
+  mainWindow.blur();
+  mainWindow.hide();
 });
 
 ipcMain.on('win-min', function(event, arg) {
-  mainPageWindow.minimize();
+  mainWindow.blur();
+  mainWindow.minimize();
 });
 
 ipcMain.on('win-max', function(event, arg) {
-  if(mainPageWindow.isMaximized()) {
-    mainPageWindow.unmaximize();
+  console.log("=====index win-max");
+  if(mainWindow && process.platform == 'darwin') {
+    mainWindow.webContents.send("setIsFullScreen", true);
+    mainWindow.setFullScreen(true);
+    mainWindow.setMinimizable(true);
+    mainWindow.setMaximizable(true);
+    mainWindow.setWindowButtonVisibility(true);
   }
   else {
-    mainPageWindow.maximize();
+    if(assistWindow && assistWindow.isVisible()) {
+      if(assistWindow.isMaximized()) {
+        assistWindow.unmaximize();
+      }
+      else {
+        assistWindow.maximize();
+      }
+    }
+    else if(mainWindow.isVisible()) {
+      if(mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+      }
+      else {
+        mainWindow.maximize();
+      }
+    }
   }
 });
+
+ipcMain.on('image-win-close', function(event, arg) {
+  if(!assistWindow) return;
+  assistWindow.hide();
+});
+
+ipcMain.on('image-win-min', function(event, arg) {
+  if(!assistWindow) return;
+  assistWindow.minimize();
+});
+
+ipcMain.on('image-win-max', function(event, arg) {
+  if(assistWindow.isMaximized()) {
+    assistWindow.unmaximize();
+  }
+  else {
+    assistWindow.maximize();
+  }
+});
+
 ipcMain.on('login-win-close', function(event, arg) {
-  if(process.platform == "darwin") {
+  if(mainWindow && (process.platform == 'linux' || process.platform == "darwin")) {
     mainWindow.hide();
   }
   else {
-    mainWindow.close();
+    clickQuit = true;
+    app.quit();
   }
 });
 
 ipcMain.on('login-win-min', function(event, arg) {
+  if(!mainWindow) return;
   mainWindow.minimize();
 });
 
 ipcMain.on('login-win-max', function(event, arg) {
-  if(mainPageWindow.isMaximized()) {
+  if(!mainWindow) return;
+  if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
   }
   else {
@@ -970,22 +1418,36 @@ function createWindow () {
     resizableValue = true;
   }
 
+  screenSize = screen.getPrimaryDisplay().workAreaSize;
+
   Menu.setApplicationMenu(null)
+
   mainWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,//添加这个即可
-    },
     height: 420,
-    useContentSize: true,
     width: 360,
     frame: false,
-    resizable: resizableValue,
+    fullscreenable: true,
+    fullscreenWindowTitle: true,
+    maximizable: true,
+    minimizable: true,
+    // resizable: true,
     /**
      * Across Domains Problem
      */
-    webPreferences: {webSecurity:false},
-    icon: path.join(__dirname, iconPath)
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+      enableRemoteModule: true
+    },
+    icon: iconPath,
+    title: "亿洽"
   })
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.setResizable(true);
+  }
+  else{
+    mainWindow.setResizable(false);
+  }
   mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
@@ -995,22 +1457,154 @@ function createWindow () {
   });
   
   if(process.platform == 'darwin') {
-    if(mainPageWindow != undefined && mainPageWindow.isFocused()) {
-        let content = mainPageWindow.webContents;
+    if(mainWindow != undefined && mainWindow.isFocused()) {
+        let content = mainWindow.webContents;
         globalShortcut.register('CommandOrControl+V', () => {
           content.paste();
         })
+        globalShortcut.register('CommandOrControl+W', () => {
+          mainWindow.hide();
+        })
+        globalShortcut.register('CommandOrControl+Q', () => {
+          app.quit();
+        })
+        globalShortcut.register('CommandOrControl+M', () => {
+          mainWindow.minimize();
+        })
+        globalShortcut.register('CommandOrControl+H', () => {
+          mainWindow.hide();
+        })
     }
   }
+  else if(process.platform == 'win32') {
+    if(mainWindow && mainWindow.isFocused()) {
+      globalShortcut.register('Escape', () => {
+        mainWindow.hide();
+      })
+    }
+  }
+  app.setAppUserModelId('EachChat');
+  assistWindow = new BrowserWindow({
+    height: 480,
+    width: 480 + 24,
+    frame: false,
+    resizable: true,
+    fullscreenable: false,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegration: true,
+      enableRemoteModule: true
+    },
+    icon: iconPath,
+    show: false,
+    title: "亿洽"
+  })
+  assistWindow.loadURL(imgViewPageWinURL);
+  openDevToolsInDevelopment(assistWindow);
+  
+  assistWindow.on('unmaximize', (event) => {
+    console.log("unmaximize")
+    assistWindow.webContents.send("isNormal", true);
+  })
 
+  assistWindow.on('maximize', (event) => {
+    if(!assistWindow) return;
+    console.log("maximize")
+    assistWindow.webContents.send("isNormal", false);
+  })
+  if(process.platform == "win32") {
+    noticeWindow = new BrowserWindow({
+      height: 52,
+      width: 240,
+      frame: false,
+      resizable: true,
+      webPreferences: {
+        webSecurity: false,
+        nodeIntegration: true,
+        enableRemoteModule: true
+      },
+      icon: iconPath,
+      show: false,
+      title: "亿洽"
+    })
+    noticeWindow.setSkipTaskbar(true);
+    noticeWindow.loadURL(trayNoticeURL);
+    noticeWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+    })
+    openDevToolsInDevelopment(noticeWindow); 
+  }
+  var width = 615;
+  var height = 508;
+  if(process.platform == "darwin") {
+    height = 470;
+    width = 600;
+  }
+
+  soloPage = new BrowserWindow({
+    height: height,
+    //useContentSize: true,
+    resizable: false,
+    width:width,
+    webPreferences: {
+      webSecurity:false,
+      nodeIntegration:true,
+      enableRemoteModule: true
+    },
+    show: false,
+    frame:true
+  })
+  const sonPageWinURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/TransmitMsgList`
+  : `file://${__dirname}/index.html#TransmitMsgList`;
+  soloPage.loadURL(sonPageWinURL);
+  soloPage.on('close', (event) => {
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    soloPage.hide();
+  })
+
+  let childRenderWindow = new ChildWindow();
+  childRenderWindow.createChildWindow(iconPath);
+  ipcMain.on("createChildWindow", function(event, arg){
+    console.log("createChildWindow-------------", arg)
+    let type = arg.type;
+    let size = arg.size;
+    let browserViewUrl = arg.browserViewUrl;
+    if(type == "thirdpartywindow"){
+      const pageUrl = process.env.NODE_ENV === 'development'
+      ? `http://localhost:9080/#/` + 'thirdpartyBind'
+      : `file://${__dirname}/index.html#` + 'thirdpartyBind';
+      childRenderWindow.setMainWindow(mainWindow);
+      childRenderWindow.loadUrl(pageUrl);
+      childRenderWindow.setWindowSize(size);
+      childRenderWindow.createWebViewWindow(browserViewUrl)
+      childRenderWindow.showWindow();
+      if(!isLogin){
+        mainWindow.hide();
+      }
+    }
+    childRenderWindow.childWindow.on('close', (event) => {
+      if(clickQuit){
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      childRenderWindow.childWindow.hide();
+      mainWindow.show();
+    })
+  })
 }
 
 ipcMain.on("openDevTools", function(event) {
   if(mainWindow != null && !mainWindow.isDestroyed()) {
     mainWindow.webContents.openDevTools();
-  }
-  if(mainPageWindow != null && !mainPageWindow.isDestroyed()) {
-    mainPageWindow.webContents.openDevTools();
   }
   if(soloPage != null && !soloPage.isDestroyed()) {
     soloPage.webContents.openDevTools();
@@ -1023,17 +1617,76 @@ ipcMain.on("openDevTools", function(event) {
 function openDevToolsInDevelopment(mainWindow) {
 
   // Open dev tools initially when in development mode
-  if (process.env.NODE_ENV === "development") {
+  if (mainWindow && process.env.NODE_ENV === "development") {
     mainWindow.webContents.on("did-frame-finish-load", () => {
     mainWindow.webContents.once("devtools-opened", () => {
     mainWindow.focus();
     });
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     });
   }
-  mainWindow.on('closed', () => {
-    mainWindow = null
+  mainWindow.on('close', (event) => {
+    if(process.platform == 'darwin') {
+      event.preventDefault();
+      if(mainWindow.isFullScreen()) {
+        mainWindow.setFullScreen(false);
+        toHide = true;
+        return;
+      }
+      else if(!toHide || clickQuit) {
+        app.exit();
+        return;
+      }
+
+    }
+    else if(process.platform == 'linux'){
+      clickQuit = true;
+      app.quit();
+      return;
+    }
+    if(!clickQuit){
+      event.preventDefault();
+      mainWindow.hide();
+    }
+    else {
+      console.log("==========")
+      app.quit();
+    }
+    
   })
+  mainWindow.on('page-title-updated', (event, title) => {
+    event.preventDefault();
+  })
+  mainWindow.on('will-resize', (event) => {
+    if(mainWindow && process.platform == 'darwin'){
+      mainWindow.webContents.send("setIsFullScreen", false);
+      mainWindow.setWindowButtonVisibility(false);
+    }
+  })
+
+  mainWindow.on('leave-full-screen', (event) => {
+    console.log("====333===333===");
+    if(process.platform == 'darwin'){
+      if(toHide) {
+        mainWindow.hide();
+        toHide = false;
+      }
+    }
+  })
+
+  mainWindow.on('unmaximize', (event) => {
+    console.log("unmaximize")
+    if(!mainWindow) return;
+    mainWindow.webContents.send("isNormal", true);
+  })
+
+  mainWindow.on('maximize', (event) => {
+    console.log("maximize")
+    if(!mainWindow) return;
+    mainWindow.webContents.send("isNormal", false);
+    mainWindow.webContents.send("reCalcuate");
+  })
+
 }
 
 app.on('ready', createWindow)
@@ -1045,32 +1698,92 @@ app.on('window-all-closed', () => {
 })
 
 app.on('browser-window-blur', () => {
+  if(mainWindow != undefined) {
+    mainWindow.webContents.send("isBlur");
+  }
   if(process.platform == 'darwin') {
-    if(mainPageWindow != undefined && globalShortcut.isRegistered('CommandOrControl+V')) {
-      globalShortcut.unregister('CommandOrControl+V');
+    if(mainWindow != undefined) {
+      if(globalShortcut.isRegistered('CommandOrControl+V')) {
+        globalShortcut.unregister('CommandOrControl+V');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+W')) {
+        globalShortcut.unregister('CommandOrControl+W');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+Q')) {
+        globalShortcut.unregister('CommandOrControl+Q');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+M')) {
+        globalShortcut.unregister('CommandOrControl+M');
+      }
+      if(globalShortcut.isRegistered('CommandOrControl+H')) {
+        globalShortcut.unregister('CommandOrControl+H');
+      }
+    }
+  }
+  else if(process.platform == 'win32') {
+    if(mainWindow != undefined) {
+      if(globalShortcut.isRegistered('Escape')) {
+        globalShortcut.unregister('Escape');
+      }
     }
   }
 })
 
 app.on('browser-window-focus', () => {
-  if(isLogin) {
-    mainPageWindow.webContents.send("setFocuse");
-    if(process.platform == 'darwin') {
-      if(mainPageWindow != undefined) {
-          let content = mainPageWindow.webContents;
-          globalShortcut.register('CommandOrControl+V', () => {
-            content.paste();
-          })
-      }
-    }
+  if(!mainWindow) return;
   
+  mainWindow.webContents.send("isFocuse");
+  mainWindow.webContents.send("setFocuse");
+  if(process.platform == 'darwin') {
+      let content = mainWindow.webContents;
+      globalShortcut.register('CommandOrControl+V', () => {
+        content.paste();
+      })
+      globalShortcut.register('CommandOrControl+W', () => {
+        if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+          assistWindow.hide();
+        }
+        else {
+          mainWindow.hide();
+        }
+      })
+      globalShortcut.register('CommandOrControl+Q', () => {
+        app.quit();
+      })
+      globalShortcut.register('CommandOrControl+M', () => {
+        if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+          assistWindow.minimize();
+        }
+        else {
+          mainWindow.minimize();
+        }
+      })
+      globalShortcut.register('CommandOrControl+H', () => {
+        if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+          assistWindow.hide();
+        }
+        else {
+          if(!mainWindow) return;
+          mainWindow.hide();
+        }
+      })
+  }
+  else if(process.platform == 'win32') {
+    // globalShortcut.register('Escape', () => {
+    //   if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+    //     assistWindow.hide();
+    //   }
+    //   else {
+    //     mainWindow.hide();
+    //   }
+    // })
   }
 })
 
 app.on('activate', () => {
-  if(isLogin) {
-    mainPageWindow.show();
-    mainPageWindow.webContents.send("setFocuse");
+  if(isLogin && mainWindow) {
+    mainWindow.show();
+    mainWindow.webContents.send("setFocuse");
   }
   else {
     if (mainWindow === null) {
