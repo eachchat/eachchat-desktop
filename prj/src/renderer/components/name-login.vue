@@ -380,12 +380,14 @@ export default {
     },
     methods: {
         showWechatLogin(){
+            ipcRenderer.on("wechat-authcode", this.getWeChatAuthcode)
             ThirdPartyLogin.createWeChat();
             this.bBindWechat = true;
             this.bBindAlipay = false;
         },
 
         showAlipayLogin(){
+            ipcRenderer.on("alipay-authcode", this.getAlipayAuthcode)
             ThirdPartyLogin.createAlipay();
             this.bBindAlipay = true;
             this.bBindWechat = false;
@@ -1857,8 +1859,6 @@ export default {
             var elementButton = document.getElementById('loginButton');
             //this.loginButtonValue = "正在加载数据";
             this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
-            ipcRenderer.removeListener("alipay-authcode", this.getAlipayAuthcode);
-            ipcRenderer.removeListener("wechat-authcode", this.getWeChatAuthcode);
             // this.loginState = "登录成功";
             this.showLoginView = false;
             this.showLoadingView = true;
@@ -1882,9 +1882,6 @@ export default {
     }, 
 
     mounted: async function() {
-        ipcRenderer.on("alipay-authcode", this.getAlipayAuthcode)
-        ipcRenderer.on("wechat-authcode", this.getWeChatAuthcode)
-
         if(window.localStorage) {
             this.organizationAddress = window.localStorage.getItem("Domain") == null ? "" : window.localStorage.getItem("Domain");
         }
