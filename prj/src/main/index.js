@@ -380,7 +380,6 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   }
   Menu.setApplicationMenu(null)
   //mainWindow.hide();
-  mainWindow.setResizable(true);
   mainWindow.setMinimumSize(360, 420);
   if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();
@@ -394,7 +393,12 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     mainWindow.center();
     mainWindow.show();
   });
-  mainWindow.setResizable(true);
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.setResizable(true);
+  }
+  else{
+    mainWindow.setResizable(false);
+  }
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
@@ -1438,8 +1442,12 @@ function createWindow () {
     icon: iconPath,
     title: "亿洽"
   })
-  //mainWindow.setResizable(false);
-  mainWindow.setResizable(false);
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.setResizable(true);
+  }
+  else{
+    mainWindow.setResizable(false);
+  }
   mainWindow.hide();
   mainWindow.loadURL(winURL);
   openDevToolsInDevelopment(mainWindow);
