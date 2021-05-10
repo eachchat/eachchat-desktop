@@ -4,7 +4,6 @@ import log from 'electron-log';
 class ChildWindow{
     constructor(){
         this.childWindow = undefined;
-        this.webView = undefined;
     }
 
     createChildWindow(iconPath){
@@ -36,16 +35,25 @@ class ChildWindow{
     }
 
     createWebViewWindow(url){
-        this.webView = new BrowserView();
-        this.childWindow.setBrowserView(this.webView);
-        this.webView.setBounds({x:0, y:0, width:this.width, height:this.height});
-        this.webView.setAutoResize({width: true,
+        let webView = new BrowserView();
+        let oldWebView = this.childWindow.getBrowserView();
+        console.log("oldwebView", oldWebView)
+        if(oldWebView == null){
+            this.childWindow.setBrowserView(webView);
+        }
+        else{
+            this.childWindow.removeBrowserView(oldWebView);
+            this.childWindow.setBrowserView(webView);
+        }
+        
+        webView.setBounds({x:0, y:0, width:this.width, height:this.height});
+        webView.setAutoResize({width: true,
                                     height: true,
                                     horizontal: true,
                                     vertical: true});
 
-        this.webView.webContents.loadURL(url);
-        this.webView.webContents.on("did-frame-navigate", 
+        webView.webContents.loadURL(url);
+        webView.webContents.on("did-frame-navigate", 
         (event, 
         url,
         isInPlace,
@@ -63,8 +71,6 @@ class ChildWindow{
         if(nIndex == -1) return false;
         let authCode = url.slice(nIndex + 10);
         this.mainWindow.webContents.send("alipay-authcode", authCode);
-        this.webView.webContents.clearHistory();
-        this.webView.webContents.session.clearCache();
         this.childWindow.hide();
         return true;
     }
@@ -75,8 +81,6 @@ class ChildWindow{
         let endIndex = url.indexOf("&", nIndex);
         let authCode = url.slice(nIndex + "code=".length, endIndex);
         this.mainWindow.webContents.send("wechat-authcode", authCode);
-        this.webView.webContents.clearHistory();
-        this.webView.webContents.session.clearCache();
         this.childWindow.hide();
         return true;
     }
