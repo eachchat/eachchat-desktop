@@ -4,6 +4,7 @@ import fs from 'fs-extra'
 import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 import {ChildWindow} from './childwindow.js'
+import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('ignore-certificate-errors');
@@ -1567,33 +1568,30 @@ function createWindow () {
     soloPage.hide();
   })
 
-  let childRenderWindow = new ChildWindow();
-  childRenderWindow.createChildWindow(iconPath);
+  let childRenderWindowBrowser = ChildWindow.createChildWindow(iconPath);
   ipcMain.on("createChildWindow", function(event, arg){
     console.log("createChildWindow-------------", arg)
     let type = arg.type;
-    let size = arg.size;
-    let browserViewUrl = arg.browserViewUrl;
-    if(type == "thirdpartywindow"){
-      const pageUrl = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080/#/` + 'thirdpartyBind'
-      : `file://${__dirname}/index.html#` + 'thirdpartyBind';
-      childRenderWindow.setMainWindow(mainWindow);
-      childRenderWindow.loadUrl(pageUrl);
-      childRenderWindow.setWindowSize(size);
-      childRenderWindow.createWebViewWindow(browserViewUrl)
-      childRenderWindow.showWindow();
-      if(!isLogin){
-        mainWindow.hide();
+    switch(type){
+      case "thirdpartywindow":{
+        let thirdpartywindow = new ThirdPartyWindowBuilder(childRenderWindowBrowser, mainWindow);
+        thirdpartywindow.setArgs(arg);
+        thirdpartywindow.build();
+        if(!isLogin){
+          mainWindow.hide();
+        }
+        break;
       }
+      default:
+        break;
     }
-    childRenderWindow.childWindow.on('close', (event) => {
+    childRenderWindowBrowser.on('close', (event) => {
       if(clickQuit){
         app.quit();
         return;
       }
       event.preventDefault();
-      childRenderWindow.childWindow.hide();
+      childRenderWindowBrowser.hide();
       mainWindow.show();
     })
   })
