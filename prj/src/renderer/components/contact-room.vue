@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="56px" class="contact-header">
-            <p class="contact-header-title">群聊</p>
+            <p class="contact-header-title">{{$t("organization.departmentsListGroupChat")}}</p>
         </el-header>
         <el-main  style="overflow: hidden">
             <el-container class="bottom-container" id="contact-main-container">

@@ -540,7 +540,7 @@ export default {
         color: #999999;
     }
     ::-webkit-scrollbar {
-        /*隐藏滚轮*/
+        
         display: none;
     }
     input:focus{

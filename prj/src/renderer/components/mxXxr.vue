@@ -1667,7 +1667,7 @@ export default {
 
 <style lang="scss" scoped>
     ::-webkit-scrollbar {
-        /*隐藏滚轮*/
+        
         display: none;
     }
     input:focus{

@@ -304,7 +304,7 @@ export default {
         z-index: 0;
     }
     ::-webkit-scrollbar {
-        /*隐藏滚轮*/
+        
         display: none;
     }
     input:focus{

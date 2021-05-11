@@ -30,7 +30,7 @@
                         </div>
                         <div class="users-view" v-if="organizationList[orgIndex].users.length">
                             <div class="users-header">
-                                成员
+                                {{$t("organization.user")}}
                             </div>
                             <RecycleScroller class="managers-List" :items="organizationList[orgIndex].users" :item-size="60" key-field="user_id" v-slot="{ item }">
                                 <div class="manager" @click="userMenuItemClicked(item.user_id)">
