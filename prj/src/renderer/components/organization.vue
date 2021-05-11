@@ -13,7 +13,7 @@
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
-                    <div v-if="searchContacts.length" class='grid-content'>联系人</div>
+                    <div v-if="searchContacts.length" class='grid-content'>{{$t("organization.managersListConatctName")}}</div>
                     <li class="manager"
                         v-for="contact in searchContacts"
                         @click="SearchContactItemClicked(contact.matrix_id)" 
@@ -24,7 +24,7 @@
                         <p  class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
-                    <div v-if="searchUsers.length" class='grid-content'>组织</div>
+                    <div v-if="searchUsers.length" class='grid-content'>{{$t("organization.departmentsListOrganizationName")}}</div>
                     <li class="manager"
                         v-for="manager in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
@@ -64,7 +64,7 @@
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
                         <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
                         <div :class="getInviteRoomClass()">
-                            <p class="department-name">邀请</p>
+                            <p class="department-name">{{$t("organization.departmentsListInvite")}}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -73,7 +73,7 @@
                     <li :class='["department", {"active-tab": this.activeTab == "groupchat"}]'
                         @click="roomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
-                            <p class="department-name">群聊</p>
+                            <p class="department-name">{{$t("organization.departmentsListGroupChat")}}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
