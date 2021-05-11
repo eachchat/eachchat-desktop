@@ -3,8 +3,8 @@ import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
-import {ChildWindow} from './childwindow.js'
-import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
+import {createChildWindow, ChildWindow} from './childwindow.js'
+
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('ignore-certificate-errors');
@@ -1568,32 +1568,16 @@ function createWindow () {
     soloPage.hide();
   })
 
-  let childRenderWindowBrowser = ChildWindow.createChildWindow(iconPath);
-  ipcMain.on("createChildWindow", function(event, arg){
-    console.log("createChildWindow-------------", arg)
-    let type = arg.type;
-    switch(type){
-      case "thirdpartywindow":{
-        let thirdpartywindow = new ThirdPartyWindowBuilder(childRenderWindowBrowser, mainWindow);
-        thirdpartywindow.setArgs(arg);
-        thirdpartywindow.build();
-        if(!isLogin){
-          mainWindow.hide();
-        }
-        break;
-      }
-      default:
-        break;
-    }
-    childRenderWindowBrowser.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      childRenderWindowBrowser.hide();
-      mainWindow.show();
-    })
+  let childRenderWindowBrowser = ChildWindow.createBrowser(iconPath);
+  ipcMain.on("createChildWindow", function(event, args){
+    let mainwindowArgs = {};
+    mainwindowArgs.iconPath = iconPath;
+    mainwindowArgs.mainWindow = mainWindow;
+    mainwindowArgs.isLogin = isLogin;
+    mainwindowArgs.childBrowser = childRenderWindowBrowser;
+    mainwindowArgs.ipcArg = arg;
+    
+    createChildWindow(mainwindowArgs);
   })
 }
 
