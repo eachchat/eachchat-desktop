@@ -488,7 +488,7 @@ export default {
         })
         this.showGroupList = [...sg];
 
-        this.ShowAllGroup(); // todo 分数组
+        this.ShowAllGroup(); 
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
         try{
@@ -669,7 +669,6 @@ export default {
       showAllSearchAllDMChat: false,
       toUpdateMyImg: 0,
       isBlure: false,
-      //需要展示的用户群组
       dealingEventIds: [],
       trayNoticeInfo: {},
       searchChat: undefined,
@@ -677,65 +676,65 @@ export default {
       selfUserId: undefined,
       isFirstLogin: true,
       showImportE2EKeyPage: false,
-      toBottom: false,  //聊天页面是否滚动到最底部
-      showAllSearchAllChat: false,   //复合搜索中是否显示  显示所有聊天相关
-      showSearchAllMember: false,   //复合搜索中是是否显示  显示所有联系人相关
-      showsearchAllFile: false,   //复合搜索中是否是否显示  显示所有文件相关
-      showUserInfoTips: false,   //聊天窗口显示用户信息弹窗
-      isOwn: false,   //用户信息弹窗是否展示的自己的信息
-      userInfo: {},   //用户信息弹窗获取用户信息
-      userInfoPosition: {},   //用户信息弹窗位置
-      userInfoTipKey: 1,   //用户信息弹窗强制更新
-      amr: null,    //播放语音信息控件初始化
-      unreadCount: 0,   //未读消息数
-      cleanSearchKey: false,   //复合搜索是否清理搜索关键字
-      dealedMsgSequenceId:[],   //callback中对已处理过的消息做记录
-      searchSelectedSenderDialogRootDepartments: [],      //聊天记录搜索页面聊天群组过滤信息界面需要的部门信息
-      searchSelectedSenderDialogTitle: "",   //聊天记录搜索页面聊天群组过滤界面title
-      searchSelectedSenders: [],      //聊天记录搜索页面聊天群组过滤界面结果
-      searchAddSenderKey: 199,      //聊天记录搜索页面聊天群组过滤界面强制更新
-      recentGroups: [],      //聊天记录搜索页面发送者过滤界面内容
-      searchSelectedGroupKey: 99,      //聊天记录搜索页面发送者过滤界面强制更新
-      searchSelectedGroupIds:[],      //聊天记录搜索页面发送者过滤界面用户id
-      showSearchSelectedSenderDlg: false,      //是否显示聊天记录搜索页面发送者过滤界面
-      showSearchSelecterDlg: false,      //是否显示聊天记录搜索页面聊天群组过滤界面内容
-      showSearchMessage: true,      //复合搜索内容是否包含消息相关
+      toBottom: false,  
+      showAllSearchAllChat: false,   
+      showSearchAllMember: false,
+      showsearchAllFile: false,
+      showUserInfoTips: false,
+      isOwn: false,
+      userInfo: {},
+      userInfoPosition: {},
+      userInfoTipKey: 1,
+      amr: null,
+      unreadCount: 0,
+      cleanSearchKey: false,
+      dealedMsgSequenceId:[],
+      searchSelectedSenderDialogRootDepartments: [], 
+      searchSelectedSenderDialogTitle: "",
+      searchSelectedSenders: [], 
+      searchAddSenderKey: 199, 
+      recentGroups: [],
+      searchSelectedGroupKey: 99, 
+      searchSelectedGroupIds:[], 
+      showSearchSelectedSenderDlg: false, 
+      showSearchSelecterDlg: false, 
+      showSearchMessage: true,
       showSearchAllChat: true,
       showSearchAllChatMsg: true,
-      showSearchFile: true,      //复合搜索内容是否包含文件相关
-      showSearchPeople: true,      //复合搜索内容是否包含人员相关
-      searchPeopleItems: [],      //复合搜索人员条目
-      searchFileItems: [],      //复合搜索文件条目
-      searchMessageItems: [],      //复合搜索聊天条目
+      showSearchFile: true,
+      showSearchPeople: true,
+      searchPeopleItems: [],
+      searchFileItems: [],
+      searchMessageItems: [],
       searchChatItems: [],
-      needScroll: false,      //群组是否滚动
-      isSearch: false,      //展示是否是复合搜索
+      needScroll: false,
+      isSearch: false,
       isMsgSearch: false,
-      curChat: {},      //当前chat
-      needUpdate: 1,      //页面强制更新（好像没用到）
-      curindex: -1,      //当前索引
-      searchKey: '',      //复合搜索关键字
-      normalGroupList: [],      //没用到
-      encryptGroupList: [],      //没用到
-      showGroupList: [],      //存储获取到的grouplist信息  *重要 群组列总数据
-      topGroupVar: [],      //指定的group信息
-      showImageLayers: false,      //打开图片
-      imageLayersSrcInfo: '',      //打开图片信息
-      clickedGroupList: [],      //没用到
-      isEmpty: true,      //没有群组选中时候右侧占位图片
+      curChat: {},
+      needUpdate: 1,
+      curindex: -1,
+      searchKey: '',
+      normalGroupList: [],
+      encryptGroupList: [], 
+      showGroupList: [],
+      topGroupVar: [],
+      showImageLayers: false,
+      imageLayersSrcInfo: '',
+      clickedGroupList: [],
+      isEmpty: true,
       groupListElement: null,      //dom
-      newMsg: null,      //转发之类的消息信息
-      mqttGroupVar: [],      //一些不完整的group的临时存储
-      searchId: 0,      //复合搜索,
+      newMsg: null,
+      mqttGroupVar: [],  
+      searchId: 0, 
       matrixClient: undefined,
       roomToUser: null,
       bInvites: true,
       bCollections: true,
       bRooms: true,
-      favouriteRooms: [],//置顶列表
+      favouriteRooms: [],
       favouriteIds: [],
-      showFavouriteRooms: [],//显示置顶列表
-      dealShowGroupList:[],//聊天列表
+      showFavouriteRooms: [],
+      dealShowGroupList:[],
       dealShowGroupIds: [],
       showDealGroupList:[],
       showDealGroupListUpdate: 0,
@@ -2029,7 +2028,7 @@ export default {
         }
       }
     },
-    updateGroupContent: async function(item) { //todo 更新消息
+    updateGroupContent: async function(item) {
       if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
         this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
       }
@@ -3167,7 +3166,7 @@ export default {
         let event = curMsg.event;
         let chatGroupMsgType = event.type;
         var chatGroupMsgContent = event.content;
-        // 数据库缺省type = 0 
+        // type = 0 
         /*
             // src/TextForEvent.js
             'm.room.canonical_alias': textForCanonicalAliasEvent,

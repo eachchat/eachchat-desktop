@@ -252,7 +252,6 @@ export default {
                 }
 
 
-                //todo  更精确的权限控制
                 // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
                 //     try {
                 //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);
@@ -290,10 +289,7 @@ export default {
                     return alert('该用户已存在');
                 }
             }
-            // if (!room) {
-            //     console.error('no room')
-            //     return alert('无此房间');
-            // }
+
             let promises = [];
             targetIds.forEach(id => {
 
@@ -357,7 +353,6 @@ export default {
 
             const goOut = this.existInInviteRoom(targetIds[0]);
             if (goOut) {
-                // alert('该用户已给您发送过邀请，请在邀请列表查看');
                 this.loading = false;
                 this.que = this.choosenMembers[0];
                 this.anf = true;
@@ -366,7 +361,7 @@ export default {
             }
 
             const createRoomOptions = {inlineErrors: true};
-            //加密处理
+   
             if (this.erpDm) {
                 console.log('走了加密')
                 createRoomOptions.encryption = true;

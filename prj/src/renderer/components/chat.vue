@@ -695,7 +695,6 @@ export default {
                         }));
                     }
                     if(showRedact) {
-                        //todo 删除或撤回
                         console.log('查看当前信息', msgItem);
                         let text = '删除';
                         let timeLimit = 2 * 60 * 1000;
@@ -3346,7 +3345,6 @@ export default {
         {
             let msgList = [];
             while(this._timelineWindow.canPaginate(type)){
-                //获取历史消息
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
@@ -3374,7 +3372,6 @@ export default {
             await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
             let msgList = this._getEvents();
             while(this._timelineWindow.canPaginate(type)){
-                //获取历史消息
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
@@ -3928,7 +3925,6 @@ export default {
                 modules: {
                     toolbar: false,
                      clipboard: {
-                        // 粘贴版，处理粘贴时候带图片
                         matchers: [[Node.ELEMENT_NODE, this.handleCustomMatcher]],
                     },
                     // imageDrop: true,

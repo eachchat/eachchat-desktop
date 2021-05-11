@@ -519,13 +519,11 @@ export default {
         departmentMenuItemClicked(department) {
             this.activeTab = 'department'
             if(department.display_name == this.organizeMenuName){
-                //组织架构模板
                 this.bOrganizeShow = true;
                 this.bContactRoomShow = false;
                 this.bInviteRoomShow = false;
             }
             else if(department.display_name == this.contactMenuName){
-                //联系人模板
                 this.bOrganizeShow = false;
                 this.bContactRoomShow = false;
                 this.bInviteRoomShow = false;

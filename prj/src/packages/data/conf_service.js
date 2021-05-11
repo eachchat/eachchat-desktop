@@ -4,19 +4,6 @@ import {environment} from './environment.js';
 import {Appendzero} from '../core/Utils.js';
 
 class ConfService {
-    // 放弃，梁杰有替代方案
-    // 配置和数据库放在%localappdata%/Workly/EachChat
-    // 缓存参照微信，放在用户文档中的EachChatFiles中，目录结构：
-        // 用户ID命名的文件夹：
-        //     Files：聊天中的文档，按月分文件夹
-        //     General：头像和高清头像
-                    // HeadImage为头像缩略图
-                    // HDHeadImage为头像原图
-        //     Image：聊天中的图片，按月分文件夹，参照teams和飞书，不支持聊天内图片的同时预览
-                    // Thumb放置缩略图
-                    // MImage放置M Size图片
-                    // OImage放置原图
-
     constructor() {
         this.appName = 'EachChat2.0';
         this.companyName = 'Workly';

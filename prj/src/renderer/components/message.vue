@@ -960,8 +960,6 @@ export default {
             // console.log("this.msg.getType() is ", this.msg.getType())
             // console.log("chatGroupMsgType.type is ", chatGroupMsgType)
             // console.log("chatGroupMsgContent.type is ", chatGroupMsgContent.msgtype)
-            // console.log("this. msg is ", this.msg)
-            // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
             {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1628,12 +1626,10 @@ export default {
         display: none;
     }
     
-    /* 表示总长度背景色 */
     progress::-webkit-progress-bar {
         background-color: rgba(210, 215, 222, 1);
     }
 
-    /* 表示已完成进度背景色 */
     progress::-webkit-progress-value {
         background: rgba(36, 179, 107, 1)
     }

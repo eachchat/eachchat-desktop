@@ -663,12 +663,10 @@ export default {
         border-radius: 10px;
     }
     
-    /* 表示总长度背景色 */
     progress::-webkit-progress-bar {
         background-color: rgba(210, 215, 222, 1);
     }
 
-    /* 表示已完成进度背景色 */
     progress::-webkit-progress-value {
         background: rgba(36, 179, 107, 1)
     }

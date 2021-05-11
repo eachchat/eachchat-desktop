@@ -298,7 +298,7 @@ export default {
         async createXie() {
             // if (this.loading) return;
             // this.loading = true;
-            // if (this.roomInfo) { //走创建
+            // if (this.roomInfo) { 
             //     let {createOpts, commu} = this.roomInfo;
             //     const client = window.mxMatrixClientPeg.matrixClient;
             //     const selfId = client.getUserId();
@@ -327,8 +327,7 @@ export default {
             //             console.log('广场设置完成');
             //         })
             //     }).catch((e)=>{this.loading = false;})
-            // } else { //走添加
-            //     //暂无此模版添加需求
+            // } else {
             //     this.loading = false;
             // }
 
@@ -1384,7 +1383,7 @@ export default {
                     if (i == len) {this.mxDepMap[department_id].check = 3;} //全选
                     if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} //横杠
                 } else {
-                    // 此时不改变
+         
                 }
             }
         },

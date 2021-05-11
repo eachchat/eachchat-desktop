@@ -172,7 +172,6 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
-  // 托盘
   appIcon = new Tray(iconPath);
 
   appIcon.on('mouse-move', function(event, position){
@@ -613,7 +612,6 @@ ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
   assistWindow.center();
 })
 
-// 收藏详情窗口
 ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
     if(!favouriteDetailWindow){
       favouriteDetailWindow = new BrowserWindow({
@@ -660,7 +658,7 @@ ipcMain.on('favouriteDetailClose', function(event, arg) {
 ipcMain.on('favouriteDetailMin', function(event, arg) {
   favouriteDetailWindow.minimize();
 });
-// 汇报关系窗口
+
 ipcMain.on('showReportRelationWindow', function(event, leaders) {
   if(!reportRelationWindow){
     reportRelationWindow = new BrowserWindow({
@@ -728,7 +726,6 @@ ipcMain.on("stopFlash", (event) => {
   setImgToNormalIcon();
 })
 
-// 闪烁任务栏
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)

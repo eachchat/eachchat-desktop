@@ -155,12 +155,6 @@ export default {
                     link: "/favourite",
                     view: "favourite"
                 },
-                // {
-                //     text: "设置",
-                //     name: "setUp",
-                //     link: "/setUp",
-                //     view: "setUp"
-                // }
             ],
             elementImg: null,
             ipcInited: false,
@@ -1159,12 +1153,10 @@ export default {
         margin-left: 10px;
         word-wrap: break-word;
     
-        /* 定位 */
         position: fixed;
         z-index: 1;
     }
 
-    /* 鼠标移动上去后显示提示框 */
     .nav-item:hover .tooltiptext {
         visibility: visible;
     }
@@ -1290,12 +1282,11 @@ export default {
         margin-left: 10px;
         word-wrap: break-word;
     
-        /* 定位 */
+
         position: fixed;
         z-index: 1;
     }
 
-    /* 鼠标移动上去后显示提示框 */
     .NavSetUp:hover .tooltiptext {
         visibility: visible;
     }

@@ -17,7 +17,6 @@
 export default {
     name:'yi-drawer',
     props: {
-    // 是否打开
         display: {
             type: Boolean
         },
@@ -25,37 +24,31 @@ export default {
             type: Boolean,
             default: false
         },
-    // 标题
         title: {
             type: String,
             default: '标题'
         },
 
-    // 是否显示关闭按钮
         closable: {
         type: Boolean,
             default: true
         },
 
-    // 是否显示遮罩
         mask: {
             type: Boolean,
             default: true
         },
 
-    // 是否点击遮罩关闭
         maskClosable: {
             type: Boolean,
             default: true
         },
 
-    // 宽度
         width: {
             type: String,
             default: '336px'
         },
 
-    // 是否在父级元素中打开
         inner: {
             type: Boolean,
             default: false
@@ -106,7 +99,6 @@ export default {
 .drawer {
     height: 100%;
     border-left: 1px solid rgb(221, 221, 221);
-  /* 遮罩 */
 .mask-show {
     position: fixed;
     top: 0;
@@ -123,7 +115,6 @@ export default {
     transition: opacity .5s;
 }
 
-  /* 滑块 */
 .main {
     position: fixed;
     z-index: 3;
@@ -139,12 +130,9 @@ export default {
     opacity: 0;
 }
 
-  /* 某个元素内部显示 */
 .inner {
     position: absolute;
 }
-
-  /* 其他样式 */
 
 }
 .close-button {

@@ -330,7 +330,6 @@ export default {
             this.OpenFavouriteDetail(message);
         },
         async imageListClicked(image) {
-            // image.title = "图片详情"
             // image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
             // this.OpenFavouriteDetail(image);
             var imageCollectionModel = await global.services.common.ListPictureCollections();
@@ -953,12 +952,10 @@ display: none;
     }
 }
 
-/* 表示总长度背景色 */
 progress::-webkit-progress-bar {
     background-color: rgba(210, 215, 222, 1);
 }
 
-/* 表示已完成进度背景色 */
 progress::-webkit-progress-value {
     background: rgba(36, 179, 107, 1)
 }

@@ -9,8 +9,6 @@ import {ipcRenderer} from 'electron';
 
 class APITransaction {
   constructor(hostname, port, tls) {
-    // 聊天、收藏、组织、认证、文件、安全、邮件
-    // 公共服务
     this.mqtt = undefined;
     this.commonApi = new net.HTTP(hostname, port, tls);
   }

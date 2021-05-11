@@ -557,7 +557,6 @@ export default {
         mxLeaveRoom: function() {
             console.log('----mxLeaveRoom----')
             if (!window.alertIsShow) {
-                // 弹框模板有个 delete window.alertIsShow 是为了弹框关闭之后能再次显示
                 console.log('----$warningDlg----')
                 this.$emit("closeGroupInfo");
                 const roomId = this.groupId;
@@ -583,10 +582,8 @@ export default {
                     content: warning,
                     cancelBtn: true,
                     close () {
-                        // 这里执行点击右上角需要做的事，默认执行关闭弹框
                     },
                     async confirm () {
-                        // 这里执行点击确定按钮需要做的事，默认执行关闭弹框
                         if(await ContactRoom.ExistRoom(roomId))
                             common.deleteRoomFromContact(roomId);
                         const ipcRenderer = require('electron').ipcRenderer;
@@ -595,7 +592,7 @@ export default {
                         this.$emit("leaveGroup", roomId);
                     },
                     cancel () {
-                        // 这里执行点击取消按钮需要做的事，默认执行关闭弹框
+                    
                     }
                 })
                 window.alertIsShow = true;
@@ -619,9 +616,6 @@ export default {
             o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
             const contactInfo = await Contact.GetContactInfo(o.userId);
             const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
-            // console.log('看一看1', contactInfo);
-            // console.log('看一看2', depInfo);
-            // console.log('看一看3', this.myDomain);
             let userDomain = ComponentUtil.GetDomanName(o.userId);
             let company = '';
             let title = '';
@@ -673,9 +667,6 @@ export default {
                 o.dspName = await ComponentUtil.GetDisplayNameByMatrixID(o.userId);
                 const contactInfo = await Contact.GetContactInfo(o.userId);
                 const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
-                // console.log('看一看1', contactInfo);
-                // console.log('看一看2', depInfo);
-                // console.log('看一看3', this.myDomain);
                 let userDomain = ComponentUtil.GetDomanName(o.userId);
                 let company = '';
                 let title = '';
@@ -694,7 +685,7 @@ export default {
                 if (obj.membership != 'leave') mxMembers.push(obj);
             }
             // console.log('check xie1', xie1);
-            // console.log('全member', xie1.currentState.members);
+            // console.log('member', xie1.currentState.members);
             // console.log('mxMembers', mxMembers);
             if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
             // console.log('----mxMembers[userId]----', userId)
@@ -1221,7 +1212,7 @@ export default {
         this.dmRoomIdArr = [...dmRoomIdArr];
         this.getRoomNotifs(roomId);
         this.getRoomFavo(room);
-        this.mxGetMembers(userId); //this.currentUser 是在该方法中赋值的
+        this.mxGetMembers(userId); 
 
 
         this.mxRoom = this.showGroupInfo.room;
