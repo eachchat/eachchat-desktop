@@ -12,7 +12,7 @@
                         @click="messageMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/message@2x.png">
                         <div class="item-info">
-                            <p class="item-title">消息</p>
+                            <p class="item-title">{{$t("favourite.message")}}</p>
                         </div>
                         <div class="item-arrow">
                             <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -24,7 +24,7 @@
                         @click="imageMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/Image@2x.png">
                         <div class="item-info">
-                            <p class="item-title">图片</p>
+                            <p class="item-title">{{$t("favourite.picture")}}</p>
                         </div>
                         <div class="item-arrow">
                             <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -37,7 +37,7 @@
                         @click="fileMenuItemClicked()">
                         <img ondragstart="return false" class="item-icon" src="../../../static/Img/Favorite/Navigate/file@2x.png">
                         <div class="item-info">
-                            <p class="item-title">文件</p>
+                            <p class="item-title">{{$t("favourite.file")}}</p>
                         </div>
                         <div class="item-arrow">
                             <img ondragstart="return false" class="right-arrow" src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -156,7 +156,6 @@ export default {
 
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
 display: none;
 }
 

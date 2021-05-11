@@ -35,7 +35,7 @@
                         <p class="contact-list-titile">{{ manager.user_title }}</p>
                         </div>
                     </li>
-                    <div v-if="searchDeparements.length" class='grid-content'>部门</div>
+                    <div v-if="searchDeparements.length" class='grid-content'>{{$t("organization.departmentName")}}</div>
                     <li class="manager"
                         v-for="department in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
@@ -45,7 +45,7 @@
                         <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
                         </div>
                     </li>
-                    <div v-if="searchRooms.length" class='grid-content'>群聊</div>
+                    <div v-if="searchRooms.length" class='grid-content'>{{$t("organization.departmentsListGroupChat")}}</div>
                     <li class="manager"
                         v-for="room in searchRooms"
                         @click="searchRoomItemClicked(room.room_id)" 
@@ -636,7 +636,7 @@ export default {
 }
 
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
 .list-header {

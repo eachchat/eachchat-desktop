@@ -711,13 +711,13 @@ export default {
             return;
         }
         if (this.favouriteType == 'message'){
-            this.headerTitle = '消息';
+            this.headerTitle = this.$t("favourite.message");
             var messageCollectionModel = await global.services.common.ListMessageCollections();
             this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
-            this.headerTitle = '图片';
+            this.headerTitle = this.$t("favourite.picture");
             var imageCollectionModel = await global.services.common.ListPictureCollections();
             this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
@@ -728,7 +728,7 @@ export default {
             });
   
         }else if(this.favouriteType == 'file') {
-            this.headerTitle = '文件';
+            this.headerTitle = this.$t("favourite.file");
             var fileCollectionModel = await global.services.common.ListFileCollections();
 
             this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
@@ -739,7 +739,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
 

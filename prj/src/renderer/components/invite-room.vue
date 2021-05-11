@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="56px" class="contact-header">
-            <p class="contact-header-title">邀请</p>
+            <p class="contact-header-title">{{$t("organization.departmentsListInvite")}}</p>
         </el-header>
         <el-main  style="overflow: hidden">
             <el-container class="bottom-container" id="contact-main-container">
@@ -18,11 +18,11 @@
                                 <p class="group-content-invite">{{ item.inviteName }}</p>
                             </div>  
                             <div v-if = 'item.roomState == 0' class = 'invite-room-button-div'>
-                                <button  class="invite-room-disable-button" @click="HandleReject(item)">拒绝</button>
-                                <button class="invite-room-button" @click="HandleAccept(item)">接受</button>
+                                <button  class="invite-room-disable-button" @click="HandleReject(item)">{{$t("organization.reject")}}</button>
+                                <button class="invite-room-button" @click="HandleAccept(item)">{{$t("organization.accept")}}</button>
                             </div>
-                            <p v-else-if = 'item.roomState == 1' class = 'invite-room-context'>已拒绝</p>
-                            <p v-else-if = 'item.roomState == 2' class = 'invite-room-context'>已接受</p>
+                            <p v-else-if = 'item.roomState == 1' class = 'invite-room-context'>{{$t("organization.rejected")}}</p>
+                            <p v-else-if = 'item.roomState == 2' class = 'invite-room-context'>{{$t("organization.accepted")}}</p>
                         </li>
                     </ul>
                 </div>
@@ -77,7 +77,7 @@ export default {
                 return;
             this.menu = new Menu();
             this.menu.append(new MenuItem({
-                label: "删除",
+                label: this.$t("organization.delete"),
                 click: () => {
                     this.deleteRoom(room)
                 }
@@ -111,13 +111,13 @@ export default {
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);
                     if(error.httpStatus == 403) {
-                        this.$toastMessage({message:"您没有权限进入该房间", time: 2000, type:'error', showHeight: '80px'});
+                        this.$toastMessage({message: this.$t("organization.sErrorNotPermit"), time: 2000, type:'error', showHeight: '80px'});
                     }
                     else if(error.httpStatus == 429) {
-                        this.$toastMessage({message:"您的请求次数过多，请稍后再试", time: 2000, type:'error', showHeight: '80px'});
+                        this.$toastMessage({message:this.$t("organization.sErrorTooManyRequest"), time: 2000, type:'error', showHeight: '80px'});
                     }
                     else if(error.httpStatus == 404) {
-                        this.$toastMessage({message:"该邀请人已退出群组，不可加入", time: 2000, type:'error', showHeight: '80px'});
+                        this.$toastMessage({message:this.$t("organization.sErrorQuitRoom"), time: 2000, type:'error', showHeight: '80px'});
                         this.RejectRoom(roomId);
                     }
                 })
@@ -168,7 +168,7 @@ export default {
                     return "";//inviteMemer.userId;
                 }
                 else {
-                    return "由" + await ComponentUtil.GetDisplayNameByMatrixID(inviteMemer.userId)  + "邀请";
+                    return this.$t("organization.by") + await ComponentUtil.GetDisplayNameByMatrixID(inviteMemer.userId)  + this.$t("organization.invite");
                 }
             }
 
