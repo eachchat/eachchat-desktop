@@ -434,7 +434,9 @@ export default {
                     leaders[index].user_avatar_url = this.matrixClient.mxcUrlToHttp(urls[index].avatar_url);
                 }
                 const ipcRender = require('electron').ipcRenderer;
-                ipcRender.send('showReportRelationWindow', this.userInfo);
+                ipcRender.send("createChildWindow", {type: "showReportRelationWindow",
+                size:{width:520,height: 340},
+                userinfo: this.userInfo})
             })
             
 

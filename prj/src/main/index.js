@@ -23,7 +23,6 @@ let noticeHeight
 let noticeWindowKeepShow = false
 let assistWindow
 let soloPage = null
-let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
@@ -221,9 +220,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
         mainWindow = null;
         noticeWindow = null;
         assistWindow = null;
-        soloPage = null;
-        reportRelationWindow = null;
-        
+        soloPage = null;        
         app.quit();
       }
     }
@@ -610,42 +607,6 @@ ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
   }
   assistWindow.center();
 })
-
-ipcMain.on('showReportRelationWindow', function(event, leaders) {
-  if(!reportRelationWindow){
-    reportRelationWindow = new BrowserWindow({
-      height: 340,
-      resizable: resizableValue,
-      width: 520,
-      fullscreenable: false,
-      webPreferences: {
-        webSecurity:false,
-        nodeIntegration:true,
-        enableRemoteModule: true
-      },
-      //frame:false,
-      title:"汇报关系"
-    })
-    const reportRelationWinURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/#/` + 'reportRelationContent'
-    : `file://${__dirname}/index.html#` + 'reportRelationContent';
-    reportRelationWindow.loadURL(reportRelationWinURL);
-    reportRelationWindow.webContents.on('did-finish-load', function() {
-      reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
-    });
-    reportRelationWindow.on("close", (event) => {
-      if(clickQuit){
-        app.quit()
-        return;
-      }
-      event.preventDefault();
-      reportRelationWindow.hide();
-    })
-  }
-  reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
-  reportRelationWindow.show();
-  //openDevToolsInDevelopment(reportRelationWindow);
-});
 
 ipcMain.on("showNotice", (event, title, contnet) => {
   console.log("title ",title)

@@ -1,6 +1,7 @@
 const {BrowserWindow} = require('electron')
 import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
 import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
+import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
 class ChildWindow{
     constructor(){
 
@@ -49,6 +50,13 @@ function createChildWindow(mainwindowArgs){
         let favouritedetailwindow = new FavouriteDetailWindowBuilder(childRenderWindowBrowser, mainWindow);
         favouritedetailwindow.setArgs(ipcArg);
         favouritedetailwindow.build();
+        break;
+      }
+
+      case "showReportRelationWindow":{
+        let ReleationShipWindow = new ReleationShipWindowBuilder(childRenderWindowBrowser, mainWindow);
+        ReleationShipWindow.setArgs(ipcArg);
+        ReleationShipWindow.build();
         break;
       }
       

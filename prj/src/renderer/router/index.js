@@ -10,7 +10,6 @@ import childwindow from "../components/childwindow.vue"
 
 import setup from '../components/setup.vue';
 Vue.use(Router);
-import reportRelationContent from '../components/reportRelationContent.vue';
 import SearchFilesListDlg from '../components/searchFileList.vue';
 import SearchMessagesListDlg from '../components/searchMessageList.vue';
 import TransmitMsgListDlg from '../components/transmitTogetherContent.vue';
@@ -70,11 +69,6 @@ export default new Router({
       path:'/childwindow',
       name: "childwindow",
       component: childwindow,
-    },
-    {
-      path:'/reportRelationContent',
-      name: "reportRelationContent",
-      component: reportRelationContent,
     },
     {
       path:'/searchFilesList',
