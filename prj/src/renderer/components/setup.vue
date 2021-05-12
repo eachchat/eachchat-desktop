@@ -4,33 +4,29 @@
         <div class="setup-list">
           <div class="setup-list-item" @click="jumpToGeneralSetup">
             <img class="setupGeneralImage" src="../../../static/Img/Setup/general-20px@2x.png">
-            <label class="setupGeneralLabel">通用</label>
+            <label class="setupGeneralLabel">{{$t("setting.general")}}</label>
           </div>
           <div class="setup-list-item" @click="jumpToNoticeSetup">
             <img class="setupNoticeImage" src="../../../static/Img/Setup/notice-20px@2x.png">
-            <label class="setupNoticeLabel">通知</label>
+            <label class="setupNoticeLabel">{{$t("setting.notification")}}</label>
           </div>
           <div class="setup-list-item" @click="jumpToSecurity">
             <img class="setupSecurityImage" src="../../../static/Img/Setup/security-nor-20px@2x.png">
-            <label class="setupSecurityLabel">安全</label>
+            <label class="setupSecurityLabel">{{$t("setting.security")}}</label>
           </div>
           <div class="setup-list-item" @click="jumpToSecurity">
             <img class="setupSecurityImage" src="../../../static/Img/Setup/sys-20px@2x.png">
-            <label class="setupSecurityLabel">系统</label>
-          </div>
-          <div class="setup-list-item" @click="jumpToUpdateSetup" v-show="false">
-            <img class="setupUpdateImage" src="../../../static/Img/Setup/update-20px@2x.png">
-            <label class="setupUpdateLabel">升级</label>
+            <label class="setupSecurityLabel">{{$t("setting.system")}}</label>
           </div>
           <div class="setup-list-item" @click="jumpToAboutSetup">
             <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px@2x.png">
-            <label class="setupAboutLabel">关于</label>
+            <label class="setupAboutLabel">{{$t("setting.about")}}</label>
           </div>
         </div>
         <div class="setup-details" id="setup-details-id">
-            <label class="setup-title" id="setup-details-general-id">通用</label>
+            <label class="setup-title" id="setup-details-general-id">{{$t("setting.general")}}</label>
             <div class="setup-array">
-                <label class="setup-array-label">我的信息</label>
+                <label class="setup-array-label">{{$t("setting.myInformation")}}</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showOwnerInfo">
             </div>
             <div class="setup-with-drop-down" v-show="false">
@@ -42,18 +38,18 @@
                   </div>
                 </div>
             </div>
-            <div class="setup-title" id="setup-details-notice-id">通知</div>
+            <div class="setup-title" id="setup-details-notice-id">{{$t("setting.notification")}}</div>
             <div class="setup-with-switch" v-show="isWindows()">
-                <label class="setup-with-switch-label">消息提示音</label>
+                <label class="setup-with-switch-label">{{$t("setting.Notification_sound")}}</label>
                 <el-switch class="setup-with-switch-switch" v-model="soundNotice" @change="autoSoundNoticeStateChange(soundNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-with-switch">
-                <label class="with-switch">新消息通知</label>
+                <label class="with-switch">{{$t("setting.desktop_notifications")}}</label>
                 <el-switch class="setup-with-switch-switch" v-model="flashNotice" @change="autoFlashNoticeStateChange(flashNotice)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
-            <div class="setup-title">安全</div>
+            <div class="setup-title">{{$t("setting.security")}}</div>
             <div class="setup-array-with-label" v-show="false">
                 <label class="setup-array-with-label-label">导出密钥</label>
                 <label class="setup-array-with-label-label2" id="setup-security-export-keys-label2-id">导出密钥到本地文件</label>
@@ -65,27 +61,27 @@
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
             <div class="setup-array" v-show="canChangePwd">
-                <label class="setup-array-label">修改密码</label>
+                <label class="setup-array-label">{{$t("setting.change_password")}}</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
             </div>
             <div class="setup-array-with-label">
-                <label class="setup-array-with-label-label">会话管理</label>
+                <label class="setup-array-with-label-label">{{$t("setting.session_management")}}</label>
                 <label class="setup-array-with-label-label2" id="setup-security-devict-list-label2-id"></label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
             </div>
             <div class="setup-array-with-label">
-                <label class="setup-array-with-label-label">账号管理</label>
+                <label class="setup-array-with-label-label">{{$t("setting.account_management")}}</label>
                 <label class="setup-array-with-label-label2" id="setup-security-account-manager-label2-id"></label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
             </div>
-            <label class="setup-title" id="setup-details-sys-id">系统</label>
+            <label class="setup-title" id="setup-details-sys-id">{{$t("setting.system")}}</label>
             <div class="setup-with-switch">
-                <label class="setup-with-switch-label">开机自启动亿洽</label>
+                <label class="setup-with-switch-label">{{$t("setting.start_automatically")}}</label>
                 <el-switch class="setup-with-switch-switch" v-model="autoRun" @change="autoRunStateChange(autoRun)" :active-color="'#24B36B'">
                 </el-switch>
             </div>
             <div class="setup-with-input">
-                <label class="setup-with-input-label">文件保存位置</label>
+                <label class="setup-with-input-label">{{$t("setting.file_cache_location")}}</label>
                 <div class="setup-with-input-input-div">
                   <input class="setup-with-input-input" v-model="localStorePath" readonly="readonly" @click="openLocalStorageDir">
                   <div class="setup-with-input-input-folder-ico">
@@ -94,40 +90,25 @@
                 </div>
             </div>
             <div class="setup-array-only-label">
-                <label class="setup-array-only-label-label-cache">缓存</label>
+                <label class="setup-array-only-label-label-cache">{{$t("setting.cache")}}</label>
                 <label class="setup-array-only-label-label2-cache" id="setup-general-clear-cache-label2-id">--M</label>
-                <div class="setup-clear-cache-btn" @click="showAlert">清除缓存</div>
+                <div class="setup-clear-cache-btn" @click="showAlert">{{$t("setting.clear_cache")}}</div>
             </div>
-            <div class="setup-title" id="setup-update-notice-id" v-show="false">升级</div>
-            <div class="setup-array-with-label" v-show="false">
-                <label class="setup-array-with-label-label">当前版本</label>
-                <label class="setup-array-with-label-label2">{{lVersion}}</label>
-                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
-            </div>
-            <div class="setup-with-switch" v-show="false">
-                <label class="setup-with-switch-label">自动更新</label>
-                <el-switch class="setup-with-switch-switch" :active-color="'#24B36B'">
-                </el-switch>
-            </div>
-            <div class="setup-title" id="setup-about-id">关于</div>
+            <div class="setup-title" id="setup-about-id">{{$t("setting.about")}}</div>
             <div class="setup-array-only-label">
-                <label class="setup-array-only-label-label">当前版本</label>
+                <label class="setup-array-only-label-label">{{$t("setting.current_version")}}</label>
                 <label class="setup-array-only-label-label2">{{lVersion}}</label>
-                <div class="setup-clear-cache-btn" @click="CheckUpdate">软件更新</div>
-            </div>
-            <div class="setup-array" v-show="false">
-                <label class="setup-array-label">功能介绍</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAbout">
+                <div class="setup-clear-cache-btn" @click="CheckUpdate">{{$t("setting.check_for_update")}}</div>
             </div>
             <div class="setup-array">
-                <label class="setup-array-label">用户协议</label>
+                <label class="setup-array-label">{{$t("setting.user_agreement")}}</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
             </div>
             <div class="setup-array">
-                <label class="setup-array-label">隐私政策</label>
+                <label class="setup-array-label">{{$t("setting.privacy_policy")}}</label>
                 <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
             </div>
-            <div class="setup-logout" @click="logout()">退出</div>
+            <div class="setup-logout" @click="logout()">{{$t("setting.sign_out")}}</div>
         </div>
       </div>
       <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="clearCache"/>
