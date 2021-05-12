@@ -1,4 +1,5 @@
 const setting  = {
+    inputRemarkName: "请输入昵称",
     general: "General",
     notification: "Notification",
     security: "Security",
