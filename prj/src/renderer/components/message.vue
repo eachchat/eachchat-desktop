@@ -168,27 +168,37 @@ export default {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
         sendAgain: function() {
-            if(this.msg.event.content.msgtype != "m.text") {
-                this.sendFile();
+            function checkPendingEvent(room, txnId) {
+                return Promise.all(room.getPendingEvents().filter(function(ev) {
+                    console.log("getPendingEvents is ", ev);
+                    return (ev._txnId && ev._txnId == txnId) && ev.status == "not_sent";
+                }))
             }
-            else {
-                // let curTimeSeconds = new Date().getTime();
-                // this.sendText(curTimeSeconds);
-                // this.$emit("sendAgain", this.msg);
-                var roomID = this.msg.event.room_id;
-                let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
-                try{
-                    global.mxMatrixClientPeg.matrixClient.resendEvent(this.msg.event, theRoom).then((ret) => {
-                        this.msg.message_status = 0;
-                    }).catch((error) => {
-                        this.msg.message_status = 2;
+            
+            console.log("===sendAgain event is ", this.msg.event)
+            var roomID = this.msg.event.room_id;
+            let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+            this.msg.message_status = 1;
+            checkPendingEvent(theRoom, this.msg._txnId).then((pendingEvents) => {
+                console.log("get pending event is ", pendingEvents);
+                if(pendingEvents && pendingEvents.length > 0) {
+                    pendingEvents.map((pendingEvent) => {
+                        global.mxMatrixClientPeg.matrixClient.resendEvent(pendingEvent, theRoom).then((res) => {
+                            this.msg.message_status = 0;
+                        }, (err) => {
+                            this.msg.message_status = 2;
+                        })
                     })
                 }
-                catch(error) {
-                    this.msg.message_status = 2;
-                    console.log("error is ", error);
+                else {
+                    if(this.msg.event.content.msgtype != "m.text") {
+                        this.sendFile();
+                    }
+                    else {
+                        this.sendText();
+                    }
                 }
-            }
+            })
         },
         transmitMsgId: function() {
             return "message-transmit-" + this.msg.event.event_id;
@@ -1339,7 +1349,7 @@ export default {
                     this.$store.commit("removeSendingEvents", this.msg);
                     this.msg.message_status = 0;
                 }).catch((error) => {
-                    console.log("error is ", error.errcode);
+                    console.log("error is ", error);
                     this.msg.message_status = 2;
                 })
             }
