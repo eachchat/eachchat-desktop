@@ -18,7 +18,6 @@ class ReleationShipWindowBuilder extends RenderWindowBuilder{
     build(){
         this.setWindowSize(this.size);
         this.childWindow.setTitle("汇报关系");
-        console.log(this.collectionInfo)
         let renderArgs ={};
         renderArgs.type = "showReportRelationWindow";
         renderArgs.args = this.userinfo;
