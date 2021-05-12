@@ -177,14 +177,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     if(!noticeWindow) return;
     if(process.platform == "win32") {
       if(isLeave) {
-        console.log("=========noticewindowdinfo ", noticeInfo)
         if(noticeInfo && Object.keys(noticeInfo).length == 0) {
           noticeWindow.hide();
         }
         else {
           isLeave = false;
           checkTrayLeave();
-          console.log("======notice show", position);
           let showX = screenSize.width - position.x > 260 ? position.x + 20 : screenSize.width - 20 - 240 ;
           let showY = screenSize.height - noticeHeight;
           console.log("final show posision ", screenSize.width - 20 - 240, " y ", screenSize.height - noticeHeight)
@@ -1501,6 +1499,17 @@ function createWindow () {
     mainwindowArgs.clickQuit = clickQuit;
     createChildWindow(mainwindowArgs);
   })
+
+  childRenderWindowBrowser.on('close', (event) => {
+    console.log("childRenderWindowBrowser", clickQuit)
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    childRenderWindowBrowser.hide();
+    mainWindow.show();
+  })
 }
 
 ipcMain.on("openDevTools", function(event) {
@@ -1524,6 +1533,7 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('close', (event) => {
+    console.log("index mainwindow close", clickQuit)
     if(process.platform == 'darwin') {
       event.preventDefault();
       if(mainWindow.isFullScreen()) {

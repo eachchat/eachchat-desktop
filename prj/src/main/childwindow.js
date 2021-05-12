@@ -63,15 +63,6 @@ function createChildWindow(mainwindowArgs){
       default:
         break;
     }
-    childRenderWindowBrowser.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      childRenderWindowBrowser.hide();
-      mainWindow.show();
-    })
 }
 
 export{
