@@ -23,7 +23,6 @@ let noticeHeight
 let noticeWindowKeepShow = false
 let assistWindow
 let soloPage = null
-let favouriteDetailWindow
 let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
@@ -223,7 +222,6 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
         noticeWindow = null;
         assistWindow = null;
         soloPage = null;
-        favouriteDetailWindow = null;
         reportRelationWindow = null;
         
         app.quit();
@@ -612,53 +610,6 @@ ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
   }
   assistWindow.center();
 })
-
-ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
-    if(!favouriteDetailWindow){
-      favouriteDetailWindow = new BrowserWindow({
-        height: 468,
-        resizable: resizableValue,
-        width:600,
-        fullscreenable: false,
-        webPreferences: {
-          webSecurity:false,
-          nodeIntegration:true,
-          enableRemoteModule: true
-        },
-        //frame:false,
-        title: collectionInfo.title  
-      })
-    const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/#/` + 'favouriteDetail'
-    : `file://${__dirname}/index.html#` + 'favouriteDetail';
-    favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
-    //openDevToolsInDevelopment(favouriteDetailWindow);
-    favouriteDetailWindow.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      favouriteDetailWindow.hide();
-    })
-    
-    favouriteDetailWindow.webContents.on('did-finish-load', function() {
-      favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
-    });
-  }
-    
-  favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
-  favouriteDetailWindow.show();
-
-});
-
-ipcMain.on('favouriteDetailClose', function(event, arg) {
-  favouriteDetailWindow.close();
-});
-
-ipcMain.on('favouriteDetailMin', function(event, arg) {
-  favouriteDetailWindow.minimize();
-});
 
 ipcMain.on('showReportRelationWindow', function(event, leaders) {
   if(!reportRelationWindow){
@@ -1567,16 +1518,26 @@ function createWindow () {
     event.preventDefault();
     soloPage.hide();
   })
+  let childwindowFactory = new ChildWindow();
+  let thirdpartyWindowBrowser = childwindowFactory.createBrowser(iconPath);
+  let childRenderWindowBrowser = childwindowFactory.createBrowser(iconPath);
 
-  let childRenderWindowBrowser = ChildWindow.createBrowser(iconPath);
+  const childwindowURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/childwindow`
+  : `file://${__dirname}/index.html#childwindow`;
+  childRenderWindowBrowser.loadURL(childwindowURL);
+  //childRenderWindowBrowser.show();
+  //childRenderWindowBrowser.webContents.openDevTools();
+
   ipcMain.on("createChildWindow", function(event, args){
     let mainwindowArgs = {};
     mainwindowArgs.iconPath = iconPath;
     mainwindowArgs.mainWindow = mainWindow;
     mainwindowArgs.isLogin = isLogin;
+    mainwindowArgs.thirdpartyBrowser = thirdpartyWindowBrowser;
     mainwindowArgs.childBrowser = childRenderWindowBrowser;
-    mainwindowArgs.ipcArg = arg;
-    
+    mainwindowArgs.ipcArg = args;
+    mainwindowArgs.clickQuit = clickQuit;
     createChildWindow(mainwindowArgs);
   })
 }
@@ -1587,9 +1548,6 @@ ipcMain.on("openDevTools", function(event) {
   }
   if(soloPage != null && !soloPage.isDestroyed()) {
     soloPage.webContents.openDevTools();
-  }
-  if(favouriteDetailWindow != null && !favouriteDetailWindow.isDestroyed()) {
-    favouriteDetailWindow.webContents.openDevTools();
   }
 })
 

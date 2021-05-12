@@ -1,13 +1,13 @@
 const {BrowserWindow} = require('electron')
 import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
+import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
 class ChildWindow{
     constructor(){
-        this.childWindow = undefined;
+
     }
 
-    static createBrowser(iconPath){
-        if(this.childWindow) return this.childWindow;
-        this.childWindow = new BrowserWindow({     
+    createBrowser(iconPath){
+        return new BrowserWindow({     
             resizable: true,
             webPreferences: {
                 webSecurity:false,
@@ -18,21 +18,24 @@ class ChildWindow{
             frame:true,
             icon: iconPath,
         });
-        return this.childWindow;
     }
 }
 
-createChildWindow(mainwindowArgs){
+function createChildWindow(mainwindowArgs){
+    console.log("createChildWindow", mainwindowArgs);
+
     let mainWindow = mainwindowArgs.mainWindow;
     let isLogin = mainwindowArgs.isLogin;
+    let thirdpartyWindowBrowser = mainwindowArgs.thirdpartyBrowser;
     let childRenderWindowBrowser = mainwindowArgs.childBrowser;
     let ipcArg = mainwindowArgs.ipcArg;
     let type = ipcArg.type;
+    let clickQuit = mainwindowArgs.clickQuit;
 
     console.log("createChildWindow-------------", ipcArg)
     switch(type){
       case "thirdpartywindow":{
-        let thirdpartywindow = new ThirdPartyWindowBuilder(childRenderWindowBrowser, mainWindow);
+        let thirdpartywindow = new ThirdPartyWindowBuilder(thirdpartyWindowBrowser, mainWindow);
         thirdpartywindow.setArgs(ipcArg);
         thirdpartywindow.build();
         if(!isLogin){
@@ -40,6 +43,15 @@ createChildWindow(mainwindowArgs){
         }
         break;
       }
+
+      case "favouritedetailwindow":{
+        console.log("favouritedetailwindow")
+        let favouritedetailwindow = new FavouriteDetailWindowBuilder(childRenderWindowBrowser, mainWindow);
+        favouritedetailwindow.setArgs(ipcArg);
+        favouritedetailwindow.build();
+        break;
+      }
+      
       default:
         break;
     }

@@ -321,7 +321,9 @@ export default {
                 var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
                 message.avaterUrl = avaterUrl;
                 const ipcRender = require('electron').ipcRenderer;
-                ipcRender.send('showFavouriteDetailWindow', message)
+                ipcRender.send("createChildWindow", {type: "favouritedetailwindow",
+                size:{width:600,height: 468},
+                collectionInfo: message})
             });
         },
 
