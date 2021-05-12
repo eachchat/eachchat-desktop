@@ -14,7 +14,7 @@ const setting  = {
     start_automatically: "开机自启动",
     file_cache_location: "文件保存位置",
     cache: "缓存",
-    current_version: "当前版本",W
+    current_version: "当前版本",
     user_agreement: "用户协议",
     privacy_policy: "隐私政策",
     sign_out: "退出",
