@@ -6,7 +6,7 @@
 
 import {environment} from '../data/environment.js';
 var sqlite3 = require('sqlite3');
-import {SqliteEncrypt} from "./encrypt.js"
+//import {SqliteEncrypt} from "./encrypt.js"
 const fs = require('fs');
 import log from 'electron-log'
 
@@ -16,7 +16,7 @@ class Sqlite {
     this.db = undefined;
     this.filename = filename;
     this.basePath = environment.path.base;
-    this.encryption = new SqliteEncrypt(this.basePath);
+    //this.encryption = new SqliteEncrypt(this.basePath);
   }
 
   async init() {
@@ -27,14 +27,14 @@ class Sqlite {
 
     //let sourcePassword = fs.readFileSync(this.basePath + "/password.txt", "utf-8");;
     let sourcePassword = "C3TQzhQBGIRySzrRGOYGHONKVHXnbMPRei2YgOWqaaU/U2Dw8YZadPhOEepbPT/kIc87LLeViRda1HGnR7sn9OY2+XzvyGAHrxXlNg16d+wz4qoMHxojAS8Hzh/VbRGWxzTA4EAW0ByHAMkeO3CNl+YbMFLyI/znYIW5nRY3NkLy6aMUS+xhzzXi+mSgvBjab+OqjwRHNyPr7u/oiehftAwBCnvUTVm4SygDa9s+MCZQMpaOGCd7TthkfsoPgJcKnyu9CdyUU6NG8V8doPPsIqNr1YvYFC5zRF/f4XI9mZt+Xfk38//Ij91xwOrItiZNd+hT7Qp7Zg97O+toDveBPw==";
-    let password = this.encryption.decrypt(sourcePassword);
+    //let password = this.encryption.decrypt(sourcePassword);
 
     console.log('load ' + filename);
     log.info('load ' + filename);
     this.db = new sqlite3.Database(this.filename);
     this.db.serialize(() => {
-      this.db.run("PRAGMA KEY = " + password);
-      this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
+      //this.db.run("PRAGMA KEY = " + password);
+      //this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
     })
     let newVersion = 9;
     let version = await this.SyncAll("PRAGMA user_version");
@@ -52,12 +52,12 @@ class Sqlite {
       console.log("sleep end");
       console.log(filename)
       fs.unlinkSync(filename);
-      console.log("file is not sqlcipher,remove " + filename);
-      log.info("file is not sqlcipher,remove " + filename);
+      console.log("file is not sqlite,remove " + filename);
+      log.info("file is not sqlite,remove " + filename);
       this.db = new sqlite3.Database(filename);
       this.db.serialize(() => {
-        this.db.run("PRAGMA KEY = " + password);
-        this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
+        //this.db.run("PRAGMA KEY = " + password);
+        //this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
       })
       this.SyncAll("PRAGMA user_version =" + newVersion);
       return this;
