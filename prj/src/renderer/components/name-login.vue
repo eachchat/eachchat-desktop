@@ -3496,5 +3496,6 @@ export default {
 
     .alipay-wechat-img{
         vertical-align: middle;
+        margin-right: 10px;
     }
 </style>
