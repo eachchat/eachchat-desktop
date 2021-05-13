@@ -64,20 +64,6 @@
       "target": [
         "AppImage",
         "deb"
-      ],
-      "extraResources": [
-        {
-          "from": "./extralib/libcrypto.so",
-          "to": "../"
-        },
-        {
-          "from": "./extralib/libsqlcipher.so",
-          "to": "../"
-        },
-        {
-          "from": "./extralib/libssl.so",
-          "to": "../"
-        }
       ]
     },
     "npmRebuild": false
