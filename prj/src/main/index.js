@@ -1510,6 +1510,17 @@ function createWindow () {
     childRenderWindowBrowser.hide();
     mainWindow.show();
   })
+
+  thirdpartyWindowBrowser.on('close', (event) => {
+    console.log("thirdpartyWindowBrowser", clickQuit)
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    thirdpartyWindowBrowser.hide();
+    mainWindow.show();
+  })
 }
 
 ipcMain.on("openDevTools", function(event) {
