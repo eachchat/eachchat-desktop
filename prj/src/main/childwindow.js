@@ -2,6 +2,7 @@ const {BrowserWindow} = require('electron')
 import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
 import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
 import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
+import {VideoChatWindowBuilder} from "./videochatbuilder.js"
 class ChildWindow{
     constructor(){
 
@@ -58,6 +59,11 @@ function createChildWindow(mainwindowArgs){
         ReleationShipWindow.setArgs(ipcArg);
         ReleationShipWindow.build();
         break;
+      }
+
+      case "videoChatWindow":{
+        let VideoChatWindow = new VideoChatWindowBuilder(childRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
+        VideoChatWindow.build();
       }
       
       default:
