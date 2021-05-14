@@ -19,7 +19,18 @@ const setting  = {
     privacy_policy: "Privacy Policy",
     sign_out: "Sign Out",
     clear_cache: "Clear Cache",
-    check_for_update: "Check For Update"
+    check_for_update: "Check For Update",
+    user_info: "User Info",
+    profile_picture: "Profile Picture",
+    display_name: "Display Name",
+    username: "User Name",
+    matrix_id: "Matrix ID",
+    work_message: "Work Message",
+    department: "Department",
+    position: "Position",
+    phone: "Phone",
+    telephone: "Telephone",
+    email: "Email",
 }
 
 export default setting
