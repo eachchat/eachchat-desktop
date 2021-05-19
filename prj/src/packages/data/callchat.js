@@ -82,7 +82,7 @@ function _setCallListeners(call) {
         } else if (newState === "invite_sent") {
             _setCallState(call, call.roomId, "ringback");
             play("ringbackAudio");
-            play("large-window")
+            //play("large-window")
         } else if (newState === "ended" && oldState === "connected") {
             _setCallState(undefined, call.roomId, "ended");
             pause("ringbackAudio");
@@ -110,18 +110,25 @@ function _setCallListeners(call) {
 
 
 
-const CallChat = {
-    matrixClient : null,
+class CallChat{
+    constructor(){
+        this.matrixClient = null;
+    }
 
-    createMatrix(){
+    async createMatrix(){
         var host = "";
         host = window.localStorage.getItem("mx_hs_url");
         if(host.indexOf("https://") < 0 && host.indexOf("http://") < 0) {
             host = "https://" + host;
         }
         global.mxMatrixClientPeg.CreateClient(host)
-        return global.mxMatrixClientPeg.restoreFromLocalStorage();
-    },
+        await global.mxMatrixClientPeg.restoreFromLocalStorage();
+        let ops = {
+        }
+        ops.pendingEventOrdering = "detached";
+        ops.lazyLoadMembers = true;
+        return global.mxMatrixClientPeg.matrixClient.startClient(ops);
+    }
 
     syncComplete(roomInfo){
         let bSupportVoip = this.matrixClient.supportsVoip();
@@ -134,16 +141,16 @@ const CallChat = {
         //let smallWindow = document.getElementById("remoteAudio");
         _setCallListeners(call);
         //this.call.placeVideoCall(largeWindow, smallWindow);
-        call.setLocalVideoElement(largeWindow);
-        call.setRemoteVideoElement(smallWindow);
+        call.setLocalVideoElement(smallWindow);
+        call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(videoElm);
         call.placeVideoCall();
-    },
+    }
 
     async createVideoChat(roomInfo){
         console.log(roomInfo);
         this.matrixClient = global.mxMatrixClientPeg.matrixClient;
-        await this.matrixClient.startClient();
+        //await this.matrixClient.startClient();
         this.syncComplete(roomInfo);
     }
 }
