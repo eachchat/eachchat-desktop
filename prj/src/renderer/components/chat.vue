@@ -21,7 +21,7 @@
                 </div>
                 <!-- <div class="chat-tool-invite-div" @click.stop="createAnother"></div>  -->
                 <!-- @click="showAddMembersPrepare()" -->
-                <div class="chat-tool-call" @click="Call()" v-show=true>
+                <div class="chat-tool-call" @click="voiceCall()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
             </div>
@@ -64,14 +64,16 @@
                         </div>
                         <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()" v-show="!isSecret">
                         </div>
-                        <div class="video-chat" id="video-chat" @click="creatVideoChat()" v-show="!isSecret">
-                        </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
                     <div class="chat-send" v-show="false" @click="sendMsg()">
                         <i class="el-icon-s-promotion"></i>
+                    </div>
+                    <div class="video-chat" @click="creatVideoChat()" v-show="!isSecret">
+                    </div>
+                    <div class="voice-chat" @click="voiceCall()" v-show="!isSecret">
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
@@ -3059,7 +3061,7 @@ export default {
                 return "msgContent";
             }
         },
-        Call: async function() {
+        voiceCall: async function() {
             console.log("make a call");
             // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
             const voipInfo = {};
@@ -5112,11 +5114,22 @@ export default {
     }
 
     .video-chat {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 16px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVideoBtn@2x.png");
+        background-size: contain;
+    }
+
+    .voice-chat {
+        float: right;
         display: inline-block;
         width: 24px;
         height: 24px;
         margin: 8px 6px 8px 6px;
-        background-image: url("../../../static/Img/Chat/videochat.png");
+        background-image: url("../../../static/Img/Chat/VoIPVoiceBtn@2x.png");
         background-size: contain;
     }
 

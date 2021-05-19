@@ -2,8 +2,8 @@
     <div>
         <favouritedetail v-show = "bFavouriteDetail" :collectionInfo = "collectionInfo"></favouritedetail>
         <reportRelationContent v-show = 'bReportRelationContent' :userInfo = "userInfo"></reportRelationContent>
+        <VoIPVoice v-show = "bVoiceChat" :voipInfo="voipInfo"></VoIPVoice>
         <videochat v-if = "bVideoChat" :roomInfo = "roomInfo"></videochat>
-        <VoIPVoice v-show = "bVoiceChat"></VoIPVoice>
     </div>
 </template>
 
@@ -31,6 +31,7 @@ export default {
             bVideoChat: true,
             roomInfo: {},
             bVoiceChat: false,
+            voipInfo: {},
         }
     },
 
@@ -51,6 +52,7 @@ export default {
             }
             else if(args.type === "voiceChatWindow") {
                 this.showVoiceChat();
+                this.voipInfo = args.voipInfo;
             }
         },
 

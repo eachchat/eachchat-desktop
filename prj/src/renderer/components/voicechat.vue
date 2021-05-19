@@ -39,6 +39,10 @@ export default {
         curState: {
             type: String,
             default: "正在接通中"
+        },
+        voipInfo: {
+            type: Object,
+            default: {}
         }
     },
     data(){
@@ -109,9 +113,22 @@ export default {
             
         }
     },
+    watch: {
+        voipInfo: function() {
+            const voipInfo = this.voipInfo;
+            console.log("updatevoip info is ", voipInfo);
+            this.roomId = voipInfo.roomId;
+            if(this.roomId.length == 0) return;
+            this.userImage = voipInfo.voipShowInfo.userImg;
+            this.userName = voipInfo.voipShowInfo.userName;
+            console.log("global.mxMatrixClientPeg.homeserve ", global.mxMatrixClientPeg.homeserve);
+
+            mxVoIP.voiceCall(this.roomId, this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
+        }
+    },
     async mounted(){
         let ret = await mxVoIP.createMatrix();
-        ipcRenderer.on("childwindowArgs", this.updageVoipInfo);
+        // ipcRenderer.on("childwindowArgs", this.updageVoipInfo);
     }
 }
 </script>
