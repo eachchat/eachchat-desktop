@@ -33,7 +33,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
@@ -93,7 +93,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
@@ -701,19 +701,20 @@ export default {
         getVoipType: function() {
             return "voice";
         },
-        generalVoipInfo: async function(isVoice) {
+        generalVoipInfo: async function() {
             // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
             const voipInfo = {};
-            voipInfo["voipType"] = isVoice ? "voice" : "video";
+            voipInfo["voipType"] = this.isVoice ? "voice" : "video";
             voipInfo["roomId"] = this.msg.event.room_id;
             const voipShowUserInfo = {};
 
             let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(this.msg.event.room_id);
             const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
             
-            let distUrl = this.$store.getters.getAvater(distUserId);
-
-            if(distUrl || distUrl == '') {
+            let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+            let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            console.log("=====dist url is ", distUrl)
+            if(distUrl && distUrl == '') {
                 distUrl = "./static/Img/User/user-40px@2x.png";
             }
             
@@ -1099,22 +1100,23 @@ export default {
                 }
             }
             else if(chatGroupMsgType === "m.call.invite") {
+                console.log("add new invite msg content ", this.msg.event.content)
                 this.callId = this.msg.event.content.call_id;
-                let isVoice = true;
+                this.isVoice = true;
                 if (event.content.offer && event.content.offer.sdp &&
                         event.content.offer.sdp.indexOf('m=video') !== -1) {
-                    isVoice = false;
+                    this.isVoice = false;
                 }
-                this.generalVoipInfo(isVoice);
+                this.generalVoipInfo();
             }
             else if(chatGroupMsgType === "m.call.candidates") {
-
+                console.log("add new candidates msg content ", this.msg.event.content)
             }
             else if(chatGroupMsgType === "m.call.hangup") {
-
+                console.log("add new hangup msg content ", this.msg.event.content)
             }
             else if(chatGroupMsgType === "m.call.answer") {
-
+                console.log("add new answer msg content ", this.msg.event.content)
             }
             else if(chatGroupMsgType === "m.room.encrypted") {
                 // chatGroupMsgContent = this.msg.getContent();
@@ -1490,6 +1492,7 @@ export default {
     },
     data() {
         return {
+            isVoice: true,
             callId: '',
             VoipInfo: {},
             isDownloading: false,

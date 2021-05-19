@@ -22,6 +22,10 @@ export default {
         voipInfo: {
             type: Object,
             default: {}
+        },
+        isVoice: {
+            type: Boolean,
+            default: true
         }
     },
     data () {
@@ -29,13 +33,13 @@ export default {
             voipTimeLabel: "通话时长 ",
             voipTime: "00:00",
             roomId: "",
-            voipType: "",
+            voipType: "voice",
             userInfo: {},
         }
     },
     methods: {
        getVoipImg() {
-           if(this.voipType === "voice") {
+           if(this.isVoice) {
                if(this.isMine) return "../../../static/Img/Chat/VoIPVoiceMine@2x.png";
                else return "../../../static/Img/Chat/VoIPVoiceOthers@2x.png";
            } 

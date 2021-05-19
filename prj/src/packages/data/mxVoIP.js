@@ -117,25 +117,9 @@ class mxVoIP{
         this.INVITE_SENT = 'invite_sent';
         this.ENDED = 'ended';
         this.BUSY = 'busy';
-        this.callList = {
-            //roomId: call
-        },
         this.errorShow = null;
         this.stateShow = null;
         this.hangupShow = null;
-    }
-    
-    _addCall(roomId, call) {
-        this.callList[roomId] = call;
-    }
-
-    _removeCall(roomId) {
-        try{
-            delete this.callList[roomId];
-        }
-        catch(e) {
-
-        }
     }
 
     async createMatrix(){
@@ -153,7 +137,7 @@ class mxVoIP{
             return false;
         }
         console.log("the matrix client is ", global.mxMatrixClientPeg)
-        
+
         let ops = {
         }
         ops.pendingEventOrdering = "detached";
@@ -163,46 +147,41 @@ class mxVoIP{
 
     hangUp(room_id) {
         try{
-            console.log("the calllist is ", this.callList);
-            console.log("the call is ", this.callList[room_id]);
-            if (!this.callList[room_id]) {
-                return; // no call to hangup
+            if (global.mxMatrixClientPeg.getCall(room_id)) {
+                global.mxMatrixClientPeg.getCall(room_id).hangup();
             }
-            this.callList[room_id].hangup();
         }
         catch(e) {
             console.log("to hang up err ", e);
         }
-        this._removeCall(room_id);
+        global.mxMatrixClientPeg.removeCall(room_id);
         ipcRenderer.emit("close");
     }
 
     mute(room_id) {
-        const distCall = this.callList[room_id];
-        if(distCall != null) {
+        if (global.mxMatrixClientPeg.getCall(room_id)) {
             distCall.setLocalVideoMuted(true);
         }
     }
 
     unMuted(room_id) {
-        const distCall = this.callList[room_id];
-        if(distCall != null) {
+        if (global.mxMatrixClientPeg.getCall(room_id)) {
             distCall.setLocalVideoMuted(false);
         }
     }
 
     isMuted(room_id) {
         let isMuted = false;
-        const distCall = this.callList[room_id];
-        if(distCall != null) {
+        if (global.mxMatrixClientPeg.getCall(room_id)) {
             isMuted = distCall.isLocalVideoMuted();
         }
         return isMuted;
     }
 
     voiceCall(room_id, hangUpCallback, errCallback, stateCallback){
-        if(Object.keys(this.callList).indexOf(room_id) >= 0) {
+        if(global.mxMatrixClientPeg.getCall(room_id)) {
             stateCallback(this.CHATTING);
+            return;
         }
         const room = global.mxMatrixClientPeg.matrixClient.getRoom(room_id);
         if(!room) {
@@ -210,7 +189,7 @@ class mxVoIP{
             return;
         }
         const call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, room_id);
-        this._addCall(room_id, call);
+        global.mxMatrixClientPeg.addCall(room_id, call);
         this.errorShow = errCallback;
         this.hangupShow = hangUpCallback;
         this.stateShow = stateCallback;
@@ -228,7 +207,7 @@ class mxVoIP{
         call.on("state", (newState, oldState) => {
             console.log("update state new state is ", newState, " old state is ", oldState);
             if (newState === this.CHATTING) {
-                this.stateShow(this.CHATTING);
+                // this.stateShow(this.CHATTING);
             }
             else if (newState === this.CALLING) {
                 this.stateShow(this.CALLING);
@@ -236,11 +215,13 @@ class mxVoIP{
                 this.stateShow(this.INVITE_SENT);
             } else if (newState === this.ENDED && oldState === this.CONNECTED) {
                 this.stateShow(this.ENDED);
+                global.mxMatrixClientPeg.removeCall(room_id);
             } else if (newState === this.ENDED && oldState === this.INVITE_SENT &&
                     (call.hangupParty === "remote" ||
                     (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
                     )) {
                 this.stateShow(this.BUSY);
+                global.mxMatrixClientPeg.removeCall(room_id);
             } else if (oldState === this.INVITE_SENT) {
                 this.stateShow(this.CALLING);
             } else if (oldState === "ringing") {

@@ -53,11 +53,11 @@ export default {
     },
     methods:{
         mute: function() {
-            mxVoIP.mute(this.roomId);
+            this.voiceChat.mute(this.roomId);
         },
         hangUp: function() {
             console.log("====to hang up");
-            mxVoIP.hangUp(this.roomId);
+            this.voiceChat.hangUp(this.roomId);
         },
         updageVoipInfo: async function(event, windowInfo) {
             const voipInfo = windowInfo.voipInfo;
@@ -68,7 +68,7 @@ export default {
             this.userName = voipInfo.voipShowInfo.userName;
             console.log("global.mxMatrixClientPeg.homeserve ", global.mxMatrixClientPeg.homeserve);
 
-            mxVoIP.voiceCall(this.roomId, this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
+            this.voiceChat.voiceCall(this.roomId, this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
         },
         hangUpCallback: function() {
             console.log("hangup");
@@ -78,27 +78,27 @@ export default {
             console.log("err is ", err);
         },
         stateCallback: function(state) {
-            if (state === mxVoIP.CHATTING) {
+            if (state === this.voiceChat.CHATTING) {
                 this.curState = "通话中";
                 // _setCallState(call, call.roomId, "ringing");
                 // pause("ringbackAudio");
             }
-            else if (state === mxVoIP.CALLING) {
+            else if (state === this.voiceChat.CALLING) {
                 this.curState = "正在接通中";
                 // _setCallState(call, call.roomId, "ringing");
                 // pause("ringbackAudio");
-            } else if (state === mxVoIP.INVITE_SENT) {
+            } else if (state === this.voiceChat.INVITE_SENT) {
                 this.curState = "正在呼叫";
                 // _setCallState(call, call.roomId, "ringback");
                 // play("ringbackAudio");
-            } else if (state === mxVoIP.ENDED) {
+            } else if (state === this.voiceChat.ENDED) {
                 console.log("finished and emit close");
                 this.curState = "通话结束";
                 ipcRenderer.emit("close");
                 // _setCallState(undefined, call.roomId, "ended");
                 // pause("ringbackAudio");
                 // play("callendAudio");
-            } else if (state === mxVoIP.BUSY) {
+            } else if (state === this.voiceChat.BUSY) {
                 this.curState = "对方正忙";
                 ipcRenderer.emit("close");
                 // _setCallState(call, call.roomId, "busy");
@@ -123,12 +123,12 @@ export default {
             this.userName = voipInfo.voipShowInfo.userName;
             console.log("global.mxMatrixClientPeg.homeserve ", global.mxMatrixClientPeg.homeserve);
 
-            mxVoIP.voiceCall(this.roomId, this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
+            this.voiceChat.voiceCall(this.roomId, this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
         }
     },
     async mounted(){
-        let ret = await mxVoIP.createMatrix();
-        // ipcRenderer.on("childwindowArgs", this.updageVoipInfo);
+        this.voiceChat = new mxVoIP();
+        this.voiceChat.createMatrix();
     }
 }
 </script>
