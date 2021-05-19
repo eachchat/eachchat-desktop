@@ -3,14 +3,14 @@
         <favouritedetail v-show = "bFavouriteDetail" :collectionInfo = "collectionInfo"></favouritedetail>
         <reportRelationContent v-show = 'bReportRelationContent' :userInfo = "userInfo"></reportRelationContent>
         <VoIPVoice v-show = "bVoiceChat" :voipInfo="voipInfo"></VoIPVoice>
-        <videochat v-if = "bVideoChat" :roomInfo = "roomInfo"></videochat>
+        <VoIPVideo v-show = "bVideoChat" :roomInfo = "roomInfo"></VoIPVideo>
     </div>
 </template>
 
 <script>
 import favouritedetail from "./favourite-detail";
 import reportRelationContent from "./reportRelationContent";
-import videochat from "./videochat"
+import VoIPVideo from "./videochat"
 import VoIPVoice from './voicechat.vue';
 
 const ipcRenderer = require('electron').ipcRenderer
@@ -19,7 +19,7 @@ export default {
    components: {
         favouritedetail,
         reportRelationContent,
-        videochat,
+        VoIPVideo,
         VoIPVoice,
     },
     data(){
@@ -28,7 +28,7 @@ export default {
             collectionInfo: {},
             bReportRelationContent: false,
             userInfo: {},
-            bVideoChat: true,
+            bVideoChat: false,
             roomInfo: {},
             bVoiceChat: false,
             voipInfo: {},

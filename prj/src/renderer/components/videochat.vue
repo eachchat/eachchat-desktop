@@ -28,7 +28,7 @@
     </template>
 
 <script>
-import {CallChat} from "../../packages/data/callchat.js"
+import {mxVoIP} from "../../packages/data/mxVoIP.js"
 export default {
     data(){
         return{
@@ -41,21 +41,23 @@ export default {
             default:{}
         }
     },
-    methods:{
 
+    watch:{
+        roomInfo(){
+            console.log("roomInfo", this.roomInfo)
+            this.createVideoChat(this.roomInfo);
+        }
+    },
+
+    methods:{
+        createVideoChat(roomInfo){
+            this.callChat.videoCall(roomInfo);
+        }
     },
     mounted(){
         console.log("videochat mounted")
-        this.roomInfo.roomID = "!wfVGDZZtuMgzBTdCwL:staging.eachchat.net";
-        this.callChat = new CallChat();
-        this.callChat.createMatrix().then(async res =>{
-            console.log("begin matrix")
-            console.log(res)
-            console.log("end matrix")
-            await this.callChat.createVideoChat(this.roomInfo);
-        }); 
-        //if(this.callChat === {}) return;
-        
+        this.callChat = new mxVoIP();
+        this.callChat.createMatrix()  
     }
 }
 </script>
