@@ -495,7 +495,7 @@ export default {
             this.isMatrixPwd = false;
             this.isRecetPwd = true;
             this.toVerfyEmail = false;
-            var identityUrl = global.localStorage.getItem("mx_i_url");
+            var identityUrl = global.localStorage.getItem("mx_is_url");
             var homeServerUel = global.localStorage.getItem("mx_hs_url");
             this.pwdResetClient = Matrix.createClient({
                 baseUrl: homeServerUel,
@@ -658,7 +658,7 @@ export default {
             //     global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
             // }
             if(appServerInfo.data['m.identity_server'] != undefined) {
-                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identity_server']['base_url']);
+                global.localStorage.setItem("mx_is_url", appServerInfo.data['m.identity_server']['base_url']);
             }
             // if(appServerInfo.data['m.appserver'] != undefined) {
             //     var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];

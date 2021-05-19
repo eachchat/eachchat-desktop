@@ -64,6 +64,8 @@
                         </div>
                         <div class="chat-input-history" id="chat-input-history-id" @click="showMsgHistoryOperate()" v-show="!isSecret">
                         </div>
+                        <div class="video-chat" id="video-chat" @click="creatVideoChat()" v-show="!isSecret">
+                        </div>
                         <div class="chat-input-more" @click="ShowMore()" style="display:none">
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
@@ -624,6 +626,15 @@ export default {
             msgHistoryMenuElement.style.top = top + "px";
             msgHistoryMenuElement.style.left = left + "px";
         },
+
+
+        
+        creatVideoChat: function(){
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:300,height: 480},
+                roomInfo: { roomID: this.chat.roomId}})
+        },
+
         showScrollBar: function(e) {
             if(this.messageListElement == null) {
                 this.messageListElement = document.getElementById("message-show-list");
@@ -5097,6 +5108,15 @@ export default {
         height: 24px;
         margin: 8px 6px 8px 6px;
         background-image: url("../../../static/Img/Chat/chatHistory-24px@2x-hover.png");
+        background-size: contain;
+    }
+
+    .video-chat {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/videochat.png");
         background-size: contain;
     }
 

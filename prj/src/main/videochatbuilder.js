@@ -5,20 +5,21 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         super(childWindow, mainWindow);
         this.width = 0;
         this.height = 0;
-        this.userinfo = null;
+        this.roomID = null;
     }
 
     setArgs(args){
         this.size = args.size;
         this.width = this.size.width;
         this.height = this.size.height; 
-        this.userinfo = args.userinfo;
+        this.roomInfo = args.roomInfo;
     }
     
     build(){
         this.setWindowSize(this.size);
         let renderArgs ={};
         renderArgs.type = "videoChatWindow";
+        renderArgs.args = this.roomInfo;
         this.childWindow.webContents.send("childwindowArgs", renderArgs);
         this.showWindow();
         this.childWindow.webContents.openDevTools();
