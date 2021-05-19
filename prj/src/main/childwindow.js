@@ -65,12 +65,14 @@ function createChildWindow(mainwindowArgs){
       case "videoChatWindow":{
         let VideoChatWindow = new VideoChatWindowBuilder(childRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
         VideoChatWindow.build();
+        break;
       }
 
       case "voiceChatWindow":{
         let VoiceChatWindow = new VoiceChatWindowBuilder(childRenderWindowBrowser, mainWindow);
         VoiceChatWindow.setArgs(ipcArg);
         VoiceChatWindow.build();
+        break;
       }
       
       default:
