@@ -139,11 +139,11 @@ class CallChat{
         //let largeWindow = document.getElementById("large-window");
         //let smallWindow = document.getElementById("remoteAudio");
         _setCallListeners(this.call);
-        this.call.placeVideoCall(largeWindow, smallWindow);
-        //this.call.setLocalVideoElement(smallWindow);
-        //this.call.setRemoteVideoElement(largeWindow);
-        //this.call.setRemoteAudioElement(videoElm);
-        //this.call.placeVideoCall();
+        //this.call.placeVideoCall(largeWindow, smallWindow);
+        this.call.placeVideoCall();
+        this.call.setLocalVideoElement(smallWindow);
+        this.call.setRemoteVideoElement(largeWindow);
+        this.call.setRemoteAudioElement(videoElm);
     }
 
     async createVideoChat(roomInfo){
