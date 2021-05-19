@@ -2,7 +2,7 @@
     <div>
         <video class = "large-window" id = "large-window"></video>
         <video class = "small-window" id = "small-window"></video>
-        <audio controls="con                                                                           trols" class = "small-window" id = "audio-window"></audio>
+        <audio controls="controls" class = "small-window" id = "audio-window"></audio>
         <audio id="messageAudio">
             <source src="../../../static/message.ogg" type="audio/ogg" />
             <source src="../../../static/message.mp3" type="audio/mpeg" />
@@ -47,7 +47,8 @@ export default {
     mounted(){
         console.log("videochat mounted")
         this.roomInfo.roomID = "!wfVGDZZtuMgzBTdCwL:staging.eachchat.net";
-        CallChat.createMatrix().then(async res =>{
+        this.callChat = new CallChat();
+        this.callChat.createMatrix().then(async res =>{
             console.log("begin matrix")
             console.log(res)
             console.log("end matrix")
