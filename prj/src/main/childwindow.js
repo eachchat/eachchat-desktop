@@ -3,6 +3,7 @@ import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
 import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
 import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
 import {VideoChatWindowBuilder} from "./videochatbuilder.js"
+import {VoiceChatWindowBuilder} from "./voicechatbuilder.js";
 class ChildWindow{
     constructor(){
 
@@ -64,6 +65,12 @@ function createChildWindow(mainwindowArgs){
       case "videoChatWindow":{
         let VideoChatWindow = new VideoChatWindowBuilder(childRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
         VideoChatWindow.build();
+      }
+
+      case "voiceChatWindow":{
+        let VoiceChatWindow = new VoiceChatWindowBuilder(childRenderWindowBrowser, mainWindow);
+        VoiceChatWindow.setArgs(ipcArg);
+        VoiceChatWindow.build();
       }
       
       default:

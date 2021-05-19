@@ -3,6 +3,7 @@
         <favouritedetail v-show = "bFavouriteDetail" :collectionInfo = "collectionInfo"></favouritedetail>
         <reportRelationContent v-show = 'bReportRelationContent' :userInfo = "userInfo"></reportRelationContent>
         <videochat v-show = "bVideoChat"></videochat>
+        <VoIPVoice v-show = "bVoiceChat"></VoIPVoice>
     </div>
 </template>
 
@@ -10,6 +11,7 @@
 import favouritedetail from "./favourite-detail";
 import reportRelationContent from "./reportRelationContent";
 import videochat from "./videochat"
+import VoIPVoice from './voicechat.vue';
 
 const ipcRenderer = require('electron').ipcRenderer
 
@@ -17,7 +19,8 @@ export default {
    components: {
         favouritedetail,
         reportRelationContent,
-        videochat
+        videochat,
+        VoIPVoice,
     },
     data(){
         return {
@@ -26,6 +29,7 @@ export default {
             bReportRelationContent: false,
             userInfo: {},
             bVideoChat: false,
+            bVoiceChat: false,
         }
     },
 
@@ -43,26 +47,38 @@ export default {
             else if(args.type === "videoChatWindow"){
                 this.showVideoChat();
             }
+            else if(args.type === "voiceChatWindow") {
+                this.showVoiceChat();
+            }
         },
 
         showFavouriteDetail(){
             this.bFavouriteDetail = true;
             this.bReportRelationContent = false;
             this.bVideoChat = false;
+            this.bVoiceChat = false;
         },
 
         showRelationShip(){
             this.bReportRelationContent = true;
             this.bFavouriteDetail = false;
             this.bVideoChat = false;
+            this.bVoiceChat = false;
         },
 
         showVideoChat(){
             this.bVideoChat = true;
             this.bReportRelationContent = false;
             this.bFavouriteDetail = false;
-        }
+            this.bVoiceChat = false;
+        },
 
+        showVoiceChat(){
+            this.bVideoChat = false;
+            this.bReportRelationContent = false;
+            this.bFavouriteDetail = false;
+            this.bVoiceChat = true;
+        }
     },
 
     mounted(){

@@ -21,7 +21,7 @@
                 </div>
                 <!-- <div class="chat-tool-invite-div" @click.stop="createAnother"></div>  -->
                 <!-- @click="showAddMembersPrepare()" -->
-                <div class="chat-tool-call" @click="Call()" v-show=false>
+                <div class="chat-tool-call" @click="Call()" v-show=true>
                     <i class="el-icon-phone"></i>
                 </div>
             </div>
@@ -1664,7 +1664,8 @@ export default {
                         "timeline": {
                             "contains_url": true,
                             "types": [
-                                "m.room.message"
+                                "m.room.message", 
+                                'm.call.invite'
                             ],
                         },
                     },
@@ -3047,8 +3048,37 @@ export default {
                 return "msgContent";
             }
         },
-        Call: function() {
+        Call: async function() {
             console.log("make a call");
+            // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
+            const voipInfo = {};
+            voipInfo["voipType"] = "voice";
+            voipInfo["roomId"] = this.curChat.roomId;
+            voipInfo["voipFrame"] = "webRtc";
+            const voipShowUserInfo = {};
+
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            
+            let distUrl = this.$store.getters.getAvater(distUserId);
+
+            if(distUrl || distUrl == '') {
+                distUrl = "./static/Img/User/user-40px@2x.png";
+            }
+            
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            }
+
+            voipShowUserInfo["userImg"] = distUrl;
+            voipShowUserInfo["userName"] = showName;
+
+            voipInfo["voipShowInfo"] = voipShowUserInfo;
+            
+            ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
+                size:{width:300,height: 480},
+                voipInfo: voipInfo
+            })
         },
         groupIsInFavourite(groupInfo) {
             if(groupInfo.status == 0) {
@@ -3337,7 +3367,7 @@ export default {
         },
 
         messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.invite'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
             return false;
         },
 
@@ -3700,7 +3730,8 @@ export default {
                     "room": {
                         "timeline": {
                             "types": [
-                                "m.room.message"
+                                "m.room.message",
+                                'm.call.invite'
                             ],
                         },
                     },
@@ -4067,6 +4098,7 @@ export default {
             this.messageList = [];
             let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
             for(let i=messageListTmp.length - 1;i>0;i--){
+                console.log("====== cur msg type is ", messageListTmp[i].event.type, " and message content is ", messageListTmp[i].event.content)
                 let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
                 if(exitEventIndex >= 0) {
                     this.$store.commit('removeSendingEvents', messageListTmp[i]);
@@ -4286,6 +4318,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
+            if(this.newMsg.event.type == "m.call.candidates") return;
             this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
@@ -4307,21 +4340,27 @@ export default {
                 var getMessageList = this._getEvents();
                 for(let i=0;i<this.sendingList.length;i++) {
                     for(let j=getMessageList.length-1;j>= 0;j--){
-                        if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
-                            this.$store.commit("removeSendingEvents", this.sendingList[i]);
-                            console.log("=========this.sendingList ", this.sendingList);
-                            this.sendingList.splice(i, 1);
-                            console.log("============this.sendingList ", this.sendingList);
-                            getMessageList[j].message_status = 0;
-                            this.updatemsgStatus = {
-                                "id": getMessageList[j]._txnId ? getMessageList[j]._txnId : getMessageList[j].event.event_id,
-                                "status": 0
-                            };
-                            break;
+                        if(this.messageFilter(getMessageList[i]) && getMessageList[i].event.content){
+                            this.messageList.unshift(getMessageList[i]);
+                            if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
+                                this.$store.commit("removeSendingEvents", this.sendingList[i]);
+                                console.log("=========this.sendingList ", this.sendingList);
+                                this.sendingList.splice(i, 1);
+                                console.log("============this.sendingList ", this.sendingList);
+                                getMessageList[j].message_status = 0;
+                                this.updatemsgStatus = {
+                                    "id": getMessageList[j]._txnId ? getMessageList[j]._txnId : getMessageList[j].event.event_id,
+                                    "status": 0
+                                };
+                                break;
+                            }
                         }
                     }
                 }
-                this.messageList = getMessageList.concat(this.sendingList);
+                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=this.sendingList.length - 1;i>0;i--){
+                    this.messageList.unshift(this.sendingList[i]);
+                }
                 console.log("*** to get new message ", this.messageList);
             })
             setTimeout(() => {
@@ -4334,7 +4373,7 @@ export default {
                     }
                     else{
                         if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) && 
-                            (['m.room.message', 'm.room.encrypted'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
+                            (['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
                             this.newMsgNum += 1;
                             this.haveNewMsg = true;
                         }

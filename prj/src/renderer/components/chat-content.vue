@@ -1129,7 +1129,7 @@ export default {
       if(room.timeline) {
         for(var i=room.timeline.length-1;i>=0;i--) {
           var timeLineTmp = room.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create', "m.call.invite"].indexOf(timeLineTmp.getType()) >= 0) {
             if(!timeLineTmp.isRedacted()) {
               return timeLineTmp.event.origin_server_ts;
             }
@@ -1482,6 +1482,7 @@ export default {
         }, 100)
         return;
       }
+      if(newMsg.event.type == "m.call.m.call.candidates") return;
       if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId() || newMsg.isRedacted()) {
         return;
       }
@@ -3285,7 +3286,7 @@ export default {
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
-          if(['m.room.message', 'm.room.encrypted'].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', "m.call.invite"].indexOf(timeLineTmp.getType()) >= 0) {
             if(!timeLineTmp.isRedacted()) {
               return [timeLineTmp, distTimeItem];
             }
@@ -3303,7 +3304,7 @@ export default {
       await _timelineWindow.load(undefined, 20);
       var originalFileListInfo = _timelineWindow.getEvents();
       originalFileListInfo.forEach((item) => {
-        if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
+        if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(item.getType()) >= 0) {
             if(!item.isRedacted()) {
               distItem = item;
               return;
@@ -3315,7 +3316,7 @@ export default {
           await _timelineWindow.paginate("b", 20);
           fileListInfoTmp = await _timelineWindow.getEvents();
           fileListInfoTmp.forEach((item) => {
-            if(['m.room.message', 'm.room.encrypted'].indexOf(item.getType()) >= 0) {
+            if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(item.getType()) >= 0) {
               if(!item.isRedacted()) {
                 distItem = item;
                 return[undefined, undefined];
@@ -3374,7 +3375,8 @@ export default {
                     "timeline": {
                         "types": [
                             "m.room.message",
-                            "m.room.create"
+                            "m.room.create",
+                            "m.call.invite"
                         ],
                     },
                 },
@@ -3388,7 +3390,7 @@ export default {
         return timelineSet;
     },
     messageFilter(event){
-        if(['m.room.message', 'm.room.create'].indexOf(event.getType()) >= 0) return true;
+        if(['m.room.message', 'm.room.create', "m.call.invite"].indexOf(event.getType()) >= 0) return true;
         return false;
     },
     SetGroupItemGround(id){
