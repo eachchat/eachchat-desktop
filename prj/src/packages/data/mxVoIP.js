@@ -65,7 +65,7 @@ function _setCallState(call, roomId, status) {
     }
 }
 
-function _setVideoCallListeners(call) {
+function _setVideoCallListeners(call, videoCall) {
     call.on("error", function(err) {
         console.error("Call error:", err);
     });
@@ -102,6 +102,7 @@ function _setVideoCallListeners(call) {
             pause("ringbackAudio");
         } else if (newState === "connected") {
             _setCallState(call, call.roomId, "connected");
+            videoCall.showSmallWindow();
             pause("ringbackAudio");
         }
     });
@@ -253,18 +254,18 @@ class mxVoIP{
         });
     }
 
-    videoCall(roomInfo){
+    videoCall(roomInfo, videochat){
         let bSupportVoip = global.mxMatrixClientPeg.matrixClient.supportsVoip();
         console.log("support voip", bSupportVoip)
         let call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, roomInfo.roomID);
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
-        let videoElm = document.getElementById("audio-window");
-        _setVideoCallListeners(call);
+        let remoteAudio = document.getElementById("remoteAudio");
+        _setVideoCallListeners(call, videochat);
         call.placeVideoCall();
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
-        call.setRemoteAudioElement(videoElm);
+        call.setRemoteAudioElement(remoteAudio);
     }
 }
 

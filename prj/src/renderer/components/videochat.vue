@@ -1,8 +1,7 @@
 <template>
     <div>
         <video class = "large-window" id = "large-window"></video>
-        <video class = "small-window" id = "small-window"></video>
-        <audio controls="controls" class = "small-window" id = "audio-window"></audio>
+        <video class = "small-window" id = "small-window" v-show = "bSmallWindow"></video>
         <audio id="messageAudio">
             <source src="../../../static/message.ogg" type="audio/ogg" />
             <source src="../../../static/message.mp3" type="audio/mpeg" />
@@ -32,7 +31,7 @@ import {mxVoIP} from "../../packages/data/mxVoIP.js"
 export default {
     data(){
         return{
-
+            bSmallWindow: false
         }
     },
     props:{
@@ -44,14 +43,17 @@ export default {
 
     watch:{
         roomInfo(){
-            console.log("roomInfo", this.roomInfo)
             this.createVideoChat(this.roomInfo);
         }
     },
 
     methods:{
         createVideoChat(roomInfo){
-            this.callChat.videoCall(roomInfo);
+            this.callChat.videoCall(roomInfo, this);
+        },
+
+        showSmallWindow(){
+            this.bSmallWindow = true;
         }
     },
     mounted(){
@@ -68,9 +70,14 @@ export default {
     width: 100%;
     height: 100%;
     position: absolute;
+    background: #4A4C5B;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);
+    border-radius: 4px;
 }
 
 .small-window{
+    position: relative;
+    float:right;
     z-index: 1;
     width: 96px;
     height: 170px;
