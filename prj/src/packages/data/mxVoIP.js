@@ -1,23 +1,27 @@
 import { ipcRenderer } from 'electron';
 import Matrix from 'matrix-js-sdk';
 
-const mxVoIP = {
-    CALLING:'calling',
-    CONNECTED: 'connected',
-    CHATTING: 'chatting',
-    INVITING: 'inviting',
-    INVITE_SENT: 'invite_sent',
-    ENDED: 'ended',
-    BUSY: 'busy',
-    callList: {
-        //roomId: call
-    },
-    errorShow: null,
-    stateShow: null,
-    hangupShow: null,
+class mxVoIP{
+    constructor(){
+        CALLING ='calling';
+        CONNECTED = 'connected';
+        CHATTING = 'chatting';
+        INVITING = 'inviting';
+        INVITE_SENT = 'invite_sent';
+        ENDED = 'ended';
+        BUSY = 'busy';
+        callList = {
+            //roomId: call
+        },
+        errorShow = null;
+        stateShow = null;
+        hangupShow = null;
+    }
+    
     _addCall(roomId, call) {
         this.callList[roomId] = call;
-    },
+    }
+
     _removeCall(roomId) {
         try{
             delete this.callList[roomId];
@@ -25,7 +29,8 @@ const mxVoIP = {
         catch(e) {
 
         }
-    },
+    }
+
     async createMatrix(){
         var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
@@ -47,7 +52,8 @@ const mxVoIP = {
         ops.pendingEventOrdering = "detached";
         ops.lazyLoadMembers = true;
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
-    },
+    }
+
     hangUp(room_id) {
         try{
             console.log("the calllist is ", this.callList);
@@ -62,19 +68,22 @@ const mxVoIP = {
         }
         this._removeCall(room_id);
         ipcRenderer.emit("close");
-    },
+    }
+
     mute(room_id) {
         const distCall = this.callList[room_id];
         if(distCall != null) {
             distCall.setLocalVideoMuted(true);
         }
-    },
+    }
+
     unMuted(room_id) {
         const distCall = this.callList[room_id];
         if(distCall != null) {
             distCall.setLocalVideoMuted(false);
         }
-    },
+    }
+
     isMuted(room_id) {
         let isMuted = false;
         const distCall = this.callList[room_id];
@@ -82,7 +91,8 @@ const mxVoIP = {
             isMuted = distCall.isLocalVideoMuted();
         }
         return isMuted;
-    },
+    }
+
     voiceCall(room_id, hangUpCallback, errCallback, stateCallback){
         if(Object.keys(this.callList).indexOf(room_id) >= 0) {
             stateCallback(this.CHATTING);
@@ -99,7 +109,8 @@ const mxVoIP = {
         this.stateShow = stateCallback;
         this._callListeners(call);
         call.placeVoiceCall();
-    },
+    }
+
     _callListeners(call){
         call.on("error", err => {
             this.errorShow(err);
@@ -134,7 +145,7 @@ const mxVoIP = {
                 // this.stateShow(this.CHATTING);
             }
         });
-    },
+    }
 }
 
 
