@@ -168,7 +168,7 @@ export default {
 .voice-text{
     z-index: 1;
     position: absolute;
-    left: 140px;
+    left: 224px;
     top: 456px;
     width: 20px;
     display: block;
@@ -183,7 +183,7 @@ export default {
 .hangup-text{
     z-index: 1;
     position: absolute;
-    left: 224px;
+    left: 140px;
     top: 456px;
     width: 20px;
     display: block;
