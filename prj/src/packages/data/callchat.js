@@ -82,7 +82,6 @@ function _setCallListeners(call) {
         } else if (newState === "invite_sent") {
             _setCallState(call, call.roomId, "ringback");
             play("ringbackAudio");
-            //play("large-window")
         } else if (newState === "ended" && oldState === "connected") {
             _setCallState(undefined, call.roomId, "ended");
             pause("ringbackAudio");
@@ -133,18 +132,18 @@ class CallChat{
     syncComplete(roomInfo){
         let bSupportVoip = this.matrixClient.supportsVoip();
         console.log("support voip", bSupportVoip)
-        const call = Matrix.createNewMatrixCall(this.matrixClient, roomInfo.roomID);
+        this.call = Matrix.createNewMatrixCall(this.matrixClient, roomInfo.roomID);
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
         let videoElm = document.getElementById("audio-window");
         //let largeWindow = document.getElementById("large-window");
         //let smallWindow = document.getElementById("remoteAudio");
-        _setCallListeners(call);
-        //this.call.placeVideoCall(largeWindow, smallWindow);
-        call.setLocalVideoElement(smallWindow);
-        call.setRemoteVideoElement(largeWindow);
-        call.setRemoteAudioElement(videoElm);
-        call.placeVideoCall();
+        _setCallListeners(this.call);
+        this.call.placeVideoCall(largeWindow, smallWindow);
+        //this.call.setLocalVideoElement(smallWindow);
+        //this.call.setRemoteVideoElement(largeWindow);
+        //this.call.setRemoteAudioElement(videoElm);
+        //this.call.placeVideoCall();
     }
 
     async createVideoChat(roomInfo){
