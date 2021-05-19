@@ -35,13 +35,13 @@ export default {
     },
     methods: {
        getVoipImg() {
-           if(this.voipType.indexOf("voice") >= 0) {
+           if(this.voipType === "voice") {
                if(this.isMine) return "../../../static/Img/Chat/VoIPVoiceMine@2x.png";
-               else return "../../../static/Img/Chat/VoIPVoiceOthers.png";
+               else return "../../../static/Img/Chat/VoIPVoiceOthers@2x.png";
            } 
            else {
                if(this.isMine) return "../../../static/Img/Chat/VoIPVideoMine@2x.png";
-               else return "../../../static/Img/Chat/VoIPVideoOthers@2x@2x.png";
+               else return "../../../static/Img/Chat/VoIPVideoOthers@2x.png";
            }
        },
        callBack() {

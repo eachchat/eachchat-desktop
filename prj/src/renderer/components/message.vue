@@ -701,10 +701,10 @@ export default {
         getVoipType: function() {
             return "voice";
         },
-        generalVoipInfo: async function() {
+        generalVoipInfo: async function(isVoice) {
             // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
             const voipInfo = {};
-            voipInfo["voipType"] = "voice";
+            voipInfo["voipType"] = isVoice ? "voice" : "video";
             voipInfo["roomId"] = this.msg.event.room_id;
             const voipShowUserInfo = {};
 
@@ -1100,7 +1100,12 @@ export default {
             }
             else if(chatGroupMsgType === "m.call.invite") {
                 this.callId = this.msg.event.content.call_id;
-                this.generalVoipInfo();
+                let isVoice = true;
+                if (event.content.offer && event.content.offer.sdp &&
+                        event.content.offer.sdp.indexOf('m=video') !== -1) {
+                    isVoice = false;
+                }
+                this.generalVoipInfo(isVoice);
             }
             else if(chatGroupMsgType === "m.call.candidates") {
 
