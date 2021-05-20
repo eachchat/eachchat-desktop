@@ -23,12 +23,10 @@
             <source src="../../../static/busy.mp3" type="audio/mpeg" />
         </audio>
         <audio id="remoteAudio"></audio>
-        <div class = "camera-icon"></div>
         <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
         <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
         <div class = "hangup-icon" @click="hangupVideo"></div>
         <div class = "voice-icon"></div>
-        <span class = "change-camera-text">切换摄像头</span>
         <span class = "mute-text">静音</span>
         <span class = "voice-text">音量</span>
         <span class = "hangup-text">挂断</span>
