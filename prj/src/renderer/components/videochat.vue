@@ -24,7 +24,8 @@
         </audio>
         <audio id="remoteAudio"></audio>
         <div class = "camera-icon"></div>
-        <div class = "mute-icon" @click="muteVoice"></div>
+        <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
+        <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
         <div class = "hangup-icon" @click="hangupVideo"></div>
         <div class = "voice-icon"></div>
         <span class = "change-camera-text">切换摄像头</span>
@@ -40,7 +41,8 @@ import {mxVoIP} from "../../packages/data/mxVoIP.js"
 export default {
     data(){
         return{
-            bSmallWindow: false
+            bSmallWindow: false,
+            isMute: true
         }
     },
     props:{
@@ -71,7 +73,15 @@ export default {
 
         muteVoice(){
             this.callChat.muteVoice(this.roomInfo.roomID);
+            this.isMute = false;
+        },
+
+        unMuteVoice(){
+            this.callChat.unMuteVoice(this.roomInfo.roomID);
+            this.isMute = true;
         }
+
+
     },
     mounted(){
         console.log("videochat mounted")
@@ -121,6 +131,16 @@ export default {
     width: 44px;
     height: 44px;
     background-image: url("../../../static/Img/VoIP/muteMicphone.png"); 
+}
+
+.unmute-icon{
+    position: absolute;
+    z-index: 1;
+    left: 44px;
+    top: 404px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/mutedMicphone.png"); 
 }
 
 .hangup-icon{

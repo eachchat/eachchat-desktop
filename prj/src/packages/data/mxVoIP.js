@@ -171,6 +171,13 @@ class mxVoIP{
         }
     }
 
+    unMuteVoice(room_id){
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
+            distCall.setMicrophoneMuted(false);
+        }
+    }
+
     unMuted(room_id) {
         let distCall = global.mxMatrixClientPeg.getCall(room_id);
         if (distCall) {
