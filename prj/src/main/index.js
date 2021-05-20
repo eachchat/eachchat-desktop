@@ -1502,6 +1502,7 @@ function createWindow () {
 
   childRenderWindowBrowser.on('close', (event) => {
     console.log("childRenderWindowBrowser", clickQuit)
+    childRenderWindowBrowser.webContents.send("closeChildRenderWindowBrowser");
     if(clickQuit){
       app.quit();
       return;

@@ -90,6 +90,12 @@ export default {
             ipcRenderer.send("hideVideoChat");
         },
 
+        closeWindow(){
+            if(this.roomInfo && this.roomInfo.roomID){
+                this.callChat.hangUp(this.roomInfo.roomID);
+            }
+        },
+
         muteVoice(){
             this.callChat.muteVoice(this.roomInfo.roomID);
             this.isMute = false;
@@ -105,7 +111,8 @@ export default {
     mounted(){
         console.log("videochat mounted")
         this.callChat = new mxVoIP();
-        this.callChat.createMatrix()  
+        this.callChat.createMatrix();
+        ipcRenderer.on("closeChildRenderWindowBrowser", this.closeWindow)
     }
 }
 </script>
