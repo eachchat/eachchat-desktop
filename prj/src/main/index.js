@@ -146,7 +146,7 @@ function checkTrayLeave() {
       isLeave = true;
       console.log("======notice hide");
       if(!noticeWindowKeepShow) {
-        noticeWindow.hide();
+        // noticeWindow.hide();
       }
     }
   }, 100);
@@ -178,7 +178,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     if(process.platform == "win32") {
       if(isLeave) {
         if(noticeInfo && Object.keys(noticeInfo).length == 0) {
-          noticeWindow.hide();
+          // noticeWindow.hide();
         }
         else {
           isLeave = false;
@@ -293,15 +293,24 @@ ipcMain.on('showLoginBindView', function(){
   showMain();
 })
 
-ipcMain.on('checkClick', function(event, ids) {
+ipcMain.on('checkClick', function(event, action, ids) {
   if(!mainWindow) return;
   mainWindow.show();
   mainWindow.focus();
-  if(ids.length == 1) {
+  if(action == "JumpToDistChat") {
     mainWindow.webContents.send('jumpToChat', ids[0]);
   }
-  else{
+  else if(action == "ClearAll"){
     mainWindow.webContents.send('clearAll', ids);
+  }
+  else if(action == "AnswerVoIP") {
+    mainWindow.webContents.send('AnswerVoIP', ids);
+  }
+  else if(action == "HangupVoIP") {
+    mainWindow.webContents.send('HangupVoIP', ids);
+  }
+  else if(action == "showVoIPPage") {
+    mainWindow.webContents.send('showVoIPPage', ids);
   }
 })
 
@@ -309,7 +318,7 @@ ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
   if(!noticeWindow) return;
   noticeWindowKeepShow = arg;
   if(!arg && isLeave) {
-    noticeWindow.hide();
+    // noticeWindow.hide();
   }
 })
 
@@ -322,6 +331,18 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
     let showY = screenSize.height - noticeHeight;
     noticeWindow.setPosition(showX, showY)
     noticeWindow.webContents.send("updateTrayNotice", arg);
+  }
+})
+
+ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
+  if(process.platform == "win32" && noticeWindow) {
+    noticeInfo = arg;
+    noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
+    noticeWindow.setSize(240, noticeHeight);
+    let showX = screenSize.width - 20 - 240;
+    let showY = screenSize.height - noticeHeight;
+    noticeWindow.setPosition(showX, showY)
+    noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
   }
 })
 
@@ -1424,7 +1445,7 @@ function createWindow () {
     noticeWindow = new BrowserWindow({
       height: 52,
       width: 240,
-      frame: false,
+      frame: true,
       resizable: true,
       webPreferences: {
         webSecurity: false,

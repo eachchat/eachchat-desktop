@@ -4123,7 +4123,7 @@ export default {
             this.messageList = [];
             let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
             for(let i=messageListTmp.length - 1;i>0;i--){
-                console.log("====== cur msg type is ", messageListTmp[i].event.type, " and message content is ", messageListTmp[i].event.content)
+                console.log("====== cur msg type is ", messageListTmp[i].event.type, " and message content is ", messageListTmp[i].event)
                 let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
                 if(exitEventIndex >= 0) {
                     this.$store.commit('removeSendingEvents', messageListTmp[i]);

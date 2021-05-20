@@ -46,7 +46,8 @@ class _MatrixClientPeg{
     }
 
     getCall(roomId) {
-      return this.callList[roomId];
+      if(roomId) return this.callList[roomId];
+      else return this.callList;
     }
 
     setRecoveryKey(recoveryKey) {

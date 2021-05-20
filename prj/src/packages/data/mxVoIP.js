@@ -148,7 +148,10 @@ class mxVoIP{
     hangUp(room_id) {
         try{
             if (global.mxMatrixClientPeg.getCall(room_id)) {
+                console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
                 global.mxMatrixClientPeg.getCall(room_id).hangup();
+                
+                console.log("====to hangup and call state is ", global.mxMatrixClientPeg.getCall(room_id).call_state);
             }
         }
         catch(e) {
@@ -195,7 +198,15 @@ class mxVoIP{
         return isMuted;
     }
 
-    voiceCall(room_id, hangUpCallback, errCallback, stateCallback){
+    voiceAnswer(room_id) {
+        if(global.mxMatrixClientPeg.getCall(room_id)) {
+            console.log("====to answer and call is ", global.mxMatrixClientPeg.getCall(room_id));
+            global.mxMatrixClientPeg.getCall(room_id).answer();
+            console.log("====to answer and call state is ", global.mxMatrixClientPeg.getCall(room_id).call_state);
+        }
+    }
+
+    voiceCall(room_id){
         if(global.mxMatrixClientPeg.getCall(room_id)) {
             stateCallback(this.CHATTING);
             return;
@@ -206,19 +217,26 @@ class mxVoIP{
             return;
         }
         const call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, room_id);
+        console.log("====to create call is ", call);
+        console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
-        this.errorShow = errCallback;
-        this.hangupShow = hangUpCallback;
-        this.stateShow = stateCallback;
-        this._callListeners(call);
+        this.callListeners(call);
         call.placeVoiceCall();
     }
 
-    _callListeners(call){
+    setVoiceCallback(hangUpCallback, errCallback, stateCallback) {
+        this.errorShow = errCallback;
+        this.hangupShow = hangUpCallback;
+        this.stateShow = stateCallback;
+    }
+
+    callListeners(call){
         call.on("error", err => {
             this.errorShow(err);
         });
         call.on("hangup", () => {
+            console.log("call is ", call);
+            console.log("====to hangup and call state is ", call.call_state);
             this.hangupShow();
         });
         call.on("state", (newState, oldState) => {
@@ -227,16 +245,20 @@ class mxVoIP{
                 // this.stateShow(this.CHATTING);
             }
             else if (newState === this.CALLING) {
+                console.log("====to this.CALLING and call state is ", call.call_state);
                 this.stateShow(this.CALLING);
             } else if (newState === this.INVITE_SENT) {
+                console.log("====to this.INVITE_SENT and call state is ", call.call_state);
                 this.stateShow(this.INVITE_SENT);
             } else if (newState === this.ENDED && oldState === this.CONNECTED) {
+                console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
                 this.stateShow(this.ENDED);
                 global.mxMatrixClientPeg.removeCall(room_id);
             } else if (newState === this.ENDED && oldState === this.INVITE_SENT &&
                     (call.hangupParty === "remote" ||
                     (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
                     )) {
+                console.log("====to this.hanguped and call state is ", call.call_state);
                 this.stateShow(this.BUSY);
                 global.mxMatrixClientPeg.removeCall(room_id);
             } else if (oldState === this.INVITE_SENT) {
