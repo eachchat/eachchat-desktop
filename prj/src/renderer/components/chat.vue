@@ -71,9 +71,9 @@
                     <div class="chat-send" v-show="false" @click="sendMsg()">
                         <i class="el-icon-s-promotion"></i>
                     </div>
-                    <div class="video-chat" @click="creatVideoChat()" v-show="!isSecret">
+                    <div class="video-chat" @click="creatVideoChat()" v-show="!isSecret && isDm">
                     </div>
-                    <div class="voice-chat" @click="voiceCall()" v-show="!isSecret">
+                    <div class="voice-chat" @click="voiceCall()" v-show="!isSecret && isDm">
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
@@ -4092,6 +4092,12 @@ export default {
             }
             this.newMsgNum = 0;
             this.curChat = this.chat;
+            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
+                this.isDm = true;
+            }
+            else{
+                this.isDm = false;
+            }
             this.initSearchKey = '';
             this.inviterInfo = undefined;
             this.isInvite = false;
