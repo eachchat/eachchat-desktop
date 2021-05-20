@@ -33,7 +33,10 @@
         <span class = "mute-text">静音</span>
         <span class = "voice-text">音量</span>
         <span class = "hangup-text">挂断</span>
-        <img class = "user-img" src="../../../static/Img/User/user-40px@2x.png">
+        <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
+        onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+        <div class = "username" v-show="bShowStateText">{{useName}}</div>
+        <div class = "stateText" v-show="bShowStateText">{{stateText}}</div>
     </div>
 </template>
 
@@ -46,7 +49,11 @@ export default {
         return{
             bSmallWindow: false,
             isMute: true,
-            nVoice: 100
+            nVoice: 100,
+            useName: "",
+            stateText: "",
+            bShowStateText: true,
+            intervalTime: undefined
         }
     },
     props:{
@@ -63,6 +70,37 @@ export default {
     },
 
     methods:{
+        updateStateText(){
+            if(this.stateText === ""){
+                this.stateText = "正在接通中"
+            }
+            else if(this.stateText === "正在接通中"){
+                this.stateText = "正在接通中."
+            }
+            else if(this.stateText === "正在接通中."){
+                this.stateText = "正在接通中.."
+            }
+            else if(this.stateText === "正在接通中.."){
+                this.stateText = "正在接通中..."
+            }
+            else if(this.stateText === "正在接通中..."){
+                this.stateText = "正在接通中"
+            }
+        },
+
+        showStateText(){
+            this.bShowStateText = true;
+            this.intervalTime = setInterval(() => {
+                this.updateStateText();
+            }, 1000)
+        },
+
+        hideStateText()
+        {
+            this.bShowStateText = false;
+            clearInterval(this.intervalTime);
+        },
+
         changeVoice(){
             console.log(this.nVoice)
             let videoElm = document.getElementById("remoteAudio");
@@ -78,7 +116,16 @@ export default {
         },
 
         createVideoChat(roomInfo){
+            this.showStateText();
             this.callChat.videoCall(roomInfo, this);
+            let url = roomInfo.url;
+            if(url.length != 0){
+                let imgEle = document.getElementById("video-chat-user-img");
+                if(imgEle){
+                    imgEle.src = url;
+                }
+            }
+            this.useName = roomInfo.name;
         },
 
         showSmallWindow(){
@@ -88,11 +135,13 @@ export default {
         hangupVideo(){
             this.callChat.hangUp(this.roomInfo.roomID);
             ipcRenderer.send("hideVideoChat");
+            this.hideStateText();
         },
 
         closeWindow(){
             if(this.roomInfo && this.roomInfo.roomID){
                 this.callChat.hangUp(this.roomInfo.roomID);
+                this.hideStateText();
             }
         },
 
@@ -279,5 +328,32 @@ export default {
     width: 80px;
     height: 3px;
     background: #FFFFFF;
+}
+
+.username{
+    position: absolute;
+    text-align: center;
+    top: 192px;
+    width: 300px;
+    height: 22px;
+    font-size: 16px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 22px;
+    letter-spacing: 2px;
+}
+
+.stateText{
+    position: absolute;
+    text-align: center;
+    top: 222px;
+    width: 300px;
+    height: 18px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #999999;
+    line-height: 18px;
 }
 </style>

@@ -102,6 +102,7 @@ function _setVideoCallListeners(call, videoCall) {
         } else if (newState === "connected") {
             _setCallState(call, call.roomId, "connected");
             videoCall.showSmallWindow();
+            videoCall.hideStateText();
             pause("ringbackAudio");
         }
     });

@@ -628,13 +628,19 @@ export default {
             msgHistoryMenuElement.style.top = top + "px";
             msgHistoryMenuElement.style.left = left + "px";
         },
-
-
         
-        creatVideoChat: function(){
+        creatVideoChat: async function(){
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            let distUrl = this.$store.getters.getAvater(distUserId);
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
                 size:{width:300,height: 480},
-                roomInfo: { roomID: this.chat.roomId}})
+                        roomInfo: { roomID: this.chat.roomId,
+                                    name: showName,
+                                    url:distUrl}});
         },
 
         showScrollBar: function(e) {
