@@ -22,6 +22,9 @@
             <source src="../../../static/busy.ogg" type="audio/ogg" />
             <source src="../../../static/busy.mp3" type="audio/mpeg" />
         </audio>
+        <div class = "audioMeterBackground">
+            <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
+        </div>
         <audio id="remoteAudio"></audio>
         <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
         <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
@@ -42,7 +45,8 @@ export default {
     data(){
         return{
             bSmallWindow: false,
-            isMute: true
+            isMute: true,
+            nVoice: 100
         }
     },
     props:{
@@ -59,6 +63,20 @@ export default {
     },
 
     methods:{
+        changeVoice(){
+            console.log(this.nVoice)
+            let videoElm = document.getElementById("remoteAudio");
+            if(videoElm){
+                videoElm.volume = this.nVoice / 100;
+            }
+            if(this.nVoice == 0){
+                this.isMute = false;
+            }
+            else{
+                this.isMute = true;
+            }
+        },
+
         createVideoChat(roomInfo){
             this.callChat.videoCall(roomInfo, this);
         },
@@ -232,5 +250,27 @@ export default {
     width: 60px;
     height: 60px;
     border-radius: 50%;
+}
+
+.audioMeterBackground{
+    z-index: 1;
+    position: absolute;
+    width: 26px;
+    height: 104px;
+    left: 221px;
+    top: 296px;
+    background: #000000;
+    opacity: 0.4;
+}
+
+.audioMeter{
+    z-index: 1;
+    transform: rotate(270deg);
+    position: relative;
+    top: 40px;
+    right: 29px;
+    width: 80px;
+    height: 3px;
+    background: #FFFFFF;
 }
 </style>
