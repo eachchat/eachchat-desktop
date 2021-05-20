@@ -1,4 +1,5 @@
 import {RenderWindowBuilder} from './renderbuilder'
+const ipcMain = require('electron').ipcMain;
 
 class VideoChatWindowBuilder extends RenderWindowBuilder{
     constructor(childWindow, mainWindow){
@@ -21,8 +22,15 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         renderArgs.type = "videoChatWindow";
         renderArgs.args = this.roomInfo;
         this.childWindow.webContents.send("childwindowArgs", renderArgs);
+        this.onIpcMain();
         this.showWindow();
         this.childWindow.webContents.openDevTools();
+    }
+
+    onIpcMain(){
+        ipcMain.on("hideVideoChat", () => {
+            this.childWindow.hide();
+        })
     }
 }
 

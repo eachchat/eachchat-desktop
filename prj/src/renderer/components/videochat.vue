@@ -38,6 +38,8 @@
 
 <script>
 import {mxVoIP} from "../../packages/data/mxVoIP.js"
+import {ipcRenderer} from 'electron'
+
 export default {
     data(){
         return{
@@ -69,6 +71,7 @@ export default {
 
         hangupVideo(){
             this.callChat.hangUp(this.roomInfo.roomID);
+            ipcRenderer.send("hideVideoChat");
         },
 
         muteVoice(){
