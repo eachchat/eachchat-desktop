@@ -24,8 +24,8 @@
         </audio>
         <audio id="remoteAudio"></audio>
         <div class = "camera-icon"></div>
-        <div class = "mute-icon"></div>
-        <div class = "hangup-icon"></div>
+        <div class = "mute-icon" @click="muteVoice"></div>
+        <div class = "hangup-icon" @click="hangupVideo"></div>
         <div class = "voice-icon"></div>
         <span class = "change-camera-text">切换摄像头</span>
         <span class = "mute-text">静音</span>
@@ -33,7 +33,7 @@
         <span class = "hangup-text">挂断</span>
         <img class = "user-img" src="../../../static/Img/User/user-40px@2x.png">
     </div>
-    </template>
+</template>
 
 <script>
 import {mxVoIP} from "../../packages/data/mxVoIP.js"
@@ -63,6 +63,14 @@ export default {
 
         showSmallWindow(){
             this.bSmallWindow = true;
+        },
+
+        hangupVideo(){
+            this.callChat.hangUp(this.roomInfo.roomID);
+        },
+
+        muteVoice(){
+            this.callChat.muteVoice(this.roomInfo.roomID);
         }
     },
     mounted(){

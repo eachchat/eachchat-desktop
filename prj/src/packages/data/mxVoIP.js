@@ -158,20 +158,30 @@ class mxVoIP{
     }
 
     mute(room_id) {
-        if (global.mxMatrixClientPeg.getCall(room_id)) {
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
             distCall.setLocalVideoMuted(true);
         }
     }
 
+    muteVoice(room_id){
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
+            distCall.setMicrophoneMuted(true);
+        }
+    }
+
     unMuted(room_id) {
-        if (global.mxMatrixClientPeg.getCall(room_id)) {
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
             distCall.setLocalVideoMuted(false);
         }
     }
 
     isMuted(room_id) {
         let isMuted = false;
-        if (global.mxMatrixClientPeg.getCall(room_id)) {
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
             isMuted = distCall.isLocalVideoMuted();
         }
         return isMuted;
