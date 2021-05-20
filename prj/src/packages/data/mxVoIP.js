@@ -2,7 +2,6 @@ import { ipcRenderer } from 'electron';
 import Matrix from 'matrix-js-sdk';
 
 const audioPromises = {};
-const calls = {};
 
 function play(audioId) {
     // TODO: Attach an invisible element for this instead
@@ -52,7 +51,7 @@ function _setCallState(call, roomId, status) {
     console.log(
         `Call state in ${roomId} changed to ${status} (${call ? call.call_state : "-"})`,
     );
-    calls[roomId] = call;
+    global.mxMatrixClientPeg.addCall(roomId, call);
 
     if (status === "ringing") {
         play("ringAudio");
@@ -249,7 +248,6 @@ class mxVoIP{
         call.setRemoteAudioElement(remoteAudio);
     }
 }
-
 
 export{
     mxVoIP
