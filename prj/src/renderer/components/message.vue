@@ -649,10 +649,47 @@ export default {
                 return this.getFileIconThroughExt(ext);
             }
         },
+        downLoadImg: async function(iconPath) {
+            const existLocalFile = await this.getFileExist();
+            if(fs.existsSync(existLocalFile)) return;
+            const chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            const event = this.msg.event;
+            const distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+            const finalPath = path.join(distPath, chatGroupMsgContent.body);
+            getFileBlob(chatGroupMsgContent.info, iconPath)
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            var buffer = new Buffer(reader.result);
+                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                            ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
+        },
+        updateMsgImg: async function() {
+            if(this.MsgIsImage()) {
+                const existLocalFile = await this.getFileExist();
+                if(fs.existsSync(existLocalFile)) {
+                    let imgElement = document.getElementById(this.msg.event.event_id);
+                    var showfu = new FileUtil(existLocalFile);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    var reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        imgElement.setAttribute("src", reader.result);
+                    }
+                }
+            }
+        },
         getMsgImgIcon: function() {
             var distUrl = (this.msg.event.content.info && this.msg.event.content.info.thumbnail_url && this.msg.event.content.info.thumbnail_url.length != 0) ? this.msg.event.content.info.thumbnail_url : this.msg.event.content.url;
             if(!distUrl.startsWith('blob:')) {
                 let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
+                this.downLoadImg(iconPath);
+                this.updateMsgImg();
                 return iconPath;
             }
             else {
