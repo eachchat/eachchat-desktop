@@ -1157,6 +1157,9 @@ export default {
                     this.messageContent = "**无法解密:发送方的设备没有给我们发送此消息的密钥。**";
                 }
             }
+            else {
+                this.messageContent = "不支持的消息类型，请升级客户端";
+            }
         },
         MsgIsMine:function() {
             if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {

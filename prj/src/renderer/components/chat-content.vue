@@ -333,6 +333,10 @@ export default {
     // listItem
   },
   props: {
+    toUpdateTrayNotice: {
+      type: Number ,
+      default: 0
+    },
     setToRealAll: {
       type: Array,
       default: []
@@ -359,6 +363,16 @@ export default {
     }
   },
   watch: {
+    toUpdateTrayNotice: function() {
+      console.log("to update tray notice ");
+      try{
+        delete this.trayNoticeInfo[this.curChat.roomId];
+        ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
+      }
+      catch(e) {
+
+      }
+    },
     toSaveDraft: function() {
       this.cleanSearchKey = !this.cleanSearchKey;
 
@@ -1503,6 +1517,9 @@ export default {
       else {
         this.dealingEventIds.push(ev.event.event_id);
       }
+      if(ev.event.type.indexOf("m.call.") >= 0 && ev.event.type != "m.call.invite") {
+        return;
+      };
       if(this.isFirstLogin) {
         var curTime = new Date().getTime();
         if(curTime - ev.event.origin_server_ts > 1000 * 60) {
