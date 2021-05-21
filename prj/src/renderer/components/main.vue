@@ -30,7 +30,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading || dbDataNotFinished">
@@ -108,6 +108,7 @@ export default {
     },
     data () {
         return {
+            toUpdateTrayNotice: 0,
             setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
@@ -781,6 +782,7 @@ export default {
                     if(e.target.id != 'owverInfoEnditID')
                     {
                         console.log(e.target.id)
+                        _this.toUpdateTrayNotice = _this.toUpdateTrayNotice + 1;
                         _this.showPersonalCenter = false;    
                     }
                         
