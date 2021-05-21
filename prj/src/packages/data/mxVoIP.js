@@ -1,5 +1,7 @@
 import { ipcRenderer } from 'electron';
 import Matrix from 'matrix-js-sdk';
+import {ComponentUtil} from '../../renderer/script/component-util.js';
+
 
 const audioPromises = {};
 
@@ -101,9 +103,11 @@ function _setVideoCallListeners(call, videoCall) {
             pause("ringbackAudio");
         } else if (newState === "connected") {
             _setCallState(call, call.roomId, "connected");
-            videoCall.showSmallWindow();
-            videoCall.hideStateText();
             pause("ringbackAudio");
+            if(videoCall){
+                videoCall.showSmallWindow();
+                videoCall.hideStateText();
+            }
         }
     });
 }
@@ -143,6 +147,85 @@ class mxVoIP{
         ops.pendingEventOrdering = "detached";
         ops.lazyLoadMembers = true;
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
+        this.onMatrixSync();
+    }
+
+    onMatrixSync(){
+        global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
+            console.log("state ", state);
+            console.log("prevState ", prevState);
+            console.log("data ", data);
+          switch(state){
+            case "PREPARED":
+                global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
+                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingCall);
+              break;
+            default:
+              break;
+          }
+        })
+    }
+
+    async handleComingCall(call) {
+        console.log("coming call call is ", call);
+        console.log("coming call call state is ", call.state);
+        let isCalling = false;
+        let exitCalls = global.mxMatrixClientPeg.getCall();
+        for(let i = 0; i < exitCalls.length; i++) {
+            let checkCall = exitCalls[i];
+            if(checkCall.state == ENDED) {
+                global.mxMatrixClientPeg.removeCall(checkCall.roomId);
+            }
+            else {
+                isCalling = true;
+            }
+        }
+        if(isCalling) {
+            // I am busy now.
+            call.hangup(call.roomId);
+            return;
+        }
+        global.mxMatrixClientPeg.addCall(call.roomId, call);
+        let noticeType = "voice";
+        if(call && call.type == "video") {
+            noticeType = "video";
+        }
+
+        let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
+        const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+        
+        let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+        let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+        console.log("=====dist url is ", distUrl instanceof String)
+        console.log("=====dist url is ", !distUrl)
+        if(!distUrl || (distUrl && distUrl == '')) {
+            console.log("=====dist url is ", distUrl)
+            distUrl = "./static/Img/User/user-40px@2x.png";
+        }
+        console.log("=====dist url is ", distUrl)
+        let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+
+        let trayNoticeObj = {
+            unreadCount:0,
+            imgUrl: distUrl,
+            chatName: showName,
+            roomId: checkRoom.roomId,
+            notictType: noticeType,
+        }
+        let trayNoticeInfo = [];
+        trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+        console.log("====ru show notice ");
+        ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
+        if(noticeType === 'video'){
+            _setVideoCallListeners(call);
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:300,height: 480},
+                        roomInfo: { roomID: call.roomId,
+                                    name: showName,
+                                    url:distUrl,
+                                    voipType: "video",
+                                    direction: "from"}});
+        }
     }
 
     hangUp(room_id) {
@@ -308,6 +391,20 @@ class mxVoIP{
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
+    }
+
+    answerVideoChat(room_id, videochat){
+        let call = global.mxMatrixClientPeg.getCall(room_id);
+        call.answer();
+        let largeWindow = document.getElementById("large-window");
+        let smallWindow = document.getElementById("small-window");
+        let remoteAudio = document.getElementById("remoteAudio");
+        call.setLocalVideoElement(smallWindow);
+        call.setRemoteVideoElement(largeWindow);
+        call.setRemoteAudioElement(remoteAudio);
+        videochat.showSmallWindow();
+        videochat.hideStateText();
+        
     }
 }
 

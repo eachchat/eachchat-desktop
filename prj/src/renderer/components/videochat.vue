@@ -26,17 +26,24 @@
             <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
         </div>
         <audio id="remoteAudio"></audio>
-        <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
-        <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
-        <div class = "hangup-icon" @click="hangupVideo"></div>
-        <div class = "voice-icon"></div>
-        <span class = "mute-text">静音</span>
-        <span class = "voice-text">音量</span>
-        <span class = "hangup-text">挂断</span>
         <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
         onerror = "this.src = './static/Img/User/user-40px@2x.png'">
         <div class = "username" v-show="bShowStateText">{{useName}}</div>
         <div class = "stateText" v-show="bShowStateText">{{stateText}}</div>
+        <div v-if = "bComming">
+            <div class = "comming-hangup-icon" @click="hangupVideo"></div>
+            <div class = "comming-answer-icon" @click="answerVideo"></div>
+        </div>
+        <div v-else>
+            <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
+            <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
+            <div class = "hangup-icon" @click="hangupVideo"></div>
+            <div class = "voice-icon"></div>
+            <span class = "mute-text">静音</span>
+            <span class = "voice-text">音量</span>
+            <span class = "hangup-text">挂断</span>
+        </div>
+        
     </div>
 </template>
 
@@ -53,7 +60,8 @@ export default {
             useName: "",
             stateText: "",
             bShowStateText: true,
-            intervalTime: undefined
+            intervalTime: undefined,
+            bComming: false,
         }
     },
     props:{
@@ -65,33 +73,41 @@ export default {
 
     watch:{
         roomInfo(){
-            this.createVideoChat(this.roomInfo);
+            this.stateText = "";
+            if(this.roomInfo.direction === "from"){
+                this.bComming = true;
+                this.showFromVideoChat(this.roomInfo);
+            }
+            else{
+                this.createVideoChat(this.roomInfo);
+                this.bComming = false;
+            }
         }
     },
 
     methods:{
-        updateStateText(){
+        updateStateText(stateText){
             if(this.stateText === ""){
-                this.stateText = "正在接通中"
+                this.stateText = stateText
             }
-            else if(this.stateText === "正在接通中"){
-                this.stateText = "正在接通中."
+            else if(this.stateText === stateText){
+                this.stateText += "."
             }
-            else if(this.stateText === "正在接通中."){
-                this.stateText = "正在接通中.."
+            else if(this.stateText === stateText + "."){
+                this.stateText += "."
             }
-            else if(this.stateText === "正在接通中.."){
-                this.stateText = "正在接通中..."
+            else if(this.stateText === stateText + ".."){
+                this.stateText += "."
             }
-            else if(this.stateText === "正在接通中..."){
-                this.stateText = "正在接通中"
+            else if(this.stateText === stateText + "..."){
+                this.stateText = stateText
             }
         },
 
-        showStateText(){
+        showStateText(stateText){
             this.bShowStateText = true;
             this.intervalTime = setInterval(() => {
-                this.updateStateText();
+                this.updateStateText(stateText);
             }, 1000)
         },
 
@@ -99,6 +115,7 @@ export default {
         {
             this.bShowStateText = false;
             clearInterval(this.intervalTime);
+            this.bComming = false;
         },
 
         changeVoice(){
@@ -115,8 +132,24 @@ export default {
             }
         },
 
+        answerVideo(){
+            this.callChat.answerVideoChat(this.roomInfo.roomID, this);
+        },
+
+        showFromVideoChat(roomInfo){
+            this.showStateText("邀请你视频通话");
+            let url = roomInfo.url;
+            if(url.length != 0){
+                let imgEle = document.getElementById("video-chat-user-img");
+                if(imgEle){
+                    imgEle.src = url;
+                }
+            }
+            this.useName = roomInfo.name;
+        },
+
         createVideoChat(roomInfo){
-            this.showStateText();
+            this.showStateText("正在接通中");
             this.callChat.videoCall(roomInfo, this);
             let url = roomInfo.url;
             if(url.length != 0){
@@ -154,8 +187,6 @@ export default {
             this.callChat.unMuteVoice(this.roomInfo.roomID);
             this.isMute = true;
         }
-
-
     },
     mounted(){
         console.log("videochat mounted")
@@ -355,5 +386,25 @@ export default {
     font-weight: 400;
     color: #999999;
     line-height: 18px;
+}
+
+.comming-hangup-icon{
+    position: absolute;
+    z-index: 1;
+    left: 60px;
+    top: 404px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/hangup.png"); 
+}
+
+.comming-answer-icon{
+    position: absolute;
+    z-index: 1;
+    left: 196px;
+    top: 404px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/answer.png"); 
 }
 </style>
