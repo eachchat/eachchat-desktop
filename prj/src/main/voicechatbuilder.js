@@ -1,4 +1,5 @@
 import {RenderWindowBuilder} from './renderbuilder'
+const ipcMain = require('electron').ipcMain;
 
 class VoiceChatWindowBuilder extends RenderWindowBuilder{
     constructor(childWindow, mainWindow){
@@ -23,8 +24,15 @@ class VoiceChatWindowBuilder extends RenderWindowBuilder{
         renderArgs.type = "voiceChatWindow";
         renderArgs.voipInfo = this.voipInfo;
         this.childWindow.webContents.send("childwindowArgs", renderArgs);
+        this.onIpcMain();
         this.showWindow();
         this.childWindow.webContents.openDevTools();
+    }
+
+    onIpcMain(){
+        ipcMain.on("hideVoiceChat", () => {
+            this.childWindow.hide();
+        })
     }
 }
 

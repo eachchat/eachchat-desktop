@@ -109,7 +109,11 @@ export default {
             this.voIPNoticeList.push(item);
           }
         }
-        if(!this.hasVoIP) this.voIPRoomId = "";
+        if(!this.hasVoIP) {
+          this.voIPRoomId = "";
+          this.setToHide();
+        }
+        else this.setToShow();
       },
       updateNoticeContent(event, NoticeContent) {
         // let trayNoticeObj = {

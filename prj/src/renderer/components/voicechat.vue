@@ -77,6 +77,7 @@ export default {
         hangUp: function(event, roomId) {
             console.log("====to hang up");
             this.voiceChat.hangUp(this.roomId);
+            ipcRenderer.send("hideVoiceChat");
         },
         showVoIPPage: async function(event, roomId) {
             console.log("=======show voip page room id is ", roomId);
@@ -116,7 +117,7 @@ export default {
         },
         hangUpCallback: function() {
             console.log("hangup");
-            ipcRenderer.send("close");
+            ipcRenderer.send("hideVoiceChat");
         },
         voiceCallErrorCallback: function(err) {
             console.log("err is ", err);
@@ -124,6 +125,7 @@ export default {
         stateCallback: function(state) {
             if (state === this.voiceChat.CHATTING) {
                 this.curState = "通话中";
+                this.beCalled = true;
                 // _setCallState(call, call.roomId, "ringing");
                 // pause("ringbackAudio");
             }
@@ -138,18 +140,17 @@ export default {
             } else if (state === this.voiceChat.ENDED) {
                 console.log("finished and emit close");
                 this.curState = "通话结束";
-                ipcRenderer.emit("close");
+                ipcRenderer.send("hideVoiceChat");
                 // _setCallState(undefined, call.roomId, "ended");
                 // pause("ringbackAudio");
                 // play("callendAudio");
             } else if (state === this.voiceChat.BUSY) {
                 this.curState = "对方正忙";
-                ipcRenderer.emit("close");
                 // _setCallState(call, call.roomId, "busy");
                 // pause("ringbackAudio");
                 // play("busyAudio");
                 this.$toastMessage({message:"对方未能接听", time: 2000, type:'success', showWidth:'280px', showHeight:"100px"});
-                ipcRenderer.emit("close");
+                ipcRenderer.send("hideVoiceChat");
             } else {
                 console.log("final state is ", state);
                 this.curState = "通话中";
@@ -241,7 +242,7 @@ export default {
                 chatName: showName,
                 roomId: checkRoom.roomId,
                 notictType: noticeType,
-            }
+            }   
             let trayNoticeInfo = [];
             trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
             console.log("====ru show notice ");
@@ -264,8 +265,8 @@ export default {
             if(!this.userName || (this.userName && this.userName == "")) {
                 this.userName = await this.getUserShowName(this.roomId);
             }
-            console.log("====global.mxMatrixClientPeg.getCall(this.roomId) is ", global.mxMatrixClientPeg.getCall(this.roomId));
-            console.log("====global.mxMatrixClientPeg.getCall(this.roomId) state is ", global.mxMatrixClientPeg.getCall(this.roomId).state);
+            // console.log("====global.mxMatrixClientPeg.getCall(this.roomId) is ", global.mxMatrixClientPeg.getCall(this.roomId));
+            // console.log("====global.mxMatrixClientPeg.getCall(this.roomId) state is ", global.mxMatrixClientPeg.getCall(this.roomId).state);
             if(global.mxMatrixClientPeg.getCall(this.roomId)) {
                 this.beCalled = true;
             }

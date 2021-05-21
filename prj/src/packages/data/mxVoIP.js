@@ -201,7 +201,14 @@ class mxVoIP{
     voiceAnswer(room_id) {
         if(global.mxMatrixClientPeg.getCall(room_id)) {
             console.log("====to answer and call is ", global.mxMatrixClientPeg.getCall(room_id));
-            global.mxMatrixClientPeg.getCall(room_id).answer();
+            let call = global.mxMatrixClientPeg.getCall(room_id);
+            call.answer();
+            let largeWindow = document.getElementById("large-window");
+            let smallWindow = document.getElementById("small-window");
+            let remoteAudio = document.getElementById("remoteAudio");
+            call.setLocalVideoElement(smallWindow);
+            call.setRemoteVideoElement(largeWindow);
+            call.setRemoteAudioElement(remoteAudio);
             console.log("====to answer and call state is ", global.mxMatrixClientPeg.getCall(room_id).call_state);
         }
     }
@@ -222,6 +229,12 @@ class mxVoIP{
         global.mxMatrixClientPeg.addCall(room_id, call);
         this.callListeners(call);
         call.placeVoiceCall();
+        let largeWindow = document.getElementById("large-window");
+        let smallWindow = document.getElementById("small-window");
+        let remoteAudio = document.getElementById("remoteAudio");
+        call.setLocalVideoElement(smallWindow);
+        call.setRemoteVideoElement(largeWindow);
+        call.setRemoteAudioElement(remoteAudio);
     }
 
     setVoiceCallback(hangUpCallback, errCallback, stateCallback) {
@@ -247,13 +260,17 @@ class mxVoIP{
             else if (newState === this.CALLING) {
                 console.log("====to this.CALLING and call state is ", call.call_state);
                 this.stateShow(this.CALLING);
+                pause("ringbackAudio");
             } else if (newState === this.INVITE_SENT) {
                 console.log("====to this.INVITE_SENT and call state is ", call.call_state);
                 this.stateShow(this.INVITE_SENT);
+                play("ringbackAudio");
             } else if (newState === this.ENDED && oldState === this.CONNECTED) {
                 console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
                 this.stateShow(this.ENDED);
                 global.mxMatrixClientPeg.removeCall(room_id);
+                pause("ringbackAudio");
+                play("callendAudio");
             } else if (newState === this.ENDED && oldState === this.INVITE_SENT &&
                     (call.hangupParty === "remote" ||
                     (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
@@ -261,12 +278,17 @@ class mxVoIP{
                 console.log("====to this.hanguped and call state is ", call.call_state);
                 this.stateShow(this.BUSY);
                 global.mxMatrixClientPeg.removeCall(room_id);
+                pause("ringbackAudio");
+                play("busyAudio");
             } else if (oldState === this.INVITE_SENT) {
                 this.stateShow(this.CALLING);
+                pause("ringbackAudio");
             } else if (oldState === "ringing") {
                 this.stateShow(this.CALLING);
+                pause("ringbackAudio");
             } else if (newState === "connected") {
                 this.stateShow(this.CHATTING);
+                pause("ringbackAudio");
             } else {
                 console.log("Final undeal state");
                 // this.stateShow(this.CHATTING);
