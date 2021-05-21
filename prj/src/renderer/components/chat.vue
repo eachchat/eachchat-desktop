@@ -1726,12 +1726,20 @@ export default {
                 return fileListInfo;
             }
         },
+        async getFileExist(id) {
+            let msgs = await Message.FindMessageByMesssageID(id);
+            console.log(msgs)
+            if(msgs.length != 0 && msgs[0].file_local_path != "")
+                return msgs[0].file_local_path;
+            return '';
+        },
         async showImageOfMessage(distEvent) {
             var showImageInfoList = [];
             var distImageInfo = {};
             var imgMsgList = await this.toGetShowImage(this.curChat);
-            imgMsgList.forEach(curEvent => {
+            imgMsgList.forEach(async curEvent => {
                 let event = curEvent.event;
+                let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
@@ -1752,6 +1760,7 @@ export default {
 
                     var curImageInfo = {
                         imageUrl: curUrl,
+                        localPath: localPath,
                         url: chatGroupMsgContent.url,
                         imageEventId: event.event_id,
                         info: info,
@@ -1762,6 +1771,7 @@ export default {
                     if(distEvent.event.event_id == event.event_id) {
                         distImageInfo = {
                             imageUrl: curUrl,
+                            localPath: localPath,
                             url: chatGroupMsgContent.url,
                             imageEventId: event.event_id,
                             info: info,
@@ -1775,6 +1785,7 @@ export default {
             });
             if(!distImageInfo.imageUrl) {
                 let event = distEvent.event;
+                let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgContent = distEvent.getContent();
 
                 let maxSize = 390;
@@ -1794,6 +1805,7 @@ export default {
                     
                 distImageInfo = {
                     imageUrl: curUrl,
+                    localPath: localPath,
                     url: chatGroupMsgContent.url,
                     imageEventId: event.event_id,
                     info: info,
