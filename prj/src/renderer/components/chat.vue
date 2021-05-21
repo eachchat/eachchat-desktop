@@ -1664,7 +1664,8 @@ export default {
                         "timeline": {
                             "contains_url": true,
                             "types": [
-                                "m.room.message"
+                                "m.room.message",
+                                "m.call.invite"
                             ],
                         },
                     },
@@ -3337,7 +3338,7 @@ export default {
         },
 
         messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.invite'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
             return false;
         },
 
@@ -3700,7 +3701,8 @@ export default {
                     "room": {
                         "timeline": {
                             "types": [
-                                "m.room.message"
+                                "m.room.message",
+                                "m.call.invite"
                             ],
                         },
                     },
@@ -4286,6 +4288,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
+            
             this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
@@ -4304,25 +4307,23 @@ export default {
             this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
                 console.log("=======this.sendingList ", this.sendingList);
-                var getMessageList = this._getEvents();
-                for(let i=0;i<this.sendingList.length;i++) {
-                    for(let j=getMessageList.length-1;j>= 0;j--){
-                        if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
-                            this.$store.commit("removeSendingEvents", this.sendingList[i]);
-                            console.log("=========this.sendingList ", this.sendingList);
-                            this.sendingList.splice(i, 1);
-                            console.log("============this.sendingList ", this.sendingList);
-                            getMessageList[j].message_status = 0;
-                            this.updatemsgStatus = {
-                                "id": getMessageList[j]._txnId ? getMessageList[j]._txnId : getMessageList[j].event.event_id,
-                                "status": 0
-                            };
-                            break;
-                        }
+                
+                let messageListTmp = this.chat.timeline;
+                this.messageList = [];
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+                for(let i=messageListTmp.length - 1;i>0;i--){
+                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
+                    }
+                    if(this.messageFilter(messageListTmp[i])){
+                        this.messageList.unshift(messageListTmp[i]);
                     }
                 }
-                this.messageList = getMessageList.concat(this.sendingList);
-                console.log("*** to get new message ", this.messageList);
+                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=this.sendingList.length - 1;i>0;i--){
+                    this.messageList.unshift(this.sendingList[i]);
+                }
             })
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -4334,7 +4335,7 @@ export default {
                     }
                     else{
                         if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) && 
-                            (['m.room.message', 'm.room.encrypted'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
+                            (['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
                             this.newMsgNum += 1;
                             this.haveNewMsg = true;
                         }

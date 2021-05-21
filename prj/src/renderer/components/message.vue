@@ -1060,6 +1060,9 @@ export default {
                     this.messageContent = "无法识别的消息类型";
                 }
             }
+            else if(chatGroupMsgType === "m.call.invite") {
+                this.messageContent = "不支持的消息类型，请升级客户端";
+            }
             else if(chatGroupMsgType === "m.room.encrypted") {
                 // chatGroupMsgContent = this.msg.getContent();
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1098,6 +1101,9 @@ export default {
                     textElement.style.cursor = "pointer";
                     this.messageContent = "**无法解密:发送方的设备没有给我们发送此消息的密钥。**";
                 }
+            }
+            else {
+                this.messageContent = "不支持的消息类型，请升级客户端";
             }
         },
         MsgIsMine:function() {
