@@ -333,6 +333,10 @@ export default {
     // listItem
   },
   props: {
+    toUpdateTrayNotice: {
+      type: Number ,
+      default: 0
+    },
     setToRealAll: {
       type: Array,
       default: []
@@ -359,6 +363,16 @@ export default {
     }
   },
   watch: {
+    toUpdateTrayNotice: function() {
+      console.log("to update tray notice ");
+      try{
+        delete this.trayNoticeInfo[this.curChat.roomId];
+        ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
+      }
+      catch(e) {
+
+      }
+    },
     toSaveDraft: function() {
       this.cleanSearchKey = !this.cleanSearchKey;
 
