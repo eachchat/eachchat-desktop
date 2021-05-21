@@ -1517,6 +1517,9 @@ export default {
       else {
         this.dealingEventIds.push(ev.event.event_id);
       }
+      if(ev.event.type.indexOf("m.call.") >= 0 && ev.event.type != "m.call.invite") {
+        return;
+      };
       if(this.isFirstLogin) {
         var curTime = new Date().getTime();
         if(curTime - ev.event.origin_server_ts > 1000 * 60) {
