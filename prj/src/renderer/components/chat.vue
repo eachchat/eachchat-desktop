@@ -3384,7 +3384,9 @@ export default {
             )
             await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
             let msgList = this._getEvents();
+            let dealed = false;
             while(this._timelineWindow.canPaginate(type)){
+                dealed = true;
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
@@ -3399,6 +3401,18 @@ export default {
 
                 if(index > num) break;
             }
+
+            if(!dealed) {
+                let tmpList = msgList;
+                msgList = [];
+                for(var i=tmpList.length - 1;i>0;i--){
+                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
+                        msgList.unshift(tmpList[i]);
+                        index++;
+                    }
+                }
+            }
+
             return msgList;
         },
         paginageForwork: function() {
@@ -4283,16 +4297,35 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
-            this.messageList = this.curChat.timeline;
+            
+            let messageListTmp = this.curChat.timeline;
+            this.messageList = [];
+            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+            for(let i=messageListTmp.length - 1;i>0;i--){
+                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+                if(exitEventIndex >= 0) {
+                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
+                }
+                if(this.messageFilter(messageListTmp[i])){
+                    this.messageList.unshift(messageListTmp[i]);
+                }
+            }
+            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+            for(let i=this.sendingList.length - 1;i>0;i--){
+                this.messageList.unshift(this.sendingList[i]);
+            }
             setTimeout(() => {
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show-list");
                     if(div) {
                         div.scrollTop = div.scrollHeight + 52;
+                        setTimeout(() => {
+                            this.initMessage();
+                        }, 500)
                     }
                 })
             }, 0)
-            this.initMessage();
+            
             this.updateUser++;
         },
         newMsg: async function() {
@@ -4322,6 +4355,10 @@ export default {
                 
                 let messageListTmp = this.chat.timeline;
                 this.messageList = [];
+                var div = document.getElementById("message-show-list");
+                if(div) {
+                    div.removeEventListener('scroll', this.handleScroll);
+                }
                 let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
                 for(let i=messageListTmp.length - 1;i>0;i--){
                     let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
@@ -4339,8 +4376,8 @@ export default {
             })
             setTimeout(() => {
                 this.$nextTick(() => {
+                    var div = document.getElementById("message-show-list");
                     if(toBottom) {
-                        var div = document.getElementById("message-show-list");
                         if(div) {
                             div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
                         }
@@ -4352,6 +4389,7 @@ export default {
                             this.haveNewMsg = true;
                         }
                     }
+                    div.addEventListener('scroll', this.handleScroll);
                 })
             }, 100)
         }
