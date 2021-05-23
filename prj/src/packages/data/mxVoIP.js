@@ -68,10 +68,22 @@ function _setCallState(call, roomId, status) {
 
 function _setVideoCallListeners(call, videoCall) {
     call.on("error", function(err) {
-        console.error("Call error:", err);
+        if(call.type === "video"){
+            console.error("Call error:", err);
+        }  
+        else{
+            videoCall.voiceCallErrorCallback(err);
+        }
     });
     call.on("hangup", function() {
-        _setCallState(undefined, call.roomId, "ended");
+        if(call.type === "video"){
+            _setCallState(undefined, call.roomId, "ended");
+        }
+        else{
+            console.log("call is ", call);
+            console.log("====to hangup and call state is ", call.call_state);
+            videoCall.hangUpCallback();
+        }
     });
     // map web rtc states to dummy UI state
     // ringing|ringback|connected|ended|busy|stop_ringback|stop_ringing
@@ -80,34 +92,76 @@ function _setVideoCallListeners(call, videoCall) {
         if (newState === "ringing") {
             _setCallState(call, call.roomId, "ringing");
             pause("ringbackAudio");
-        } else if (newState === "invite_sent") {
-            _setCallState(call, call.roomId, "ringback");
+        } else if (newState === "calling") {
+            console.log("====to this.CALLING and call state is ", call.call_state);
+            videoCall.stateCallback("calling");
+            pause("ringbackAudio");
+        } 
+        else if (newState === "invite_sent") {
+            if(call.type === "video"){
+                _setCallState(call, call.roomId, "ringback");
+            }
+            else{
+                videoCall.stateCallback("invite_sent");
+            }
             play("ringbackAudio");
+            
         } else if (newState === "ended" && oldState === "connected") {
-            _setCallState(undefined, call.roomId, "ended");
+            if(call.type === "video"){
+                _setCallState(undefined, call.roomId, "ended");
+            }
+            else{
+                console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
+                videoCall.stateCallback("ended");
+                global.mxMatrixClientPeg.removeCall(room_id);
+            }
             pause("ringbackAudio");
             play("callendAudio");
+            
         } else if (newState === "ended" && oldState === "invite_sent" &&
                 (call.hangupParty === "remote" ||
                 (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
                 )) {
-            _setCallState(call, call.roomId, "busy");
+            if(call.type === "video"){
+                _setCallState(call, call.roomId, "busy");
+            }
+            else{
+                console.log("====to this.hanguped and call state is ", call.call_state);
+                videoCall.stateCallback("busy");
+                global.mxMatrixClientPeg.removeCall(room_id);
+            }
             pause("ringbackAudio");
             play("busyAudio");
+            
             console.error("The remote side failed to pick up");
         } else if (oldState === "invite_sent") {
-            _setCallState(call, call.roomId, "stop_ringback");
-            pause("ringbackAudio");
+            if(call.type === "video"){
+                _setCallState(call, call.roomId, "stop_ringback");
+            }
+            else{
+                videoCall.stateCallback("calling");
+            }
+            pause("ringbackAudio");    
         } else if (oldState === "ringing") {
-            _setCallState(call, call.roomId, "stop_ringing");
+            if(call.type === "video"){
+                _setCallState(call, call.roomId, "stop_ringing");
+            }
+            else{
+                videoCall.stateCallback("calling");
+            }
             pause("ringbackAudio");
         } else if (newState === "connected") {
-            _setCallState(call, call.roomId, "connected");
-            pause("ringbackAudio");
-            if(videoCall){
+            if(call.type === "video"){
+                _setCallState(call, call.roomId, "connected");
                 videoCall.showSmallWindow();
                 videoCall.hideStateText();
             }
+            else{
+                this.stateShow(this.CHATTING);
+            }
+            pause("ringbackAudio");
+        }else {
+            console.log("Final undeal state");
         }
     });
 }
@@ -118,12 +172,8 @@ class mxVoIP{
         this.CONNECTED = 'connected';
         this.CHATTING = 'chatting';
         this.INVITING = 'inviting';
-        this.INVITE_SENT = 'invite_sent';
         this.ENDED = 'ended';
         this.BUSY = 'busy';
-        this.errorShow = null;
-        this.stateShow = null;
-        this.hangupShow = null;
         this.videochat = null;
         this.voicechat = null;
     }
@@ -216,17 +266,6 @@ class mxVoIP{
         console.log("=====dist url is ", distUrl)
         let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
 
-        let trayNoticeObj = {
-            unreadCount:0,
-            imgUrl: distUrl,
-            chatName: showName,
-            roomId: checkRoom.roomId,
-            notictType: noticeType,
-        }
-        let trayNoticeInfo = [];
-        trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-        console.log("====ru show notice ");
-        ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
         if(noticeType === 'video'){
             _setVideoCallListeners(call, global.viopChat.videochat);
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
@@ -238,9 +277,19 @@ class mxVoIP{
                                     direction: "from"}});
         }
         else{
-            
+            _setVideoCallListeners(call, global.viopChat.voicechat);
+            let trayNoticeObj = {
+                unreadCount:0,
+                imgUrl: distUrl,
+                chatName: showName,
+                roomId: checkRoom.roomId,
+                notictType: noticeType,
+            }   
+            let trayNoticeInfo = [];
+            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+            console.log("====ru show notice ");
+            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
         }
-        
     }
 
     hangUp(room_id) {
@@ -325,7 +374,7 @@ class mxVoIP{
         console.log("====to create call is ", call);
         console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
-        this.callListeners(call);
+        _setVideoCallListeners(call, global.viopChat.voicechat),
         call.placeVoiceCall();
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
@@ -333,65 +382,6 @@ class mxVoIP{
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
-    }
-
-    setVoiceCallback(hangUpCallback, errCallback, stateCallback) {
-        this.errorShow = errCallback;
-        this.hangupShow = hangUpCallback;
-        this.stateShow = stateCallback;
-    }
-
-    callListeners(call){
-        call.on("error", err => {
-            this.errorShow(err);
-        });
-        call.on("hangup", () => {
-            console.log("call is ", call);
-            console.log("====to hangup and call state is ", call.call_state);
-            this.hangupShow();
-        });
-        call.on("state", (newState, oldState) => {
-            console.log("update state new state is ", newState, " old state is ", oldState);
-            if (newState === this.CHATTING) {
-                // this.stateShow(this.CHATTING);
-            }
-            else if (newState === this.CALLING) {
-                console.log("====to this.CALLING and call state is ", call.call_state);
-                this.stateShow(this.CALLING);
-                pause("ringbackAudio");
-            } else if (newState === this.INVITE_SENT) {
-                console.log("====to this.INVITE_SENT and call state is ", call.call_state);
-                this.stateShow(this.INVITE_SENT);
-                play("ringbackAudio");
-            } else if (newState === this.ENDED && oldState === this.CONNECTED) {
-                console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
-                this.stateShow(this.ENDED);
-                global.mxMatrixClientPeg.removeCall(room_id);
-                pause("ringbackAudio");
-                play("callendAudio");
-            } else if (newState === this.ENDED && oldState === this.INVITE_SENT &&
-                    (call.hangupParty === "remote" ||
-                    (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
-                    )) {
-                console.log("====to this.hanguped and call state is ", call.call_state);
-                this.stateShow(this.BUSY);
-                global.mxMatrixClientPeg.removeCall(room_id);
-                pause("ringbackAudio");
-                play("busyAudio");
-            } else if (oldState === this.INVITE_SENT) {
-                this.stateShow(this.CALLING);
-                pause("ringbackAudio");
-            } else if (oldState === "ringing") {
-                this.stateShow(this.CALLING);
-                pause("ringbackAudio");
-            } else if (newState === "connected") {
-                this.stateShow(this.CHATTING);
-                pause("ringbackAudio");
-            } else {
-                console.log("Final undeal state");
-                // this.stateShow(this.CHATTING);
-            }
-        });
     }
 
     videoCall(roomInfo, videochat){
