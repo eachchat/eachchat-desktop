@@ -2,8 +2,8 @@
     <div>
         <favouritedetail v-show = "bFavouriteDetail" :collectionInfo = "collectionInfo"></favouritedetail>
         <reportRelationContent v-show = 'bReportRelationContent' :userInfo = "userInfo"></reportRelationContent>
-        <VoIPVoice v-show = "bVoiceChat" :voipInfo="voipInfo"></VoIPVoice>
-        <VoIPVideo v-show = "bVideoChat" :roomInfo = "roomInfo"></VoIPVideo>
+        <VoIPVoice ref = "voipVoiceRef" v-show = "bVoiceChat" :voipInfo="voipInfo"></VoIPVoice>
+        <VoIPVideo ref = "voipVideoRef" v-show = "bVideoChat" :roomInfo = "roomInfo"></VoIPVideo>
     </div>
 </template>
 
@@ -12,6 +12,9 @@ import favouritedetail from "./favourite-detail";
 import reportRelationContent from "./reportRelationContent";
 import VoIPVideo from "./videochat"
 import VoIPVoice from './voicechat.vue';
+import {mxVoIP} from "../../packages/data/mxVoIP.js"
+
+
 
 const ipcRenderer = require('electron').ipcRenderer
 
@@ -86,6 +89,12 @@ export default {
     },
 
     mounted(){
+        this.voipChat = new mxVoIP();
+        global.viopChat = this.voipChat;
+        this.voipChat.setVideoChat(this.$refs.voipVideoRef);
+        this.voipChat.setVoiceChat(this.$refs.voipVoiceRef)
+        this.voipChat.createMatrix();
+        
         console.log("childwindow mounted")
         ipcRenderer.on("childwindowArgs", this.onChildWindow)
     },

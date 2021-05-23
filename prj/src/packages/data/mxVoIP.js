@@ -124,6 +124,16 @@ class mxVoIP{
         this.errorShow = null;
         this.stateShow = null;
         this.hangupShow = null;
+        this.videochat = null;
+        this.voicechat = null;
+    }
+
+    setVideoChat(videochat){
+        this.videochat = videochat;
+    }
+
+    setVoiceChat(voicechat){
+        this.voicechat = voicechat;
     }
 
     async createMatrix(){
@@ -151,14 +161,14 @@ class mxVoIP{
     }
 
     onMatrixSync(){
-        global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
+        global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data) => {
             console.log("state ", state);
             console.log("prevState ", prevState);
             console.log("data ", data);
           switch(state){
             case "PREPARED":
                 global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
-                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingCall);
+                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingVoip);
               break;
             default:
               break;
@@ -166,7 +176,7 @@ class mxVoIP{
         })
     }
 
-    async handleComingCall(call) {
+    async handleComingVoip(call) {
         console.log("coming call call is ", call);
         console.log("coming call call state is ", call.state);
         let isCalling = false;
@@ -185,6 +195,7 @@ class mxVoIP{
             call.hangup(call.roomId);
             return;
         }
+        
         global.mxMatrixClientPeg.addCall(call.roomId, call);
         let noticeType = "voice";
         if(call && call.type == "video") {
@@ -217,7 +228,7 @@ class mxVoIP{
         console.log("====ru show notice ");
         ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
         if(noticeType === 'video'){
-            _setVideoCallListeners(call);
+            _setVideoCallListeners(call, global.viopChat.videochat);
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
                 size:{width:300,height: 480},
                         roomInfo: { roomID: call.roomId,
@@ -226,6 +237,10 @@ class mxVoIP{
                                     voipType: "video",
                                     direction: "from"}});
         }
+        else{
+            
+        }
+        
     }
 
     hangUp(room_id) {
@@ -402,9 +417,6 @@ class mxVoIP{
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
-        videochat.showSmallWindow();
-        videochat.hideStateText();
-        
     }
 }
 
