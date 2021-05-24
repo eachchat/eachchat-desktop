@@ -328,7 +328,7 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
 ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   if(process.platform == "win32" && noticeWindow) {
     noticeInfo = arg;
-    noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
+    noticeHeight = 52 + Object.keys(arg).length * 96;
     noticeWindow.setSize(240, noticeHeight);
     let showX = screenSize.width - 20 - 240;
     let showY = screenSize.height - noticeHeight;
@@ -1437,7 +1437,7 @@ function createWindow () {
       height: 52,
       width: 240,
       frame: false,
-      resizable: false,
+      resizable: true,
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
