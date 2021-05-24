@@ -56,6 +56,7 @@ export default {
                 voipType: this.voipType,
                 voipFrame: "webRtc",
                 roomId: this.roomId,
+                action: "call",
                 voipShowInfo: {
                     userImg: this.userInfo.userImg,
                     userName: this.userInfo.userName

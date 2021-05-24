@@ -518,7 +518,7 @@ export default {
         handleCustomMatcher(node, Delta) {
             let ops = []
             Delta.ops.forEach(op => {
-                if (op.insert && typeof op.insert === 'string') {
+                if (op.insert && typeof op.insert === 'string') {// 如果粘贴了图片，这里会是一个对象，所以可以这样处理
                 ops.push({
                     insert: op.insert,
                 })
@@ -2894,6 +2894,7 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
+            // 数据库缺省type = 0 
             /*
                 // src/TextForEvent.js
                 'm.room.canonical_alias': textForCanonicalAliasEvent,
@@ -3104,6 +3105,7 @@ export default {
             voipShowUserInfo["userName"] = showName;
 
             voipInfo["voipShowInfo"] = voipShowUserInfo;
+            voipInfo["action"] = "call";
             
             ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
                 size:{width:300,height: 480},

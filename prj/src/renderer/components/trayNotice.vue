@@ -44,10 +44,38 @@ export default {
     },
     methods: {
       Hangup() {
-        ipcRenderer.send("checkClick", "HangupVoIP", this.voIPRoomId);
+        ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
+        size:{width:300,height: 480},
+        voipInfo: {
+            voipType: "",
+            voipFrame: "webRtc",
+            roomId: this.voIPRoomId,
+            action: "hangup",
+            voipShowInfo: {
+                userImg: "",
+                userName: ""
+            }
+        }})
+        console.log("to show voip of ", this.voIPRoomId);
+        this.voIPNoticeList = [];
+        this.hasVoIP = false;
       },
       Answer() {
-        ipcRenderer.send("checkClick", "AnswerVoIP", this.voIPRoomId);
+        ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
+        size:{width:300,height: 480},
+        voipInfo: {
+            voipType: "",
+            voipFrame: "webRtc",
+            roomId: this.voIPRoomId,
+            action: "answer",
+            voipShowInfo: {
+                userImg: "",
+                userName: ""
+            }
+        }})
+        console.log("to show voip of ", this.voIPRoomId);
+        this.voIPNoticeList = [];
+        this.hasVoIP = false;
       },
       async showVoIPPage() {
         ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
@@ -56,6 +84,7 @@ export default {
             voipType: "",
             voipFrame: "webRtc",
             roomId: this.voIPRoomId,
+            action: "show",
             voipShowInfo: {
                 userImg: "",
                 userName: ""

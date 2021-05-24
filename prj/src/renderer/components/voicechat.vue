@@ -74,7 +74,7 @@ export default {
         mute: function() {
             global.viopChat.mute(this.roomId);
         },
-        hangUp: function(event, roomId) {
+        hangUp: function(roomId) {
             console.log("====to hang up");
             global.viopChat.hangUp(this.roomId);
             ipcRenderer.send("hideVoiceChat");
@@ -83,41 +83,7 @@ export default {
             console.log("hangup");
             ipcRenderer.send("hideVoiceChat");
         },
-
-        showVoIPPage: async function(event, roomId) {
-            console.log("=======show voip page room id is ", roomId);
-            let call = global.mxMatrixClientPeg.getCall(roomId);
-
-            let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
-            const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
-            
-            let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
-            let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-            console.log("=====dist url is ", distUrl)
-            if(distUrl && distUrl == '') {
-                distUrl = "../../../static/Img/User/user-40px@2x.png";
-            }
-            console.log("=====dist url is ", distUrl)
-            
-            let showName = this.$store.getters.getShowName(distUserId);
-            if(showName.length == 0) {
-                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-            }
-
-            ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-            size:{width:300,height: 480},
-            voipInfo: {
-                voipType: call.type,
-                voipFrame: "webRtc",
-                roomId: roomId,
-                voipShowInfo: {
-                    userImg: distUrl,
-                    userName: showName
-                }
-            }})
-            console.log("to show voip of ", roomId);
-        },
-        answer: function(event, roomId) {
+        answer: function(roomId) {
             global.viopChat.voiceAnswer(this.roomId);
         },
         
@@ -188,13 +154,25 @@ export default {
         },
     },
     watch: {
+        /**
+         * voipInfo: {
+         *  voipType: "voice/video",
+         *  voipFrame: "webRtc",
+         *  roomId: "",
+         *  action: "call/answer/hangup/show"
+         *  voipShowInfo: {
+         *      userImg: "",
+         *      userName: ""
+         *  }
+         * }
+         */
         voipInfo: async function() {
             const voipInfo = this.voipInfo;
-            console.log("updatevoip info is ", voipInfo);
-            this.roomId = voipInfo.roomId;
+            console.log("updatevoip info is ", this.voipInfo);
+            this.roomId = this.voipInfo.roomId;
             if(this.roomId.length == 0) return;
-            this.userImage = voipInfo.voipShowInfo.userImg;
-            this.userName = voipInfo.voipShowInfo.userName;
+            this.userImage = this.voipInfo.voipShowInfo.userImg;
+            this.userName = this.voipInfo.voipShowInfo.userName;
             console.log("===========this.userImage ", this.userImage);
             if(!this.userImage || (this.userImage && this.userImage == "")) {
                 this.userImage = await this.getUserImg(this.roomId);
@@ -204,22 +182,24 @@ export default {
                 this.userName = await this.getUserShowName(this.roomId);
             }
 
-            if(global.mxMatrixClientPeg.getCall(this.roomId)) {
-                this.beCalled = true;
+            if(this.voipInfo.action == "show") {
+                if(global.mxMatrixClientPeg.getCall(this.roomId)) {
+                    this.beCalled = true;
+                }
             }
-            else {
+            else if(this.voipInfo.action == "call") {
                 this.beCalled = false;
                 global.viopChat.voiceCall(this.roomId);
+            }
+            else if(this.voipInfo.action == "answer") {
+                global.viopChat.voiceAnswer(this.roomId);
+            }
+            else if(this.voipInfo.action == "hangup") {
+                global.viopChat.hangUp(this.roomId);
             }
         },
     },
     async mounted(){
-        let now = new Date();
-        console.log("cur time is ", ComponentUtil.formatTimeFilter(now.getTime()));
-        await global.services.common.login();
-        // ipcRenderer.on('AnswerVoIP', this.answer)
-        ipcRenderer.on('showVoIPPage', this.showVoIPPage)
-        // ipcRenderer.on('HangupVoIP', this.HangupVoIP)
     }
 }
 </script>

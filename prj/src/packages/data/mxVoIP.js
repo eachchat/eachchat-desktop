@@ -76,10 +76,8 @@ function _setVideoCallListeners(call, videoCall) {
         }
     });
     call.on("hangup", function() {
-        console.log("hangup")
         if(call.type === "video"){
             _setCallState(undefined, call.roomId, "ended");
-            videoCall.hangupVideo();
         }
         else{
             console.log("call is ", call);
@@ -116,6 +114,8 @@ function _setVideoCallListeners(call, videoCall) {
                 console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
                 videoCall.stateCallback("ended");
                 global.mxMatrixClientPeg.removeCall(room_id);
+                
+                ipcRenderer.send("updateVoIPTrayNotice", []);
             }
             pause("ringbackAudio");
             play("callendAudio");
@@ -131,6 +131,7 @@ function _setVideoCallListeners(call, videoCall) {
                 console.log("====to this.hanguped and call state is ", call.call_state);
                 videoCall.stateCallback("busy");
                 global.mxMatrixClientPeg.removeCall(room_id);
+                ipcRenderer.send("updateVoIPTrayNotice", []);
             }
             pause("ringbackAudio");
             play("busyAudio");
@@ -163,7 +164,7 @@ function _setVideoCallListeners(call, videoCall) {
             }
             pause("ringbackAudio");
         }else {
-            console.log("Final undeal state", newState, oldState);
+            console.log("Final undeal state");
         }
     });
 }
@@ -203,6 +204,7 @@ class mxVoIP{
         ops.pendingEventOrdering = "detached";
         ops.lazyLoadMembers = true;
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
+        await global.services.common.login();
         this.onMatrixSync();
     }
 
@@ -304,6 +306,13 @@ class mxVoIP{
         ipcRenderer.emit("close");
     }
 
+    mute(room_id) {
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
+            distCall.setLocalVideoMuted(true);
+        }
+    }
+
     muteVoice(room_id){
         let distCall = global.mxMatrixClientPeg.getCall(room_id);
         if (distCall) {
@@ -316,6 +325,22 @@ class mxVoIP{
         if (distCall) {
             distCall.setMicrophoneMuted(false);
         }
+    }
+
+    unMuted(room_id) {
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
+            distCall.setLocalVideoMuted(false);
+        }
+    }
+
+    isMuted(room_id) {
+        let isMuted = false;
+        let distCall = global.mxMatrixClientPeg.getCall(room_id);
+        if (distCall) {
+            isMuted = distCall.isLocalVideoMuted();
+        }
+        return isMuted;
     }
 
     voiceAnswer(room_id) {

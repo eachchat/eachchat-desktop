@@ -764,6 +764,7 @@ export default {
             voipShowUserInfo["userName"] = showName;
 
             voipInfo["userInfo"] = voipShowUserInfo;
+            voipInfo["action"] = "call";
             this.VoipInfo = voipInfo;
         },
         getMsgOtherLinkContent: function(content) {

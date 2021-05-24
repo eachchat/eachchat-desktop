@@ -317,7 +317,6 @@ import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
 import axios from "axios";
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
-import {mxVoIP} from "../../packages/data/mxVoIP.js";
 export default {
   components: {
     ChatPage,
@@ -667,19 +666,6 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
         global.mxMatrixClientPeg.matrixClient.on("Room.name", this.onRoomName);
         global.mxMatrixClientPeg.matrixClient.on("accountData", this.handleAccountDataUpdate);
-        // global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingCall);
-
-        // ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-        // size:{width:300,height: 480},
-        // voipInfo: {
-        //     voipType: "",
-        //     voipFrame: "webRtc",
-        //     roomId: "",
-        //     voipShowInfo: {
-        //         userImg: "",
-        //         userName: ""
-        //     }
-        // }})
       }
     }
   },
@@ -1414,97 +1400,7 @@ export default {
         }
       }
     },
-    hangUpCallback: function() {
-        console.log("hangup");
-        ipcRenderer.send("close");
-    },
-    voiceCallErrorCallback: function(err) {
-        console.log("err is ", err);
-    },
-    stateCallback: function(state) {
-    },
-    AnswerVoIP(event, roomId) {
-      console.log("to answer voip of ", roomId);
-      this.voiceChat.voiceAnswer(roomId);
-    },
-    HangupVoIP(event, roomId) {
-      console.log("to hangup voip of ", roomId);
-      this.voiceChat.hangUp(roomId);
-    },
-    async showVoIPPage(event, roomId) {
-      console.log("=======show voip page room id is ", roomId);
-      let call = global.mxMatrixClientPeg.getCall(roomId);
-
-      let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
-      const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
-
-      let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
-      let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-      console.log("=====dist url is ", distUrl)
-      if(distUrl && distUrl == '') {
-          distUrl = "../../../static/Img/User/user-40px@2x.png";
-      }
-      console.log("=====dist url is ", distUrl)
-
-      let showName = this.$store.getters.getShowName(distUserId);
-      if(showName.length == 0) {
-          showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-      }
-
-      ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-      size:{width:300,height: 480},
-      voipInfo: {
-          voipType: call.type,
-          voipFrame: "webRtc",
-          roomId: roomId,
-          voipShowInfo: {
-              userImg: distUrl,
-              userName: showName
-          }
-      }})
-      console.log("to show voip of ", roomId);
-    },
-    async handleComingCall(call) {
-      console.log("coming call call is ", call);
-      console.log("coming call call state is ", call.state);
-      this.voiceChat = new mxVoIP();
-      this.voiceChat.setVoiceCallback(this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
-      this.voiceChat.callListeners(call);
-      global.mxMatrixClientPeg.addCall(call.roomId, call);
-      let noticeType = "voice";
-      if(call && call.type == "video") {
-        noticeType = "video";
-      }
-
-      let room = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
-      var distUrl = global.mxMatrixClientPeg.getRoomAvatar(room);
-      var distName = room.name;
-      if(!distUrl || distUrl == '') {
-          if(global.mxMatrixClientPeg.DMCheck(room))
-              distUrl = "./static/Img/User/user-40px@2x.png";
-          else
-              distUrl = "./static/Img/User/group-40px@2x.png";
-      }
-
-      var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
-      if(!distUserId) {
-        distName = this.getShowGroupName(room);
-      }
-      else {
-        distName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-      }
-
-      let trayNoticeObj = {
-        unreadCount: this.getUnReadCount(room),
-        imgUrl: distUrl,
-        chatName: distName,
-        roomId: room.roomId,
-        notictType: noticeType,
-      }
-      this.trayNoticeInfo[room.roomId + ":VoIP"] = trayNoticeObj;
-      ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
-    },
-    async onRoomTimeline(ev, room, toStartOfTimeline, removed, data) {
+    async onRoomTimeline(ev, room, toStartOfTimeline, removed, data) { //todo 新消息事件
       // console.log("*** data ", data);
       // console.log("*** room ", room.name);
       // console.log("*** this.curChat ", this.curChat);
@@ -1530,7 +1426,7 @@ export default {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
         }
-        this.updateChatList(ev);
+        this.updateChatList(ev); //处理数组
         if(ev.event.sender != global.mxMatrixClientPeg.matrixClient.getUserId() && !ev.isRedacted()) {
           if(this.isWindows()) {
             if((this.curChat && room.roomId != this.curChat.roomId) || this.isFirstLogin || this.isBlure) {
@@ -1593,14 +1489,14 @@ export default {
         //     }, 100)
         // }
     },
-    async updateChatList(newMsg) { //todo
+    async updateChatList(newMsg) { //todo 新消息后更新组
       console.log('-----updateChatList------', newMsg)
       if(newMsg.isState()) {
         return;
       }
       var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
-      this.updateGroupMsgContent([groupInfo]); 
-      this.sortGroup(); 
+      this.updateGroupMsgContent([groupInfo]); //更新组的消息
+      this.sortGroup(); //重新排序
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -3832,9 +3728,6 @@ export default {
     ipcRenderer.on('isFocuse', this.curWindowIsFocuse)
     ipcRenderer.on('isNormal', this.setHeaderState)
     ipcRenderer.on('reCalcuate', this.reCalculate)
-    ipcRenderer.on('AnswerVoIP', this.AnswerVoIP)
-    ipcRenderer.on('showVoIPPage', this.showVoIPPage)
-    ipcRenderer.on('HangupVoIP', this.HangupVoIP)
 
     this.$nextTick(() => {
       setTimeout(() => {
