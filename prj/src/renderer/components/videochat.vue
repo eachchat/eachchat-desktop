@@ -27,6 +27,7 @@
         </div>
         <audio id="remoteAudio"></audio>
         <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
+        <img class = "top-stick" @click="topStick">
         <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
         onerror = "this.src = './static/Img/User/user-40px@2x.png'">
         <div class = "username" v-show="bShowStateText">{{useName}}</div>
@@ -87,6 +88,14 @@ export default {
     },
 
     methods:{
+        topStick(){
+            ipcRenderer.send("topVideoChat");
+        },
+
+        upTopStick(){
+
+        },
+
         getChatTime(){
             let nHour = Math.floor(this.nTime / 3600);
             let nMinute = Math.floor(this.nTime / 60) % 60;
@@ -263,6 +272,15 @@ export default {
     border: 1px solid rgba(0, 0, 0, 255);
 }
 
+.top-stick{
+    position: absolute;
+    left: 272px;
+    top: 12px;
+    width: 16px;
+    height: 16px;
+    background-image: url("../../../static/Img/VoIP/top.png"); 
+}
+
 .camera-icon{
     position: absolute;
     z-index: 1;
@@ -270,8 +288,7 @@ export default {
     top: 326px;
     width: 40px;
     height: 40px;
-    background-image: url("../../../static/Img/VoIP/changeCamera.png");
-    
+    background-image: url("../../../static/Img/VoIP/changeCamera.png"); 
 }
 
 .mute-icon{

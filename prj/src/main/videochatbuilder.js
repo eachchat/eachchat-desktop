@@ -31,6 +31,14 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         ipcMain.on("hideVideoChat", () => {
             this.childWindow.hide();
         })
+
+        ipcMain.on("topVideoChat", () => {
+            this.childWindow.setAlwaysOnTop(true)
+        })
+
+        ipcMain.on("unTopVideoChat", () => {
+            this.childWindow.setAlwaysOnTop(false)
+        })
     }
 }
 
