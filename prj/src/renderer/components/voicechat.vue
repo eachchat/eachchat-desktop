@@ -72,11 +72,11 @@ export default {
     },
     methods:{
         mute: function() {
-            this.voiceChat.mute(this.roomId);
+            global.viopChat.mute(this.roomId);
         },
         hangUp: function(event, roomId) {
             console.log("====to hang up");
-            this.voiceChat.hangUp(this.roomId);
+            global.viopChat.hangUp(this.roomId);
             ipcRenderer.send("hideVoiceChat");
         },
         hangUpCallback: function() {
@@ -118,35 +118,35 @@ export default {
             console.log("to show voip of ", roomId);
         },
         answer: function(event, roomId) {
-            this.voiceChat.voiceAnswer(this.roomId);
+            global.viopChat.voiceAnswer(this.roomId);
         },
         
         voiceCallErrorCallback: function(err) {
             console.log("err is ", err);
         },
         stateCallback: function(state) {
-            if (state === this.voiceChat.CHATTING) {
+            if (state === "chatting") {
                 this.curState = "通话中";
                 this.beCalled = true;
                 // _setCallState(call, call.roomId, "ringing");
                 // pause("ringbackAudio");
             }
-            else if (state === this.voiceChat.CALLING) {
+            else if (state === "calling") {
                 this.curState = "正在接通中";
                 // _setCallState(call, call.roomId, "ringing");
                 // pause("ringbackAudio");
-            } else if (state === this.voiceChat.INVITE_SENT) {
+            } else if (state === "invite_sent") {
                 this.curState = "正在呼叫";
                 // _setCallState(call, call.roomId, "ringback");
                 // play("ringbackAudio");
-            } else if (state === this.voiceChat.ENDED) {
+            } else if (state === "ended") {
                 console.log("finished and emit close");
                 this.curState = "通话结束";
                 ipcRenderer.send("hideVoiceChat");
                 // _setCallState(undefined, call.roomId, "ended");
                 // pause("ringbackAudio");
                 // play("callendAudio");
-            } else if (state === this.voiceChat.BUSY) {
+            } else if (state === "busy") {
                 this.curState = "对方正忙";
                 // _setCallState(call, call.roomId, "busy");
                 // pause("ringbackAudio");
@@ -209,15 +209,13 @@ export default {
             }
             else {
                 this.beCalled = false;
-                this.voiceChat.voiceCall(this.roomId);
+                global.viopChat.voiceCall(this.roomId);
             }
         },
     },
     async mounted(){
         let now = new Date();
         console.log("cur time is ", ComponentUtil.formatTimeFilter(now.getTime()));
-
-        this.voiceChat.setVoiceCallback(this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
         await global.services.common.login();
         // ipcRenderer.on('AnswerVoIP', this.answer)
         ipcRenderer.on('showVoIPPage', this.showVoIPPage)
