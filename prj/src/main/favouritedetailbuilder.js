@@ -25,7 +25,7 @@ class FavouriteDetailWindowBuilder extends RenderWindowBuilder{
         renderArgs.args = this.collectionInfo;
         this.childWindow.webContents.send("childwindowArgs", renderArgs);
         this.showWindow();
-        this.childWindow.webContents.openDevTools();
+        //this.childWindow.webContents.openDevTools();
     }
 }
 

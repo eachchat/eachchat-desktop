@@ -67,7 +67,7 @@
         "deb"
       ]
     },
-    "npmRebuild": true
+    "npmRebuild": false
   },
   "dependencies": {
     "aws-sdk": "^2.698.0",
