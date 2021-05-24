@@ -349,7 +349,6 @@ export default {
             }
             
             const createRoomOptions = {inlineErrors: true};
-            //TODO 加密处理
 
             let createRoomPromise = Promise.resolve();
             const isSelf = targetIds.length === 1 && targetIds[0] === client.getUserId();

@@ -407,7 +407,6 @@ export default {
         {
             let msgList = [];
             while(this._timelineWindow.canPaginate(type)){
-                //获取历史消息
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
