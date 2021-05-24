@@ -157,7 +157,7 @@ function _setVideoCallListeners(call, videoCall) {
                 videoCall.hideStateText();
             }
             else{
-                this.stateShow(this.CHATTING);
+                videoCall.stateCallback("chatting");
             }
             pause("ringbackAudio");
         }else {
