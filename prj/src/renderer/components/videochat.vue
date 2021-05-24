@@ -26,18 +26,19 @@
             <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
         </div>
         <audio id="remoteAudio"></audio>
+        <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
         <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
         onerror = "this.src = './static/Img/User/user-40px@2x.png'">
         <div class = "username" v-show="bShowStateText">{{useName}}</div>
         <div class = "stateText" v-show="bShowStateText">{{stateText}}</div>
         <div v-if = "bComming">
-            <div class = "comming-hangup-icon" @click="hangupVideo"></div>
-            <div class = "comming-answer-icon" @click="answerVideo"></div>
+            <div class = "comming-hangup-icon" @click="afterCallState"></div>
+            <div class = "comming-answer-icon" @click="answerState"></div>
         </div>
         <div v-else>
             <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
             <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
-            <div class = "hangup-icon" @click="hangupVideo"></div>
+            <div class = "hangup-icon" @click="afterCallState"></div>
             <div class = "voice-icon"></div>
             <span class = "mute-text">静音</span>
             <span class = "voice-text">音量</span>
@@ -60,7 +61,10 @@ export default {
             stateText: "",
             bShowStateText: true,
             intervalTime: undefined,
+            chatTime: undefined,
             bComming: false,
+            nTime: 0,
+            state: ""
         }
     },
     props:{
@@ -74,17 +78,83 @@ export default {
         roomInfo(){
             this.stateText = "";
             if(this.roomInfo.direction === "from"){
-                this.bComming = true;
-                this.showFromVideoChat(this.roomInfo);
+                this.beforeAnswerState();
             }
             else{
-                this.createVideoChat(this.roomInfo);
-                this.bComming = false;
+                this.beforeCallState();
             }
         }
     },
 
     methods:{
+        getChatTime(){
+            let nHour = Math.floor(this.nTime / 3600);
+            let nMinute = Math.floor(this.nTime / 60) % 60;
+            let nSec = this.nTime % 60;
+            let str = "";
+            if(nHour != 0){
+                str += nHour;
+                str += ":"
+            }
+            if(nMinute > 10){
+                str += nMinute;
+            }
+            else{
+                str += "0";
+                str += nMinute;
+            }
+            str += ":"
+            if(nSec > 10){
+                str += nSec
+            }
+            else{
+                str += "0";
+                str += nSec;
+            }
+            return str;
+        },
+
+        beforeCallState(){
+            this.createVideoChat(this.roomInfo);
+            this.bComming = false;
+        },
+
+        connectedState(){
+            this.showSmallWindow();
+            this.hideStateText();
+            this.state = "connected"
+            this.chatTime = setInterval(() => {
+                this.nTime++;
+            }, 1000)
+        },
+
+        afterCallState(){
+            global.viopChat.hangUp(this.roomInfo.roomID);
+            ipcRenderer.send("hideVideoChat");
+            this.hideStateText();
+            clearInterval(this.chatTime);
+        },
+
+        beforeAnswerState(){
+            this.bComming = true;
+            this.showStateText("邀请你视频通话");
+            let url = roomInfo.url;
+            if(url.length != 0){
+                let imgEle = document.getElementById("video-chat-user-img");
+                if(imgEle){
+                    imgEle.src = url;
+                }
+            }
+            this.useName = roomInfo.name;
+        },
+
+        answerState(){
+            global.viopChat.answerVideoChat(this.roomInfo.roomID, this);
+        },
+
+        afterAnswerState(){
+        },
+
         updateStateText(stateText){
             if(this.stateText === ""){
                 this.stateText = stateText
@@ -131,22 +201,6 @@ export default {
             }
         },
 
-        answerVideo(){
-            global.viopChat.answerVideoChat(this.roomInfo.roomID, this);
-        },
-
-        showFromVideoChat(roomInfo){
-            this.showStateText("邀请你视频通话");
-            let url = roomInfo.url;
-            if(url.length != 0){
-                let imgEle = document.getElementById("video-chat-user-img");
-                if(imgEle){
-                    imgEle.src = url;
-                }
-            }
-            this.useName = roomInfo.name;
-        },
-
         createVideoChat(roomInfo){
             this.showStateText("正在接通中");
             global.viopChat.videoCall(roomInfo, this);
@@ -162,12 +216,6 @@ export default {
 
         showSmallWindow(){
             this.bSmallWindow = true;
-        },
-
-        hangupVideo(){
-            global.viopChat.hangUp(this.roomInfo.roomID);
-            ipcRenderer.send("hideVideoChat");
-            this.hideStateText();
         },
 
         closeWindow(){
@@ -403,5 +451,19 @@ export default {
     width: 44px;
     height: 44px;
     background-image: url("../../../static/Img/VoIP/answer.png"); 
+}
+
+.chat-time{
+    position: absolute;
+    z-index: 1;
+    left: 136px;
+    top: 10px;
+    width: 28px;
+    height: 18px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 18px;
 }
 </style>

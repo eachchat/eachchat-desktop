@@ -78,6 +78,7 @@ function _setVideoCallListeners(call, videoCall) {
     call.on("hangup", function() {
         if(call.type === "video"){
             _setCallState(undefined, call.roomId, "ended");
+            videoCall.afterCallState();
         }
         else{
             console.log("call is ", call);
@@ -114,8 +115,6 @@ function _setVideoCallListeners(call, videoCall) {
                 console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
                 videoCall.stateCallback("ended");
                 global.mxMatrixClientPeg.removeCall(room_id);
-                
-                ipcRenderer.send("updateVoIPTrayNotice", []);
             }
             pause("ringbackAudio");
             play("callendAudio");
@@ -135,7 +134,6 @@ function _setVideoCallListeners(call, videoCall) {
             }
             pause("ringbackAudio");
             play("busyAudio");
-            
             console.error("The remote side failed to pick up");
         } else if (oldState === "invite_sent") {
             if(call.type === "video"){
@@ -156,8 +154,7 @@ function _setVideoCallListeners(call, videoCall) {
         } else if (newState === "connected") {
             if(call.type === "video"){
                 _setCallState(call, call.roomId, "connected");
-                videoCall.showSmallWindow();
-                videoCall.hideStateText();
+                videoCall.connectedState();
             }
             else{
                 videoCall.stateCallback("chatting");
@@ -306,13 +303,6 @@ class mxVoIP{
         ipcRenderer.emit("close");
     }
 
-    mute(room_id) {
-        let distCall = global.mxMatrixClientPeg.getCall(room_id);
-        if (distCall) {
-            distCall.setLocalVideoMuted(true);
-        }
-    }
-
     muteVoice(room_id){
         let distCall = global.mxMatrixClientPeg.getCall(room_id);
         if (distCall) {
@@ -325,22 +315,6 @@ class mxVoIP{
         if (distCall) {
             distCall.setMicrophoneMuted(false);
         }
-    }
-
-    unMuted(room_id) {
-        let distCall = global.mxMatrixClientPeg.getCall(room_id);
-        if (distCall) {
-            distCall.setLocalVideoMuted(false);
-        }
-    }
-
-    isMuted(room_id) {
-        let isMuted = false;
-        let distCall = global.mxMatrixClientPeg.getCall(room_id);
-        if (distCall) {
-            isMuted = distCall.isLocalVideoMuted();
-        }
-        return isMuted;
     }
 
     voiceAnswer(room_id) {
