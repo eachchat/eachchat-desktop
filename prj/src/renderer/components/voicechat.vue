@@ -79,6 +79,11 @@ export default {
             this.voiceChat.hangUp(this.roomId);
             ipcRenderer.send("hideVoiceChat");
         },
+        hangUpCallback: function() {
+            console.log("hangup");
+            ipcRenderer.send("hideVoiceChat");
+        },
+
         showVoIPPage: async function(event, roomId) {
             console.log("=======show voip page room id is ", roomId);
             let call = global.mxMatrixClientPeg.getCall(roomId);
@@ -115,10 +120,7 @@ export default {
         answer: function(event, roomId) {
             this.voiceChat.voiceAnswer(this.roomId);
         },
-        hangUpCallback: function() {
-            console.log("hangup");
-            ipcRenderer.send("hideVoiceChat");
-        },
+        
         voiceCallErrorCallback: function(err) {
             console.log("err is ", err);
         },
@@ -156,9 +158,6 @@ export default {
                 this.curState = "通话中";
             }
         },
-        initMxClientCallback() {
-            global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingCall);
-        },
         async getUserImg(roomId) {
             let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomId);
             const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
@@ -187,67 +186,6 @@ export default {
             }
             return showName;
         },
-        async handleComingCall(call) {
-            console.log("coming call call is ", call);
-            console.log("coming call call state is ", call.state);
-            let isCalling = false;
-            let exitCalls = global.mxMatrixClientPeg.getCall();
-            for(let i = 0; i < exitCalls.length; i++) {
-                let checkCall = exitCalls[i];
-                if(checkCall.state == ENDED) {
-                    global.mxMatrixClientPeg.removeCall(checkCall.roomId);
-                }
-                else {
-                    isCalling = true;
-                }
-            }
-            if(isCalling) {
-                // I am busy now.
-                call.hangup(call.roomId);
-                return;
-            }
-            this.voiceChat.callListeners(call);
-            global.mxMatrixClientPeg.addCall(call.roomId, call);
-            let noticeType = "voice";
-            if(call && call.type == "video") {
-                noticeType = "video";
-            }
-
-            let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
-            const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
-            
-            let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
-            let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-            console.log("=====dist url is ", distUrl instanceof String)
-            console.log("=====dist url is ", !distUrl)
-            if(!distUrl || (distUrl && distUrl == '')) {
-                console.log("=====dist url is ", distUrl)
-                distUrl = "./static/Img/User/user-40px@2x.png";
-            }
-            console.log("=====dist url is ", distUrl)
-            
-            let showName = this.$store.getters.getShowName(distUserId);
-            if(showName.length == 0) {
-                try {
-                    showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                }
-                catch(e) {
-                    console.log(" get name exception ", e);
-                }
-            }
-
-            let trayNoticeObj = {
-                unreadCount:0,
-                imgUrl: distUrl,
-                chatName: showName,
-                roomId: checkRoom.roomId,
-                notictType: noticeType,
-            }   
-            let trayNoticeInfo = [];
-            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-            console.log("====ru show notice ");
-            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
-        },
     },
     watch: {
         voipInfo: async function() {
@@ -265,8 +203,7 @@ export default {
             if(!this.userName || (this.userName && this.userName == "")) {
                 this.userName = await this.getUserShowName(this.roomId);
             }
-            // console.log("====global.mxMatrixClientPeg.getCall(this.roomId) is ", global.mxMatrixClientPeg.getCall(this.roomId));
-            // console.log("====global.mxMatrixClientPeg.getCall(this.roomId) state is ", global.mxMatrixClientPeg.getCall(this.roomId).state);
+
             if(global.mxMatrixClientPeg.getCall(this.roomId)) {
                 this.beCalled = true;
             }
@@ -275,33 +212,13 @@ export default {
                 this.voiceChat.voiceCall(this.roomId);
             }
         },
-        matrixSync: function() {
-            console.log("==== prepared and and ");
-            this.initMxClientCallback();
-        }
     },
     async mounted(){
         let now = new Date();
         console.log("cur time is ", ComponentUtil.formatTimeFilter(now.getTime()));
-        this.voiceChat = new mxVoIP();
+
         this.voiceChat.setVoiceCallback(this.hangUpCallback, this.voiceCallErrorCallback, this.stateCallback);
         await global.services.common.login();
-        await this.voiceChat.createMatrix();
-        global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data)=>{
-            console.log("state ", state);
-            console.log("prevState ", prevState);
-            console.log("data ", data);
-          switch(state){
-            case "PREPARED":
-            //   console.clear();
-            //   ctx.matrixSync = true;
-                global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
-                this.$store.dispatch('syncPrepare');
-              break;
-            default:
-              break;
-          }
-        })
         // ipcRenderer.on('AnswerVoIP', this.answer)
         ipcRenderer.on('showVoIPPage', this.showVoIPPage)
         // ipcRenderer.on('HangupVoIP', this.HangupVoIP)

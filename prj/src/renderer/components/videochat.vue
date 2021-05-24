@@ -48,7 +48,6 @@
 </template>
 
 <script>
-import {mxVoIP} from "../../packages/data/mxVoIP.js"
 import {ipcRenderer} from 'electron'
 
 export default {
@@ -133,7 +132,7 @@ export default {
         },
 
         answerVideo(){
-            this.callChat.answerVideoChat(this.roomInfo.roomID, this);
+            global.viopChat.answerVideoChat(this.roomInfo.roomID, this);
         },
 
         showFromVideoChat(roomInfo){
@@ -150,7 +149,7 @@ export default {
 
         createVideoChat(roomInfo){
             this.showStateText("正在接通中");
-            this.callChat.videoCall(roomInfo, this);
+            global.viopChat.videoCall(roomInfo, this);
             let url = roomInfo.url;
             if(url.length != 0){
                 let imgEle = document.getElementById("video-chat-user-img");
@@ -166,32 +165,30 @@ export default {
         },
 
         hangupVideo(){
-            this.callChat.hangUp(this.roomInfo.roomID);
+            global.viopChat.hangUp(this.roomInfo.roomID);
             ipcRenderer.send("hideVideoChat");
             this.hideStateText();
         },
 
         closeWindow(){
             if(this.roomInfo && this.roomInfo.roomID){
-                this.callChat.hangUp(this.roomInfo.roomID);
+                global.viopChat.hangUp(this.roomInfo.roomID);
                 this.hideStateText();
             }
         },
 
         muteVoice(){
-            this.callChat.muteVoice(this.roomInfo.roomID);
+            global.viopChat.muteVoice(this.roomInfo.roomID);
             this.isMute = false;
         },
 
         unMuteVoice(){
-            this.callChat.unMuteVoice(this.roomInfo.roomID);
+            global.viopChat.unMuteVoice(this.roomInfo.roomID);
             this.isMute = true;
         }
     },
     mounted(){
         console.log("videochat mounted")
-        this.callChat = new mxVoIP();
-        this.callChat.createMatrix();
         ipcRenderer.on("closeChildRenderWindowBrowser", this.closeWindow)
     }
 }
