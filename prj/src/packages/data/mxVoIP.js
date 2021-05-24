@@ -168,12 +168,6 @@ function _setVideoCallListeners(call, videoCall) {
 
 class mxVoIP{
     constructor(){
-        this.CALLING ='calling';
-        this.CONNECTED = 'connected';
-        this.CHATTING = 'chatting';
-        this.INVITING = 'inviting';
-        this.ENDED = 'ended';
-        this.BUSY = 'busy';
         this.videochat = null;
         this.voicechat = null;
     }
@@ -233,7 +227,7 @@ class mxVoIP{
         let exitCalls = global.mxMatrixClientPeg.getCall();
         for(let i = 0; i < exitCalls.length; i++) {
             let checkCall = exitCalls[i];
-            if(checkCall.state == ENDED) {
+            if(checkCall.state == "ended") {
                 global.mxMatrixClientPeg.removeCall(checkCall.roomId);
             }
             else {
@@ -362,7 +356,7 @@ class mxVoIP{
 
     voiceCall(room_id){
         if(global.mxMatrixClientPeg.getCall(room_id)) {
-            stateCallback(this.CHATTING);
+            this.voicechat.stateCallback("chatting");
             return;
         }
         const room = global.mxMatrixClientPeg.matrixClient.getRoom(room_id);
