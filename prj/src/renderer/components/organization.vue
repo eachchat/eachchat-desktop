@@ -13,7 +13,7 @@
             </div>
             <div class="search-view" v-show="showSearchView">
                 <ul class="managers-list">
-                    <div v-if="searchContacts.length" class='grid-content'>联系人</div>
+                    <div v-if="searchContacts.length" class='grid-content'>{{$t("organization.managersListConatctName")}}</div>
                     <li class="manager"
                         v-for="contact in searchContacts"
                         @click="SearchContactItemClicked(contact.matrix_id)" 
@@ -24,7 +24,7 @@
                         <p  class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                         </div>
                     </li>
-                    <div v-if="searchUsers.length" class='grid-content'>组织</div>
+                    <div v-if="searchUsers.length" class='grid-content'>{{$t("organization.departmentsListOrganizationName")}}</div>
                     <li class="manager"
                         v-for="manager in searchUsers"
                         @click="searchUserMenuItemClicked(manager.user_id)" 
@@ -35,7 +35,7 @@
                         <p class="contact-list-titile">{{ manager.user_title }}</p>
                         </div>
                     </li>
-                    <div v-if="searchDeparements.length" class='grid-content'>部门</div>
+                    <div v-if="searchDeparements.length" class='grid-content'>{{$t("organization.departmentName")}}</div>
                     <li class="manager"
                         v-for="department in searchDeparements"
                         @click="searchDeparmentItemClicked(department.department_id)" 
@@ -45,7 +45,7 @@
                         <p v-html="msgContentHightLight(department.display_name)" class="department-name">{{ department.display_name }}</p>
                         </div>
                     </li>
-                    <div v-if="searchRooms.length" class='grid-content'>群聊</div>
+                    <div v-if="searchRooms.length" class='grid-content'>{{$t("organization.departmentsListGroupChat")}}</div>
                     <li class="manager"
                         v-for="room in searchRooms"
                         @click="searchRoomItemClicked(room.room_id)" 
@@ -64,7 +64,7 @@
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/inviteRoomsIcon-40px@2x.png">
                         <p v-show = 'getInviteNum() != 0' :class="getInviteNumClass()">{{getInviteNum()}}</p>
                         <div :class="getInviteRoomClass()">
-                            <p class="department-name">邀请</p>
+                            <p class="department-name">{{$t("organization.departmentsListInvite")}}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -73,7 +73,7 @@
                     <li :class='["department", {"active-tab": this.activeTab == "groupchat"}]'
                         @click="roomItemClick()">
                         <img ondragstart="return false" class="department-icon" src="../../../static/Img/Organization/Image/groupicon-40px@2x.png"><div class="department-info">
-                            <p class="department-name">群聊</p>
+                            <p class="department-name">{{$t("organization.departmentsListGroupChat")}}</p>
                         </div>
                         <div align="center" class="item-arrow">
                             <img ondragstart="return false" class="right-arrow"  src="../../../static/Img/Organization/Common/right_arrow@2x.png">
@@ -519,13 +519,11 @@ export default {
         departmentMenuItemClicked(department) {
             this.activeTab = 'department'
             if(department.display_name == this.organizeMenuName){
-                //组织架构模板
                 this.bOrganizeShow = true;
                 this.bContactRoomShow = false;
                 this.bInviteRoomShow = false;
             }
             else if(department.display_name == this.contactMenuName){
-                //联系人模板
                 this.bOrganizeShow = false;
                 this.bContactRoomShow = false;
                 this.bInviteRoomShow = false;
@@ -636,7 +634,7 @@ export default {
 }
 
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
 .list-header {

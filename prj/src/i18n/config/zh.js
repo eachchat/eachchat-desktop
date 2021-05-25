@@ -1,3 +1,8 @@
+import organization from "./zh/organization"
+import contact from "./zh/contact"
+import setting from "./zh/setting"
+import favourite from "./zh/favourite"
+
 const zh = {
     appName: "亿洽",
     language: {
@@ -91,6 +96,11 @@ const zh = {
     changePasswordAlert: "修改密码会重置所有会话上的端对端加密的密钥，使加密聊天记录不可读，除非您先导出您的群聊密钥，之后再重新导入。在未来会有所改进。",
     theAlert: "警告",
     ExportE2ERoomKeys: "导出群聊的端到端加密密钥",
+    search: "搜索",
+    organization: organization,
+    contact: contact,
+    setting: setting,
+    favourite: favourite
 }
 
 export default zh;

@@ -435,12 +435,6 @@ class _MatrixClientPeg{
         return matrixcs.createClient(opts);
     }
     
-    /*
-    {
-      "medium": "email或msisdn，必须"//此处emial和msisdn须为Identity Server上已完成注册，并在HomeServer中与matrixId已完成绑定
-      "address": "手机号码或邮箱地址，必须",
-    }
-    */
     async GetVerCode(medium, address){
       try{
         var ret = await this.commonApi.sender.post(

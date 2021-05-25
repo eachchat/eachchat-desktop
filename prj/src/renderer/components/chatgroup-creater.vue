@@ -333,7 +333,6 @@ export default {
                             if (element.checkState == false){
                                 this.allUsers[j].checkState = true;
                                 this.users[i].checkState = true;
-                                // 添加到选中列表中
                                 if (this.selectedUsers.indexOf(this.users[i]) == -1) {
                                     this.selectedUsers.push(this.users[i]);
                                 }
@@ -351,7 +350,6 @@ export default {
                             if (element.checkState == true){
                                 this.allUsers[j].checkState = false;
                                 this.users[i].checkState = false;
-                                // 选中列表中移除
                                 if (this.selectedUsers.indexOf(element) != -1){
                                     this.selectedUsers.splice(this.selectedUsers.indexOf(element), 1);
                                 }
@@ -500,7 +498,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
 .el-aside{

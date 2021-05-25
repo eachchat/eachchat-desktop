@@ -175,7 +175,6 @@ export default {
             // console.log("msg target path is ", targetPath);
 
             if(fs.existsSync(targetPath)){
-                //thumbnailImage为本地路径，该消息为自己发送的消息，读取本地图片显示
                 var showfu = new FileUtil(targetPath);
                 let showfileObj = showfu.GetUploadfileobj();
                 let reader = new FileReader();

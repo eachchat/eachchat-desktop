@@ -3,7 +3,8 @@ import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
-import {ChildWindow} from './childwindow.js'
+import {createChildWindow, ChildWindow} from './childwindow.js'
+
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('ignore-certificate-errors');
@@ -22,8 +23,6 @@ let noticeHeight
 let noticeWindowKeepShow = false
 let assistWindow
 let soloPage = null
-let favouriteDetailWindow
-let reportRelationWindow
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
@@ -172,21 +171,18 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.show();
   // });
   openDevToolsInDevelopment(mainWindow);
-  // 托盘
   appIcon = new Tray(iconPath);
 
   appIcon.on('mouse-move', function(event, position){
     if(!noticeWindow) return;
     if(process.platform == "win32") {
       if(isLeave) {
-        console.log("=========noticewindowdinfo ", noticeInfo)
         if(noticeInfo && Object.keys(noticeInfo).length == 0) {
           noticeWindow.hide();
         }
         else {
           isLeave = false;
           checkTrayLeave();
-          console.log("======notice show", position);
           let showX = screenSize.width - position.x > 260 ? position.x + 20 : screenSize.width - 20 - 240 ;
           let showY = screenSize.height - noticeHeight;
           console.log("final show posision ", screenSize.width - 20 - 240, " y ", screenSize.height - noticeHeight)
@@ -222,10 +218,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
         mainWindow = null;
         noticeWindow = null;
         assistWindow = null;
-        soloPage = null;
-        favouriteDetailWindow = null;
-        reportRelationWindow = null;
-        
+        soloPage = null;        
         app.quit();
       }
     }
@@ -613,90 +606,6 @@ ipcMain.on('updageAssistWindowSize', function(event, sizeInfo, isHeaderImg) {
   assistWindow.center();
 })
 
-// 收藏详情窗口
-ipcMain.on('showFavouriteDetailWindow', function(event, collectionInfo) {
-    if(!favouriteDetailWindow){
-      favouriteDetailWindow = new BrowserWindow({
-        height: 468,
-        resizable: resizableValue,
-        width:600,
-        fullscreenable: false,
-        webPreferences: {
-          webSecurity:false,
-          nodeIntegration:true,
-          enableRemoteModule: true
-        },
-        //frame:false,
-        title: collectionInfo.title  
-      })
-    const favouriteDetailPageWinURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/#/` + 'favouriteDetail'
-    : `file://${__dirname}/index.html#` + 'favouriteDetail';
-    favouriteDetailWindow.loadURL(favouriteDetailPageWinURL);
-    //openDevToolsInDevelopment(favouriteDetailWindow);
-    favouriteDetailWindow.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      favouriteDetailWindow.hide();
-    })
-    
-    favouriteDetailWindow.webContents.on('did-finish-load', function() {
-      favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
-    });
-  }
-    
-  favouriteDetailWindow.webContents.send("clickedCollectionInfo", collectionInfo);
-  favouriteDetailWindow.show();
-
-});
-
-ipcMain.on('favouriteDetailClose', function(event, arg) {
-  favouriteDetailWindow.close();
-});
-
-ipcMain.on('favouriteDetailMin', function(event, arg) {
-  favouriteDetailWindow.minimize();
-});
-// 汇报关系窗口
-ipcMain.on('showReportRelationWindow', function(event, leaders) {
-  if(!reportRelationWindow){
-    reportRelationWindow = new BrowserWindow({
-      height: 340,
-      resizable: resizableValue,
-      width: 520,
-      fullscreenable: false,
-      webPreferences: {
-        webSecurity:false,
-        nodeIntegration:true,
-        enableRemoteModule: true
-      },
-      //frame:false,
-      title:"汇报关系"
-    })
-    const reportRelationWinURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/#/` + 'reportRelationContent'
-    : `file://${__dirname}/index.html#` + 'reportRelationContent';
-    reportRelationWindow.loadURL(reportRelationWinURL);
-    reportRelationWindow.webContents.on('did-finish-load', function() {
-      reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
-    });
-    reportRelationWindow.on("close", (event) => {
-      if(clickQuit){
-        app.quit()
-        return;
-      }
-      event.preventDefault();
-      reportRelationWindow.hide();
-    })
-  }
-  reportRelationWindow.webContents.send("clickedReportRelationInfo", leaders);
-  reportRelationWindow.show();
-  //openDevToolsInDevelopment(reportRelationWindow);
-});
-
 ipcMain.on("showNotice", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
@@ -728,7 +637,6 @@ ipcMain.on("stopFlash", (event) => {
   setImgToNormalIcon();
 })
 
-// 闪烁任务栏
 ipcMain.on("flashIcon", (event, title, contnet) => {
   console.log("title ",title)
   console.log("contnet ",contnet)
@@ -1569,36 +1477,49 @@ function createWindow () {
     event.preventDefault();
     soloPage.hide();
   })
+  let childwindowFactory = new ChildWindow();
+  let thirdpartyWindowBrowser = childwindowFactory.createBrowser(iconPath);
+  let childRenderWindowBrowser = childwindowFactory.createBrowser(iconPath);
 
-  let childRenderWindow = new ChildWindow();
-  childRenderWindow.createChildWindow(iconPath);
-  ipcMain.on("createChildWindow", function(event, arg){
-    console.log("createChildWindow-------------", arg)
-    let type = arg.type;
-    let size = arg.size;
-    let browserViewUrl = arg.browserViewUrl;
-    if(type == "thirdpartywindow"){
-      const pageUrl = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080/#/` + 'thirdpartyBind'
-      : `file://${__dirname}/index.html#` + 'thirdpartyBind';
-      childRenderWindow.setMainWindow(mainWindow);
-      childRenderWindow.loadUrl(pageUrl);
-      childRenderWindow.setWindowSize(size);
-      childRenderWindow.createWebViewWindow(browserViewUrl)
-      childRenderWindow.showWindow();
-      if(!isLogin){
-        mainWindow.hide();
-      }
+  const childwindowURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/childwindow`
+  : `file://${__dirname}/index.html#childwindow`;
+  childRenderWindowBrowser.loadURL(childwindowURL);
+  //childRenderWindowBrowser.show();
+  //childRenderWindowBrowser.webContents.openDevTools();
+
+  ipcMain.on("createChildWindow", function(event, args){
+    let mainwindowArgs = {};
+    mainwindowArgs.iconPath = iconPath;
+    mainwindowArgs.mainWindow = mainWindow;
+    mainwindowArgs.isLogin = isLogin;
+    mainwindowArgs.thirdpartyBrowser = thirdpartyWindowBrowser;
+    mainwindowArgs.childBrowser = childRenderWindowBrowser;
+    mainwindowArgs.ipcArg = args;
+    mainwindowArgs.clickQuit = clickQuit;
+    createChildWindow(mainwindowArgs);
+  })
+
+  childRenderWindowBrowser.on('close', (event) => {
+    console.log("childRenderWindowBrowser", clickQuit)
+    if(clickQuit){
+      app.quit();
+      return;
     }
-    childRenderWindow.childWindow.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      childRenderWindow.childWindow.hide();
-      mainWindow.show();
-    })
+    event.preventDefault();
+    childRenderWindowBrowser.hide();
+    mainWindow.show();
+  })
+
+  thirdpartyWindowBrowser.on('close', (event) => {
+    console.log("thirdpartyWindowBrowser", clickQuit)
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    thirdpartyWindowBrowser.hide();
+    mainWindow.show();
   })
 }
 
@@ -1608,9 +1529,6 @@ ipcMain.on("openDevTools", function(event) {
   }
   if(soloPage != null && !soloPage.isDestroyed()) {
     soloPage.webContents.openDevTools();
-  }
-  if(favouriteDetailWindow != null && !favouriteDetailWindow.isDestroyed()) {
-    favouriteDetailWindow.webContents.openDevTools();
   }
 })
 
@@ -1626,6 +1544,7 @@ function openDevToolsInDevelopment(mainWindow) {
     });
   }
   mainWindow.on('close', (event) => {
+    console.log("index mainwindow close", clickQuit)
     if(process.platform == 'darwin') {
       event.preventDefault();
       if(mainWindow.isFullScreen()) {

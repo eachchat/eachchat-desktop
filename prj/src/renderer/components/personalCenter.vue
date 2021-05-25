@@ -7,7 +7,7 @@
             </div>
             <div class="personalCenter-baseInfo">
                 <span>
-                    <input class="personalCenter-name" id="personalCenter-name-id" v-model="displayName" required maxLength = 32 @change="displayNameChange()" placeholder="请输入昵称" @blur = 'inputFocusLeave()' @focus="inputFocus()">
+                    <input class="personalCenter-name" id="personalCenter-name-id" v-model="displayName" required maxLength = 32 @change="displayNameChange()" :placeholder="$t('setting.inputRemarkName')" @blur = 'inputFocusLeave()' @focus="inputFocus()">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png" @click="displayNameEdit()" id = 'owverInfoEnditID' v-if = 'bNameEdit'/>
                 </span>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>

@@ -168,27 +168,37 @@ export default {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
         sendAgain: function() {
-            if(this.msg.event.content.msgtype != "m.text") {
-                this.sendFile();
+            function checkPendingEvent(room, txnId) {
+                return Promise.all(room.getPendingEvents().filter(function(ev) {
+                    console.log("getPendingEvents is ", ev);
+                    return (ev._txnId && ev._txnId == txnId) && ev.status == "not_sent";
+                }))
             }
-            else {
-                // let curTimeSeconds = new Date().getTime();
-                // this.sendText(curTimeSeconds);
-                // this.$emit("sendAgain", this.msg);
-                var roomID = this.msg.event.room_id;
-                let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
-                try{
-                    global.mxMatrixClientPeg.matrixClient.resendEvent(this.msg.event, theRoom).then((ret) => {
-                        this.msg.message_status = 0;
-                    }).catch((error) => {
-                        this.msg.message_status = 2;
+            
+            console.log("===sendAgain event is ", this.msg.event)
+            var roomID = this.msg.event.room_id;
+            let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
+            this.msg.message_status = 1;
+            checkPendingEvent(theRoom, this.msg._txnId).then((pendingEvents) => {
+                console.log("get pending event is ", pendingEvents);
+                if(pendingEvents && pendingEvents.length > 0) {
+                    pendingEvents.map((pendingEvent) => {
+                        global.mxMatrixClientPeg.matrixClient.resendEvent(pendingEvent, theRoom).then((res) => {
+                            this.msg.message_status = 0;
+                        }, (err) => {
+                            this.msg.message_status = 2;
+                        })
                     })
                 }
-                catch(error) {
-                    this.msg.message_status = 2;
-                    console.log("error is ", error);
+                else {
+                    if(this.msg.event.content.msgtype != "m.text") {
+                        this.sendFile();
+                    }
+                    else {
+                        this.sendText();
+                    }
                 }
-            }
+            })
         },
         transmitMsgId: function() {
             return "message-transmit-" + this.msg.event.event_id;
@@ -635,10 +645,47 @@ export default {
                 return this.getFileIconThroughExt(ext);
             }
         },
+        downLoadImg: async function(iconPath) {
+            const existLocalFile = await this.getFileExist();
+            if(fs.existsSync(existLocalFile)) return;
+            const chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            const event = this.msg.event;
+            const distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
+            const finalPath = path.join(distPath, chatGroupMsgContent.body);
+            getFileBlob(chatGroupMsgContent.info, iconPath)
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            var buffer = new Buffer(reader.result);
+                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                            ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
+        },
+        updateMsgImg: async function() {
+            if(this.MsgIsImage()) {
+                const existLocalFile = await this.getFileExist();
+                if(fs.existsSync(existLocalFile)) {
+                    let imgElement = document.getElementById(this.msg.event.event_id);
+                    var showfu = new FileUtil(existLocalFile);
+                    let showfileObj = showfu.GetUploadfileobj();
+                    var reader = new FileReader();
+                    reader.readAsDataURL(showfileObj);
+                    reader.onloadend = () => {
+                        imgElement.setAttribute("src", reader.result);
+                    }
+                }
+            }
+        },
         getMsgImgIcon: function() {
             var distUrl = (this.msg.event.content.info && this.msg.event.content.info.thumbnail_url && this.msg.event.content.info.thumbnail_url.length != 0) ? this.msg.event.content.info.thumbnail_url : this.msg.event.content.url;
             if(!distUrl.startsWith('blob:')) {
                 let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
+                this.downLoadImg(iconPath);
+                this.updateMsgImg();
                 return iconPath;
             }
             else {
@@ -960,8 +1007,6 @@ export default {
             // console.log("this.msg.getType() is ", this.msg.getType())
             // console.log("chatGroupMsgType.type is ", chatGroupMsgType)
             // console.log("chatGroupMsgContent.type is ", chatGroupMsgContent.msgtype)
-            // console.log("this. msg is ", this.msg)
-            // 数据库缺省type = 0 
             if(chatGroupMsgType === "m.room.message")
             {
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1052,6 +1097,9 @@ export default {
                     this.messageContent = "无法识别的消息类型";
                 }
             }
+            else if(chatGroupMsgType === "m.call.invite") {
+                this.messageContent = "不支持的消息类型，请升级客户端";
+            }
             else if(chatGroupMsgType === "m.room.encrypted") {
                 // chatGroupMsgContent = this.msg.getContent();
                 if(chatGroupMsgContent.msgtype == 'm.file'){
@@ -1090,6 +1138,9 @@ export default {
                     textElement.style.cursor = "pointer";
                     this.messageContent = "**无法解密:发送方的设备没有给我们发送此消息的密钥。**";
                 }
+            }
+            else {
+                this.messageContent = "不支持的消息类型，请升级客户端";
             }
         },
         MsgIsMine:function() {
@@ -1341,7 +1392,7 @@ export default {
                     this.$store.commit("removeSendingEvents", this.msg);
                     this.msg.message_status = 0;
                 }).catch((error) => {
-                    console.log("error is ", error.errcode);
+                    console.log("error is ", error);
                     this.msg.message_status = 2;
                 })
             }
@@ -1628,12 +1679,10 @@ export default {
         display: none;
     }
     
-    /* 表示总长度背景色 */
     progress::-webkit-progress-bar {
         background-color: rgba(210, 215, 222, 1);
     }
 
-    /* 表示已完成进度背景色 */
     progress::-webkit-progress-value {
         background: rgba(36, 179, 107, 1)
     }

@@ -32,7 +32,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import confservice from '../../packages/data/conf_service'
 // import { ImageDrop } from 'quill-image-drop-module'
-import { getFileBlob} from '../../packages/core/Utils.js'
+import { getFileBlob, FileUtil} from '../../packages/core/Utils.js'
 import {ipcRenderer, remote} from 'electron'
 import * as Matrix from 'matrix-js-sdk';
 import {ComponentUtil} from '../script/component-util';
@@ -219,7 +219,18 @@ export default {
                     style += "height:" + this.curImage.info.h + "px";
                     this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
                     this.isLoading = false;
-                    this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                    if(fs.existsSync(this.curImage.localPath)) {
+                        var showfu = new FileUtil(this.curImage.localPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        var reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            this.stageElement.setAttribute("src", reader.result);
+                        }
+                    }
+                    else {
+                        this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                    }
                     this.stageElement.setAttribute("style", style);
                 }
             }
@@ -284,7 +295,18 @@ export default {
                     style += "height:" + this.curImage.info.h + "px";
                     this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
                     this.isLoading = false;
-                    this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                    if(fs.existsSync(this.curImage.localPath)) {
+                        var showfu = new FileUtil(this.curImage.localPath);
+                        let showfileObj = showfu.GetUploadfileobj();
+                        var reader = new FileReader();
+                        reader.readAsDataURL(showfileObj);
+                        reader.onloadend = () => {
+                            this.stageElement.setAttribute("src", reader.result);
+                        }
+                    }
+                    else {
+                        this.stageElement.setAttribute("src", this.curImage.imageUrl);
+                    }
                     this.stageElement.setAttribute("style", style);
                 }
             }
@@ -486,7 +508,18 @@ export default {
             console.log("*** this.curImage is ", this.curImage.info);
             // this.updateWindowSize(undefined);
             this.isLoading = false;
-            this.stageElement.setAttribute("src", this.curImage.imageUrl);
+            if(fs.existsSync(this.curImage.localPath)) {
+                var showfu = new FileUtil(this.curImage.localPath);
+                let showfileObj = showfu.GetUploadfileobj();
+                var reader = new FileReader();
+                reader.readAsDataURL(showfileObj);
+                reader.onloadend = () => {
+                    this.stageElement.setAttribute("src", reader.result);
+                }
+            }
+            else {
+                this.stageElement.setAttribute("src", this.curImage.imageUrl);
+            }
             this.stageElement.setAttribute("style", style);
             this.stageElement.style.top = "-20px";
             this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});

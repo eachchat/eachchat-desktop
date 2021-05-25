@@ -30,7 +30,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading || dbDataNotFinished">
@@ -108,6 +108,7 @@ export default {
     },
     data () {
         return {
+            toUpdateTrayNotice: 0,
             setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
@@ -155,12 +156,6 @@ export default {
                     link: "/favourite",
                     view: "favourite"
                 },
-                // {
-                //     text: "设置",
-                //     name: "setUp",
-                //     link: "/setUp",
-                //     view: "setUp"
-                // }
             ],
             elementImg: null,
             ipcInited: false,
@@ -787,6 +782,7 @@ export default {
                     if(e.target.id != 'owverInfoEnditID')
                     {
                         console.log(e.target.id)
+                        _this.toUpdateTrayNotice = _this.toUpdateTrayNotice + 1;
                         _this.showPersonalCenter = false;    
                     }
                         
@@ -1159,12 +1155,10 @@ export default {
         margin-left: 10px;
         word-wrap: break-word;
     
-        /* 定位 */
         position: fixed;
         z-index: 1;
     }
 
-    /* 鼠标移动上去后显示提示框 */
     .nav-item:hover .tooltiptext {
         visibility: visible;
     }
@@ -1290,12 +1284,11 @@ export default {
         margin-left: 10px;
         word-wrap: break-word;
     
-        /* 定位 */
+
         position: fixed;
         z-index: 1;
     }
 
-    /* 鼠标移动上去后显示提示框 */
     .NavSetUp:hover .tooltiptext {
         visibility: visible;
     }

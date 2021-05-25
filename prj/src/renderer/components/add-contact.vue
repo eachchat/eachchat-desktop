@@ -10,7 +10,7 @@
                 <div class = 'backgroundDiv'  v-show = 'false'></div>
                 <el-main class="selectedView">
                     <div class="search">
-                        <el-input class="search-input" v-model="searchKey" @input="search" placeholder="搜索" size='mini' clearable>
+                        <el-input class="search-input" v-model="searchKey" @input="search" :placeholder="$t('contact.search')" size='mini' clearable>
                             <i slot="prefix" style="display: flex;align-items: center;">
                                 <img
                                     style="width:20px;height:20px;margin-top: 4px;"
@@ -22,7 +22,7 @@
                     </div>
                     <div class = 'newContactDiv' v-show = 'searchUsers.length == 0' @click = "AddByMatrixID()">
                         <img class = 'newContactIcon' src="../../../static/Img/Organization/Image/inputContact.png">
-                        <label class = 'newContactText' for="">新建联系人</label>
+                        <label class = 'newContactText' for="">{{$t('contact.newContact')}}</label>
                         <img class = 'newContactClick' src="../../../static/Img/Setup/arrow-20px.png">
                     </div>
                     <ul class = 'contact-list'>
@@ -34,8 +34,8 @@
                                 <p class="contact-list-name" v-html="searchKeyHightLight(contact.user_display_name)">{{ contact.user_display_name }}</p>
                                 <p class="contact-list-titile">{{ GetContactTitle(contact) }}</p>
                             </div>
-                            <button v-if = 'DisableSave(contact)' class="contact-list-disable-button" @click="HandleSave(index, contact)" :disabled='true'>已添加</button>
-                            <button v-else class="contact-list-button" @click="HandleSave(index, contact)" >添加</button>
+                            <button v-if = 'DisableSave(contact)' class="contact-list-disable-button" @click="HandleSave(index, contact)" :disabled='true'>{{$t("contact.added")}}</button>
+                            <button v-else class="contact-list-button" @click="HandleSave(index, contact)" >{{$t("contact.add")}}</button>
                         </li>
                     </ul>
                 </el-main>
@@ -274,7 +274,7 @@ export default {
 
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
     .newContactDiv{

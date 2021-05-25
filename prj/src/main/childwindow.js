@@ -1,13 +1,14 @@
-const {BrowserWindow,BrowserView, ipcMain} = require('electron')
-import log from 'electron-log';
-
+const {BrowserWindow} = require('electron')
+import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
+import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
+import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
 class ChildWindow{
     constructor(){
-        this.childWindow = undefined;
+
     }
 
-    createChildWindow(iconPath){
-        this.childWindow = new BrowserWindow({     
+    createBrowser(iconPath){
+        return new BrowserWindow({     
             resizable: true,
             webPreferences: {
                 webSecurity:false,
@@ -19,81 +20,52 @@ class ChildWindow{
             icon: iconPath,
         });
     }
+}
 
-    setWindowSize(size){
-        this.width = size.width;
-        this.height = size.height;
-        this.childWindow.setSize(size.width, size.height);
-    }
+function createChildWindow(mainwindowArgs){
+    console.log("createChildWindow", mainwindowArgs);
 
-    loadUrl(url){
-        this.childWindow.loadURL(url);
-    }
+    let mainWindow = mainwindowArgs.mainWindow;
+    let isLogin = mainwindowArgs.isLogin;
+    let thirdpartyWindowBrowser = mainwindowArgs.thirdpartyBrowser;
+    let childRenderWindowBrowser = mainwindowArgs.childBrowser;
+    let ipcArg = mainwindowArgs.ipcArg;
+    let type = ipcArg.type;
+    let clickQuit = mainwindowArgs.clickQuit;
 
-    setMainWindow(mainWindow){
-        this.mainWindow = mainWindow;
-    }
-
-    createWebViewWindow(url){
-        let webView = new BrowserView();
-        let oldWebView = this.childWindow.getBrowserView();
-        console.log("oldwebView", oldWebView)
-        if(oldWebView == null){
-            this.childWindow.setBrowserView(webView);
+    console.log("createChildWindow-------------", ipcArg)
+    switch(type){
+      case "thirdpartywindow":{
+        let thirdpartywindow = new ThirdPartyWindowBuilder(thirdpartyWindowBrowser, mainWindow);
+        thirdpartywindow.setArgs(ipcArg);
+        thirdpartywindow.build();
+        if(!isLogin){
+          mainWindow.hide();
         }
-        else{
-            this.childWindow.removeBrowserView(oldWebView);
-            this.childWindow.setBrowserView(webView);
-        }
-        
-        webView.setBounds({x:0, y:0, width:this.width, height:this.height});
-        webView.setAutoResize({width: true,
-                                    height: true,
-                                    horizontal: true,
-                                    vertical: true});
+        break;
+      }
 
-        webView.webContents.loadURL(url);
-        webView.webContents.on("did-frame-navigate", 
-        (event, 
-        url,
-        isInPlace,
-        isMainFrame,
-        frameProcessId,
-        frameRoutingId) =>{
-            log.info("did-redirect-navigation: " + url)
-            if(this.aliPayCodeCheck(url)) return;
-            if(this.weChatCodeCheck(url)) return;
-        })
-    }
+      case "favouritedetailwindow":{
+        console.log("favouritedetailwindow")
+        let favouritedetailwindow = new FavouriteDetailWindowBuilder(childRenderWindowBrowser, mainWindow);
+        favouritedetailwindow.setArgs(ipcArg);
+        favouritedetailwindow.build();
+        break;
+      }
 
-    aliPayCodeCheck(url) {
-        let nIndex = url.indexOf("auth_code=");
-        if(nIndex == -1) return false;
-        let authCode = url.slice(nIndex + 10);
-        this.mainWindow.webContents.send("alipay-authcode", authCode);
-        this.childWindow.hide();
-        return true;
-    }
-
-    weChatCodeCheck(url) {
-        let nIndex = url.indexOf("code=");
-        if(nIndex == -1) return false;
-        let endIndex = url.indexOf("&", nIndex);
-        let authCode = url.slice(nIndex + "code=".length, endIndex);
-        this.mainWindow.webContents.send("wechat-authcode", authCode);
-        this.childWindow.hide();
-        return true;
-    }
-
-    showWindow(){
-        this.childWindow.show();
-    }
-
-    setWebViewUrl(url){
-
+      case "showReportRelationWindow":{
+        let ReleationShipWindow = new ReleationShipWindowBuilder(childRenderWindowBrowser, mainWindow);
+        ReleationShipWindow.setArgs(ipcArg);
+        ReleationShipWindow.build();
+        break;
+      }
+      
+      default:
+        break;
     }
 }
 
 export{
-    ChildWindow
+    ChildWindow,
+    createChildWindow
 }

@@ -5,12 +5,11 @@ import ChatContent from '../components/chat-content.vue';
 import favourite from '../components/favourite.vue';
 import fileList from '../components/file-list.vue';
 import historyMsg from '../components/history-message.vue';
-import favouriteDetail from '../components/favourite-detail.vue';
 import thirdpartyBind from '../components/thirdpartyBind.vue';
+import childwindow from "../components/childwindow.vue"
 
 import setup from '../components/setup.vue';
 Vue.use(Router);
-import reportRelationContent from '../components/reportRelationContent.vue';
 import SearchFilesListDlg from '../components/searchFileList.vue';
 import SearchMessagesListDlg from '../components/searchMessageList.vue';
 import TransmitMsgListDlg from '../components/transmitTogetherContent.vue';
@@ -60,21 +59,16 @@ export default new Router({
       path: '/historyMsgList',
       name: "historyMsgDlg",
       component: historyMsg
-    },
-    {
-      path:'/favouriteDetail',
-      name: "favouriteDetail",
-      component: favouriteDetail,
     },    
     {
       path:'/thirdpartyBind',
       name: "thirdpartyBind",
       component: thirdpartyBind,
-    },    
+    },
     {
-      path:'/reportRelationContent',
-      name: "reportRelationContent",
-      component: reportRelationContent,
+      path:'/childwindow',
+      name: "childwindow",
+      component: childwindow,
     },
     {
       path:'/searchFilesList',

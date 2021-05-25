@@ -2,47 +2,47 @@
     <div class="ChatCreaterLayers" id="ChatCreaterLayersId" >
         <div :style="dlgPosition" class="ChatCreaterDlg" id="ChatCreaterDlgId">
             <div class="ChatCreaterHeader">
-                <div class="ChatCreaterHeaderTitle">新建联系人</div>
+                <div class="ChatCreaterHeaderTitle">{{$t("contact.newContact")}}</div>
                 <img ondragstart="return false" class="ChatCreaterClose" src="../../../static/Img/Chat/delete-20px@2x.png" @click="closeDialog()">
             </div>
             
             <div class="ChatCreaterContent">
                 <label for="ID"></label>
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabelID'>ID</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.matrix_id" size='mini' placeholder = '请输入ID' clearable></el-input>
+                        <div class = 'ContactLabelID'>{{$t("contact.ID")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.matrix_id" size='mini' :placeholder = '$t("contact.IDPlaceHolder")' clearable></el-input>
                         <div class = 'ErrStyle' v-show = 'sError.length != 0'>{{sError}}</div>
                     </div>
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabel'>备注名</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.display_name"  size='mini' placeholder = '请输入备注名' clearable></el-input>
+                        <div class = 'ContactLabel'>{{$t("contact.remarkName")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.display_name"  size='mini' :placeholder = '$t("contact.remarkNamePlaceHolder")' clearable></el-input>
                     </div>
                     
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabel'>手机</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.mobile" size='mini' placeholder = '请输入手机' clearable></el-input>
+                        <div class = 'ContactLabel'>{{$t("contact.mobile")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.mobile" size='mini' :placeholder = '$t("contact.mobilePlaceHolder")' clearable></el-input>
                     </div>
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabel'>座机</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.telephone" size='mini' placeholder = '请输入座机' clearable></el-input>
+                        <div class = 'ContactLabel'>{{$t("contact.telephone")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.telephone" size='mini' :placeholder = '$t("contact.telephonePlaceHolder")' clearable></el-input>
                     </div>
        
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabel'>邮箱</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.email" size='mini' placeholder = '请输入邮箱' clearable></el-input>
+                        <div class = 'ContactLabel'>{{$t("contact.email")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.email" size='mini' :placeholder = '$t("contact.emailPlaceHolder")' clearable></el-input>
                     </div>
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabel'>公司</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.company_name" size='mini' placeholder = '请输入公司' clearable></el-input>
+                        <div class = 'ContactLabel'>{{$t("contact.company")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.company_name" size='mini' :placeholder = '$t("contact.companyPlaceHolder")' clearable></el-input>
                     </div>
                     <div class = 'ContactLabelInputDiv'>
-                        <div class = 'ContactLabel'>职位</div>
-                        <el-input class = 'ContactInput' v-model="contactInfo.title" size='mini' placeholder = '请输入职位' clearable></el-input>
+                        <div class = 'ContactLabel'>{{$t("contact.title")}}</div>
+                        <el-input class = 'ContactInput' v-model="contactInfo.title" size='mini' :placeholder = '$t("contact.titlePlaceHolder")' clearable></el-input>
                     </div>
             </div>
             <div class  ='ContactInputButton'>
-                <button class = 'CancelButton' @click="closeDialog()">取消</button>  
-                <button class = 'SaveButton' @click="SaveContact()">确定</button>                     
+                <button class = 'CancelButton' @click="closeDialog()">{{$t("contact.cancel")}}</button>  
+                <button class = 'SaveButton' @click="SaveContact()">{{$t("contact.confirm")}}</button>                     
             </div>
         </div>
  
@@ -68,11 +68,6 @@ export default {
                 company_name:'',
                 title:''
             },
-            rules:{
-                matrix_id:[
-                    {required: true, message:'请输入用户ID', trigger: 'blur'}
-                ]
-            },
             matrixClient: undefined,
             imgHeight: 468,
             imgWidth: 724,
@@ -91,7 +86,7 @@ export default {
         async SaveContact(){
             if(this.contactInfo.matrix_id.length == 0)
             {
-                this.sError = '请输入用户ID';
+                this.sError = this.$t("contact.sErrorNeedID");
                 return;
             }
             this.matrixClient.getProfileInfo(this.contactInfo.matrix_id).then(async (res) => {
@@ -99,15 +94,15 @@ export default {
                 await this.services.GetAllContact();
                 let user = await Contact.GetContactInfo(this.contactInfo.matrix_id);
                 if(user){
-                    this.sError = '联系人重复';
+                    this.sError = this.$t("contact.sErrorContactRepeat");
                     return;
                 }
                 let ret = await this.services.AddContact(this.contactInfo);
                 if(ret) this.closeDialog();
-                this.sError = '添加联系人失败';
+                this.sError = this.$t("contact.sErrorAddContactFailed");
             }).catch(e => {
                 log.info("SaveContact getProfileInfo error", e)
-                this.sError = '用户不存在或ID输入错误';
+                this.sError = this.$t("contact.sErrorUserNotExist");
             });
         },
 

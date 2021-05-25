@@ -179,25 +179,17 @@ function rmDbData(dir) {
     let index = 0
  
     while(current = arr[index++]) {
-        // 读取当前文件，并做一个判断，文件目录分别处理
         let stat = fs.statSync(current)
-        //如果文件是目录
         if (stat.isDirectory()) {
-            //读取当前目录，拿到所有文件
             let files = fs.readdirSync(current)
-            // 将文件添加到文件池
             arr = [...arr, ...files.map(file => path.join(current, file))]
         }
     }
-    //遍历删除文件
     for (var i = arr.length - 1; i >= 0; i--) {
-        // 读取当前文件，并做一个判断，文件目录分别处理
         let stat = fs.statSync(arr[i])
-        // 目录和文件的删除方法不同
         if (stat.isDirectory()) {
             //fs.rmdirSync(arr[i])
         } else {
-            //只删除eachchat.db文件
             if(arr[i].search("eachchat.db") != -1)
                 fs.unlinkSync(arr[i])
         }
@@ -243,7 +235,6 @@ function ClearDB(curVersion){
             return false;
         }
         console.log("write value " + curVersion);
-        console.log('写入成功');
     })
 }
 
@@ -960,26 +951,25 @@ function fileMIMEFromType(ext){
 }
 /**
  * https://www.cnblogs.com/cymhappy/p/4563548.html
- * 获取指定目录内所有文件大小总和  单位为字节
  * @param dir
  * @param callback
  */
 function getdirsize(dir,callback){
     var size = 0;
     fs.stat(dir,function(err,stats){
-        if(err) return callback(err);//如果出错
-        if(stats.isFile()) return callback(null,stats.size);//如果是文件
+        if(err) return callback(err);
+        if(stats.isFile()) return callback(null,stats.size);
 
-        fs.readdir(dir,function(err,files){//如果是目录
-            if(err) return callback(err);//如果遍历目录出错
-            if(files.length==0) return callback(null,0);//如果目录是空的
+        fs.readdir(dir,function(err,files){
+            if(err) return callback(err);
+            if(files.length==0) return callback(null,0);
 
-            var count = files.length;//哨兵变量
+            var count = files.length;
             for(var i = 0;i<files.length;i++){
                 getdirsize(path.join(dir,files[i]),function(err,_size){
                     if(err) return callback(err);
                     size+=_size;
-                    if(--count<=0){//如果目录中所有文件(或目录)都遍历完成
+                    if(--count<=0){
                         callback(null,size);
                     }
                 });
@@ -1191,19 +1181,19 @@ function getIconPath(ext) {
 }
 function getFileSizeByNumber(limit){  
     var size = "";  
-    if( limit < 0.1 * 1024 ){ //如果小于0.1KB转化成B  
+    if( limit < 0.1 * 1024 ){ 
         size = limit.toFixed(2) + "B";    
-    }else if(limit < 0.1 * 1024 * 1024 ){//如果小于0.1MB转化成KB  
+    }else if(limit < 0.1 * 1024 * 1024 ){
         size = (limit / 1024).toFixed(2) + "KB";              
-    }else if(limit < 0.1 * 1024 * 1024 * 1024){ //如果小于0.1GB转化成MB  
+    }else if(limit < 0.1 * 1024 * 1024 * 1024){ 
         size = (limit / (1024 * 1024)).toFixed(2) + "MB";  
-    }else{ //其他转化成GB  
+    }else{ 
         size = (limit / (1024 * 1024 * 1024)).toFixed(2) + "GB";  
     } 
     var sizestr = size + "";   
     var len = sizestr.indexOf("\.");  
     var dec = sizestr.substr(len + 1, 2);  
-    if(dec == "00"){//当小数点后为00时 去掉小数部分  
+    if(dec == "00"){
         return sizestr.substring(0,len) + sizestr.substr(len + 3,2);  
     }  
     return sizestr;  

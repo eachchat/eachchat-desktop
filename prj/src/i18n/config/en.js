@@ -1,3 +1,8 @@
+import organization from "./en/organization"
+import contact from "./en/contact"
+import setting from "./en/setting"
+import favourite from "./en/favourite"
+
 const en = {
     appName: "EachChat",
     language: {
@@ -91,6 +96,10 @@ const en = {
     changePasswordAlert: "Changing password will currently reset any end-to-end encryption keys on all sessions, making encrypted chat history unreadable, unless you first export your room keys and re-import them afterwards. In future this will be improved.",
     theAlert: "Alert",
     ExportE2ERoomKeys: "Export E2E room keys",
+    organization: organization,
+    contact: contact,
+    setting: setting,
+    favourite: favourite
 }
 
 export default en;

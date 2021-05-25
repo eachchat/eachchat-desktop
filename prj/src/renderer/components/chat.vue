@@ -695,7 +695,6 @@ export default {
                         }));
                     }
                     if(showRedact) {
-                        //todo 删除或撤回
                         console.log('查看当前信息', msgItem);
                         let text = '删除';
                         let timeLimit = 2 * 60 * 1000;
@@ -1665,7 +1664,8 @@ export default {
                         "timeline": {
                             "contains_url": true,
                             "types": [
-                                "m.room.message"
+                                "m.room.message",
+                                "m.call.invite"
                             ],
                         },
                     },
@@ -1707,12 +1707,20 @@ export default {
                 return fileListInfo;
             }
         },
+        async getFileExist(id) {
+            let msgs = await Message.FindMessageByMesssageID(id);
+            console.log(msgs)
+            if(msgs.length != 0 && msgs[0].file_local_path != "")
+                return msgs[0].file_local_path;
+            return '';
+        },
         async showImageOfMessage(distEvent) {
             var showImageInfoList = [];
             var distImageInfo = {};
             var imgMsgList = await this.toGetShowImage(this.curChat);
-            imgMsgList.forEach(curEvent => {
+            imgMsgList.forEach(async curEvent => {
                 let event = curEvent.event;
+                let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
@@ -1733,6 +1741,7 @@ export default {
 
                     var curImageInfo = {
                         imageUrl: curUrl,
+                        localPath: localPath,
                         url: chatGroupMsgContent.url,
                         imageEventId: event.event_id,
                         info: info,
@@ -1743,6 +1752,7 @@ export default {
                     if(distEvent.event.event_id == event.event_id) {
                         distImageInfo = {
                             imageUrl: curUrl,
+                            localPath: localPath,
                             url: chatGroupMsgContent.url,
                             imageEventId: event.event_id,
                             info: info,
@@ -1756,6 +1766,7 @@ export default {
             });
             if(!distImageInfo.imageUrl) {
                 let event = distEvent.event;
+                let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgContent = distEvent.getContent();
 
                 let maxSize = 390;
@@ -1775,6 +1786,7 @@ export default {
                     
                 distImageInfo = {
                     imageUrl: curUrl,
+                    localPath: localPath,
                     url: chatGroupMsgContent.url,
                     imageEventId: event.event_id,
                     info: info,
@@ -3338,7 +3350,7 @@ export default {
         },
 
         messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.invite'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
             return false;
         },
 
@@ -3346,7 +3358,6 @@ export default {
         {
             let msgList = [];
             while(this._timelineWindow.canPaginate(type)){
-                //获取历史消息
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
@@ -3373,8 +3384,9 @@ export default {
             )
             await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
             let msgList = this._getEvents();
+            let dealed = false;
             while(this._timelineWindow.canPaginate(type)){
-                //获取历史消息
+                dealed = true;
                 await this._timelineWindow.paginate(type, 20);
                 let tmpList = this._getEvents();
                 let index = 0;
@@ -3389,6 +3401,18 @@ export default {
 
                 if(index > num) break;
             }
+
+            if(!dealed) {
+                let tmpList = msgList;
+                msgList = [];
+                for(var i=tmpList.length - 1;i>0;i--){
+                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
+                        msgList.unshift(tmpList[i]);
+                        index++;
+                    }
+                }
+            }
+
             return msgList;
         },
         paginageForwork: function() {
@@ -3703,7 +3727,8 @@ export default {
                     "room": {
                         "timeline": {
                             "types": [
-                                "m.room.message"
+                                "m.room.message",
+                                "m.call.invite"
                             ],
                         },
                     },
@@ -3928,7 +3953,6 @@ export default {
                 modules: {
                     toolbar: false,
                      clipboard: {
-                        // 粘贴版，处理粘贴时候带图片
                         matchers: [[Node.ELEMENT_NODE, this.handleCustomMatcher]],
                     },
                     // imageDrop: true,
@@ -4273,16 +4297,35 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
-            this.messageList = this.curChat.timeline;
+            
+            let messageListTmp = this.curChat.timeline;
+            this.messageList = [];
+            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+            for(let i=messageListTmp.length - 1;i>0;i--){
+                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+                if(exitEventIndex >= 0) {
+                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
+                }
+                if(this.messageFilter(messageListTmp[i])){
+                    this.messageList.unshift(messageListTmp[i]);
+                }
+            }
+            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+            for(let i=this.sendingList.length - 1;i>0;i--){
+                this.messageList.unshift(this.sendingList[i]);
+            }
             setTimeout(() => {
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show-list");
                     if(div) {
                         div.scrollTop = div.scrollHeight + 52;
+                        setTimeout(() => {
+                            this.initMessage();
+                        }, 500)
                     }
                 })
             }, 0)
-            this.initMessage();
+            
             this.updateUser++;
         },
         newMsg: async function() {
@@ -4290,6 +4333,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
+            
             this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
@@ -4308,41 +4352,44 @@ export default {
             this.showGroupName(this.curChat);
             this._timelineWindow.paginate("f", 10).then(() => {
                 console.log("=======this.sendingList ", this.sendingList);
-                var getMessageList = this._getEvents();
-                for(let i=0;i<this.sendingList.length;i++) {
-                    for(let j=getMessageList.length-1;j>= 0;j--){
-                        if(this.sendingList[i]._txnId == getMessageList[j]._txnId) {
-                            this.$store.commit("removeSendingEvents", this.sendingList[i]);
-                            console.log("=========this.sendingList ", this.sendingList);
-                            this.sendingList.splice(i, 1);
-                            console.log("============this.sendingList ", this.sendingList);
-                            getMessageList[j].message_status = 0;
-                            this.updatemsgStatus = {
-                                "id": getMessageList[j]._txnId ? getMessageList[j]._txnId : getMessageList[j].event.event_id,
-                                "status": 0
-                            };
-                            break;
-                        }
+                
+                let messageListTmp = this.chat.timeline;
+                this.messageList = [];
+                var div = document.getElementById("message-show-list");
+                if(div) {
+                    div.removeEventListener('scroll', this.handleScroll);
+                }
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+                for(let i=messageListTmp.length - 1;i>0;i--){
+                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
+                    }
+                    if(this.messageFilter(messageListTmp[i])){
+                        this.messageList.unshift(messageListTmp[i]);
                     }
                 }
-                this.messageList = getMessageList.concat(this.sendingList);
-                console.log("*** to get new message ", this.messageList);
+                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=this.sendingList.length - 1;i>0;i--){
+                    this.messageList.unshift(this.sendingList[i]);
+                }
             })
             setTimeout(() => {
                 this.$nextTick(() => {
+                    var div = document.getElementById("message-show-list");
                     if(toBottom) {
-                        var div = document.getElementById("message-show-list");
                         if(div) {
                             div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
                         }
                     }
                     else{
                         if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) && 
-                            (['m.room.message', 'm.room.encrypted'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
+                            (['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
                             this.newMsgNum += 1;
                             this.haveNewMsg = true;
                         }
                     }
+                    div.addEventListener('scroll', this.handleScroll);
                 })
             }, 100)
         }

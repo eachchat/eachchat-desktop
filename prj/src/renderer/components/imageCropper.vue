@@ -50,31 +50,30 @@ export default {
     name: 'cropper',
     data() {
         return {
-            //剪切图片上传
             crap: false,
             previews: {},
             option: {
-                img: '', // 裁剪图片的地址
-                info: false, // 裁剪框的大小信息
-                outputSize: 0.5, // 剪切后的图片质量（0.1-1）
-                full: false, // 输出原图比例截图 props名full
-                outputType: 'png', // 裁剪生成额图片的格式
-                canMove: true,  // 能否拖动图片
-                canScale: true, //滑轮缩放
-                original: true,  // 上传图片是否显示原始宽高
-                canMoveBox: false,  // 能否拖动截图框
-                autoCrop: true, // 是否默认生成截图框
+                img: '', 
+                info: false, 
+                outputSize: 0.5, 
+                full: false, 
+                outputType: 'png', 
+                canMove: true, 
+                canScale: true,
+                original: true, 
+                canMoveBox: false, 
+                autoCrop: true,
                 autoCropWidth: 240, 
                 autoCropHeight: 240, 
-                fixedBox: true, // 截图框固定大小
+                fixedBox: true,
                 infoTrue: true,
                 mode:"100% auto"
             }, 
-            fileName:'',  // 本机文件地址
+            fileName:'', 
             scaleNumber:0,
             downImg: '#',
             imgFile:'',
-            uploadImgRelaPath:'', // 上传后的图片的地址（不带服务器域名）
+            uploadImgRelaPath:'', 
         }
     },
     props:{
@@ -114,7 +113,7 @@ export default {
             this.$emit("closeCropperDlg", "");
             
         },
-      // 放大/缩小
+
         changeScale(num) { 
             console.log("******num ", num);
             console.log("******scaleNumber ", this.scaleNumber);
@@ -167,11 +166,11 @@ export default {
                 });
             }
         },
-        // 坐旋转
+
         rotateLeft() { 
             this.$refs.cropper.rotateLeft(); 
         }, 
-        // 右旋转
+  
         rotateRight() { 
             this.$refs.cropper.rotateRight(); 
         }, 

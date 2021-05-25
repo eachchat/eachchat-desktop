@@ -35,6 +35,12 @@ export default {
         }
     },
 
+    watch:{
+        collectionInfo(){
+            this.updateCollectionInfo(this.collectionInfo);
+        }
+    },
+
     data() {
         return{
             showMessageContent: true,
@@ -50,6 +56,26 @@ export default {
             let url = image.collection_content.url;
             var imageCollectionElement = document.getElementById(image.collection_id);
             imageCollectionElement.setAttribute("src", url);
+        },
+
+        updateCollectionInfo(collectionInfo){
+            console.log(this.collectionInfo)
+            this.showView = true;
+            //this.collectionInfo = collectionInfo;
+            this.userName = this.collectionInfo.user_name;
+            var favouriteType = this.collectionInfo.collection_type;
+            this.$nextTick(function(){
+                    this.getUserImg(this.collectionInfo.collection_content.fromMatrixId, this.collectionInfo.avaterUrl);
+            });
+            if (favouriteType == 101){
+                this.showMessageContent = true;
+                
+            }else if(favouriteType == 102) {
+                this.showMessageContent = false;
+                this.$nextTick(function(){
+                    this.getImageCollectionContent(this.collectionInfo);
+                });
+            }
         },
 
         getUserImg: async function (user_id, avaterUrl){
@@ -70,26 +96,6 @@ export default {
         },
     },
     mounted:function() {
-        const ipcRenderer = require('electron').ipcRenderer;
-        ipcRenderer.on("clickedCollectionInfo", (event, collectionInfo) => {
-            this.showView = true;
-            this.collectionInfo = collectionInfo;
-            this.userName = collectionInfo.user_name;
-            var favouriteType = this.collectionInfo.collection_type;
-            this.$nextTick(function(){
-                    this.getUserImg(this.collectionInfo.collection_content.fromMatrixId, collectionInfo.avaterUrl);
-            });
-            if (favouriteType == 101){
-                this.showMessageContent = true;
-                
-            }else if(favouriteType == 102) {
-                this.showMessageContent = false;
-                this.$nextTick(function(){
-                    this.getImageCollectionContent(this.collectionInfo);
-                });
-            }
-        });
-        console.log(this.collectionInfo);
     },
     created(){
     }
@@ -97,7 +103,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
 .detailPage{

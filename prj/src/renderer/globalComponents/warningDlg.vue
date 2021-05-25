@@ -22,10 +22,10 @@ export default {
     name: 'warningDlg',
     data () {
         return {
-            show: true, // 通过这个属性，控制是否移除dom元素
-            title:'', //顶部标题
-            content:'', // 内容
-            cancelBtn: false // 取消按钮
+            show: true, 
+            title:'', 
+            content:'', 
+            cancelBtn: false 
 
         }
     },
@@ -33,32 +33,29 @@ export default {
     puborprtTimer: null,
     methods: {
         close() {
-            // 右上角关闭
+           
             this.a_close && this.a_close();
             this.show = false;
-            // 删除判断增加的window属性
+            
             delete window.alertIsShow;
         },
         confirm() {
-            // 确定
+            
             this.a_confirm && this.a_confirm();
             this.show = false;
-            // 删除判断增加的window属性
+            
             delete window.alertIsShow;
         },
         cancel() {
-            // 取消
+            
             this.a_cancel && this.a_cancel();
             this.show = false;
-            // 删除判断增加的window属性
+            
             delete window.alertIsShow;
         }
     },
     watch: {
         show(cur, old) {
-            // 通过监控data里的show属性  弹框有三个事件（右上角取消  确定按钮  取消按钮）
-            // 每个事件写了 this.show = false
-            // 当弹框出现的时候 点击任何一个事件  都会触发这里的监控事件  将页面上的弹框Dom移除
             if (cur === false) {
             let tip_alert = document.getElementById('tip_alertModal');
             tip_alert.parentNode.removeChild(tip_alert);

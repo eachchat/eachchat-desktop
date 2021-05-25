@@ -1237,7 +1237,7 @@ const common = {
         group.un_read_count = group_item.noReaderCount;
         group.save();
       }
-      sequenceId = result.data.obj.maxSequenceValue;//需要等后端修改完成后改为字符串获取
+      sequenceId = result.data.obj.maxSequenceValue;
       if (result.data.hasNext == true) {
         hasNext = true;
       }
@@ -1258,7 +1258,7 @@ const common = {
   async DecryptMessage(secretID, encryptContent){
     if(secretID == undefined){
       return {
-        text: "找不到aes密钥",
+        text: "can't find aes",
         secretContent: encryptContent
       }
     }
@@ -1269,7 +1269,7 @@ const common = {
     }
     if(findKey == undefined){
       return {
-        text: "找不到aes密钥",
+        text: "can't find aes",
         secretContent: encryptContent
       }
     }
@@ -1280,7 +1280,7 @@ const common = {
     if(decryptMsg == "")
     {
       return {
-        text: "不支持的消息类型，请升级客户端",
+        text: "need update client",
         secretContent: encryptContent
       }
     }
@@ -2369,13 +2369,13 @@ const common = {
     let value = Base64.encode(domainBase64, true);
     this.data.orgValue = value;
     let response;
-    if(globalConfig.gmsEnv == "develop")//测试环境
+    if(globalConfig.gmsEnv == "develop")
       response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
       // response = await axios.get(host + "/" + value);
-    else if(globalConfig.gmsEnv == "preRelease")//预发布环境
+    else if(globalConfig.gmsEnv == "preRelease")
       response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
       // response = await axios.get(host + "/" + value);
-    else//正式环境
+    else
       response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
       console.log("the url is ", host + "/gms/v1/configuration/" + value);
       // response = await axios.get(host + "/" + value);
@@ -2423,9 +2423,9 @@ const common = {
   async gmsGetUser(key){
     let value = Base64.encode(key, true);
     let response;
-    if(globalConfig.gmsEnv == "develop")//测试环境
+    if(globalConfig.gmsEnv == "develop")
       response = await axios.get("https://gmsdev.each.chat/api/sys/gms/v1/domain/user/" + value)
-    else if(globalConfig.gmsEnv == "preRelease")//预发布环境
+    else if(globalConfig.gmsEnv == "preRelease")
       response = await axios.get("https://gmspre.each.chat/api/sys/gms/v1/domain/user/" + value)
     else
       response = await axios.get("https://gms.each.chat/api/sys/gms/v1/domain/user/" + value)
@@ -2538,7 +2538,7 @@ const common = {
         groupModel = servicemodels.UpdateGroupGroup(findGroups[0], groupItem);
       }
       else{
-        groupModel = await servicemodels.IncrementGroupModel(groupItem);//key_id的处理
+        groupModel = await servicemodels.IncrementGroupModel(groupItem);
       }
       groupModel.save();
       if(callback != undefined){

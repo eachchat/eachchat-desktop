@@ -96,7 +96,7 @@ class SqliteEncrypt{
 
     
 
-    getDAesString(){//解密
+    getDAesString(){
     }
 
     uint8ToString(uint8){
@@ -130,7 +130,7 @@ class AESEncrypt{
                 mode:CryptoJS.mode.CBC,
                 padding:CryptoJS.pad.Pkcs7
             });
-        return encrypted.toString();    //返回的是base64格式的密文
+        return encrypted.toString();   
         //return encrypted.ciphertext.toString();
     }
 

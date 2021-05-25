@@ -321,7 +321,9 @@ export default {
                 var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
                 message.avaterUrl = avaterUrl;
                 const ipcRender = require('electron').ipcRenderer;
-                ipcRender.send('showFavouriteDetailWindow', message)
+                ipcRender.send("createChildWindow", {type: "favouritedetailwindow",
+                size:{width:600,height: 468},
+                collectionInfo: message})
             });
         },
 
@@ -330,7 +332,6 @@ export default {
             this.OpenFavouriteDetail(message);
         },
         async imageListClicked(image) {
-            // image.title = "图片详情"
             // image.collection_content.url = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(image.collection_content.url);
             // this.OpenFavouriteDetail(image);
             var imageCollectionModel = await global.services.common.ListPictureCollections();
@@ -711,13 +712,13 @@ export default {
             return;
         }
         if (this.favouriteType == 'message'){
-            this.headerTitle = '消息';
+            this.headerTitle = this.$t("favourite.message");
             var messageCollectionModel = await global.services.common.ListMessageCollections();
             this.favourites = await this.getObjectFromCollectionModel(messageCollectionModel);
             
             console.log(this.favourites);
         }else if(this.favouriteType == 'image') {
-            this.headerTitle = '图片';
+            this.headerTitle = this.$t("favourite.picture");
             var imageCollectionModel = await global.services.common.ListPictureCollections();
             this.favourites = await this.getObjectFromCollectionModel(imageCollectionModel);
             console.log(this.favourites);
@@ -728,7 +729,7 @@ export default {
             });
   
         }else if(this.favouriteType == 'file') {
-            this.headerTitle = '文件';
+            this.headerTitle = this.$t("favourite.file");
             var fileCollectionModel = await global.services.common.ListFileCollections();
 
             this.favourites = await this.getObjectFromCollectionModel(fileCollectionModel);
@@ -739,7 +740,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-/*隐藏滚轮*/
+
 display: none;
 }
 
@@ -953,12 +954,10 @@ display: none;
     }
 }
 
-/* 表示总长度背景色 */
 progress::-webkit-progress-bar {
     background-color: rgba(210, 215, 222, 1);
 }
 
-/* 表示已完成进度背景色 */
 progress::-webkit-progress-value {
     background: rgba(36, 179, 107, 1)
 }

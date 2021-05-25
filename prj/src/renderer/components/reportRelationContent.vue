@@ -28,6 +28,25 @@ export default {
             userInfo:{},
         }
     },
+
+    
+    props: {
+        userInfo:{
+            type: Object,
+            default: {}
+        }
+    },
+
+    watch:{
+        userInfo(){
+            this.$nextTick(() => {
+                for(var i = 0;i < this.userInfo.leaders.length; i ++){
+                    this.getUserImg(this.userInfo.leaders[i]);
+                }    
+            });  
+        }
+    },
+
     methods:{
         getUserImg: function (user){
             if(user._attr.user_id == undefined) {
@@ -43,18 +62,6 @@ export default {
         },
     },
     mounted:function() {
-        const ipcRenderer = require('electron').ipcRenderer;
-        var _this = this;
-        ipcRenderer.on("clickedReportRelationInfo", (event, userInfo) => {
-            _this.userInfo = userInfo;
-            this.$nextTick(function(){
-                for(var i = 0;i < _this.userInfo.leaders.length; i ++){
-                    this.getUserImg(_this.userInfo.leaders[i]);
-                }
-                
-            });            
-        });
-
     },
     created(){
     }
