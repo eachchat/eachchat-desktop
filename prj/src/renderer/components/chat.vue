@@ -5178,6 +5178,16 @@ export default {
         background-size: contain;
     }
 
+    .video-chat:hover {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 16px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVideoBtn-hover@2x.png");
+        background-size: contain;
+    }
+
     .voice-chat {
         float: right;
         display: inline-block;
@@ -5185,6 +5195,15 @@ export default {
         height: 24px;
         margin: 8px 6px 8px 6px;
         background-image: url("../../../static/Img/Chat/VoIPVoiceBtn@2x.png");
+        background-size: contain;
+    }
+    .voice-chat:hover {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVoiceBtn@2x-hover.png");
         background-size: contain;
     }
 
