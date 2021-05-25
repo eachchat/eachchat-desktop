@@ -9,15 +9,15 @@
             <p :class="getUnreadClass(noticeItem.unreadCount)" v-on:mouseover="setToShow" v-on:mouseout="setToHide">{{noticeItem.unreadCount}}</p>
           </li>
         </ul>
-        <ul class="noticeVoIPList" v-show="hasVoIP">
-          <li class="noticeVoIP" v-for="voIPNoticeItem in voIPNoticeList">
-            <div class="noticeItem" @click="showVoIPPage(voIPNoticeItem)">
-              <img class="noticeItemIcon" :src="voIPNoticeItem.imgUrl">
-              <div class="noticeItemName" >{{voIPNoticeItem.showContent}}</div>
+        <ul class="noticeVoIPList" v-show="hasVoIP" v-on:mouseover="setToShow">
+          <li class="noticeVoIP" v-for="voIPNoticeItem in voIPNoticeList" v-on:mouseover="setToShow">
+            <div class="noticeItem" @click="showVoIPPage(voIPNoticeItem)" v-on:mouseover="setToShow">
+              <img class="noticeItemIcon" :src="voIPNoticeItem.imgUrl" v-on:mouseover="setToShow">
+              <div class="noticeItemName" v-on:mouseover="setToShow">{{voIPNoticeItem.showContent}}</div>
             </div>
-            <div class="noticeVoIPControl">
-              <img class="noticeVoIPControlHangup" src="../../../static/Img/VoIP/noticeHangup@2x.png" @click="Hangup(voIPNoticeItem)">
-              <img class="noticeVoIPControlAnswer" src="../../../static/Img/VoIP/noticeAnswer@2x.png" @click="Answer(voIPNoticeItem)">
+            <div class="noticeVoIPControl" v-on:mouseover="setToShow">
+              <img class="noticeVoIPControlHangup" src="../../../static/Img/VoIP/noticeHangup@2x.png" @click="Hangup(voIPNoticeItem)" v-on:mouseover="setToShow">
+              <img class="noticeVoIPControlAnswer" src="../../../static/Img/VoIP/noticeAnswer@2x.png" @click="Answer(voIPNoticeItem)" v-on:mouseover="setToShow">
             </div>
           </li>
         </ul>
@@ -43,56 +43,65 @@ export default {
         }
     },
     methods: {
-      Hangup() {
-        ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-        size:{width:300,height: 480},
-        voipInfo: {
-            voipType: "",
-            voipFrame: "webRtc",
-            roomId: this.voIPRoomId,
-            action: "hangup",
-            voipShowInfo: {
-                userImg: "",
-                userName: ""
-            }
-        }})
-        console.log("to show voip of ", this.voIPRoomId);
-        this.voIPNoticeList = [];
-        this.hasVoIP = false;
+      Hangup(item) {
+        ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+            size:{width:300,height: 480},
+                    roomInfo: { roomID: item.roomId,
+                                name: item.chatName,
+                                url:item.imgUrl,
+                                voipType: item.notictType,
+                                direction: "from",
+                                action: "hangup"}});
+                                
+        for(let i = 0; i < this.voIPNoticeList.length; i++) {
+          if(this.voIPNoticeList[i].roomID == item.roomID) {
+            this.voIPNoticeList.splice(i, 1);
+            break;
+          }
+        }
+        if(this.voIPNoticeList.length == 0) {
+          this.hasVoIP = false;
+        }
       },
-      Answer() {
-        ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-        size:{width:300,height: 480},
-        voipInfo: {
-            voipType: "",
-            voipFrame: "webRtc",
-            roomId: this.voIPRoomId,
-            action: "answer",
-            voipShowInfo: {
-                userImg: "",
-                userName: ""
-            }
-        }})
-        console.log("to show voip of ", this.voIPRoomId);
-        this.voIPNoticeList = [];
-        this.hasVoIP = false;
+      Answer(item) {
+        ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+            size:{width:300,height: 480},
+                    roomInfo: { roomID: item.roomId,
+                                name: item.chatName,
+                                url:item.imgUrl,
+                                voipType: item.notictType,
+                                direction: "from",
+                                action: "answer"}});
+                                
+        for(let i = 0; i < this.voIPNoticeList.length; i++) {
+          if(this.voIPNoticeList[i].roomID == item.roomID) {
+            this.voIPNoticeList.splice(i, 1);
+            break;
+          }
+        }
+        if(this.voIPNoticeList.length == 0) {
+          this.hasVoIP = false;
+        }
       },
-      async showVoIPPage() {
-        ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-        size:{width:300,height: 480},
-        voipInfo: {
-            voipType: "",
-            voipFrame: "webRtc",
-            roomId: this.voIPRoomId,
-            action: "show",
-            voipShowInfo: {
-                userImg: "",
-                userName: ""
-            }
-        }})
-        console.log("to show voip of ", this.voIPRoomId);
-        this.voIPNoticeList = [];
-        this.hasVoIP = false;
+      async showVoIPPage(item) {
+        ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+            size:{width:300,height: 480},
+                    roomInfo: { roomID: item.roomId,
+                                name: item.chatName,
+                                url:item.imgUrl,
+                                voipType: item.notictType,
+                                direction: "from",
+                                action: "show"}});
+
+        for(let i = 0; i < this.voIPNoticeList.length; i++) {
+          if(this.voIPNoticeList[i].roomID == item.roomID) {
+            this.voIPNoticeList.splice(i, 1);
+            break;
+          }
+        }
+        if(this.voIPNoticeList.length == 0) {
+          this.hasVoIP = false;
+        }
       },
       clearAll() {
         let toClearRoomIds = [];
@@ -122,27 +131,24 @@ export default {
         this.voIPNoticeList = [];
         this.hasVoIP = false;
         for(let id in VoIPNoticeContent){
-          console.log("id is ", id);
           let item = VoIPNoticeContent[id];
-          console.log("item is ", item);
           if(item["notictType"] == "voice") {
             item["showContent"] = item["chatName"] + "邀请你语音通话";
             this.voIPRoomId = item["roomId"];
             this.hasVoIP = true;
             this.voIPNoticeList.push(item);
           }
-          else if(item["noticeType"] == "video") {
+          else if(item["notictType"] == "video") {
             item["showContent"] = item["chatName"] + "邀请你视频通话";
             this.voIPRoomId = item["roomId"];
             this.hasVoIP = true;
             this.voIPNoticeList.push(item);
           }
         }
-        if(!this.hasVoIP) {
-          this.voIPRoomId = "";
-          this.setToHide();
-        }
-        else this.setToShow();
+        // if(!this.hasVoIP) {
+        //   this.setToHide();
+        // }
+        // else this.setToShow();
       },
       updateNoticeContent(event, NoticeContent) {
         // let trayNoticeObj = {
@@ -151,7 +157,7 @@ export default {
         //       chatName: distName,
         //       roomId: room.roomId,
         //     }
-        console.log("==== NoticeContent ", NoticeContent);
+        console.log("NoticeContent ", NoticeContent);
         this.totalUnreadCount = 0;
         this.noticeList = [];
         for(let id in NoticeContent){

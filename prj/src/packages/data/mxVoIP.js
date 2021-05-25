@@ -83,7 +83,7 @@ function _setVideoCallListeners(call, videoCall) {
         else{
             console.log("call is ", call);
             console.log("====to hangup and call state is ", call.call_state);
-            videoCall.hangUpCallback();
+            videoCall.afterCallState();
         }
     });
     // map web rtc states to dummy UI state
@@ -93,29 +93,13 @@ function _setVideoCallListeners(call, videoCall) {
         if (newState === "ringing") {
             _setCallState(call, call.roomId, "ringing");
             pause("ringbackAudio");
-        } else if (newState === "calling") {
-            console.log("====to this.CALLING and call state is ", call.call_state);
-            videoCall.stateCallback("calling");
-            pause("ringbackAudio");
         } 
         else if (newState === "invite_sent") {
-            if(call.type === "video"){
-                _setCallState(call, call.roomId, "ringback");
-            }
-            else{
-                videoCall.stateCallback("invite_sent");
-            }
+            _setCallState(call, call.roomId, "ringback");
             play("ringbackAudio");
             
         } else if (newState === "ended" && oldState === "connected") {
-            if(call.type === "video"){
-                _setCallState(undefined, call.roomId, "ended");
-            }
-            else{
-                console.log("====to this.ENDED and CONNECTED and call state is ", call.call_state);
-                videoCall.stateCallback("ended");
-                global.mxMatrixClientPeg.removeCall(room_id);
-            }
+            _setCallState(undefined, call.roomId, "ended");
             pause("ringbackAudio");
             play("callendAudio");
             
@@ -123,42 +107,19 @@ function _setVideoCallListeners(call, videoCall) {
                 (call.hangupParty === "remote" ||
                 (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
                 )) {
-            if(call.type === "video"){
-                _setCallState(call, call.roomId, "busy");
-            }
-            else{
-                console.log("====to this.hanguped and call state is ", call.call_state);
-                videoCall.stateCallback("busy");
-                global.mxMatrixClientPeg.removeCall(room_id);
-                ipcRenderer.send("updateVoIPTrayNotice", []);
-            }
+            _setCallState(call, call.roomId, "busy");
             pause("ringbackAudio");
             play("busyAudio");
             console.error("The remote side failed to pick up");
         } else if (oldState === "invite_sent") {
-            if(call.type === "video"){
-                _setCallState(call, call.roomId, "stop_ringback");
-            }
-            else{
-                videoCall.stateCallback("calling");
-            }
+            _setCallState(call, call.roomId, "stop_ringback");
             pause("ringbackAudio");    
         } else if (oldState === "ringing") {
-            if(call.type === "video"){
-                _setCallState(call, call.roomId, "stop_ringing");
-            }
-            else{
-                videoCall.stateCallback("calling");
-            }
+            _setCallState(call, call.roomId, "stop_ringing");
             pause("ringbackAudio");
         } else if (newState === "connected") {
-            if(call.type === "video"){
-                _setCallState(call, call.roomId, "connected");
-                videoCall.connectedState();
-            }
-            else{
-                videoCall.stateCallback("chatting");
-            }
+            _setCallState(call, call.roomId, "connected");
+            videoCall.connectedState();
             pause("ringbackAudio");
         }else {
             console.log("Final undeal state");
@@ -240,6 +201,8 @@ class mxVoIP{
             call.hangup(call.roomId);
             return;
         }
+
+        if(call.state == "ended") return;
         
         global.mxMatrixClientPeg.addCall(call.roomId, call);
         let noticeType = "voice";
@@ -263,22 +226,26 @@ class mxVoIP{
 
         if(noticeType === 'video'){
             _setVideoCallListeners(call, global.viopChat.videochat);
-            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                size:{width:300,height: 480},
-                        roomInfo: { roomID: call.roomId,
-                                    name: showName,
-                                    url:distUrl,
-                                    voipType: "video",
-                                    direction: "from"}});
-        }
-        else{
-            _setVideoCallListeners(call, global.viopChat.voicechat);
             let trayNoticeObj = {
                 unreadCount:0,
                 imgUrl: distUrl,
                 chatName: showName,
                 roomId: checkRoom.roomId,
-                notictType: noticeType,
+                notictType: noticeType
+            }   
+            let trayNoticeInfo = [];
+            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+            console.log("====ru show notice ");
+            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
+        }
+        else{
+            _setVideoCallListeners(call, global.viopChat.videochat);
+            let trayNoticeObj = {
+                unreadCount:0,
+                imgUrl: distUrl,
+                chatName: showName,
+                roomId: checkRoom.roomId,
+                notictType: noticeType
             }   
             let trayNoticeInfo = [];
             trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
@@ -301,6 +268,7 @@ class mxVoIP{
         }
         global.mxMatrixClientPeg.removeCall(room_id);
         ipcRenderer.emit("close");
+        this.updateTrayNotice();
     }
 
     muteVoice(room_id){
@@ -317,26 +285,7 @@ class mxVoIP{
         }
     }
 
-    voiceAnswer(room_id) {
-        if(global.mxMatrixClientPeg.getCall(room_id)) {
-            console.log("====to answer and call is ", global.mxMatrixClientPeg.getCall(room_id));
-            let call = global.mxMatrixClientPeg.getCall(room_id);
-            call.answer();
-            let largeWindow = document.getElementById("large-window");
-            let smallWindow = document.getElementById("small-window");
-            let remoteAudio = document.getElementById("remoteAudio");
-            call.setLocalVideoElement(smallWindow);
-            call.setRemoteVideoElement(largeWindow);
-            call.setRemoteAudioElement(remoteAudio);
-            console.log("====to answer and call state is ", global.mxMatrixClientPeg.getCall(room_id).call_state);
-        }
-    }
-
     voiceCall(room_id){
-        if(global.mxMatrixClientPeg.getCall(room_id)) {
-            this.voicechat.stateCallback("chatting");
-            return;
-        }
         const room = global.mxMatrixClientPeg.matrixClient.getRoom(room_id);
         if(!room) {
             console.log("err: voice call room not exist");
@@ -346,13 +295,9 @@ class mxVoIP{
         console.log("====to create call is ", call);
         console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
-        _setVideoCallListeners(call, global.viopChat.voicechat),
+        _setVideoCallListeners(call, global.viopChat.videochat),
         call.placeVoiceCall();
-        let largeWindow = document.getElementById("large-window");
-        let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
-        call.setLocalVideoElement(smallWindow);
-        call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
     }
 
@@ -379,7 +324,53 @@ class mxVoIP{
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
+        this.updateTrayNotice();
     }
+
+    async updateTrayNotice() {
+        let calls = global.mxMatrixClientPeg.getCall();
+        let trayNoticeInfo = [];
+        for(let i = 0; i < calls.length; i++) {
+            let checkCall = calls[i];
+            if(checkCall.state == "ringing") {
+                let noticeType = "voice";
+                if(checkCall && checkCall.type == "video") {
+                    noticeType = "video";
+                }
+        
+                let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(checkCall.roomId);
+                const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+                
+                let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+                let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+                if(!distUrl || (distUrl && distUrl == '')) {
+                    distUrl = "./static/Img/User/user-40px@2x.png";
+                }
+                let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+        
+                let trayNoticeObj = {
+                    unreadCount: 0,
+                    imgUrl: distUrl,
+                    chatName: showName,
+                    roomId: checkRoom.roomId,
+                    notictType: noticeType
+                }   
+                trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+            }
+        }
+        ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
+    }
+
+    answerVoiceChat(room_id) {
+        let call = global.mxMatrixClientPeg.getCall(room_id);
+        if(call) {
+            call.answer();
+            let remoteAudio = document.getElementById("remoteAudio");
+            call.setRemoteAudioElement(remoteAudio);
+            this.updateTrayNotice();
+        }
+    }
+
 }
 
 export{

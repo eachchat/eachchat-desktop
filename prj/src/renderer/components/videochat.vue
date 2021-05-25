@@ -85,7 +85,15 @@ export default {
             this.bTop = false;
             this.stateText = "";
             if(this.roomInfo.direction === "from"){
-                this.beforeAnswerState();
+                if(this.roomInfo.action && this.roomInfo.action == "show") {
+                    this.beforeAnswerState();
+                }
+                else if(this.roomInfo.action && this.roomInfo.action == "answer") {
+                    this.answerState();
+                }
+                else if(this.roomInfo.action && this.roomInfo.action == "hangup") {
+                    this.afterCallState();
+                }
             }
             else{
                 this.beforeCallState();
@@ -132,7 +140,7 @@ export default {
         },
 
         beforeCallState(){
-            this.createVideoChat(this.roomInfo);
+            this.createChat(this.roomInfo);
             this.bComming = false;
         },
 
@@ -154,19 +162,29 @@ export default {
 
         beforeAnswerState(){
             this.bComming = true;
-            this.showStateText("邀请你视频通话");
-            let url = roomInfo.url;
+            if(this.roomInfo.voipType == "video") {
+                this.showStateText("邀请你视频通话");
+            }
+            else {
+                this.showStateText("邀请你语音通话");
+            }
+            let url = this.roomInfo.url;
             if(url.length != 0){
                 let imgEle = document.getElementById("video-chat-user-img");
                 if(imgEle){
                     imgEle.src = url;
                 }
             }
-            this.useName = roomInfo.name;
+            this.useName = this.roomInfo.name;
         },
 
         answerState(){
-            global.viopChat.answerVideoChat(this.roomInfo.roomID, this);
+            if(this.roomInfo.voipType == "video") {
+                global.viopChat.answerVideoChat(this.roomInfo.roomID, this);
+            }
+            else{
+                global.viopChat.answerVoiceChat(this.roomInfo.roomID);
+            }
         },
 
         afterAnswerState(){
@@ -218,9 +236,14 @@ export default {
             }
         },
 
-        createVideoChat(roomInfo){
+        createChat(roomInfo){
             this.showStateText("正在接通中");
-            global.viopChat.videoCall(roomInfo, this);
+            if(this.roomInfo.notictType == "video") {
+                global.viopChat.videoCall(roomInfo.roomID, this);
+            }
+            else {
+                global.viopChat.voiceCall(roomInfo.roomID);
+            }
             let url = roomInfo.url;
             if(url.length != 0){
                 let imgEle = document.getElementById("video-chat-user-img");

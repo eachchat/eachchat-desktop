@@ -50,18 +50,15 @@ export default {
        },
        callBack() {
         //    mxVoIP.voiceCall(this.roomId);
-            ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-            size:{width:300,height: 480},
-            voipInfo: {
-                voipType: this.voipType,
-                voipFrame: "webRtc",
-                roomId: this.roomId,
-                action: "call",
-                voipShowInfo: {
-                    userImg: this.userInfo.userImg,
-                    userName: this.userInfo.userName
-                }
-            }})
+        let theType = this.isVoice == true ? "voice" : "video"
+        console.log("======= theType ", theType)
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:300,height: 480},
+                roomInfo: { roomID: this.roomId,
+                            name: this.userInfo.userName,
+                            url:this.userInfo.userImg,
+                            voipType: this.isVoice == true ? "voice" : "video",
+                            action: "call"}});
        }
     },
     watch: {

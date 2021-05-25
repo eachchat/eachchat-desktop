@@ -73,7 +73,7 @@
                     </div>
                     <div class="video-chat" @click="creatVideoChat()" v-show="!isSecret && isDm">
                     </div>
-                    <div class="voice-chat" @click="voiceCall()" v-show="!isSecret && isDm">
+                    <div class="voice-chat" @click="creatVoiceChat()" v-show="!isSecret && isDm">
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
@@ -629,6 +629,21 @@ export default {
             msgHistoryMenuElement.style.left = left + "px";
         },
         
+        creatVoiceChat: async function() {
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            let distUrl = this.$store.getters.getAvater(distUserId);
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            }
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:300,height: 480},
+                        roomInfo: { roomID: this.chat.roomId,
+                                    name: showName,
+                                    url:distUrl,
+                                    voipType: "voice",
+                                    action: "call"}});
+        },
         creatVideoChat: async function(){
             const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
             let distUrl = this.$store.getters.getAvater(distUserId);
@@ -640,6 +655,7 @@ export default {
                 size:{width:300,height: 480},
                         roomInfo: { roomID: this.chat.roomId,
                                     name: showName,
+                                    voipType: "video",
                                     url:distUrl}});
         },
 
@@ -3078,39 +3094,6 @@ export default {
             else {
                 return "msgContent";
             }
-        },
-        voiceCall: async function() {
-            console.log("make a call");
-            // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
-            const voipInfo = {};
-            voipInfo["voipType"] = "voice";
-            voipInfo["roomId"] = this.curChat.roomId;
-            voipInfo["voipFrame"] = "webRtc";
-            const voipShowUserInfo = {};
-
-            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
-            
-            let distUrl = this.$store.getters.getAvater(distUserId);
-
-            if(distUrl || distUrl == '') {
-                distUrl = "./static/Img/User/user-40px@2x.png";
-            }
-            
-            let showName = this.$store.getters.getShowName(distUserId);
-            if(showName.length == 0) {
-                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-            }
-
-            voipShowUserInfo["userImg"] = distUrl;
-            voipShowUserInfo["userName"] = showName;
-
-            voipInfo["voipShowInfo"] = voipShowUserInfo;
-            voipInfo["action"] = "call";
-            
-            ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
-                size:{width:300,height: 480},
-                voipInfo: voipInfo
-            })
         },
         groupIsInFavourite(groupInfo) {
             if(groupInfo.status == 0) {

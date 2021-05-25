@@ -18,6 +18,7 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let noticeWindow
+let hasVoIP = false
 let noticeInfo = {}
 let noticeHeight
 let noticeWindowKeepShow = false
@@ -316,7 +317,8 @@ ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
 ipcMain.on("updateTrayNotice", function(event, arg) {
   if(process.platform == "win32" && noticeWindow) {
     noticeInfo = arg;
-    noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
+    if(hasVoIP) noticeHeight = 40 + 20 + Object.keys(arg).length * 52;
+    else noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
     noticeWindow.setSize(240, noticeHeight);
     let showX = screenSize.width - 20 - 240;
     let showY = screenSize.height - noticeHeight;
@@ -326,14 +328,17 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
 })
 
 ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
+  if(arg.length == 0) hasVoIP = false;
+  else hasVoIP = true;
+  console.log("updateVoIPTrayNotice ", arg);
   if(process.platform == "win32" && noticeWindow) {
-    noticeInfo = arg;
-    noticeHeight = 52 + Object.keys(arg).length * 96;
+    noticeHeight = 40 + Object.keys(arg).length * 96;
     noticeWindow.setSize(240, noticeHeight);
     let showX = screenSize.width - 20 - 240;
     let showY = screenSize.height - noticeHeight;
     noticeWindow.setPosition(showX, showY)
     noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
+    noticeWindow.show();
   }
 })
 
@@ -384,7 +389,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
     toHide = false;
   }
   Menu.setApplicationMenu(null)
-  //mainWindow.hide();
+  mainWindow.hide();
   mainWindow.setMinimumSize(360, 420);
   if(mainWindow.isMaximized()) {
     mainWindow.unmaximize();

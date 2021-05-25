@@ -53,10 +53,6 @@ export default {
                 this.showVideoChat();
                 this.roomInfo = args.args;
             }
-            else if(args.type === "voiceChatWindow") {
-                this.showVoiceChat();
-                this.voipInfo = args.voipInfo;
-            }
         },
 
         showFavouriteDetail(){
