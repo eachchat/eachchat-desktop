@@ -26,8 +26,12 @@
             <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
         </div>
         <audio id="remoteAudio"></audio>
+        
         <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
-        <img class = "top-stick" @click="topStick">
+        <div>
+            <img class = "top-stick" v-if = "bTop" src = "../../../static/Img/VoIP/top.png" @click = "unTopStick">
+            <img class = "top-stick" v-else src = "../../../static/Img/VoIP/untop.png" @click="topStick"> 
+        </div>
         <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
         onerror = "this.src = './static/Img/User/user-40px@2x.png'">
         <div class = "username" v-show="bShowStateText">{{useName}}</div>
@@ -65,7 +69,8 @@ export default {
             chatTime: undefined,
             bComming: false,
             nTime: 0,
-            state: ""
+            state: "",
+            bTop: false
         }
     },
     props:{
@@ -77,6 +82,7 @@ export default {
 
     watch:{
         roomInfo(){
+            this.bTop = false;
             this.stateText = "";
             if(this.roomInfo.direction === "from"){
                 this.beforeAnswerState();
@@ -90,10 +96,12 @@ export default {
     methods:{
         topStick(){
             ipcRenderer.send("topVideoChat");
+            this.bTop = true;
         },
 
-        upTopStick(){
-
+        unTopStick(){
+            ipcRenderer.send("unTopVideoChat");
+            this.bTop = false;
         },
 
         getChatTime(){
@@ -278,7 +286,6 @@ export default {
     top: 12px;
     width: 16px;
     height: 16px;
-    background-image: url("../../../static/Img/VoIP/top.png"); 
 }
 
 .camera-icon{
