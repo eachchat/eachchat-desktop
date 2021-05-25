@@ -2,53 +2,53 @@
     <div class="ownerInfoBG">
         <div class="ownerInfoDlg" id = "ownerDlg">
             <div class="ownerInfoHead">
-                <p class="ownerInfoTitle">我的信息</p>
+                <p class="ownerInfoTitle">{{$t("setting.myInformation")}}</p>
                 <i class="el-icon-close" @click="Close()"></i>
             </div>
-            <div class="ownerInfoTipLabel">个人信息</div>
+            <div class="ownerInfoTipLabel">{{$t("setting.user_info")}}</div>
             <div class="ownerInfoBaseBox">
                 <div class="ownerInfoBaseDiv">
-                    <label class="ownerInfoBaseLabel">头像</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.profile_picture")}}</label>
                     <div style="position:relative;">
                         <img class="ownerInfoImage" id="ownerInfoImageId" src="../../../static/Img/User/user-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                         <img ondragstart="return false" class="personalCenter-cameraIcon" src="../../../static/Img/personalCenter/changeAvatar.png" @click="changeIconClicked">
                     </div>
                 </div>
                 <div class="ownerDisplayInfoBaseDiv">
-                    <label class="ownerInfoBaseLabel">昵称</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.display_name")}}</label>
                     <input required type = 'text' class="ownerDisplayInfoBaseLabel2" id="ownerInfoDisplayNameId" v-model = "ownerDisplayName" maxLength = 32
                     placeholder="请输入昵称" @change="displayNameChange()">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
                 </div>
                 <div class="ownerInfoBaseDiv">
-                    <label class="ownerInfoBaseLabel">用户名</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.username")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoAccountId">{{ownerAccount}}</label>
                 </div>
                 <div class="ownerInfoBaseDiv">
-                    <label class="ownerInfoBaseLabel">Matrix ID</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.matrix_id")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOwnerIdId">{{ownerId}}</label>
                 </div>
             </div>
-            <div class="ownerInfoTipLabel">工作信息</div>
+            <div class="ownerInfoTipLabel">{{$t("setting.work_message")}}</div>
             <div class="ownerInfoOrgBox">
                 <div class="ownerInfoBaseDiv" v-show = "ownerPhone && ownerPhone.length != 0">
-                    <label class="ownerInfoBaseLabel">手机</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.phone")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgPhoneId">{{ownerPhone}}</label>
                 </div>
                 <div class="ownerInfoBaseDiv" v-show = "ownerCall && ownerCall.length != 0">
-                    <label class="ownerInfoBaseLabel">座机</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.telephone")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgCallId">{{ownerCall}}</label>
                 </div>
                 <div class="ownerInfoBaseDiv" v-show = 'ownerMail && ownerMail.length != 0'>
-                    <label class="ownerInfoBaseLabel">邮箱</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.email")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgMailId">{{ownerMail}}</label>
                 </div>
                 <div class="ownerInfoBaseDiv" v-show = 'ownerDepartment && ownerDepartment.length != 0'>
-                    <label class="ownerInfoBaseLabel">部门</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.department")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgDepartId">{{ownerDepartment}}</label>
                 </div>
                 <div class="ownerInfoBaseDiv" v-show = 'ownerPosition && ownerPosition.length != 0'>
-                    <label class="ownerInfoBaseLabel">职位</label>
+                    <label class="ownerInfoBaseLabel">{{$t("setting.position")}}</label>
                     <label class="ownerInfoBaseLabel2" id="ownerInfoOrgPositionId">{{ownerPosition}}</label>
                 </div>
             </div>
@@ -177,7 +177,7 @@ export default {
             var fileList = paths;
             // console.log("======", fileList)
             if(fileList.filePaths.length === 0) {
-                alert("请选择一个图片文件");
+                alert(this.$t("setting.needToSelectOnePic"));
             }
             this.showImageCropper = true;
             this.selectImageSource = fileList.filePaths[0];

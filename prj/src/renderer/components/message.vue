@@ -33,13 +33,14 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <div class="chat-msg-content-mine-txt-div" 
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
                             <linkify class="chat-msg-content-mine-linkify" :text="messageContent" color="rgba(255, 255, 255, 1)" textDecoration="underline"></linkify>
-                        </p> 
+                        </p>
                         <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >
-                            <emoji :text="messageContent"></emoji>    
+                            <emoji :text="messageContent"></emoji>
                         </p>
                     </div>
                     <div class="chat-msg-content-mine-file-div-angle" v-if="(MsgIsFile() || MsgIsTransmit()) && !MsgIsImage()"></div>
@@ -57,7 +58,7 @@
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                 <div class="quote-content" v-if="hasQuote()">
-                    <span>{{quoteName}} : </span> 
+                    <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
                     </div>
                 </div>
@@ -92,19 +93,20 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <div class="chat-msg-content-others-txt-div" 
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
                             <linkify class="chat-msg-content-others-linkify" :text="messageContent" color="#5B6A91" textDecoration="underline"></linkify>
                         </p>
-                        <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">    
+                        <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">
                             <emoji :text="messageContent"></emoji>
                         </p>
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
                 <div class="quote-content" v-if="hasQuote()">
-                    <span>{{quoteName}} : </span> 
+                    <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
                 </div>
             </div>
@@ -131,6 +133,7 @@ import linkify from './linkify'
 import emoji from './emoji'
 import { getImgUrlByEvent } from '../../utils/commonFuncs'
 import {faceUtils} from '../../packages/core/Utils.js'
+import VoIP from './VoIP'
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 600;
@@ -144,7 +147,8 @@ function extend(target, base) {
 export default {
     components: {
         linkify,
-        emoji
+        emoji,
+        VoIP
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     computed: {
@@ -174,7 +178,7 @@ export default {
                     return (ev._txnId && ev._txnId == txnId) && ev.status == "not_sent";
                 }))
             }
-            
+
             console.log("===sendAgain event is ", this.msg.event)
             var roomID = this.msg.event.room_id;
             let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
@@ -378,7 +382,7 @@ export default {
                                 }
                                 reader.readAsArrayBuffer(blob);
                             })
-                            
+
                         this.downloadingInterval = setInterval(() => {
                             this.showProgress = true;
                             this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
@@ -409,7 +413,7 @@ export default {
                                 }
                                 reader.readAsArrayBuffer(blob);
                             })
-                            
+
                         this.downloadingInterval = setInterval(() => {
                             this.showProgress = true;
                             this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
@@ -491,10 +495,10 @@ export default {
                 let chatGroupMsgType = curEvent.type;
                 let chatGroupMsgContent = curEvent.content;
                 let curInfo = {};
-                
+
                 var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender);
                 var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-                
+
                 if(chatGroupMsgType == "m.room.message") {
                     if(chatGroupMsgContent.msgtype == "m.image") {
                         let maxSize = 390;
@@ -731,6 +735,38 @@ export default {
                 return false;
             }
         },
+        getVoipType: function() {
+            return "voice";
+        },
+        generalVoipInfo: async function() {
+            // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
+            const voipInfo = {};
+            voipInfo["voipType"] = this.isVoice ? "voice" : "video";
+            voipInfo["roomId"] = this.msg.event.room_id;
+            const voipShowUserInfo = {};
+
+            let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(this.msg.event.room_id);
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+            
+            let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+            let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            console.log("=====dist url is ", distUrl)
+            if(distUrl && distUrl == '') {
+                distUrl = "./static/Img/User/user-40px@2x.png";
+            }
+            
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            }
+
+            voipShowUserInfo["userImg"] = distUrl;
+            voipShowUserInfo["userName"] = showName;
+
+            voipInfo["userInfo"] = voipShowUserInfo;
+            voipInfo["action"] = "call";
+            this.VoipInfo = voipInfo;
+        },
         getMsgOtherLinkContent: function(content) {
             var dealContent = this.msgContentShowPhoneAndHightLight(content, '#5B6A91');
             return dealContent;
@@ -779,6 +815,10 @@ export default {
             else{
                 return false;
             }
+        },
+        MsgIsVoipCall: function() {
+            if(this.msg.event.type.indexOf("m.call") >= 0) return true;
+            else return false;
         },
         decryptAndDownloadFile: async function() {
             const content = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
@@ -869,7 +909,7 @@ export default {
         getImageStyle: function() {
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             let maxSize = 400;
-            
+
             let showWidth = maxSize;
             let showHeight = maxSize;
 
@@ -933,7 +973,7 @@ export default {
                     showWidth = chatGroupMsgContent.info.w;
                     showHeight = chatGroupMsgContent.info.h;
                 }
-                
+
                 let style = "";
                 let max = Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h);
                 if(max > maxSize ){
@@ -1031,7 +1071,7 @@ export default {
 
                     if(chatGroupMsgContent.info)
                         info = chatGroupMsgContent.info;
-                        
+
                     if(info.size)
                         this.fileSizeNum = getFileSizeByNumber(info.size);
                     this.messageContent = chatGroupMsgContent.body;
@@ -1039,7 +1079,7 @@ export default {
                 else if(chatGroupMsgContent.msgtype == 'm.audio'){
                     this.messageContent = chatGroupMsgContent.body;
                     this.fileName = this.messageContent;
-                    
+
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                     var existLocalFile = await this.getFileExist();
@@ -1098,7 +1138,23 @@ export default {
                 }
             }
             else if(chatGroupMsgType === "m.call.invite") {
-                this.messageContent = "不支持的消息类型，请升级客户端";
+                console.log("add new invite msg content ", this.msg.event.content)
+                this.callId = this.msg.event.content.call_id;
+                this.isVoice = true;
+                if (event.content.offer && event.content.offer.sdp &&
+                        event.content.offer.sdp.indexOf('m=video') !== -1) {
+                    this.isVoice = false;
+                }
+                this.generalVoipInfo();
+            }
+            else if(chatGroupMsgType === "m.call.candidates") {
+                console.log("add new candidates msg content ", this.msg.event.content)
+            }
+            else if(chatGroupMsgType === "m.call.hangup") {
+                console.log("add new hangup msg content ", this.msg.event.content)
+            }
+            else if(chatGroupMsgType === "m.call.answer") {
+                console.log("add new answer msg content ", this.msg.event.content)
             }
             else if(chatGroupMsgType === "m.room.encrypted") {
                 // chatGroupMsgContent = this.msg.getContent();
@@ -1116,7 +1172,7 @@ export default {
                     if(this.messageContent.length == 0) {
                         this.messageContent = "\n";
                     }
-                } 
+                }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
                     var imgMsgImgElement = document.getElementById(this.msg.event.event_id);
                     let style = "";
@@ -1163,7 +1219,7 @@ export default {
             var userNameElement = document.getElementById(userNameElementId);
 
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
-            
+
             var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
             var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(userId);
             if(this.$store.getters.getShowName(userId) != fromUserName) {
@@ -1172,10 +1228,10 @@ export default {
             if(userNameElement != undefined) {
                 userNameElement.innerHTML = fromUserName;
             }
-            
+
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((userId));
             var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-            
+
             if(this.userIconElement == undefined) {
                 return;
             }
@@ -1434,7 +1490,7 @@ export default {
                     console.log("*** ret id ", ret);
                     this.showProgress = false;
                     this.curProcess = 1;
-                        
+
                     this.msg.event.content.msgtype = 'm.file';
                     this.msg.event.content.file = ret.file;
                     this.msg.event.content.url = ret.url;
@@ -1477,6 +1533,9 @@ export default {
     },
     data() {
         return {
+            isVoice: true,
+            callId: '',
+            VoipInfo: {},
             isDownloading: false,
             playingAudioId: '',
             decrypting: false,
@@ -1602,7 +1661,7 @@ export default {
             if(id != this.msg.event.event_id) {
                 return;
             }
-            
+
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file')
             {
@@ -1678,7 +1737,7 @@ export default {
     [v-cloak]{
         display: none;
     }
-    
+
     progress::-webkit-progress-bar {
         background-color: rgba(210, 215, 222, 1);
     }
@@ -1837,7 +1896,7 @@ export default {
         font-weight: 400;
         -webkit-user-select:none;
     }
-    
+
     .chat-msg-content-others-txt-div {
         float: left;
         background-color: rgba(255, 255, 255, 1);
@@ -1907,7 +1966,7 @@ export default {
         letter-spacing: 0px;
         cursor: text;
     }
-    
+
     .chat-msg-content-others-txt{
         float: left;
         background-color: rgba(255, 255, 255, 0);
@@ -2007,7 +2066,7 @@ export default {
         display: inline-block;
         -webkit-user-select:none;
     }
-    
+
     .voice-image {
         height: 16px;
         display: inline-block;
@@ -2019,7 +2078,7 @@ export default {
         display: inline-block;
         -webkit-user-select:none;
     }
-    
+
     .file-info {
         height: 40px;
         margin-top: 10px;
@@ -2128,7 +2187,6 @@ export default {
         line-height: 20px;
         letter-spacing: 0px;
     }
-
     .chat-msg-content-mine-link {
         float:right;
         background-color: rgba(1,1,1,0);
@@ -2278,7 +2336,7 @@ export default {
         cursor: pointer;
         -webkit-user-select:none;
     }
-    
+
     .chat-msg-content-mine-file:hover {
         float:right;
         background-color: rgba(255, 255, 255, 1);
@@ -2292,7 +2350,7 @@ export default {
         cursor: pointer;
         -webkit-user-select:none;
     }
-    
+
     .chat-msg-content-mine-voice {
         float:right;
         background-color: rgba(82, 172, 68, 1);
@@ -2375,7 +2433,7 @@ export default {
         line-height: 18px;
         color:rgba(153, 153, 153, 1);
     }
-    
+
     .imageTip {
         text-align: center;
     }
@@ -2406,7 +2464,7 @@ export default {
     .msg-info-mine{
         .quote-content{
            float: right;
-           margin-right: 56px; 
+           margin-right: 56px;
         }
     }
 </style>

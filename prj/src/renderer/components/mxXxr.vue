@@ -1125,7 +1125,7 @@ export default {
             this.choosenMembers = [...choosenMembers];
             console.log('this.choosenMembers====', this.choosenMembers)
         },
-        // 重构后方法
+
         async setQuanxuan() {
             let choose;
             if ( this.qx === 3 || this.qx === 2) {
@@ -1186,12 +1186,12 @@ export default {
                 totLen = totLen + zong;
                 ohsLen = ohsLen + wai;
             }
-            this.choosenMembers; //已选的总人
+            this.choosenMembers; 
             const otherHs = this.choosenMembers.filter(c => {
                 const id = c.matrix_id || c.user_id;
                 const hs = ComponentUtil.GetDomanName(id);
                 return hs !== this.myDomain;
-            }); //已选人中的外域用户
+            }); 
             totLen = totLen + this.choosenMembers.length;
             ohsLen = ohsLen + otherHs.length;
             if (obj.type !== 'dep') {
@@ -1271,7 +1271,7 @@ export default {
             if (obj.type !== 'dep') {
                 const id = obj.matrix_id || obj.user_id;
                 const xie = (choose === 3) ? 1 : 0;
-                this.mxMemMap[id] = xie; //更新表内该人员信息
+                this.mxMemMap[id] = xie; 
                 this.setChoosenMembers(obj, xie);
                 const deps = await Department.GetBelongDepartmentsByMatrixID(id);
                 const len = deps.length;
@@ -1288,7 +1288,7 @@ export default {
             }
         },
 
-        async fillDepCheck(department_id, check) { //选择部门时 向下
+        async fillDepCheck(department_id, check) { 
             if (!this.mxDepMap[department_id]) {
                 this.mxDepMap[department_id] = {};
                 this.mxDepMap[department_id].check = check;
@@ -1296,7 +1296,7 @@ export default {
                 const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
                 const len = subDep.length + subUsers.length;
                 if (!len) {
-                    //无操作
+                    
                 } else {
                     const arr = [];
                     subUsers.forEach(s => {
@@ -1332,7 +1332,7 @@ export default {
                 }
             }
         },
-        async fillDep(department_id) { //选择人员时 向上
+        async fillDep(department_id) { 
             if (!this.mxDepMap[department_id]) {
                 this.mxDepMap[department_id] = {};
                 const subDep = await Department.GetSubDepartment(department_id);
@@ -1362,10 +1362,10 @@ export default {
                         if (this.mxDepMap[id] && this.mxDepMap[id].check === 3) i = i+1;
                         if (this.mxDepMap[id] && this.mxDepMap[id].check === 2) hg = true;
                     });
-                    if (i == 0) {this.mxDepMap[department_id].check = 1;} //未选
-                    if (i == 0 && hg) {this.mxDepMap[department_id].check = 2;} //横杆
-                    if (i == len) {this.mxDepMap[department_id].check = 3;} //全选
-                    if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} //横杠
+                    if (i == 0) {this.mxDepMap[department_id].check = 1;} 
+                    if (i == 0 && hg) {this.mxDepMap[department_id].check = 2;} 
+                    if (i == len) {this.mxDepMap[department_id].check = 3;} 
+                    if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} 
                 }
             } else {
                 if (this.mxDepMap[department_id].arr && this.mxDepMap[department_id].arr.length) {
@@ -1378,10 +1378,10 @@ export default {
                         if (this.mxDepMap[id] && this.mxDepMap[id].check === 3) i = i+1;
                         if (this.mxDepMap[id] && this.mxDepMap[id].check === 2) hg = true;                       
                     })
-                    if (i == 0) {this.mxDepMap[department_id].check = 1;} //未选
-                    if (i == 0 && hg) {this.mxDepMap[department_id].check = 2;} //横杆
-                    if (i == len) {this.mxDepMap[department_id].check = 3;} //全选
-                    if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} //横杠
+                    if (i == 0) {this.mxDepMap[department_id].check = 1;} 
+                    if (i == 0 && hg) {this.mxDepMap[department_id].check = 2;} 
+                    if (i == len) {this.mxDepMap[department_id].check = 3;} 
+                    if (i>0 && i<len) {this.mxDepMap[department_id].check = 2;} 
                 } else {
          
                 }
@@ -1394,11 +1394,11 @@ export default {
             if (obj.type !== 'dep') {
                 let id = obj.matrix_id || obj.user_id;
                 console.log('id', id)
-                if (this.mxMemMap[id]) return 3; //选中3
-                return 1; //未选1
+                if (this.mxMemMap[id]) return 3; 
+                return 1; 
             }
-            if (!this.mxDepMap[obj.department_id]) return 1; //部门 不在表中则为未选1
-            return this.mxDepMap[obj.department_id].check; // 1未选 2横杠 3全选
+            if (!this.mxDepMap[obj.department_id]) return 1; 
+            return this.mxDepMap[obj.department_id].check;
             
         },
         quanxuanZhuangtai() {

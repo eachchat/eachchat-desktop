@@ -2,6 +2,7 @@ import organization from "./en/organization"
 import contact from "./en/contact"
 import setting from "./en/setting"
 import favourite from "./en/favourite"
+import general from "./en/general"
 
 const en = {
     appName: "EachChat",
@@ -99,7 +100,8 @@ const en = {
     organization: organization,
     contact: contact,
     setting: setting,
-    favourite: favourite
+    favourite: favourite,
+    general: general,
 }
 
 export default en;

@@ -2,26 +2,39 @@
     <div>
         <favouritedetail v-show = "bFavouriteDetail" :collectionInfo = "collectionInfo"></favouritedetail>
         <reportRelationContent v-show = 'bReportRelationContent' :userInfo = "userInfo"></reportRelationContent>
+        <VoIPVoice ref = "voipVoiceRef" v-show = "bVoiceChat" :voipInfo="voipInfo"></VoIPVoice>
+        <VoIPVideo ref = "voipVideoRef" v-show = "bVideoChat" :roomInfo = "roomInfo"></VoIPVideo>
     </div>
 </template>
 
 <script>
 import favouritedetail from "./favourite-detail";
 import reportRelationContent from "./reportRelationContent";
+import VoIPVideo from "./videochat"
+import VoIPVoice from './voicechat.vue';
+import {mxVoIP} from "../../packages/data/mxVoIP.js"
+
+
 
 const ipcRenderer = require('electron').ipcRenderer
 
 export default {
    components: {
-       favouritedetail,
-        reportRelationContent
+        favouritedetail,
+        reportRelationContent,
+        VoIPVideo,
+        VoIPVoice,
     },
     data(){
         return {
             bFavouriteDetail: false,
             collectionInfo: {},
             bReportRelationContent: false,
-            userInfo: {}
+            userInfo: {},
+            bVideoChat: false,
+            roomInfo: {},
+            bVoiceChat: false,
+            voipInfo: {},
         }
     },
 
@@ -36,21 +49,52 @@ export default {
                 this.showRelationShip();
                 this.userInfo = args.args
             }
+            else if(args.type === "videoChatWindow"){
+                this.showVideoChat();
+                this.roomInfo = args.args;
+            }
+            else if(args.type === "voiceChatWindow") {
+                this.showVoiceChat();
+                this.voipInfo = args.voipInfo;
+            }
         },
 
         showFavouriteDetail(){
             this.bFavouriteDetail = true;
             this.bReportRelationContent = false;
+            this.bVideoChat = false;
+            this.bVoiceChat = false;
         },
 
         showRelationShip(){
             this.bReportRelationContent = true;
             this.bFavouriteDetail = false;
-        }
+            this.bVideoChat = false;
+            this.bVoiceChat = false;
+        },
 
+        showVideoChat(){
+            this.bVideoChat = true;
+            this.bReportRelationContent = false;
+            this.bFavouriteDetail = false;
+            this.bVoiceChat = false;
+        },
+
+        showVoiceChat(){
+            this.bVideoChat = false;
+            this.bReportRelationContent = false;
+            this.bFavouriteDetail = false;
+            this.bVoiceChat = true;
+        }
     },
 
     mounted(){
+        this.voipChat = new mxVoIP();
+        global.viopChat = this.voipChat;
+        this.voipChat.setVideoChat(this.$refs.voipVideoRef);
+        this.voipChat.setVoiceChat(this.$refs.voipVoiceRef)
+        this.voipChat.createMatrix();
+        
         console.log("childwindow mounted")
         ipcRenderer.on("childwindowArgs", this.onChildWindow)
     },

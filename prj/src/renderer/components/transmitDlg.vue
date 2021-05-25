@@ -911,7 +911,7 @@ export default {
 
             console.log("chatGroupMsgContent is ", nameTemp)
             // console.log("this. msg is ", this.msg)
-            // 数据库缺省type = 0 
+
             if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
             {
                 messageContent = nameTemp + ":" + chatGroupMsgContent.text;

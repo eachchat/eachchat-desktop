@@ -29,6 +29,25 @@ class _MatrixClientPeg{
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
         this.mediaConfig = null;
+        this.callList = {};
+    }
+
+    addCall(roomId, call) {
+      this.callList[roomId] = call;
+    }
+
+    removeCall(roomId) {
+        try{
+            delete this.callList[roomId];
+        }
+        catch(e) {
+
+        }
+    }
+
+    getCall(roomId) {
+      if(roomId) return this.callList[roomId];
+      else return this.callList;
     }
 
     setRecoveryKey(recoveryKey) {

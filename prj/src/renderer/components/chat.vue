@@ -21,7 +21,7 @@
                 </div>
                 <!-- <div class="chat-tool-invite-div" @click.stop="createAnother"></div>  -->
                 <!-- @click="showAddMembersPrepare()" -->
-                <div class="chat-tool-call" @click="Call()" v-show=false>
+                <div class="chat-tool-call" @click="voiceCall()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
             </div>
@@ -70,6 +70,10 @@
                     </div>
                     <div class="chat-send" v-show="false" @click="sendMsg()">
                         <i class="el-icon-s-promotion"></i>
+                    </div>
+                    <div class="video-chat" @click="creatVideoChat()" v-show="!isSecret && isDm">
+                    </div>
+                    <div class="voice-chat" @click="voiceCall()" v-show="!isSecret && isDm">
                     </div>
                 </div>
                 <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
@@ -624,6 +628,21 @@ export default {
             msgHistoryMenuElement.style.top = top + "px";
             msgHistoryMenuElement.style.left = left + "px";
         },
+        
+        creatVideoChat: async function(){
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            let distUrl = this.$store.getters.getAvater(distUserId);
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            }
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:300,height: 480},
+                        roomInfo: { roomID: this.chat.roomId,
+                                    name: showName,
+                                    url:distUrl}});
+        },
+
         showScrollBar: function(e) {
             if(this.messageListElement == null) {
                 this.messageListElement = document.getElementById("message-show-list");
@@ -1664,8 +1683,8 @@ export default {
                         "timeline": {
                             "contains_url": true,
                             "types": [
-                                "m.room.message",
-                                "m.call.invite"
+                                "m.room.message", 
+                                'm.call.invite'
                             ],
                         },
                     },
@@ -3060,8 +3079,38 @@ export default {
                 return "msgContent";
             }
         },
-        Call: function() {
+        voiceCall: async function() {
             console.log("make a call");
+            // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
+            const voipInfo = {};
+            voipInfo["voipType"] = "voice";
+            voipInfo["roomId"] = this.curChat.roomId;
+            voipInfo["voipFrame"] = "webRtc";
+            const voipShowUserInfo = {};
+
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            
+            let distUrl = this.$store.getters.getAvater(distUserId);
+
+            if(distUrl || distUrl == '') {
+                distUrl = "./static/Img/User/user-40px@2x.png";
+            }
+            
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+            }
+
+            voipShowUserInfo["userImg"] = distUrl;
+            voipShowUserInfo["userName"] = showName;
+
+            voipInfo["voipShowInfo"] = voipShowUserInfo;
+            voipInfo["action"] = "call";
+            
+            ipcRenderer.send("createChildWindow", {type: "voiceChatWindow",
+                size:{width:300,height: 480},
+                voipInfo: voipInfo
+            })
         },
         groupIsInFavourite(groupInfo) {
             if(groupInfo.status == 0) {
@@ -3728,7 +3777,7 @@ export default {
                         "timeline": {
                             "types": [
                                 "m.room.message",
-                                "m.call.invite"
+                                'm.call.invite'
                             ],
                         },
                     },
@@ -4076,6 +4125,12 @@ export default {
             }
             this.newMsgNum = 0;
             this.curChat = this.chat;
+            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
+                this.isDm = true;
+            }
+            else{
+                this.isDm = false;
+            }
             this.initSearchKey = '';
             this.inviterInfo = undefined;
             this.isInvite = false;
@@ -4095,6 +4150,7 @@ export default {
             this.messageList = [];
             let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
             for(let i=messageListTmp.length - 1;i>0;i--){
+                console.log("====== cur msg type is ", messageListTmp[i].event.type, " and message content is ", messageListTmp[i].event)
                 let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
                 if(exitEventIndex >= 0) {
                     this.$store.commit('removeSendingEvents', messageListTmp[i]);
@@ -5109,6 +5165,26 @@ export default {
         height: 24px;
         margin: 8px 6px 8px 6px;
         background-image: url("../../../static/Img/Chat/chatHistory-24px@2x-hover.png");
+        background-size: contain;
+    }
+
+    .video-chat {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 16px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVideoBtn@2x.png");
+        background-size: contain;
+    }
+
+    .voice-chat {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVoiceBtn@2x.png");
         background-size: contain;
     }
 
