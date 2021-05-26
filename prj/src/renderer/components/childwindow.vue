@@ -11,7 +11,6 @@
 import favouritedetail from "./favourite-detail";
 import reportRelationContent from "./reportRelationContent";
 import VoIPVideo from "./videochat"
-import VoIPVoice from './voicechat.vue';
 import {mxVoIP} from "../../packages/data/mxVoIP.js"
 
 
