@@ -17,6 +17,7 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
     }
     
     build(){
+        this.childWindow.setTitle("");
         this.setWindowSize(this.size);
         let renderArgs ={};
         renderArgs.type = "videoChatWindow";

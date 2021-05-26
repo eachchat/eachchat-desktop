@@ -103,8 +103,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-
-display: none;
+    display: none;
 }
 .detailPage{
     width: 100%;
