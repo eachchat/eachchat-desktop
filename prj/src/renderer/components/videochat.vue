@@ -238,8 +238,8 @@ export default {
 
         createChat(roomInfo){
             this.showStateText("正在接通中");
-            if(this.roomInfo.notictType == "video") {
-                global.viopChat.videoCall(roomInfo.roomID, this);
+            if(roomInfo.voipType == "video") {
+                global.viopChat.videoCall(roomInfo, this);
             }
             else {
                 global.viopChat.voiceCall(roomInfo.roomID);

@@ -656,7 +656,8 @@ export default {
                         roomInfo: { roomID: this.chat.roomId,
                                     name: showName,
                                     voipType: "video",
-                                    url:distUrl}});
+                                    url:distUrl,
+                                    action: "call"}});
         },
 
         showScrollBar: function(e) {
