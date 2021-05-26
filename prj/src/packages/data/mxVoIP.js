@@ -295,9 +295,13 @@ class mxVoIP{
         console.log("====to create call is ", call);
         console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
-        _setVideoCallListeners(call, global.viopChat.videochat),
+        _setVideoCallListeners(call, global.viopChat.videochat);
         call.placeVoiceCall();
+        let largeWindow = document.getElementById("large-window");
+        let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
+        call.setLocalVideoElement(smallWindow);
+        call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
     }
 
@@ -365,7 +369,11 @@ class mxVoIP{
         let call = global.mxMatrixClientPeg.getCall(room_id);
         if(call) {
             call.answer();
+            let largeWindow = document.getElementById("large-window");
+            let smallWindow = document.getElementById("small-window");
             let remoteAudio = document.getElementById("remoteAudio");
+            call.setLocalVideoElement(smallWindow);
+            call.setRemoteVideoElement(largeWindow);
             call.setRemoteAudioElement(remoteAudio);
             this.updateTrayNotice();
         }
