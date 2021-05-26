@@ -25,7 +25,9 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         this.childWindow.webContents.send("childwindowArgs", renderArgs);
         this.onIpcMain();
         this.showWindow();
-        this.childWindow.webContents.openDevTools();
+        if (process.env.NODE_ENV === "development") {
+            //this.childWindow.webContents.openDevTools();
+        }
     }
 
     onIpcMain(){

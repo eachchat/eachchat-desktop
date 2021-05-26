@@ -23,7 +23,9 @@ class ReleationShipWindowBuilder extends RenderWindowBuilder{
         renderArgs.args = this.userinfo;
         this.childWindow.webContents.send("childwindowArgs", renderArgs);
         this.showWindow();
-        //this.childWindow.webContents.openDevTools();
+        if (process.env.NODE_ENV === "development") {
+            this.childWindow.webContents.openDevTools();
+        }
     }
 }
 
