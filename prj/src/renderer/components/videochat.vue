@@ -90,6 +90,7 @@ export default {
         roomInfo(){
             this.bTop = false;
             this.stateText = "";
+            this.nTime = 0;
             if(this.roomInfo.direction === "from"){
                 if(this.roomInfo.action && this.roomInfo.action == "show") {
                     this.beforeAnswerState();
@@ -165,9 +166,15 @@ export default {
             this.bComming = false;
         },
 
-        connectedState(){
-            this.showSmallWindow();
-            this.hideStateText();
+        connectedState(type){
+            if(type === "video"){
+                this.showSmallWindow();
+                this.hideStateText();
+            }
+            else{
+                this.stateText = "已接通"
+            }
+            
             this.state = "connected"
             this.chatTime = setInterval(() => {
                 this.nTime++;
@@ -318,7 +325,7 @@ export default {
     z-index: 1;
     width: 96px;
     height: 170px;
-    margin: 8px 8px 0 0;
+    margin: 32px 8px 0 0;
     background: #4A4C5B;
 }
 

@@ -119,7 +119,7 @@ function _setVideoCallListeners(call, videoCall) {
             pause("ringbackAudio");
         } else if (newState === "connected") {
             _setCallState(call, call.roomId, "connected");
-            videoCall.connectedState();
+            videoCall.connectedState(call.type);
             pause("ringbackAudio");
         }else {
             console.log("Final undeal state");
