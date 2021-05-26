@@ -22,9 +22,12 @@
             <source src="../../../static/busy.ogg" type="audio/ogg" />
             <source src="../../../static/busy.mp3" type="audio/mpeg" />
         </audio>
-        <div class = "audioMeterBackground">
-            <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
+        <div class = "audioMeterDiv" @mouseover="showVoiceInput2"  @mouseleave="hideMouseInput2" v-show = "bShowVoice1 || bShowVoice2">
+            <div class = "audioMeterBackground">
+                <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
+            </div>
         </div>
+        
         <audio id="remoteAudio"></audio>
         
         <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
@@ -44,7 +47,7 @@
             <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
             <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
             <div class = "hangup-icon" @click="afterCallState"></div>
-            <div class = "voice-icon"></div>
+            <div class = "voice-icon"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1"></div>
             <span class = "mute-text">静音</span>
             <span class = "voice-text">音量</span>
             <span class = "hangup-text">挂断</span>
@@ -70,7 +73,10 @@ export default {
             bComming: false,
             nTime: 0,
             state: "",
-            bTop: false
+            bTop: false,
+            bShowVoice1: false,
+            bShowVoice2: false
+
         }
     },
     props:{
@@ -102,6 +108,21 @@ export default {
     },
 
     methods:{
+        showVoiceInput1(){
+            this.bShowVoice1 = true;
+        },
+        showVoiceInput2(){
+            this.bShowVoice2 = true;
+        },
+
+        hideMouseInput1(){
+            this.bShowVoice1 = false;
+        },
+
+        hideMouseInput2(){
+            this.bShowVoice2 = false;
+        },
+        
         topStick(){
             ipcRenderer.send("topVideoChat");
             this.bTop = true;
@@ -435,9 +456,15 @@ export default {
     border-radius: 50%;
 }
 
-.audioMeterBackground{
-    z-index: 1;
+.audioMeterDiv{
     position: absolute;
+    width: 26px;
+    height: 130px;
+    left: 221px;
+    top: 296px;
+}
+
+.audioMeterBackground{
     width: 26px;
     height: 104px;
     left: 221px;
