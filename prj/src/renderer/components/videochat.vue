@@ -468,7 +468,6 @@ export default {
     font-weight: 400;
     color: #FFFFFF;
     line-height: 22px;
-    letter-spacing: 2px;
 }
 
 .stateText{
