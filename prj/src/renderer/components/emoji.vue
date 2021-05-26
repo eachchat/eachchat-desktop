@@ -1,6 +1,6 @@
 <template>
     <div class="emojiDiv">
-      <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" :style="{fontSize: ind % 2 ? fontSize : null,
+      <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" :style="{fontSize: (ind % 2 && item !== '。') ? fontSize : null,
         paddingLeft: '1px', paddingRight: '1px'}">{{item}}</span>
     </div>
 </template>
@@ -53,6 +53,9 @@ export default {
         let codedText = this.text.replace(new RegExp(ranges.join('|'), 'g'), function(emoji){
             return `%-special-code-%${emoji}%-special-code-%`
           });
+        console.log("emoji")
+        console.log(this.text)
+        console.log(codedText)
         return codedText.split('%-special-code-%')
       },
     }
