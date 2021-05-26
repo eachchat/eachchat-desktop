@@ -249,12 +249,6 @@ export default {
             if(videoElm){
                 videoElm.volume = this.nVoice / 100;
             }
-            if(this.nVoice == 0){
-                this.isMute = false;
-            }
-            else{
-                this.isMute = true;
-            }
         },
 
         createChat(roomInfo){
