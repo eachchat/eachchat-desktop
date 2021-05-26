@@ -319,7 +319,7 @@ export default {
     width: 96px;
     height: 170px;
     margin: 8px 8px 0 0;
-    border: 1px solid rgba(0, 0, 0, 255);
+    background: #4A4C5B;
 }
 
 .top-stick{
