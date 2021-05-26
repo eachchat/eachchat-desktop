@@ -130,15 +130,10 @@ function _setVideoCallListeners(call, videoCall) {
 class mxVoIP{
     constructor(){
         this.videochat = null;
-        this.voicechat = null;
     }
 
     setVideoChat(videochat){
         this.videochat = videochat;
-    }
-
-    setVoiceChat(voicechat){
-        this.voicechat = voicechat;
     }
 
     async createMatrix(){
