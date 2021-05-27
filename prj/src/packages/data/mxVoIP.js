@@ -82,7 +82,7 @@ function _setVideoCallListeners(call, videoCall) {
         }
         else{
             console.log("call is ", call);
-            console.log("====to hangup and call state is ", call.call_state);
+            // console.log("====to hangup and call state is ", call.call_state);
             videoCall.afterCallState();
         }
     });

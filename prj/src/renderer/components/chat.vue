@@ -1701,7 +1701,7 @@ export default {
                             "contains_url": true,
                             "types": [
                                 "m.room.message", 
-                                'm.call.invite'
+                                'm.call.hangup'
                             ],
                         },
                     },
@@ -3383,7 +3383,7 @@ export default {
         },
 
         messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.invite'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
+            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.hangup'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
             return false;
         },
 
@@ -3761,7 +3761,7 @@ export default {
                         "timeline": {
                             "types": [
                                 "m.room.message",
-                                'm.call.invite'
+                                'm.call.hangup'
                             ],
                         },
                     },
@@ -4424,7 +4424,7 @@ export default {
                     }
                     else{
                         if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) && 
-                            (['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
+                            (['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
                             this.newMsgNum += 1;
                             this.haveNewMsg = true;
                         }

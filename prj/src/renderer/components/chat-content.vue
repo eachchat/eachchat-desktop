@@ -1144,7 +1144,7 @@ export default {
       if(room.timeline) {
         for(var i=room.timeline.length-1;i>=0;i--) {
           var timeLineTmp = room.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.room.create', "m.call.invite"].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create', "m.call.hangup"].indexOf(timeLineTmp.getType()) >= 0) {
             if(!timeLineTmp.isRedacted()) {
               return timeLineTmp.event.origin_server_ts;
             }
@@ -1291,7 +1291,7 @@ export default {
             return sender + ":[聊天记录]";
           }
       }
-      // else if(chatGroupMsgType === "m.call.invite") {
+      // else if(chatGroupMsgType === "m.call.hangup") {
       //   let isVoice = true;
       //   if (chatGroupMsgContent.offer && chatGroupMsgContent.offer.sdp &&
       //           chatGroupMsgContent.offer.sdp.indexOf('m=video') !== -1) {
@@ -1413,7 +1413,7 @@ export default {
       else {
         this.dealingEventIds.push(ev.event.event_id);
       }
-      if(ev.event.type.indexOf("m.call.") >= 0 && ev.event.type != "m.call.invite") {
+      if(ev.event.type.indexOf("m.call.") >= 0) {
         return;
       };
       if(this.isFirstLogin) {
@@ -1525,7 +1525,7 @@ export default {
       fromName = await this.getNoticeShowGroupName(groupInfo);
       // console.log("*** title is ", notificateContent)
       // console.log("*** fromName is ", fromName)
-      if(!this.groupIsSlience(groupInfo) || newMsg.event.type == "m.call.invite") {
+      if(!this.groupIsSlience(groupInfo)) {
         this.showNotice(fromName, notificateContent);
       }
       else {
@@ -2139,7 +2139,7 @@ export default {
               }
             }
         }
-        else if(chatGroupMsgType === "m.call.invite") {
+        else if(chatGroupMsgType === "m.call.hangup") {
           var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
           if(sender.userId) {
             sender = sender.userId;
@@ -3352,7 +3352,7 @@ export default {
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', "m.call.invite"].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', "m.call.hangup"].indexOf(timeLineTmp.getType()) >= 0) {
             if(!timeLineTmp.isRedacted()) {
               return [timeLineTmp, distTimeItem];
             }
@@ -3370,7 +3370,7 @@ export default {
       await _timelineWindow.load(undefined, 20);
       var originalFileListInfo = _timelineWindow.getEvents();
       originalFileListInfo.forEach((item) => {
-        if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(item.getType()) >= 0) {
+        if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
             if(!item.isRedacted()) {
               distItem = item;
               return;
@@ -3382,7 +3382,7 @@ export default {
           await _timelineWindow.paginate("b", 20);
           fileListInfoTmp = await _timelineWindow.getEvents();
           fileListInfoTmp.forEach((item) => {
-            if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(item.getType()) >= 0) {
+            if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
               if(!item.isRedacted()) {
                 distItem = item;
                 return[undefined, undefined];
@@ -3442,7 +3442,7 @@ export default {
                         "types": [
                             "m.room.message",
                             "m.room.create",
-                            "m.call.invite"
+                            "m.call.hangup"
                         ],
                     },
                 },
@@ -3456,7 +3456,7 @@ export default {
         return timelineSet;
     },
     messageFilter(event){
-        if(['m.room.message', 'm.room.create', "m.call.invite"].indexOf(event.getType()) >= 0) return true;
+        if(['m.room.message', 'm.room.create', "m.call.hangup"].indexOf(event.getType()) >= 0) return true;
         return false;
     },
     SetGroupItemGround(id){

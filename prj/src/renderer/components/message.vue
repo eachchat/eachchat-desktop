@@ -33,7 +33,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
@@ -93,7 +93,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
@@ -1137,7 +1137,7 @@ export default {
                     this.messageContent = "无法识别的消息类型";
                 }
             }
-            else if(chatGroupMsgType === "m.call.invite") {
+            else if(chatGroupMsgType === "m.call.hangup") {
                 console.log("add new invite msg content ", this.msg.event.content)
                 this.callId = this.msg.event.content.call_id;
                 this.isVoice = true;
@@ -1145,12 +1145,13 @@ export default {
                         event.content.offer.sdp.indexOf('m=video') !== -1) {
                     this.isVoice = false;
                 }
+                this.duration = this.msg.event.content.duration;
                 this.generalVoipInfo();
             }
             else if(chatGroupMsgType === "m.call.candidates") {
                 console.log("add new candidates msg content ", this.msg.event.content)
             }
-            else if(chatGroupMsgType === "m.call.hangup") {
+            else if(chatGroupMsgType === "m.call.invite") {
                 console.log("add new hangup msg content ", this.msg.event.content)
             }
             else if(chatGroupMsgType === "m.call.answer") {
@@ -1536,6 +1537,7 @@ export default {
             isVoice: true,
             callId: '',
             VoipInfo: {},
+            duration: 0,
             isDownloading: false,
             playingAudioId: '',
             decrypting: false,

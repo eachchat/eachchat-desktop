@@ -26,14 +26,18 @@ export default {
         isVoice: {
             type: Boolean,
             default: true
+        },
+        duration: {
+            type: Number,
+            default: -1
         }
     },
     data () {
         return {
-            voipTimeLabel: "通话时长 ",
-            voipTime: "00:00",
+            voipTimeLabel: "",
+            voipTime: "",
             roomId: "",
-            voipType: "voice",
+            voipType: "",
             userInfo: {},
         }
     },
@@ -65,6 +69,7 @@ export default {
         callId: function() {
             setTimeout(() => {
                 this.$nextTick(() => {
+                    this.voipTimeLabel = this.isVoice ? "语音通话" : "视频通话";
                     let msgElement = document.getElementById(this.callId);
                     if(msgElement) {
                         if(this.isMine) {
@@ -78,6 +83,41 @@ export default {
                             msgElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
                             msgElement.style.color = "rgba(0, 0, 0, 1)";
                         }
+                    }
+                    let duration = this.duration/1000;
+                    console.log("========= duration is ", this.duration)
+                    if(this.duration != -1) {
+                        let nHour = Math.floor(duration / 3600);
+                        let nMinute = Math.floor(duration / 60) % 60;
+                        let nSec = duration % 60;
+                        let str = "";
+                        if(nHour != 0){
+                            str += nHour;
+                            str += ":"
+                        }
+                        if(nMinute > 10){
+                            str += nMinute;
+                        }
+                        else{
+                            str += "0";
+                            str += nMinute;
+                        }
+                        str += ":"
+                        if(nSec > 10){
+                            str += nSec
+                        }
+                        else{
+                            str += "0";
+                            str += nSec;
+                        }
+                        
+
+                        msgElement.style.width = "158px";
+                        this.voipTimeLabel = "通话时长：";
+                        this.voipTime = str;
+                    }
+                    else {
+                        msgElement.style.width = "108px";
                     }
                 })
             }, 0)
@@ -95,7 +135,7 @@ export default {
     .chat-msg-content-voip {
         float:right;
         // background-color: rgba(82, 172, 68, 1);
-        width: 148px;
+        width: 108px;
         height: 40px;
         border-radius: 5px;
         text-align: left;
