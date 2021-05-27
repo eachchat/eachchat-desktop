@@ -48,8 +48,8 @@
             <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
             <div class = "hangup-icon" @click="afterCallState"></div>
             <div class = "voice-icon" @click="voiceClick"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1">
-                <img v-if = "this.nVoice !== '0'" src="../../../static/Img/VoIP/voice.svg">
-                <img v-else src = "../../../static/Img/VoIP/slience.svg">
+                <img id = "voice-icon-id" src="../../../static/Img/VoIP/voice.svg" v-if = "this.nVoice !== '0'">
+                <img src = "../../../static/Img/VoIP/slience.svg" v-else>
             </div>
             <span class = "mute-text">静音</span>
             <span class = "voice-text">音量</span>
@@ -376,6 +376,16 @@ export default {
     background-image: url("../../../static/Img/VoIP/muteMicphone.svg"); 
 }
 
+.mute-icon:hover{
+    position: absolute;
+    z-index: 1;
+    left: 44px;
+    top: 404px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/muteMicphone-hover.svg"); 
+}
+
 .unmute-icon{
     position: absolute;
     z-index: 1;
@@ -396,6 +406,16 @@ export default {
     background-image: url("../../../static/Img/VoIP/hangup.svg"); 
 }
 
+.hangup-icon:hover{
+    position: absolute;
+    z-index: 1;
+    left: 128px;
+    top: 404px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/hangup-hover.svg"); 
+}
+
 .voice-icon{
     position: absolute;
     z-index: 1;
@@ -404,6 +424,10 @@ export default {
     width: 44px;
     height: 44px;
 }
+
+#voice-icon-id:hover {
+ content:url("../../../static/Img/VoIP/voice-hover.svg");
+} 
 
 .change-camera-text{
     z-index: 1;
@@ -537,6 +561,16 @@ export default {
     width: 44px;
     height: 44px;
     background-image: url("../../../static/Img/VoIP/hangup.svg"); 
+}
+
+.comming-hangup-icon{
+    position: absolute;
+    z-index: 1;
+    left: 60px;
+    top: 404px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/hangup-hover.svg"); 
 }
 
 .comming-answer-icon{
