@@ -85,7 +85,6 @@ export default {
                         }
                     }
                     let duration = this.duration/1000;
-                    console.log("========= duration is ", this.duration)
                     if(this.duration != -1) {
                         let nHour = Math.floor(duration / 3600);
                         let nMinute = Math.floor(duration / 60) % 60;
