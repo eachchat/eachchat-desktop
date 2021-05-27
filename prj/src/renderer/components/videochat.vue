@@ -193,14 +193,7 @@ export default {
             else {
                 this.showStateText("邀请你语音通话");
             }
-            let url = this.roomInfo.url;
-            if(url.length != 0){
-                let imgEle = document.getElementById("video-chat-user-img");
-                if(imgEle){
-                    imgEle.src = url;
-                }
-            }
-            this.useName = this.roomInfo.name;
+            this.setCallInfo(this.roomInfo);
         },
 
         answerState(){
@@ -255,6 +248,18 @@ export default {
             }
         },
 
+        setCallInfo(roomInfo){
+            let url = roomInfo.url;
+            let imgEle = document.getElementById("video-chat-user-img");
+            if(imgEle){
+                if(url.length === 0){
+                    url = "./static/Img/User/user-40px.svg";
+                }  
+                imgEle.src = url;
+            }
+            this.useName = roomInfo.name;
+        },
+
         createChat(roomInfo){
             this.showStateText("正在接通中");
             if(roomInfo.voipType == "video") {
@@ -263,14 +268,7 @@ export default {
             else {
                 global.viopChat.voiceCall(roomInfo.roomID);
             }
-            let url = roomInfo.url;
-            if(url.length != 0){
-                let imgEle = document.getElementById("video-chat-user-img");
-                if(imgEle){
-                    imgEle.src = url;
-                }
-            }
-            this.useName = roomInfo.name;
+            this.setCallInfo(roomInfo);
         },
 
         showSmallWindow(){
