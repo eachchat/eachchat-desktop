@@ -11,9 +11,9 @@
         </ul>
         <ul class="noticeVoIPList" v-show="hasVoIP" v-on:mouseover="setToShow">
           <li class="noticeVoIP" v-for="voIPNoticeItem in voIPNoticeList" v-on:mouseover="setToShow">
-            <div class="noticeItem" @click="showVoIPPage(voIPNoticeItem)" v-on:mouseover="setToShow">
+            <div class="noticeItem" v-on:mouseover="setToShow">
               <img class="noticeItemIcon" :src="voIPNoticeItem.imgUrl" v-on:mouseover="setToShow">
-              <div class="noticeItemName" v-on:mouseover="setToShow">{{voIPNoticeItem.showContent}}</div>
+              <div class="voIPNoticeItemName" v-on:mouseover="setToShow">{{voIPNoticeItem.showContent}}</div>
             </div>
             <div class="noticeVoIPControl" v-on:mouseover="setToShow">
               <img class="noticeVoIPControlHangup" src="../../../static/Img/VoIP/noticeHangup@2x.png" @click="Hangup(voIPNoticeItem)" v-on:mouseover="setToShow">
@@ -62,6 +62,7 @@ export default {
         if(this.voIPNoticeList.length == 0) {
           this.hasVoIP = false;
         }
+        this.setToHide();
       },
       Answer(item) {
         ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
@@ -82,6 +83,7 @@ export default {
         if(this.voIPNoticeList.length == 0) {
           this.hasVoIP = false;
         }
+        this.setToHide();
       },
       async showVoIPPage(item) {
         ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
@@ -102,6 +104,7 @@ export default {
         if(this.voIPNoticeList.length == 0) {
           this.hasVoIP = false;
         }
+        this.setToHide();
       },
       clearAll() {
         let toClearRoomIds = [];
@@ -114,6 +117,7 @@ export default {
         ipcRenderer.send("checkClick", "JumpToDistChat", [item.roomId]);
       },
       setToShow() {
+        if(this.voIPNoticeList.length == 0 && this.noticeList.length == 0) return;
         clearInterval(this.hideInterval)
         ipcRenderer.send('trayNoticeShowOrNot', true);
       },
@@ -167,7 +171,7 @@ export default {
           this.noticeList.push(item);
           this.totalUnreadCount += item['unreadCount'];
         }
-        if(this.totalUnreadCount == 0) {
+        if(this.totalUnreadCount == 0 && this.voIPNoticeList.length == 0) {
           ipcRenderer.send('trayNoticeShowOrNot', false);
         }
         // this.toUpdateCurWindowInfo();
@@ -331,20 +335,6 @@ export default {
     cursor: pointer;
   }
 
-  .noticeItem:hover {
-    width: 206px;
-    height: 40px;
-    line-height: 40px;
-    font-size: 0px;
-    font-family: PingFangSC-Regular;
-    font-weight: 500;
-    padding-left: 16px;
-    padding-right: 18px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    background-color: rgba(247, 248, 250, 1);;
-  }
-
   .noticeItemIcon {
     vertical-align: middle;
     width: 36px;
@@ -362,6 +352,39 @@ export default {
     display: inline-block;
     vertical-align: middle;
     width: calc(100% - 70px);
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 500;
+    margin-left: 6px;
+    margin-right: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .noticeItemName:hover {
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(100% - 70px);
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 500;
+    margin-left: 6px;
+    margin-right: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .voIPNoticeItemName {
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(100% - 50px);
     height: 40px;
     line-height: 40px;
     font-size: 14px;

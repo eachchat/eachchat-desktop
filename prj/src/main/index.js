@@ -20,6 +20,7 @@ let mainWindow
 let noticeWindow
 let hasVoIP = false
 let noticeInfo = {}
+let voipNoticeInfo = {}
 let noticeHeight
 let noticeWindowKeepShow = false
 let assistWindow
@@ -178,16 +179,14 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     if(!noticeWindow) return;
     if(process.platform == "win32") {
       if(isLeave) {
-        if(noticeInfo && Object.keys(noticeInfo).length == 0) {
+        if((noticeInfo && Object.keys(noticeInfo).length == 0) && (voipNoticeInfo && Object.keys(voipNoticeInfo).length == 0)) {
           noticeWindow.hide();
         }
         else {
           isLeave = false;
           checkTrayLeave();
-          let showX = screenSize.width - position.x > 260 ? position.x + 20 : screenSize.width - 20 - 240 ;
-          let showY = screenSize.height - noticeHeight;
-          console.log("final show posision ", screenSize.width - 20 - 240, " y ", screenSize.height - noticeHeight)
-          noticeWindow.setPosition(showX, showY)
+          noticeWindow.setSize(240, noticeHeight);
+          calcTrayNoticePosition()
           noticeWindow.setAlwaysOnTop(true);
           noticeWindow.show();
         }
@@ -306,6 +305,14 @@ ipcMain.on('checkClick', function(event, action, ids) {
   }
 })
 
+function calcTrayNoticePosition() {
+  trayBounds = appIcon.getBounds();
+  let showX = screenSize.width - trayBounds.x + trayBounds.width/2 > 130 ? (trayBounds.x + trayBounds.width/2 - 130) : screenSize.width - 20 - 240 ;
+  let showY = screenSize.height - noticeHeight;
+  console.log("final show posision ", showX, " y ", showY)
+  noticeWindow.setPosition(showX, showY)
+}
+
 ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
   if(!noticeWindow) return;
   noticeWindowKeepShow = arg;
@@ -317,26 +324,33 @@ ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
 ipcMain.on("updateTrayNotice", function(event, arg) {
   if(process.platform == "win32" && noticeWindow) {
     noticeInfo = arg;
-    if(hasVoIP) noticeHeight = 40 + 20 + Object.keys(arg).length * 52;
-    else noticeHeight = 52 + 20 + Object.keys(arg).length * 52;
+    if(hasVoIP) {
+      noticeHeight = 40 + Object.keys(voipNoticeInfo).length * 96;
+    }
+    else {
+      noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
+    }
     noticeWindow.setSize(240, noticeHeight);
-    let showX = screenSize.width - 20 - 240;
-    let showY = screenSize.height - noticeHeight;
-    noticeWindow.setPosition(showX, showY)
+    calcTrayNoticePosition()
     noticeWindow.webContents.send("updateTrayNotice", arg);
   }
 })
 
 ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   if(arg.length == 0) hasVoIP = false;
-  else hasVoIP = true;
+  voipNoticeInfo = arg
+  if(Object.keys(arg).length == 0) {
+    noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
+    hasVoIP = false;
+  } 
+  else {
+    noticeHeight = 40 + Object.keys(voipNoticeInfo).length * 96;
+    hasVoIP = true;
+  }
   console.log("updateVoIPTrayNotice ", arg);
   if(process.platform == "win32" && noticeWindow) {
-    noticeHeight = 40 + Object.keys(arg).length * 96;
     noticeWindow.setSize(240, noticeHeight);
-    let showX = screenSize.width - 20 - 240;
-    let showY = screenSize.height - noticeHeight;
-    noticeWindow.setPosition(showX, showY)
+    calcTrayNoticePosition()
     noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
     noticeWindow.show();
   }
