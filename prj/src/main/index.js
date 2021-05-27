@@ -306,11 +306,19 @@ ipcMain.on('checkClick', function(event, action, ids) {
 })
 
 function calcTrayNoticePosition() {
-  trayBounds = appIcon.getBounds();
-  let showX = screenSize.width - trayBounds.x + trayBounds.width/2 > 130 ? (trayBounds.x + trayBounds.width/2 - 130) : screenSize.width - 20 - 240 ;
-  let showY = screenSize.height - noticeHeight;
-  console.log("final show posision ", showX, " y ", showY)
-  noticeWindow.setPosition(showX, showY)
+  if(process.platform == 'win32') {
+    trayBounds = appIcon.getBounds();
+    let showX = screenSize.width - trayBounds.x + trayBounds.width/2 > 130 ? (trayBounds.x + trayBounds.width/2 - 130) : screenSize.width - 20 - 240 ;
+    let showY = screenSize.height - noticeHeight;
+    console.log("final show posision ", showX, " y ", showY)
+    noticeWindow.setPosition(showX, showY)
+  }
+  else {
+    let showX = screenSize.width - 240 ;
+    let showY = noticeHeight;
+    console.log("final show posision ", showX, " y ", showY)
+    noticeWindow.setPosition(showX, showY)
+  }
 }
 
 ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
@@ -339,7 +347,13 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
 ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   voipNoticeInfo = arg
   if(Object.keys(arg).length == 0) {
-    noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
+    if(process.platform == "win32") {
+      noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
+    }
+    else {
+      noticeWindow.hide();
+      return;
+    }
     hasVoIP = false;
   } 
   else {
@@ -347,15 +361,11 @@ ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
     hasVoIP = true;
   }
   console.log("updateVoIPTrayNotice ", arg);
-  if(process.platform == "win32" && noticeWindow) {
+  if(noticeWindow) {
     noticeWindow.setSize(240, noticeHeight);
     calcTrayNoticePosition()
     noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
     noticeWindow.show();
-  }
-  else if(noticeWindow && Object.keys(arg).length == 0) {
-    noticeWindow.setSize(240, 0);
-    noticeWindow.hide();
   }
 })
 
@@ -1454,7 +1464,7 @@ function createWindow () {
     console.log("maximize")
     assistWindow.webContents.send("isNormal", false);
   })
-  if(process.platform == "win32") {
+  //if(process.platform == "win32") {
     noticeWindow = new BrowserWindow({
       height: 52,
       width: 240,
@@ -1478,7 +1488,7 @@ function createWindow () {
       }
     })
     openDevToolsInDevelopment(noticeWindow); 
-  }
+  //}
   var width = 615;
   var height = 508;
   if(process.platform == "darwin") {
