@@ -337,7 +337,6 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
 })
 
 ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
-  if(arg.length == 0) hasVoIP = false;
   voipNoticeInfo = arg
   if(Object.keys(arg).length == 0) {
     noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
@@ -353,6 +352,10 @@ ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
     calcTrayNoticePosition()
     noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
     noticeWindow.show();
+  }
+  else if(noticeWindow && Object.keys(arg).length == 0) {
+    noticeWindow.setSize(240, 0);
+    noticeWindow.hide();
   }
 })
 
