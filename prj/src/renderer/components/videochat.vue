@@ -32,8 +32,8 @@
         
         <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
         <div>
-            <img class = "top-stick" v-if = "bTop" src = "../../../static/Img/VoIP/top.png" @click = "unTopStick">
-            <img class = "top-stick" v-else src = "../../../static/Img/VoIP/untop.png" @click="topStick"> 
+            <img class = "top-stick" v-if = "bTop" src = "../../../static/Img/VoIP/top.svg" @click = "unTopStick">
+            <img class = "top-stick" v-else src = "../../../static/Img/VoIP/untop.svg" @click="topStick"> 
         </div>
         <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
         onerror = "this.src = './static/Img/User/user-40px@2x.png'">
@@ -354,7 +354,7 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/muteMicphone.png"); 
+    background-image: url("../../../static/Img/VoIP/muteMicphone.svg"); 
 }
 
 .unmute-icon{
@@ -364,7 +364,7 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/mutedMicphone.png"); 
+    background-image: url("../../../static/Img/VoIP/mutedMicphone.svg"); 
 }
 
 .hangup-icon{
@@ -374,7 +374,7 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/hangup.png"); 
+    background-image: url("../../../static/Img/VoIP/hangup.svg"); 
 }
 
 .voice-icon{
@@ -384,7 +384,7 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/voice.png"); 
+    background-image: url("../../../static/Img/VoIP/voice.svg"); 
 }
 
 .change-camera-text{
@@ -518,7 +518,7 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/hangup.png"); 
+    background-image: url("../../../static/Img/VoIP/hangup.svg"); 
 }
 
 .comming-answer-icon{
@@ -528,7 +528,7 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/answer.png"); 
+    background-image: url("../../../static/Img/VoIP/answer.svg"); 
 }
 
 .chat-time{
