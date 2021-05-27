@@ -47,7 +47,10 @@
             <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
             <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
             <div class = "hangup-icon" @click="afterCallState"></div>
-            <div class = "voice-icon"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1"></div>
+            <div class = "voice-icon" @click="voiceClick"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1">
+                <img v-if = "this.nVoice !== '0'" src="../../../static/Img/VoIP/voice.svg">
+                <img v-else src = "../../../static/Img/VoIP/slience.svg">
+            </div>
             <span class = "mute-text">静音</span>
             <span class = "voice-text">音量</span>
             <span class = "hangup-text">挂断</span>
@@ -65,6 +68,7 @@ export default {
             bSmallWindow: false,
             isMute: true,
             nVoice: 100,
+            nOldVoice: 0,
             useName: "",
             stateText: "",
             bShowStateText: true,
@@ -109,6 +113,21 @@ export default {
     },
 
     methods:{
+        voiceClick(){
+            let videoElm = document.getElementById("remoteAudio");
+            if(videoElm){
+                if(videoElm.volume !== 0){
+                    videoElm.volume = 0;
+                    this.nOldVoice = this.nVoice;
+                    this.nVoice = "0";
+                }
+                else{
+                    this.nVoice = this.nOldVoice;
+                    videoElm.volume = this.nVoice / 100;
+                }   
+            }
+        },
+
         showVoiceInput1(){
             this.bShowVoice1 = true;
         },
@@ -384,7 +403,6 @@ export default {
     top: 404px;
     width: 44px;
     height: 44px;
-    background-image: url("../../../static/Img/VoIP/voice.svg"); 
 }
 
 .change-camera-text{
