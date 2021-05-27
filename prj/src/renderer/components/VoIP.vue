@@ -44,12 +44,12 @@ export default {
     methods: {
        getVoipImg() {
            if(this.isVoice) {
-               if(this.isMine) return "../../../static/Img/Chat/VoIPVoiceMine@2x.png";
-               else return "../../../static/Img/Chat/VoIPVoiceOthers@2x.png";
+               if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
+               else return "./static/Img/Chat/VoIPVoiceOthers.svg";
            } 
            else {
-               if(this.isMine) return "../../../static/Img/Chat/VoIPVideoMine@2x.png";
-               else return "../../../static/Img/Chat/VoIPVideoOthers@2x.png";
+               if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
+               else return "./static/Img/Chat/VoIPVideoOthers.svg";
            }
        },
        callBack() {

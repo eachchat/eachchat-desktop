@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>视频消息-20px</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="20" height="20"></rect>
+    </defs>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="10.9-通话结束" transform="translate(-767.000000, -318.000000)">
+            <g id="编组" transform="translate(344.000000, 0.000000)">
+                <g id="聊天区" transform="translate(0.000000, 56.000000)">
+                    <g id="语音" transform="translate(411.000000, 252.000000)">
+                        <g transform="translate(12.000000, 10.000000)" id="视频消息-20px">
+                            <mask id="mask-2" fill="white">
+                                <use xlink:href="#path-1"></use>
+                            </mask>
+                            <g id="矩形"></g>
+                            <path d="M12.3709677,5 C12.994515,5 13.5,5.50548499 13.5,6.12903233 L13.5,13.8709677 C13.5,14.494515 12.994515,15 12.3709677,15 L2.62903233,15 C2.00548499,15 1.5,14.494515 1.5,13.8709677 L1.5,6.12903233 C1.5,5.50548499 2.00548499,5 2.62903233,5 L12.3709677,5 Z M18.3442714,5.9278829 C18.44424,6.03284995 18.5,6.17224988 18.5,6.31720439 L18.5,13.6827956 C18.5,13.9945693 18.2472575,14.2473118 17.9354838,14.2473118 C17.7905293,14.2473118 17.6511294,14.1915518 17.5461623,14.0915832 L15,11.6666667 L15,8.33333333 L17.5461623,5.90841682 C17.7719295,5.6934005 18.1292551,5.70211576 18.3442714,5.9278829 Z" id="形状结合" fill="#FFFFFF" fill-rule="nonzero" mask="url(#mask-2)"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
