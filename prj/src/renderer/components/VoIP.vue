@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import {mxVoIP} from "../../packages/data/mxVoIP";
+import {ComponentUtil} from '../script/component-util.js';
 import {ipcRenderer} from 'electron';
 export default {
     name: 'VoIP',
@@ -84,33 +84,10 @@ export default {
                             msgElement.style.color = "rgba(0, 0, 0, 1)";
                         }
                     }
-                    let duration = this.duration/1000;
+                   
                     if(this.duration != -1) {
-                        let nHour = Math.floor(duration / 3600);
-                        let nMinute = Math.floor(duration / 60) % 60;
-                        let nSec = duration % 60;
-                        let str = "";
-                        if(nHour != 0){
-                            str += nHour;
-                            str += ":"
-                        }
-                        if(nMinute > 10){
-                            str += nMinute;
-                        }
-                        else{
-                            str += "0";
-                            str += nMinute;
-                        }
-                        str += ":"
-                        if(nSec > 10){
-                            str += nSec
-                        }
-                        else{
-                            str += "0";
-                            str += nSec;
-                        }
-                        
-
+                        let duration = Math.floor(this.duration/1000);
+                        let str = ComponentUtil.numToTime(duration);
                         msgElement.style.width = "158px";
                         this.voipTimeLabel = "通话时长：";
                         this.voipTime = str;

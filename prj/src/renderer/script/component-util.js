@@ -231,6 +231,33 @@ const ComponentUtil = {
         return linkHight;
     },
 
+    numToTime(num){
+        let nHour = Math.floor(num / 3600);
+        let nMinute = Math.floor(num / 60) % 60;
+        let nSec = num % 60;
+        let str = "";
+        if(nHour != 0){
+            str += nHour;
+            str += ":"
+        }
+        if(nMinute > 10){
+            str += nMinute;
+        }
+        else{
+            str += "0";
+            str += nMinute;
+        }
+        str += ":"
+        if(nSec > 10){
+            str += nSec
+        }
+        else{
+            str += "0";
+            str += nSec;
+        }
+        return str;
+    }
+
 }
 
 export{

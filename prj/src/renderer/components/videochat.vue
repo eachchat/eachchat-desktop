@@ -61,6 +61,7 @@
 
 <script>
 import {ipcRenderer} from 'electron'
+import {ComponentUtil} from '../script/component-util.js';
 
 export default {
     data(){
@@ -154,30 +155,7 @@ export default {
         },
 
         getChatTime(){
-            let nHour = Math.floor(this.nTime / 3600);
-            let nMinute = Math.floor(this.nTime / 60) % 60;
-            let nSec = this.nTime % 60;
-            let str = "";
-            if(nHour != 0){
-                str += nHour;
-                str += ":"
-            }
-            if(nMinute > 10){
-                str += nMinute;
-            }
-            else{
-                str += "0";
-                str += nMinute;
-            }
-            str += ":"
-            if(nSec > 10){
-                str += nSec
-            }
-            else{
-                str += "0";
-                str += nSec;
-            }
-            return str;
+            return ComponentUtil.numToTime(this.nTime);
         },
 
         beforeCallState(){
