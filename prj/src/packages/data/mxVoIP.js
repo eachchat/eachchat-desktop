@@ -249,10 +249,11 @@ class mxVoIP{
         }
     }
 
-    hangUp(room_id) {
+    hangUp(room_id, time) {
         try{
             if (global.mxMatrixClientPeg.getCall(room_id)) {
                 console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
+                global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
                 global.mxMatrixClientPeg.getCall(room_id).hangup();
                 
                 console.log("====to hangup and call state is ", global.mxMatrixClientPeg.getCall(room_id).call_state);

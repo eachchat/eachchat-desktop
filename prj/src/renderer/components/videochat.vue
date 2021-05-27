@@ -201,7 +201,7 @@ export default {
         },
 
         afterCallState(){
-            global.viopChat.hangUp(this.roomInfo.roomID);
+            global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000);
             ipcRenderer.send("hideVideoChat");
             this.hideStateText();
             clearInterval(this.chatTime);
@@ -301,7 +301,7 @@ export default {
 
         closeWindow(){
             if(this.roomInfo && this.roomInfo.roomID){
-                global.viopChat.hangUp(this.roomInfo.roomID);
+                global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000);
                 this.hideStateText();
             }
         },
