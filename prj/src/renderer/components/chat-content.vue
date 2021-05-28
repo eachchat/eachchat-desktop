@@ -1413,7 +1413,7 @@ export default {
       else {
         this.dealingEventIds.push(ev.event.event_id);
       }
-      if(ev.event.type.indexOf("m.call.") >= 0) {
+      if(ev.event.type.indexOf("m.call.") >= 0 && ev.event.type != "m.call.hangup") {
         return;
       };
       if(this.isFirstLogin) {
