@@ -55,7 +55,11 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build_mac/entitlements.mac.plist",
-      "entitlementsInherit": "build_mac/entitlements.mac.plist"
+      "entitlementsInherit": "build_mac/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "请允许本程序访问您的麦克风",
+        "NSCameraUsageDescription": "请允许本程序访问您的摄像头"
+      }
     },
     "afterSign": "scripts/notarize.js",
     "win": {
