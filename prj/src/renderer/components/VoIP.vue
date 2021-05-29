@@ -1,5 +1,5 @@
 <template>
-    <div class="chat-msg-content-voip" :id="callId" v-on:click="callBack()" >
+    <div class="chat-msg-content-voip" :id="generalId()" v-on:click="callBack()" >
         <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
         <div class="voip-time" alt="通话时长 " style="vertical-align:middle">{{voipTimeLabel + voipTime}}</div>
     </div>
@@ -39,38 +39,44 @@ export default {
             roomId: "",
             voipType: "",
             userInfo: {},
+            voipElementId: "",
         }
     },
     methods: {
-       getVoipImg() {
-           if(this.isVoice) {
-               if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
-               else return "./static/Img/Chat/VoIPVoiceOthers.svg";
-           } 
-           else {
-               if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
-               else return "./static/Img/Chat/VoIPVideoOthers.svg";
-           }
-       },
-       callBack() {
-        //    mxVoIP.voiceCall(this.roomId);
-        let theType = this.isVoice == true ? "voice" : "video"
-        console.log("======= theType ", theType)
-            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                size:{width:300,height: 480},
-                roomInfo: { roomID: this.roomId,
-                            name: this.userInfo.userName,
-                            url:this.userInfo.userImg,
-                            voipType: this.isVoice == true ? "voice" : "video",
-                            action: "call"}});
-       }
+        generalId() {
+            let id = this.callId + "-" + Math.random().toString(36).slice(6);
+            this.voipElementId = id;
+            return id;
+        },
+        getVoipImg() {
+            if(this.isVoice) {
+                if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
+                else return "./static/Img/Chat/VoIPVoiceOthers.svg";
+            } 
+            else {
+                if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
+                else return "./static/Img/Chat/VoIPVideoOthers.svg";
+            }
+        },
+        callBack() {
+            //    mxVoIP.voiceCall(this.roomId);
+            let theType = this.isVoice == true ? "voice" : "video"
+            console.log("======= theType ", theType)
+                ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                    size:{width:300,height: 480},
+                    roomInfo: { roomID: this.roomId,
+                                name: this.userInfo.userName,
+                                url:this.userInfo.userImg,
+                                voipType: this.isVoice == true ? "voice" : "video",
+                                action: "call"}});
+        }
     },
     watch: {
         callId: function() {
             setTimeout(() => {
                 this.$nextTick(() => {
                     this.voipTimeLabel = this.isVoice ? "语音通话" : "视频通话";
-                    let msgElement = document.getElementById(this.callId);
+                    let msgElement = document.getElementById(this.voipElementId);
                     if(msgElement) {
                         if(this.isMine) {
                             msgElement.style.float = "right";
