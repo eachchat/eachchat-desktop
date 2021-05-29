@@ -18,7 +18,6 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let noticeWindow
-let hasVoIP = false
 let noticeInfo = {}
 let voipNoticeInfo = {}
 let noticeHeight
@@ -332,7 +331,7 @@ ipcMain.on("trayNoticeShowOrNot", function(event, arg) {
 ipcMain.on("updateTrayNotice", function(event, arg) {
   if(process.platform == "win32" && noticeWindow) {
     noticeInfo = arg;
-    if(hasVoIP) {
+    if(Object.keys(voipNoticeInfo).length != 0) {
       noticeHeight = 40 + Object.keys(voipNoticeInfo).length * 96;
     }
     else {
@@ -348,19 +347,12 @@ ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   voipNoticeInfo = arg
   if(Object.keys(arg).length == 0) {
     if(process.platform == "win32") {
-      noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
-      // noticeWindow.hide();
-      // return;
-    }
-    else {
       noticeWindow.hide();
       return;
     }
-    hasVoIP = false;
   } 
   else {
     noticeHeight = 40 + Object.keys(voipNoticeInfo).length * 96;
-    hasVoIP = true;
   }
   console.log("updateVoIPTrayNotice ", arg);
   if(noticeWindow) {

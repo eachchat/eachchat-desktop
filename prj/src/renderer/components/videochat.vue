@@ -169,7 +169,7 @@ export default {
                 this.hideStateText();
             }
             else{
-                this.stateText = "已接通"
+                this.showStateText("已接通");
             }
             
             this.state = "connected"

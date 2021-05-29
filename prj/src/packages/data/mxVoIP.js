@@ -210,13 +210,9 @@ class mxVoIP{
         
         let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
         let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-        console.log("=====dist url is ", distUrl instanceof String)
-        console.log("=====dist url is ", !distUrl)
         if(!distUrl || (distUrl && distUrl == '')) {
-            console.log("=====dist url is ", distUrl)
             distUrl = "./static/Img/User/user-40px@2x.png";
         }
-        console.log("=====dist url is ", distUrl)
         let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
 
         if(noticeType === 'video'){
@@ -228,7 +224,7 @@ class mxVoIP{
                 roomId: checkRoom.roomId,
                 notictType: noticeType
             }   
-            let trayNoticeInfo = [];
+            let trayNoticeInfo = {};
             trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
             console.log("====ru show notice ");
             ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
@@ -242,7 +238,7 @@ class mxVoIP{
                 roomId: checkRoom.roomId,
                 notictType: noticeType
             }   
-            let trayNoticeInfo = [];
+            let trayNoticeInfo = {};
             trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
             console.log("====ru show notice ");
             ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
@@ -329,7 +325,7 @@ class mxVoIP{
 
     async updateTrayNotice() {
         let calls = global.mxMatrixClientPeg.getCall();
-        let trayNoticeInfo = [];
+        let trayNoticeInfo = {};
         for(let i = 0; i < calls.length; i++) {
             let checkCall = calls[i];
             if(checkCall.state == "ringing") {
