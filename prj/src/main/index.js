@@ -346,10 +346,8 @@ ipcMain.on("updateTrayNotice", function(event, arg) {
 ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   voipNoticeInfo = arg
   if(Object.keys(arg).length == 0) {
-    if(process.platform == "win32") {
       noticeWindow.hide();
       return;
-    }
   } 
   else {
     noticeHeight = 40 + Object.keys(voipNoticeInfo).length * 96;
