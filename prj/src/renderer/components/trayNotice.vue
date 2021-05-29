@@ -163,7 +163,7 @@ export default {
           }
           this.VoIPUnreadCount +=1 ;
         }
-        this.unreadLabel = "新消息" + (this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "";
+        this.unreadLabel = "新消息" + ((this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "");
       },
       updateNoticeContent(event, NoticeContent) {
         // let trayNoticeObj = {
@@ -183,7 +183,7 @@ export default {
         if(!this.hasMsg && !this.hasVoIP) {
           ipcRenderer.send('trayNoticeShowOrNot', false);
         }
-        this.unreadLabel = "新消息" + (this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "";
+        this.unreadLabel = "新消息" + ((this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "");
       },
       getUnreadClass(num) {
         if(num > 99) {
@@ -207,7 +207,7 @@ export default {
           
           this.hasVoIP = true;
         }
-        this.unreadLabel = "新消息" + (this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "";
+        this.unreadLabel = "新消息" + ((this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "");
       },
       noticeList: function() {
         if(this.noticeList.length == 0) {
@@ -216,7 +216,7 @@ export default {
         else {
           this.hasMsg = true;
         }
-        this.unreadLabel = "新消息" + (this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "";
+        this.unreadLabel = "新消息" + ((this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + this.MsgUnreadCount + this.VoIPUnreadCount + "）" : "");
       }
     }
 }
