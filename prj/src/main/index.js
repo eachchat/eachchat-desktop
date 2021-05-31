@@ -358,6 +358,7 @@ ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
     noticeWindow.setSize(240, noticeHeight);
     calcTrayNoticePosition()
     noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
+    noticeWindow.setAlwaysOnTop(true);
     noticeWindow.show();
   }
 })

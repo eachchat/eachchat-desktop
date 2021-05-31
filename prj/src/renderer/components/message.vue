@@ -33,7 +33,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
@@ -93,7 +93,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVoice="isVoice" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
@@ -685,7 +685,13 @@ export default {
             }
         },
         getMsgImgIcon: function() {
-            var distUrl = (this.msg.event.content.info && this.msg.event.content.info.thumbnail_url && this.msg.event.content.info.thumbnail_url.length != 0) ? this.msg.event.content.info.thumbnail_url : this.msg.event.content.url;
+            let distUrl = "";
+            if(this.isShowThumbnail()) {
+                distUrl = this.msg.event.content.info.thumbnail_url;
+            }
+            else {
+                distUrl = this.msg.event.content.url;
+            }
             if(!distUrl.startsWith('blob:')) {
                 let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
                 this.downLoadImg(iconPath);
@@ -741,7 +747,7 @@ export default {
         generalVoipInfo: async function() {
             // :isMine="MsgIsMine()" :voipType="getVoipType()" :roomId="this.msg.event.room_id"
             const voipInfo = {};
-            voipInfo["voipType"] = this.isVoice ? "voice" : "video";
+            voipInfo["voipType"] = this.isVideo == 1 ? "video" : "voice";
             voipInfo["roomId"] = this.msg.event.room_id;
             const voipShowUserInfo = {};
 
@@ -906,9 +912,26 @@ export default {
                 })
             }
         },
+        isShowThumbnail: function(){
+            var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
+            if(chatGroupMsgContent.info && Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h) > 400 && chatGroupMsgContent.info.thumbnail_info && chatGroupMsgContent.info.thumbnail_url && chatGroupMsgContent.info.thumbnail_info.w && chatGroupMsgContent.info.thumbnail_info.h) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
         getImageStyle: function() {
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             let maxSize = 400;
+            let distUrl = "";
+            if(this.isShowThumbnail()) {
+                distUrl = chatGroupMsgContent.info.thumbnail_url;
+            }
+            else {
+                distUrl = chatGroupMsgContent.info.url;
+            }
+            
 
             let showWidth = maxSize;
             let showHeight = maxSize;
@@ -962,7 +985,7 @@ export default {
                     console.log("*** from image is ", style);
                     return style;
                 }
-                img.src = this.msg.event.content.url;
+                img.src = distUrl;
             }
             else {
                 if(chatGroupMsgContent.info) {
@@ -1069,8 +1092,14 @@ export default {
                     let info = {
                     };
 
-                    if(chatGroupMsgContent.info)
-                        info = chatGroupMsgContent.info;
+                    if(chatGroupMsgContent.info){
+                        if(chatGroupMsgContent.info.thumbnail_info) {
+                            info = chatGroupMsgContent.info.thumbnail_info;
+                        }
+                        else {
+                            info = chatGroupMsgContent.info;
+                        }
+                    }
 
                     if(info.size)
                         this.fileSizeNum = getFileSizeByNumber(info.size);
@@ -1140,12 +1169,10 @@ export default {
             else if(chatGroupMsgType === "m.call.hangup") {
                 console.log("add new invite msg content ", this.msg.event.content)
                 this.callId = this.msg.event.content.call_id;
-                this.isVoice = true;
-                if (event.content.offer && event.content.offer.sdp &&
-                        event.content.offer.sdp.indexOf('m=video') !== -1) {
-                    this.isVoice = false;
+                if(this.msg.event.content.isVideo) {
+                    this.isVideo = this.msg.event.content.isVideo == true ? 1 : 0;
+                    this.duration = this.msg.event.content.duration;
                 }
-                this.duration = this.msg.event.content.duration;
                 this.generalVoipInfo();
             }
             else if(chatGroupMsgType === "m.call.candidates") {
@@ -1534,10 +1561,10 @@ export default {
     },
     data() {
         return {
-            isVoice: true,
+            isVideo: -1,
             callId: '',
             VoipInfo: {},
-            duration: 0,
+            duration: -1,
             isDownloading: false,
             playingAudioId: '',
             decrypting: false,

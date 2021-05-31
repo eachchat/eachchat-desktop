@@ -1,7 +1,16 @@
 <template>
     <div class="chat-msg-content-voip" :id="generalId()" v-on:click="callBack()" >
-        <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
-        <div class="voip-time" alt="通话时长 " style="vertical-align:middle">{{voipTimeLabel + voipTime}}</div>
+        <div class="voipWithoutTimeAndType" v-show="isVideoAndDuration()">
+            <div class="voip-notype-notime" alt="通话结束" style="vertical-align:middle">{{voipTimeLabel}}</div>
+        </div>
+        <div class="voipTimeZero" v-show="duration == 0">
+            <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
+            <div class="voip-notime" alt="通话结束" style="vertical-align:middle">{{voipTimeLabel}}</div>
+        </div>
+        <div class="voipTime" v-show="duration > 0">
+            <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
+            <div class="voip-time" alt="通话结束" style="vertical-align:middle">{{voipTimeLabel + voipTime}}</div>
+        </div>
     </div>
 </template>
 
@@ -23,9 +32,9 @@ export default {
             type: Object,
             default: {}
         },
-        isVoice: {
-            type: Boolean,
-            default: true
+        isVideo: {
+            type: Number,
+            default: -1
         },
         duration: {
             type: Number,
@@ -43,31 +52,36 @@ export default {
         }
     },
     methods: {
+        isVideoAndDuration() {
+            return (this.isVideo == -1 || this.duration == -1);
+        },
         generalId() {
             let id = this.callId + "-" + Math.random().toString(36).slice(6);
             this.voipElementId = id;
             return id;
         },
         getVoipImg() {
-            if(this.isVoice) {
-                if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
-                else return "./static/Img/Chat/VoIPVoiceOthers.svg";
-            } 
-            else {
+            if(this.isVideo == 1) {
                 if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
                 else return "./static/Img/Chat/VoIPVideoOthers.svg";
+            } 
+            else if(this.isVideo == 0) {
+                if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
+                else return "./static/Img/Chat/VoIPVoiceOthers.svg";
+            }
+            else {
+                return "";
             }
         },
         callBack() {
             //    mxVoIP.voiceCall(this.roomId);
-            let theType = this.isVoice == true ? "voice" : "video"
             console.log("======= theType ", theType)
                 ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
                     size:{width:300,height: 480},
                     roomInfo: { roomID: this.roomId,
                                 name: this.userInfo.userName,
                                 url:this.userInfo.userImg,
-                                voipType: this.isVoice == true ? "voice" : "video",
+                                voipType: this.isVideo == 1 ? "video" : "voice",
                                 action: "call"}});
         }
     },
@@ -75,8 +89,21 @@ export default {
         callId: function() {
             setTimeout(() => {
                 this.$nextTick(() => {
-                    this.voipTimeLabel = this.isVoice ? "语音通话" : "视频通话";
                     let msgElement = document.getElementById(this.voipElementId);
+                    if(this.isVideo == -1 || this.duration == -1) {
+                        this.voipTimeLabel = "通话结束";
+                    }
+                    else {
+                        if(this.duration == 0) {
+                            this.voipTimeLabel = this.isVideo == 1 ? "视频通话" : "语音通话";
+                        }
+                        else {
+                            let duration = Math.floor(this.duration/1000);
+                            let str = ComponentUtil.numToTime(duration);
+                            this.voipTimeLabel = "通话时长：";
+                            this.voipTime = str;
+                        }
+                    }
                     if(msgElement) {
                         if(this.isMine) {
                             msgElement.style.float = "right";
@@ -89,17 +116,6 @@ export default {
                             msgElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
                             msgElement.style.color = "rgba(0, 0, 0, 1)";
                         }
-                    }
-                   
-                    if(this.duration != -1) {
-                        let duration = Math.floor(this.duration/1000);
-                        let str = ComponentUtil.numToTime(duration);
-                        msgElement.style.width = "158px";
-                        this.voipTimeLabel = "通话时长：";
-                        this.voipTime = str;
-                    }
-                    else {
-                        msgElement.style.width = "108px";
                     }
                 })
             }, 0)
@@ -117,12 +133,21 @@ export default {
     .chat-msg-content-voip {
         float:right;
         // background-color: rgba(82, 172, 68, 1);
-        width: 108px;
-        height: 40px;
         border-radius: 5px;
         text-align: left;
         font-size: 0px;
         margin: 0;
+    }
+
+    .voipTime {
+        float:right;
+        // background-color: rgba(82, 172, 68, 1);
+        border-radius: 5px;
+        text-align: left;
+        font-size: 0px;
+        margin: 0;
+        width: 158px;
+        height: 40px;
     }
 
     .voip-icon {
@@ -136,6 +161,34 @@ export default {
         width: calc(100% - 50px);
         height: 20px;
         margin: 10px 12px 10px 0px;
+        display: inline-block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        letter-spacing: 0px;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        font-size: 14px;
+    }
+
+    .voip-notype-notime {
+        width: 60px;
+        height: 20px;
+        margin: 10px 12px 10px 12px;
+        display: inline-block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        letter-spacing: 0px;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        font-size: 14px;
+    }
+
+    .voip-notime {
+        width: 60px;
+        height: 20px;
+        margin: 10px 12px 10px 4px;
         display: inline-block;
         white-space: pre-wrap;
         word-wrap: break-word;
