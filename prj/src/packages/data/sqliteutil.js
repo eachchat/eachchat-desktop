@@ -748,6 +748,28 @@ const Collection = {
 }
 
 const Config = {
+    async SetNewVersion(version){
+        let configs = await(await models.Config).find();
+        if(configs.length == 0){   
+            let ConfigValues = {
+                auto_start: 0,
+                new_version: version
+            }
+            let configModel = new (await models.Config)(ConfigValues);
+            configModel.save();
+        }
+        else{
+            configs[0].new_version = version;
+            configs[0].save();
+        }
+    },
+
+    async GetNewVersion(){
+        let configs = await(await models.Config).find();
+        if(configs.length === 0) return;
+        return configs[0];
+    },
+
     async SetAutoStart(value){
         let configs = await(await models.Config).find();
         let configModel;

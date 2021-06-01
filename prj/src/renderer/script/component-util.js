@@ -256,6 +256,21 @@ const ComponentUtil = {
             str += nSec;
         }
         return str;
+    },
+
+    needUpgradeVersion(oldVersion, newVersion){
+        let oldArray = oldVersion.split('.');
+        let newArray = newVersion.split('.');
+        let oldArrayLen = oldArray.length;
+        let newArrayLen = newArray.length;
+        let len = Math.min(oldArrayLen, newArrayLen);
+ 
+        for(let index = 0; index < len; index++){
+            if(parseInt(oldArray[index]) > parseInt(newArray[index])){
+                return false;
+            }
+        }
+        return true;
     }
 
 }

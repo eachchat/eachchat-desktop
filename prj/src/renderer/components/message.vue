@@ -674,6 +674,9 @@ export default {
                 const existLocalFile = await this.getFileExist();
                 if(fs.existsSync(existLocalFile)) {
                     let imgElement = document.getElementById(this.msg.event.event_id);
+                    if(!imgElement){
+                        return;
+                    }
                     var showfu = new FileUtil(existLocalFile);
                     let showfileObj = showfu.GetUploadfileobj();
                     var reader = new FileReader();

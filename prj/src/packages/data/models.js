@@ -326,7 +326,8 @@ var models = {
         storage: this.storage.sqlite,
         index: "config",
         fields: {          
-          auto_start:        types.integer
+          auto_start:        types.integer,
+          new_version:            types.string
         }
       });
     })();

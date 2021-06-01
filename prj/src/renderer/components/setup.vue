@@ -236,153 +236,39 @@ export default {
         this.showUpgradeAlertDlg = false;
         this.upgradeInfo = {};
     },
-    startCheckUpgrade: function() {
-        async function checkUpgrade(self) {
-            var newVersion = await global.services.common.GetNewVersion();
-            console.log("newversion is ", newVersion);
-            if(newVersion == undefined || newVersion == false)
-            {
-              self.showNotUpgradeAlertDlg = true;
-              self.notUpgradeContents = {
-                "Details": "目前已经是最新版本",
-                "Abstrace": "提示"
-              };
-              return;
-            }
-            else {
-                var sOsType = newVersion.osType;
-                var sUrl = newVersion.downloadUrl;
-                var sDescription = newVersion.description;
-                //let sDescription = "1.功能更新-托盘增加注销<br>2.功能更新-聊天列表宽度可拖拽调整<br>3.功能更新-当前聊天页面增加新消息提示<br>4.功能更新-增加撤回功<br>5.功能更新-增加群组删除功能<br>6.功能更新-群描述增加邮箱识别<br>7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来<br>8.修复-消息防止xss注入代码<br>9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容<br>10.修复- @用户有时候会无效的bug<br>11.修复-群组头像查看打开大图<br>12.修复- 群组成员编辑菜单位置自适应<br>13.修复 - 群成员信息隐藏公司信息<br>14.UI -整体ui中所有确认与取消的按钮间距调整"
-                sDescription = sDescription.replace(/\r\n/g, '<br>')
-                var smd5Hash = newVersion.md5Hash;
-                var sId = newVersion.id;
-                var sUpdateTime = newVersion.updateTime;
-                var sVerCode = newVersion.verCode;
-                try{
-                    var sVerCodeSplit = sVerCode.split('.');
-                }
-                catch(err) {
-                    return;
-                }
-                var sMajor_Version_Number = undefined;
-                var sMinor_Version_Number = undefined;
-                var sRevision_Number = undefined;
-                if(sVerCodeSplit.length >= 3) {
-                    sMajor_Version_Number = sVerCodeSplit[0];
-                    sMinor_Version_Number = sVerCodeSplit[1];
-                    sRevision_Number = sVerCodeSplit[2];
-                }
-                else if(sVerCodeSplit.length == 2) {
-                    sMajor_Version_Number = sVerCodeSplit[0];
-                    sMinor_Version_Number = sVerCodeSplit[1];
-                }
-                else if(sVerCodeSplit.length == 1) {
-                    sMajor_Version_Number = sVerCodeSplit[0];
-                }
-                else {
-                    return;
-                }
-
-                var packageFile = require("../../../package.json");
-                var lVersion = packageFile.version;
-
-                console.log("lVersion is ", lVersion)
-                var lVerCodeSplit = lVersion.split('.');
-                var lMajor_Version_Number = undefined;
-                var lMinor_Version_Number = undefined;
-                var lRevision_Number = undefined;
-                if(lVerCodeSplit.length >= 3) {
-                    lMajor_Version_Number = lVerCodeSplit[0];
-                    lMinor_Version_Number = lVerCodeSplit[1];
-                    lRevision_Number = lVerCodeSplit[2];
-                }
-                else if(lVerCodeSplit.length == 2) {
-                    lMajor_Version_Number = lVerCodeSplit[0];
-                    lMinor_Version_Number = lVerCodeSplit[1];
-                }
-                else if(lVerCodeSplit.length == 1) {
-                    lMajor_Version_Number = lVerCodeSplit[0];
-                }
-                else {
-                    return;
-                }
-                console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
-                console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
-                var sVerName = newVersion.verName;
-                let sProductName = sUrl.split("/").pop();
-                var sForceUpdate = newVersion.forceUpdate;
-                var needUpdate = false;
-
-                if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
-                    if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
-                        return;
-                    }
-                    else if(Number.parseInt(lMajor_Version_Number) == Number.parseInt(sMajor_Version_Number)) {
-                        if(lMinor_Version_Number != undefined && sMinor_Version_Number != undefined) {
-                            if(Number.parseInt(lMinor_Version_Number) > Number.parseInt(sMinor_Version_Number)) {
-                                self.showNotUpgradeAlertDlg = true;
-                                self.notUpgradeContents = {
-                                  "Details": "目前已经是最新版本",
-                                  "Abstrace": "提示"
-                                };
-                                return;
-                            }
-                            else if(Number.parseInt(lMinor_Version_Number) == Number.parseInt(sMinor_Version_Number)) {
-                                if(lRevision_Number != undefined && sRevision_Number != undefined) {
-                                    if(Number.parseInt(lRevision_Number) >= Number.parseInt(sRevision_Number)) {
-                                        self.showNotUpgradeAlertDlg = true;
-                                        self.notUpgradeContents = {
-                                          "Details": "目前已经是最新版本",
-                                          "Abstrace": "提示"
-                                        };
-                                        return;
-                                    }
-                                    else {
-                                        needUpdate = true;
-                                    }
-                                }
-                            }
-                            else {
-                                needUpdate = true;
-                            }
-                        }
-                    }
-                    else {
-                        needUpdate = true;
-                    }
-                }
-                
-                if(sForceUpdate != undefined && sForceUpdate){
-                    if(needUpdate) {
-                        self.upgradeInfo = {
-                            "downloadUrl": sUrl,
-                            "description": sDescription,
-                            "verName": sVerName,
-                            "productName": sProductName,
-                            "verId": sId,
-                        };
-                        self.showUpgradeAlertDlg = true;
-                    }
-                }
-                else {
-                    if(needUpdate) {
-                        self.upgradeInfo = {
-                            "downloadUrl": sUrl,
-                            "description": sDescription,
-                            "verName": sVerName,
-                            "productName": sProductName,
-                            "verId": sId,
-                        };
-                        self.showUpgradeAlertDlg = true;
-                    }
-                }
-            }
+    startCheckUpgrade: async function() {
+        var newVersion = await global.services.common.GetNewVersion();
+        console.log("newversion is ", newVersion);
+        if(newVersion == undefined || newVersion == false)
+        {
+            return;
         }
-        checkUpgrade(this);
-        setInterval(() => {
-            checkUpgrade(this);
-        }, 1000 * 3600)
+        else {
+          var packageFile = require("../../../package.json");
+          var lVersion = packageFile.version;
+          var sVerCode = newVersion.verCode;
+          var needUpdate = ComponentUtil.needUpgradeVersion(lVersion, sVerCode)
+          var sUrl = newVersion.downloadUrl;
+          var sDescription = newVersion.description;
+          sDescription = sDescription.replace(/\r\n/g, '<br>')
+          var sId = newVersion.id;
+          var sVerName = newVersion.verName;
+          let sProductName = sUrl.split("/").pop();
+          if(needUpdate) {
+              let dbVersion = await Config.GetNewVersion();
+              if(dbVersion && dbVersion.new_version === lVersion){
+                  return;
+              }
+              this.showUpgradeAlertDlg = true;
+              this.upgradeInfo = {
+                  "downloadUrl": sUrl,
+                  "description": sDescription,
+                  "verName": sVerName,
+                  "productName": sProductName,
+                  "verId": sId,
+              };
+          }
+        }
     },
     CloseownerInfo() {
       this.showOwnerDlg = false;
