@@ -694,37 +694,71 @@ export default {
             this.unReadCount = count;
         })
 
+        let backToLogin = () => {
+            global.mxMatrixClientPeg.logout();
+            ipcRenderer.send("showLoginPageWindow");
+            return;
+        }
+        
+        let getServerInfo = async (host) => {
+            var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
+            if(appServerInfo.status != 200) {
+                backToLogin();
+            }
+            if(appServerInfo.data['m.identity_server'] != undefined) {
+                global.localStorage.setItem("mx_is_url", appServerInfo.data['m.identity_server']['base_url']);
+            }
+        }
+        let checkHomeServer = async (domain, gmshost) => {
+            if(domain == "") {
+                backToLogin();
+            }
+            
+            var gmsRet = await global.services.common.newGmsConfiguration(domain, gmshost);
+            console.log("gmsRet is ", gmsRet);
+            if(!gmsRet){
+                backToLogin();
+            }
+            var host = window.localStorage.getItem("mx_hs_url");
+            if(host == null) {
+                backToLogin();
+            }
+            await getServerInfo(host);
+            var appserver = window.localStorage.getItem("app_server");
+            var loginSettingRet = await global.services.common.getLoginConfig(appserver);
+            if(!loginSettingRet) {
+                backToLogin();
+            }
+        }
         await global.services.common.login();
         this.startCheckUpgrade();
         global.services.common.InitDbData().then(ret => {
             this.dbDataNotFinished = false;
         });
-        if(global.mxMatrixClientPeg.homeserve == '') {
-            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-            var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
-            this.supportedIdentity = flows;
-            for (let i = 0; i < flows.length; i++ ) {
-                var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
-                global.services.common.setGmsConfiguration(appServerInfo.data);
-                break;
-            }
-            
-            this.loginState = this.$t("invalidServerAddress");
-            this.organizationButtonDisabled = false;
+        
+        var host = window.localStorage.getItem("mx_hs_url");
+        if(host == null) {
+            backToLogin();
+        }
+        var domain = window.localStorage.getItem("Domain");
+        let gmsHost = window.localStorage.getItem("gms_host");
 
+        if(global.mxMatrixClientPeg.homeserve == '') {
+            await checkHomeServer(domain, gmsHost);
+            
             var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
             console.log("========= ret ", ret)
-                if(ret == undefined) {
-                    global.mxMatrixClientPeg.logout();
-                    ipcRenderer.send("showLoginPageWindow");
-                    return;
-                }
-                if(ret.language) {
-                    this.$i18n.locale = ret.language;
-                    console.log("=======language is ", ret.language)
-                }
-                console.log("the matrix client is ", global.mxMatrixClientPeg)
-                this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+            if(ret == undefined) {
+                global.mxMatrixClientPeg.logout();
+                ipcRenderer.send("showLoginPageWindow");
+                return;
+            }
+            if(ret.language) {
+                this.$i18n.locale = ret.language;
+                console.log("=======language is ", ret.language)
+            }
+            console.log("the matrix client is ", global.mxMatrixClientPeg)
+            this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
         let ops = {
         }

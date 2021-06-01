@@ -392,7 +392,7 @@ class _MatrixClientPeg{
       }
       if(accessToken && userId && hsUrl) {
         let ops = {
-          baseUrl: this.homeserve,
+          baseUrl: hsUrl,
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,
