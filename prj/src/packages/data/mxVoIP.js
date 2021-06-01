@@ -137,26 +137,36 @@ class mxVoIP{
     }
 
     async createMatrix(){
-        var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-        var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
-        this.supportedIdentity = flows;
-        for (let i = 0; i < flows.length; i++ ) {
-            var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
-            global.services.common.setGmsConfiguration(appServerInfo.data);
-            break;
-        }
-        var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
-        console.log("========= ret ", ret)
-        if(ret == undefined) {
-            return false;
-        }
-        console.log("the matrix client is ", global.mxMatrixClientPeg)
+        let checkHomeServer = async (domain, gmshost) => {
+            if(domain == "") {
+                backToLogin();
+            }
+            
+            var gmsRet = await global.services.common.newGmsConfiguration(domain, gmshost);
+            var host = window.localStorage.getItem("mx_hs_url");
+            if(host == null) {
+                backToLogin();
+            }
+            await global.mxMatrixClientPeg.getAppServerInfo(host);;
+            var appserver = window.localStorage.getItem("app_server");
+            var loginSettingRet = await global.services.common.getLoginConfig(appserver);
 
+        }
+        
+        var domain = window.localStorage.getItem("Domain");
+        let gmsHost = window.localStorage.getItem("gms_host");
+
+        await checkHomeServer(domain, gmsHost);
+        
+        await global.mxMatrixClientPeg.restoreFromLocalStorage();
+        
+        this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         let ops = {
         }
         ops.pendingEventOrdering = "detached";
         ops.lazyLoadMembers = true;
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
+
         await global.services.common.login();
         this.onMatrixSync();
     }
