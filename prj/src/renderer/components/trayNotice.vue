@@ -46,8 +46,14 @@ export default {
     },
     methods: {
       Hangup(item) {
+        let width = 300;
+        let height = 480;
+        if(item.notictType === "video"){
+            width = 640;
+            height = 320;
+        }
         ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-            size:{width:300,height: 480},
+            size:{width:width,height: height},
                     roomInfo: { roomID: item.roomId,
                                 name: item.chatName,
                                 url:item.imgUrl,
@@ -65,8 +71,14 @@ export default {
         this.toHideTrayWindow(true);
       },
       Answer(item) {
+        let width = 300;
+        let height = 480;
+        if(item.notictType === "video"){
+            width = 640;
+            height = 320;
+        }
         ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-            size:{width:300,height: 480},
+            size:{width:width,height: height},
                     roomInfo: { roomID: item.roomId,
                                 name: item.chatName,
                                 url:item.imgUrl,
@@ -84,8 +96,14 @@ export default {
         this.toHideTrayWindow(true);
       },
       async showVoIPPage(item) {
+        let width = 300;
+        let height = 480;
+        if(item.notictType === "video"){
+            width = 640;
+            height = 320;
+        }
         ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-            size:{width:300,height: 480},
+            size:{width:width,height: height},
                     roomInfo: { roomID: item.roomId,
                                 name: item.chatName,
                                 url:item.imgUrl,

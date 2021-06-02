@@ -1,6 +1,6 @@
 <template>
     <div>
-        <video class = "large-window" id = "large-window"></video>
+        <video :class = "GetLargeWindowStyle()" id = "large-window"></video>
         <video class = "small-window" id = "small-window" v-show = "bSmallWindow"></video>
         <audio id="messageAudio">
             <source src="../../../static/message.ogg" type="audio/ogg" />
@@ -22,7 +22,7 @@
             <source src="../../../static/busy.ogg" type="audio/ogg" />
             <source src="../../../static/busy.mp3" type="audio/mpeg" />
         </audio>
-        <div class = "audioMeterDiv" @mouseover="showVoiceInput2"  @mouseleave="hideMouseInput2" v-show = "bShowVoice1 || bShowVoice2">
+        <div :class = "GetMeterDiv()" @mouseover="showVoiceInput2"  @mouseleave="hideMouseInput2" v-show = "bShowVoice1 || bShowVoice2">
             <div class = "audioMeterBackground">
                 <input type = "range" class = "audioMeter" @change = "changeVoice" v-model="nVoice" min = "0" max = "100" step="1"></input>
             </div>
@@ -35,25 +35,25 @@
             <img class = "top-stick" v-if = "bTop" src = "../../../static/Img/VoIP/top.svg" @click = "unTopStick">
             <img class = "top-stick" v-else src = "../../../static/Img/VoIP/untop.svg" @click="topStick"> 
         </div>
-        <img class = "user-img" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
+        <img :class = "GetUserImgStyle()" v-show="bShowStateText" src="../../../static/Img/User/user-40px@2x.png" id = "video-chat-user-img"
         onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-        <div class = "username" v-show="bShowStateText">{{useName}}</div>
-        <div class = "stateText" v-show="bShowStateText">{{stateText}}</div>
+        <div :class = "GetUserNameStyle()" v-show="bShowStateText">{{useName}}</div>
+        <div :class = "GetStateTextStyle()" v-show="bShowStateText">{{stateText}}</div>
         <div v-if = "bComming">
             <div class = "comming-hangup-icon" @click="afterCallState"></div>
             <div class = "comming-answer-icon" @click="answerState"></div>
         </div>
         <div v-else>
-            <div v-if = "isMute" class = "mute-icon" @click="muteVoice"></div>
-            <div v-else class = "unmute-icon" @click="unMuteVoice"></div>
-            <div class = "hangup-icon" @click="afterCallState"></div>
-            <div class = "voice-icon" @click="voiceClick"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1">
+            <div v-if = "isMute" :class = "GetMuteIconStyle()" @click="muteVoice"></div>
+            <div v-else :class = "GetUnMuteIconStyle()" @click="unMuteVoice"></div>
+            <div :class = "GetHangupIconStyle()" @click="afterCallState"></div>
+            <div :class = "GetVoiceIconStyle()" @click="voiceClick"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1">
                 <img id = "voice-icon-id" src="../../../static/Img/VoIP/voice.svg" v-if = "this.nVoice !== '0'">
                 <img src = "../../../static/Img/VoIP/slience.svg" v-else>
             </div>
-            <span class = "mute-text">静音</span>
-            <span class = "voice-text">音量</span>
-            <span class = "hangup-text">挂断</span>
+            <span :class = "GetMuteTextStyle()">静音</span>
+            <span :class = "GetVoiceTextStyle()">音量</span>
+            <span :class = "GetHangupTextStyle()">挂断</span>
         </div>
         
     </div>
@@ -79,8 +79,8 @@ export default {
             nTime: 0,
             state: "",
             bTop: false,
-            bShowVoice1: false,
-            bShowVoice2: false
+            bShowVoice1: true,
+            bShowVoice2: true
 
         }
     },
@@ -290,8 +290,96 @@ export default {
         unMuteVoice(){
             global.viopChat.unMuteVoice(this.roomInfo.roomID);
             this.isMute = true;
+        },
+
+        GetLargeWindowStyle(){
+            if(this.roomInfo.voipType == "video"){
+                return "video-large-window";
+            }
+            return "audio-large-window";
+        },
+
+        GetUserImgStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-user-img";
+            }
+            return "audio-user-img";
+        },
+
+        GetUserNameStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-username";
+            }
+            return "audio-username"; 
+        },
+
+        GetStateTextStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-stateText";
+            }
+            return "audio-stateText";
+        },
+
+        GetMuteIconStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-mute-icon";
+            }
+            return "audio-mute-icon";
+        },
+
+        GetUnMuteIconStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-unmute-icon";
+            }
+            return "audio-unmute-icon";
+        },
+
+        GetHangupIconStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-hangup-icon";
+            }
+            return "audio-hangup-icon";
+        },
+
+        GetVoiceIconStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-voice-icon";
+            }
+            return "audio-voice-icon";
+        },
+
+        GetMuteTextStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-mute-text";
+            }
+            return "audio-mute-text";
+        },
+
+        GetVoiceTextStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-voice-text";
+            }
+            return "audio-voice-text";
+        },
+
+        GetHangupTextStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-hangup-text";
+            }
+            return "audio-hangup-text";
+        },
+
+        GetMeterDiv(){
+            if(this.roomInfo.voipType === "video"){
+                return "videoMeterDiv";
+            }
+            return "audioMeterDiv";
         }
     },
+    created(){
+        this.roomInfo.voipType = "video"
+    },
+
     mounted(){
         console.log("videochat mounted")
         ipcRenderer.on("closeChildRenderWindowBrowser", this.closeWindow)
@@ -304,10 +392,20 @@ export default {
     display: none;
 }
 
-.large-window{
+.audio-large-window{
     z-index: 0;
     width: 300px;
     height: 480px;
+    position: absolute;
+    background: #4A4C5B;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);
+    border-radius: 4px;
+}
+
+.video-large-window{
+    z-index: 0;
+    width: 640px;
+    height: 320px;
     position: absolute;
     background: #4A4C5B;
     box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);
@@ -318,15 +416,15 @@ export default {
     position: relative;
     float:right;
     z-index: 1;
-    width: 96px;
-    height: 170px;
+    width: 140px;
+    height: 80px;
     margin: 32px 8px 0 0;
     background: #4A4C5B;
 }
 
 .top-stick{
     position: absolute;
-    left: 272px;
+    right: 10px;
     top: 12px;
     width: 16px;
     height: 16px;
@@ -342,7 +440,7 @@ export default {
     background-image: url("../../../static/Img/VoIP/changeCamera.png"); 
 }
 
-.mute-icon{
+.audio-mute-icon{
     position: absolute;
     z-index: 1;
     left: 44px;
@@ -352,7 +450,17 @@ export default {
     background-image: url("../../../static/Img/VoIP/muteMicphone.svg"); 
 }
 
-.mute-icon:hover{
+.video-mute-icon{
+    position: absolute;
+    z-index: 1;
+    left: 214px;
+    top: 244px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/muteMicphone.svg"); 
+}
+
+.audio-mute-icon:hover{
     position: absolute;
     z-index: 1;
     left: 44px;
@@ -362,7 +470,17 @@ export default {
     background-image: url("../../../static/Img/VoIP/muteMicphone-hover.svg"); 
 }
 
-.unmute-icon{
+.video-mute-icon:hover{
+    position: absolute;
+    z-index: 1;
+    left: 214px;
+    top: 244px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/muteMicphone-hover.svg"); 
+}
+
+.audio-unmute-icon{
     position: absolute;
     z-index: 1;
     left: 44px;
@@ -372,7 +490,17 @@ export default {
     background-image: url("../../../static/Img/VoIP/mutedMicphone.svg"); 
 }
 
-.hangup-icon{
+.video-unmute-icon{
+    position: absolute;
+    z-index: 1;
+    left: 214px;
+    top: 244px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/mutedMicphone.svg"); 
+}
+
+.audio-hangup-icon{
     position: absolute;
     z-index: 1;
     left: 128px;
@@ -382,7 +510,17 @@ export default {
     background-image: url("../../../static/Img/VoIP/hangup.svg"); 
 }
 
-.hangup-icon:hover{
+.video-hangup-icon{
+    position: absolute;
+    z-index: 1;
+    left: 298px;
+    top: 244px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/hangup.svg"); 
+}
+
+.audio-hangup-icon:hover{
     position: absolute;
     z-index: 1;
     left: 128px;
@@ -392,11 +530,30 @@ export default {
     background-image: url("../../../static/Img/VoIP/hangup-hover.svg"); 
 }
 
-.voice-icon{
+.video-hangup-icon:hover{
+    position: absolute;
+    z-index: 1;
+    left: 298px;
+    top: 244px;
+    width: 44px;
+    height: 44px;
+    background-image: url("../../../static/Img/VoIP/hangup-hover.svg"); 
+}
+
+.audio-voice-icon{
     position: absolute;
     z-index: 1;
     left: 212px;
     top: 404px;
+    width: 44px;
+    height: 44px;
+}
+
+.video-voice-icon{
+    position: absolute;
+    z-index: 1;
+    left: 382px;
+    top: 244px;
     width: 44px;
     height: 44px;
 }
@@ -420,7 +577,7 @@ export default {
     text-align: center;
 }
 
-.mute-text{
+.audio-mute-text{
     z-index: 1;
     position: absolute;
     left: 56px;
@@ -435,7 +592,22 @@ export default {
     text-align: center;
 }
 
-.voice-text{
+.video-mute-text{
+    z-index: 1;
+    position: absolute;
+    left: 226px;
+    top: 296px;
+    width: 20px;
+    display: block;
+    overflow-wrap: break-word;
+    color: rgba(153, 153, 153, 1);
+    font-size: 10px;
+    font-family: PingFangSC-Regular;
+    line-height: 12px;
+    text-align: center;
+}
+
+.audio-voice-text{
     z-index: 1;
     position: absolute;
     left: 224px;
@@ -450,7 +622,37 @@ export default {
     text-align: center;
 }
 
-.hangup-text{
+.video-voice-text{
+    z-index: 1;
+    position: absolute;
+    left: 310px;
+    top: 296px;
+    width: 20px;
+    display: block;
+    overflow-wrap: break-word;
+    color: rgba(153, 153, 153, 1);
+    font-size: 10px;
+    font-family: PingFangSC-Regular;
+    line-height: 12px;
+    text-align: center;
+}
+
+.video-hangup-text{
+    z-index: 1;
+    position: absolute;
+    left: 394px;
+    top: 296px;
+    width: 20px;
+    display: block;
+    overflow-wrap: break-word;
+    color: rgba(153, 153, 153, 1);
+    font-size: 10px;
+    font-family: PingFangSC-Regular;
+    line-height: 12px;
+    text-align: center;
+}
+
+.audio-hangup-text{
     z-index: 1;
     position: absolute;
     left: 140px;
@@ -465,11 +667,21 @@ export default {
     text-align: center;
 }
 
-.user-img{
+.audio-user-img{
     z-index: 1;
     position: absolute;
     left: 120px;
     top: 120px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.video-user-img{
+    z-index: 1;
+    position: absolute;
+    left: 290px;
+    top: 80px;
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -481,6 +693,14 @@ export default {
     height: 130px;
     left: 221px;
     top: 296px;
+}
+
+.videoMeterDiv{
+    position: absolute;
+    width: 26px;
+    height: 130px;
+    left: 390px;
+    top: 136px;
 }
 
 .audioMeterBackground{
@@ -503,7 +723,20 @@ export default {
     background: #FFFFFF;
 }
 
-.username{
+.video-username{
+    position: absolute;
+    text-align: center;
+    top: 152px;
+    width: 640px;
+    height: 22px;
+    font-size: 16px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 22px;
+}
+
+.audio-username{
     position: absolute;
     text-align: center;
     top: 192px;
@@ -516,11 +749,24 @@ export default {
     line-height: 22px;
 }
 
-.stateText{
+.audio-stateText{
     position: absolute;
     text-align: center;
     top: 222px;
     width: 300px;
+    height: 18px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #999999;
+    line-height: 18px;
+}
+
+.video-stateText{
+    position: absolute;
+    text-align: center;
+    top: 182px;
+    width: 640px;
     height: 18px;
     font-size: 12px;
     font-family: PingFangSC-Regular, PingFang SC;

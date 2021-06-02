@@ -75,9 +75,15 @@ export default {
         },
         callBack() {
             //    mxVoIP.voiceCall(this.roomId);
+            let width = 300;
+            let height = 480;
+            if(this.isVideo == 1){
+                width = 640;
+                height = 320;
+            }
             console.log("======= theType ", theType)
                 ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                    size:{width:300,height: 480},
+                    size:{width:width,height: height},
                     roomInfo: { roomID: this.roomId,
                                 name: this.userInfo.userName,
                                 url:this.userInfo.userImg,
