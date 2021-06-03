@@ -6,7 +6,8 @@ import favourite from '../components/favourite.vue';
 import fileList from '../components/file-list.vue';
 import historyMsg from '../components/history-message.vue';
 import thirdpartyBind from '../components/thirdpartyBind.vue';
-import childwindow from "../components/childwindow.vue"
+import childwindow from "../components/childwindow.vue";
+import VoipWindow from "../components/voipwindow.vue";
 
 import setup from '../components/setup.vue';
 Vue.use(Router);
@@ -98,6 +99,11 @@ export default new Router({
       path: '/trayNotice',
       name: 'trayNotice',
       component: TrayNotice,
-    }
+    },
+    {
+      path: '/voipwindow',
+      name: "voipwindow",
+      component: VoipWindow,
+    },
   ]
 })

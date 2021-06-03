@@ -22,11 +22,11 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         let renderArgs ={};
         renderArgs.type = "videoChatWindow";
         renderArgs.args = this.roomInfo;
-        this.childWindow.webContents.send("childwindowArgs", renderArgs);
+        this.childWindow.webContents.send("voipwindowArgs", renderArgs);
         this.onIpcMain();
         this.showWindow();
         if (process.env.NODE_ENV === "development") {
-            //this.childWindow.webContents.openDevTools();
+            this.childWindow.webContents.openDevTools();
         }
     }
 
