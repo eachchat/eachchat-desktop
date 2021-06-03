@@ -3,6 +3,7 @@ import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
 import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
 import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
 import {VideoChatWindowBuilder} from "./videochatbuilder.js"
+import { TransmitMsgWindowBuilder } from "./transmitmsglist.js"
 class ChildWindow{
     constructor(){
 
@@ -88,6 +89,13 @@ function createChildWindow(mainwindowArgs){
       case "videoChatWindow":{
         let VideoChatWindow = new VideoChatWindowBuilder(voipRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
         VideoChatWindow.build();
+        break;
+      }
+
+      case "TransmitMsgList": {
+        let TransmitMsgWindow = new TransmitMsgWindowBuilder(childRenderWindowBrowser, mainWindow);
+        TransmitMsgWindow.setArgs(ipcArg);
+        TransmitMsgWindow.build();
         break;
       }
       

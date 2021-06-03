@@ -81,7 +81,13 @@ export default {
             isDownloading: false,
             downloadingInterval: undefined,
         }
-    },  
+    },
+    props: {
+        transMsgInfo: {
+            type: Array,
+            default: []
+        }
+    },
     methods: {
         processId(msg) {
             return msg + "-process";
@@ -621,6 +627,18 @@ export default {
     },
     components: {
         winHeaderBar,
+    },
+    watch: {
+        transMsgInfo: function() {
+            this.messageListShow = [];
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    console.log("groupid is ", this.transMsgInfo)
+                    this.messageListShow = this.transMsgInfo;
+                    this.getAppBaseData();
+                })
+            }, 0)
+        }
     },
     mounted: function() {
         ipcRenderer.on("msgListInfo", (event, msgListInfo) => {

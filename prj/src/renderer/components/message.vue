@@ -119,6 +119,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
+import { remote } from 'electron'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import axios from "axios";
 
@@ -484,7 +485,16 @@ export default {
                         title: this.transmitMsgTitle,
                         list: showMsgList
                     };
-                    ipcRenderer.send("showAnotherWindow", showMsgInfo, "TransmitMsgList");
+                    let width = 615;
+                    let height = 508;
+                    if(remote.process.platform == "darwin") {
+                        height = 470;
+                        width = 600;
+                    }
+                    // ipcRenderer.send("showAnotherWindow", showMsgInfo, "TransmitMsgList");
+                    ipcRenderer.send("createChildWindow", {type: "TransmitMsgList",
+                    size:{width:width,height: height},
+                    transMsgInfo: showMsgInfo})
                 }
             }
         },
