@@ -575,7 +575,6 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -598,7 +597,6 @@ export default {
             }
         },
         showFileList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";

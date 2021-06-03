@@ -23,7 +23,6 @@ let voipNoticeInfo = {}
 let noticeHeight
 let noticeWindowKeepShow = false
 let assistWindow
-let soloPage = null
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
@@ -216,8 +215,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
         
         mainWindow = null;
         noticeWindow = null;
-        assistWindow = null;
-        soloPage = null;        
+        assistWindow = null;    
         app.quit();
       }
     }
@@ -483,87 +481,11 @@ ipcMain.on('showTransTmpWindow', function(event, msgListInfo, path) {
   ? `http://localhost:9080/#/` + path
   : `file://${__dirname}/index.html#` + path;
   tmp.loadURL(sonPageWinURL);
-  //openDevToolsInDevelopment(soloPage);
   tmp.webContents.on('did-finish-load', function() {
     tmp.webContents.send("msgListInfo", msgListInfo.list);
   });
   tmp.show();
 });
-
-ipcMain.on('showAnotherWindow', function(event, msgListInfo, path) {
-  console.log("========== msgListInfo ", msgListInfo);
-  var title = "";
-  var width = 615;
-  var height = 508;
-  if(process.platform == "darwin") {
-    height = 470;
-    width = 600;
-  }
-  if(path == "historyMsgList") {
-    title = "聊天记录";
-  }
-  else if(path == "fileList") {
-    title = "文件列表";
-  }
-  else if(path == "searchMessageList") {
-    title = "聊天记录";
-  }
-  else if(path == "searchFilesList") {
-    title = "文件列表";
-  }
-  else if(path == "TransmitMsgList") {
-    title = msgListInfo.title;
-  }
-  if(!soloPage) {
-    soloPage = new BrowserWindow({
-      height: height,
-      //useContentSize: true,
-      resizable: false,
-      width:width,
-      webPreferences: {
-        webSecurity:false,
-        nodeIntegration:true,
-        enableRemoteModule: true
-      },
-      frame:true,
-      title:title
-    })
-    const sonPageWinURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/#/` + path
-    : `file://${__dirname}/index.html#` + path;
-    soloPage.loadURL(sonPageWinURL);
-    //openDevToolsInDevelopment(soloPage);
-    soloPage.webContents.on('did-finish-load', function() {
-      soloPage.webContents.send("msgListInfo", msgListInfo.list);
-    });
-    soloPage.show();
-    soloPage.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      soloPage.hide();
-    })
-  }
-  else {
-    soloPage.setTitle(title);
-    soloPage.webContents.send("msgListInfo", msgListInfo.list);
-    soloPage.show();
-  }
-});
-
-ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
-  if(!soloPage) return;
-  soloPage.webContents.send("searchAddedMembers", selectedGroupIds);
-  soloPage.focus();
-})
-
-ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
-  if(!soloPage) return;
-  soloPage.webContents.send("searchAddedSenders", selectedSenderIds);
-  soloPage.focus();
-})
 
 ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
   if(!mainWindow) return;
@@ -588,14 +510,6 @@ ipcMain.on("favourite-update-chatlist", function(event, newMsgInfo) {
   if(!mainWindow) return;
   mainWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
 })
-
-ipcMain.on('AnotherClose', function(event, arg) {
-  soloPage.close();
-});
-
-ipcMain.on('AnotherMin', function(event, arg) {
-  soloPage.minimize();
-});
 
 ipcMain.on('imageViewerFav', function(event, toFavEvent) {
   if(!mainWindow) return;
@@ -1490,31 +1404,6 @@ function createWindow () {
     width = 600;
   }
 
-  soloPage = new BrowserWindow({
-    height: height,
-    //useContentSize: true,
-    resizable: false,
-    width:width,
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    show: false,
-    frame:true
-  })
-  const sonPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/TransmitMsgList`
-  : `file://${__dirname}/index.html#TransmitMsgList`;
-  //soloPage.loadURL(sonPageWinURL);
-  soloPage.on('close', (event) => {
-    if(clickQuit){
-      app.quit();
-      return;
-    }
-    event.preventDefault();
-    soloPage.hide();
-  })
   let childwindowFactory = new ChildWindow();
   let thirdpartyWindowBrowser = childwindowFactory.CreateThirdPartyBrowser(iconPath);
   let childRenderWindowBrowser = childwindowFactory.CreateChildRenderBrowser(iconPath);
@@ -1572,9 +1461,6 @@ function createWindow () {
 ipcMain.on("openDevTools", function(event) {
   if(mainWindow != null && !mainWindow.isDestroyed()) {
     mainWindow.webContents.openDevTools();
-  }
-  if(soloPage != null && !soloPage.isDestroyed()) {
-    soloPage.webContents.openDevTools();
   }
 })
 

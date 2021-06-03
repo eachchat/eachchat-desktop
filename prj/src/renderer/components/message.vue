@@ -491,7 +491,6 @@ export default {
                         height = 470;
                         width = 600;
                     }
-                    // ipcRenderer.send("showAnotherWindow", showMsgInfo, "TransmitMsgList");
                     ipcRenderer.send("createChildWindow", {type: "TransmitMsgList",
                     size:{width:width,height: height},
                     transMsgInfo: showMsgInfo})

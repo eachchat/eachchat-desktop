@@ -2747,9 +2747,6 @@ export default {
         this.toSearch("");
     },
     showAllSearchFiles: function() {
-      ipcRenderer.send("showAnotherWindow", this.searchKey, "searchFilesList");
-      this.cleanSearchKey = !this.cleanSearchKey;
-      this.toSearch("");
     },
     showAllSearchDMChats: async function() {
       this.showSearchAllChat = false;
@@ -2799,9 +2796,6 @@ export default {
             this.showSearchResultIcon();
         })
       }, 0)
-      // ipcRenderer.send("showAnotherWindow", this.searchKey, "searchMessageList");
-      // this.cleanSearchKey = !this.cleanSearchKey;
-      // this.toSearch("");
     },
     getFileIconThroughExt: function(ext) {
         var iconPath = getIconPath(ext);
