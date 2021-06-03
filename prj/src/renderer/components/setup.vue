@@ -255,10 +255,6 @@ export default {
           var sVerName = newVersion.verName;
           let sProductName = sUrl.split("/").pop();
           if(needUpdate) {
-              let dbVersion = await Config.GetNewVersion();
-              if(dbVersion && dbVersion.new_version === lVersion){
-                  return;
-              }
               this.showUpgradeAlertDlg = true;
               this.upgradeInfo = {
                   "downloadUrl": sUrl,
