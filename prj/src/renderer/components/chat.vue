@@ -3828,6 +3828,20 @@ export default {
                                 handler: function (range) {
                                     return false;
                                 }
+                            },
+                            indent: {
+                                key: 9,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return true;
+                                }
+                            },
+                            'list autofill': {
+                                key: 32,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return true;
+                                }
                             }
                         }
                     }
