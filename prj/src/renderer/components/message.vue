@@ -1181,7 +1181,7 @@ export default {
             else if(chatGroupMsgType === "m.call.hangup") {
                 console.log("add new invite msg content ", this.msg.event.content)
                 this.callId = this.msg.event.content.call_id;
-                if(this.msg.event.content.isVideo) {
+                if(this.msg.event.content.isVideo != null) {
                     this.isVideo = this.msg.event.content.isVideo == true ? 1 : 0;
                     this.duration = this.msg.event.content.duration;
                 }

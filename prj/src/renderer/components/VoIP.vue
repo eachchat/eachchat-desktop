@@ -66,7 +66,7 @@ export default {
                 else return "./static/Img/Chat/VoIPVideoOthers.svg";
             } 
             else if(this.isVideo == 0) {
-                if(this.isMine) return "./static/Img/Chat/VoIPVideoMine.svg";
+                if(this.isMine) return "./static/Img/Chat/VoIPVoiceMine.svg";
                 else return "./static/Img/Chat/VoIPVoiceOthers.svg";
             }
             else {

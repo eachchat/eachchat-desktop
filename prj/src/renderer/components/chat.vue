@@ -4030,6 +4030,8 @@ export default {
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 
+                let messageListTmp = this.curChat.timeline;
+                this.messageList = []
                 let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
                 for(let i=messageListTmp.length - 1;i>0;i--){
                     let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
@@ -4216,7 +4218,7 @@ export default {
                 console.log("=======this.sendingList ", this.sendingList);
                 
                 let messageListTmp = this._timelineWindow.getEvents();
-                if(messageListTmp[0] && messageListTmp[0].roomId != this.curChat.roomId) return;
+                if(messageListTmp[0] && messageListTmp[0].event.room_id != this.curChat.roomId) return;
                 this.messageList = [];
                 var div = document.getElementById("message-show-list");
                 if(div) {
