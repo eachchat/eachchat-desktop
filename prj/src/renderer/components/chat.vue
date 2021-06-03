@@ -217,6 +217,7 @@ import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../.
 import { models } from '../../packages/data/models.js';
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
+import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
@@ -652,7 +653,7 @@ export default {
                 showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
             }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                size:{width:640,height: 320},
+                size:{width:300,height: 480},
                         roomInfo: { roomID: this.chat.roomId,
                                     name: showName,
                                     voipType: "video",
@@ -4130,24 +4131,17 @@ export default {
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
-            let messageListTmp = this.chat.timeline;
             this.messageList = [];
-            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-            for(let i=messageListTmp.length - 1;i>0;i--){
-                console.log("====== cur msg type is ", messageListTmp[i].event.type, " and message content is ", messageListTmp[i].event)
-                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                if(exitEventIndex >= 0) {
-                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                }
-                if(this.messageFilter(messageListTmp[i])){
-                    this.messageList.unshift(messageListTmp[i]);
-                }
-            }
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-            for(let i=this.sendingList.length - 1;i>0;i--){
-                this.messageList.unshift(this.sendingList[i]);
-            }
-
+            roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
+                .then(() => {
+                    return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
+                })
+                .then((messageList) => {
+                    if(!messageList) return;
+                    for(let i=messageList.length - 1;i>0;i--){
+                        this.messageList.unshift(messageList[i]);
+                    }
+                })
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
             this.needScrollTop = true;
             this.needScrollBottom = true;
@@ -4163,17 +4157,17 @@ export default {
                 this.showGroupName(this.curChat);
             }, 1000);
 
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.scrollTop = div.scrollHeight;
-                        setTimeout(() => {
-                            this.initMessage();
-                        }, 500)
-                    }
-                })
-            }, 90)
+            // setTimeout(() => {
+            //     this.$nextTick(() => {
+            //         let div = document.getElementById("message-show-list");
+            //         if(div) {
+            //             div.scrollTop = div.scrollHeight;
+            //             setTimeout(() => {
+            //                 this.initMessage();
+            //             }, 500)
+            //         }
+            //     })
+            // }, 90)
             
             this.groupIsSlience();
         },
@@ -4209,21 +4203,18 @@ export default {
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 
-                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-                for(let i=messageListTmp.length - 1;i>0;i--){
-                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                    if(exitEventIndex >= 0) {
-                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                    }
-                    if(this.messageFilter(messageListTmp[i])){
-                        this.messageList.unshift(messageListTmp[i]);
-                    }
-                }
-                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-                for(let i=this.sendingList.length - 1;i>0;i--){
-                    this.messageList.unshift(this.sendingList[i]);
-                }
-                
+                this.messageList = [];
+                roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
+                    .then(() => {
+                        return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
+                    })
+                    .then((messageList) => {
+                        if(!messageList) return;
+                        for(let i=messageList.length - 1;i>0;i--){
+                            this.messageList.unshift(messageList[i]);
+                        }
+                    })   
+
                 this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
                 this.needScrollTop = true;
                 this.needScrollBottom = true;
@@ -4284,13 +4275,17 @@ export default {
                 this.CloseFileListPage();
                 this.multiToolsClose();
                 
-                let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
                 this.messageList = [];
-                for(var i=messageListTmp.length - 1;i>0;i--){
-                    if(this.messageFilter(messageListTmp[i])){
-                        this.messageList.unshift(messageListTmp[i]);
-                    }
-                }
+                roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
+                    .then(() => {
+                        return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
+                    })
+                    .then((messageList) => {
+                        if(!messageList) return;
+                        for(let i=messageList.length - 1;i>0;i--){
+                            this.messageList.unshift(messageList[i]);
+                        }
+                    })
 
                 this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
                 this.needScrollTop = true;
@@ -4338,22 +4333,17 @@ export default {
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
             
-            let messageListTmp = this.curChat.timeline;
             this.messageList = [];
-            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-            for(let i=messageListTmp.length - 1;i>0;i--){
-                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                if(exitEventIndex >= 0) {
-                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                }
-                if(this.messageFilter(messageListTmp[i])){
-                    this.messageList.unshift(messageListTmp[i]);
-                }
-            }
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-            for(let i=this.sendingList.length - 1;i>0;i--){
-                this.messageList.unshift(this.sendingList[i]);
-            }
+            roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
+                .then(() => {
+                    return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
+                })
+                .then((messageList) => {
+                    if(!messageList) return;
+                    for(let i=messageList.length - 1;i>0;i--){
+                        this.messageList.unshift(messageList[i]);
+                    }
+                })
             setTimeout(() => {
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show-list");
@@ -4373,14 +4363,22 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
-            
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
+            this.messageList = [];
+            roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 10)
+                .then((messageList) => {
+                    if(!messageList) return;
+                    for(let i=messageList.length - 1;i>0;i--){
+                        this.messageList.push(messageList[i]);
+                    }
+                })
+
+            // this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
+            // this._timelineWindow = new Matrix.TimelineWindow(
+            //     global.mxMatrixClientPeg.matrixClient, 
+            //     this.timeLineSet,
+            //     {windowLimit:Number.MAX_VALUE},
+            // )
+            // await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
             let toBottom = false;
 
             if(this.IsBottom()) {
@@ -4390,30 +4388,30 @@ export default {
             else {
             }
             this.showGroupName(this.curChat);
-            this._timelineWindow.paginate("f", 10).then(() => {
-                console.log("=======this.sendingList ", this.sendingList);
+            // this._timelineWindow.paginate("f", 10).then(() => {
+            //     console.log("=======this.sendingList ", this.sendingList);
                 
-                let messageListTmp = this.chat.timeline;
-                this.messageList = [];
-                var div = document.getElementById("message-show-list");
-                if(div) {
-                    div.removeEventListener('scroll', this.handleScroll);
-                }
-                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-                for(let i=messageListTmp.length - 1;i>0;i--){
-                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                    if(exitEventIndex >= 0) {
-                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                    }
-                    if(this.messageFilter(messageListTmp[i])){
-                        this.messageList.unshift(messageListTmp[i]);
-                    }
-                }
-                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-                for(let i=this.sendingList.length - 1;i>0;i--){
-                    this.messageList.unshift(this.sendingList[i]);
-                }
-            })
+            //     let messageListTmp = this.chat.timeline;
+            //     this.messageList = [];
+            //     var div = document.getElementById("message-show-list");
+            //     if(div) {
+            //         div.removeEventListener('scroll', this.handleScroll);
+            //     }
+            //     let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+            //     for(let i=messageListTmp.length - 1;i>0;i--){
+            //         let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
+            //         if(exitEventIndex >= 0) {
+            //             this.$store.commit('removeSendingEvents', messageListTmp[i]);
+            //         }
+            //         if(this.messageFilter(messageListTmp[i])){
+            //             this.messageList.unshift(messageListTmp[i]);
+            //         }
+            //     }
+            //     this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+            //     for(let i=this.sendingList.length - 1;i>0;i--){
+            //         this.messageList.unshift(this.sendingList[i]);
+            //     }
+            // })
             setTimeout(() => {
                 this.$nextTick(() => {
                     var div = document.getElementById("message-show-list");

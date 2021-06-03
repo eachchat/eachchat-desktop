@@ -30,6 +30,7 @@ class _MatrixClientPeg{
         this._hasSentOutPatchDirectAccountDataPatch = false;
         this.mediaConfig = null;
         this.callList = {};
+        this.roomTimeLineHandler = null;
     }
 
     addCall(roomId, call) {
