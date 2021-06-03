@@ -25,8 +25,10 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         this.childWindow.webContents.send("voipwindowArgs", renderArgs);
         this.onIpcMain();
         this.showWindow();
+        this.childWindow.setResizable(false);
         if (process.env.NODE_ENV === "development") {
             this.childWindow.webContents.openDevTools();
+            this.childWindow.setResizable(true);
         }
     }
 
