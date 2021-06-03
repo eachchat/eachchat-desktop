@@ -3299,6 +3299,9 @@ export default {
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
         
+            if(this.IsBottom()) {
+                this.haveNewMsg = false;
+            }
             if(uldiv.scrollTop == 0){
                 console.log("to update msg")
                 var curTime = new Date().getTime();
@@ -4179,6 +4182,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
+            if(this.newMsg.event.room_id != this.curChat.roomId) return;
             
             this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
@@ -4199,7 +4203,8 @@ export default {
             this._timelineWindow.paginate("f", 10).then(() => {
                 console.log("=======this.sendingList ", this.sendingList);
                 
-                let messageListTmp = this.chat.timeline;
+                let messageListTmp = this._timelineWindow.getEvents();
+                if(messageListTmp[0] && messageListTmp[0].roomId != this.curChat.roomId) return;
                 this.messageList = [];
                 var div = document.getElementById("message-show-list");
                 if(div) {
