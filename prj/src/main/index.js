@@ -1506,7 +1506,7 @@ function createWindow () {
   const sonPageWinURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/TransmitMsgList`
   : `file://${__dirname}/index.html#TransmitMsgList`;
-  soloPage.loadURL(sonPageWinURL);
+  //soloPage.loadURL(sonPageWinURL);
   soloPage.on('close', (event) => {
     if(clickQuit){
       app.quit();
@@ -1516,15 +1516,9 @@ function createWindow () {
     soloPage.hide();
   })
   let childwindowFactory = new ChildWindow();
-  let thirdpartyWindowBrowser = childwindowFactory.createBrowser(iconPath);
-  let childRenderWindowBrowser = childwindowFactory.createBrowser(iconPath);
-
-  const childwindowURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/childwindow`
-  : `file://${__dirname}/index.html#childwindow`;
-  childRenderWindowBrowser.loadURL(childwindowURL);
-  //childRenderWindowBrowser.show();
-  //childRenderWindowBrowser.webContents.openDevTools();
+  let thirdpartyWindowBrowser = childwindowFactory.CreateThirdPartyBrowser(iconPath);
+  let childRenderWindowBrowser = childwindowFactory.CreateChildRenderBrowser(iconPath);
+  let voipWindowBrowser = childwindowFactory.CreateVoipBrowser(iconPath);
 
   ipcMain.on("createChildWindow", function(event, args){
     let mainwindowArgs = {};
@@ -1533,6 +1527,7 @@ function createWindow () {
     mainwindowArgs.isLogin = isLogin;
     mainwindowArgs.thirdpartyBrowser = thirdpartyWindowBrowser;
     mainwindowArgs.childBrowser = childRenderWindowBrowser;
+    mainwindowArgs.voipBrowser = voipWindowBrowser;
     mainwindowArgs.ipcArg = args;
     mainwindowArgs.clickQuit = clickQuit;
     createChildWindow(mainwindowArgs);
@@ -1540,7 +1535,6 @@ function createWindow () {
 
   childRenderWindowBrowser.on('close', (event) => {
     console.log("childRenderWindowBrowser", clickQuit)
-    childRenderWindowBrowser.webContents.send("closeChildRenderWindowBrowser");
     if(clickQuit){
       app.quit();
       return;
@@ -1560,6 +1554,19 @@ function createWindow () {
     thirdpartyWindowBrowser.hide();
     mainWindow.show();
   })
+
+  voipWindowBrowser.on('close', (event) => {
+    voipWindowBrowser.webContents.send("closeVideoChatWindowBrowser");
+    console.log("voipWindowBrowser", clickQuit)
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    voipWindowBrowser.hide();
+    mainWindow.show();
+  })
+  
 }
 
 ipcMain.on("openDevTools", function(event) {

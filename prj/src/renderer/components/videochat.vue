@@ -79,8 +79,8 @@ export default {
             nTime: 0,
             state: "",
             bTop: false,
-            bShowVoice1: true,
-            bShowVoice2: true
+            bShowVoice1: false,
+            bShowVoice2: false
 
         }
     },
@@ -377,12 +377,12 @@ export default {
         }
     },
     created(){
-        this.roomInfo.voipType = "video"
+        
     },
 
     mounted(){
         console.log("videochat mounted")
-        ipcRenderer.on("closeChildRenderWindowBrowser", this.closeWindow)
+        ipcRenderer.on("closeVideoChatWindowBrowser", this.closeWindow)
     }
 }
 </script>
