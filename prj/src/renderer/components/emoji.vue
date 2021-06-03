@@ -53,9 +53,6 @@ export default {
         let codedText = this.text.replace(new RegExp(ranges.join('|'), 'g'), function(emoji){
             return `%-special-code-%${emoji}%-special-code-%`
           });
-        console.log("emoji")
-        console.log(this.text)
-        console.log(codedText)
         return codedText.split('%-special-code-%')
       },
     }

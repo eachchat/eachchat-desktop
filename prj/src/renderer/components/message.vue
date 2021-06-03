@@ -649,14 +649,14 @@ export default {
                 return this.getFileIconThroughExt(ext);
             }
         },
-        downLoadImg: async function(iconPath) {
+        downLoadImg: async function(iconUrl) {
             const existLocalFile = await this.getFileExist();
             if(fs.existsSync(existLocalFile)) return;
             const chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             const event = this.msg.event;
             const distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
             const finalPath = path.join(distPath, chatGroupMsgContent.body);
-            getFileBlob(chatGroupMsgContent.info, iconPath)
+            getFileBlob(chatGroupMsgContent.info, iconUrl)
                 .then((blob) => {
                     let reader = new FileReader();
                     reader.onload = function() {
@@ -696,7 +696,7 @@ export default {
                 distUrl = this.msg.event.content.url;
             }
             if(!distUrl.startsWith('blob:')) {
-                let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
+                let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
                 this.downLoadImg(iconPath);
                 this.updateMsgImg();
                 return iconPath;
@@ -917,7 +917,7 @@ export default {
         },
         isShowThumbnail: function(){
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
-            if(chatGroupMsgContent.info && Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h) > 400 && chatGroupMsgContent.info.thumbnail_info && chatGroupMsgContent.info.thumbnail_url && chatGroupMsgContent.info.thumbnail_info.w && chatGroupMsgContent.info.thumbnail_info.h) {
+            if(chatGroupMsgContent.info && Math.min(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h) > 400 && chatGroupMsgContent.info.thumbnail_info && chatGroupMsgContent.info.thumbnail_url && chatGroupMsgContent.info.thumbnail_info.w && chatGroupMsgContent.info.thumbnail_info.h) {
                 return true;
             }
             else {
@@ -1505,6 +1505,9 @@ export default {
                             this.$store.commit("removeSendingEvents", this.msg);
                             this.msg.message_status = 0;
                             this.showState = false;
+
+                            let iconUrl = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
+                            this.downLoadImg(iconUrl);
                         }).catch((error) => {
                             console.log("error is ", error.errcode);
                             this.msg.message_status = 2;

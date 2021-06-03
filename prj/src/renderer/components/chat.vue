@@ -76,7 +76,6 @@
                     <div class="voice-chat" @click="creatVoiceChat()" v-show="!isSecret && isDm">
                     </div>
                 </div>
-                <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
                 <div class="text-input" @keydown="keyHandle($event)" @keyup="keyUpHandle($event)">
                     <quillEditor
                         id="chatQuillEditorId"
@@ -1957,50 +1956,6 @@ export default {
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
-        handleFiles: function() {
-            // Select Same File Failed.
-            var fileList = this.fileInput.files;
-            console.log(fileList)
-            if(fileList === null || fileList.length === 0) {
-                alert("请选择一个文件/文件夹。");
-            }
-            else {
-                for(var i=0;i<fileList.length;i++) {
-                    var range = this.editor.getSelection();
-                    var curIndex = range==null ? 0 : range.index;
-                    var reader = new FileReader();
-                    var curPath = fileList[i].path;
-                    var fileType = fileList[i].type;
-                    var fileSize = fileList[i].size;
-                    var fileName = path.basename(fileList[i]);//getFileNameInPath(fileList[i].path)
-                    if(fileType.split("/")[0] == "image"){
-                        // Image
-                        reader.readAsDataURL(fileList[i]);
-                        reader.onloadend = () => {
-                            var img = new Image();
-                            img.src = reader.result;
-                            img.onload = function(){
-                                let srcHeight = img.height;
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
-                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                            }
-                        }
-                    }
-                    else {
-                        // File
-                        var fileExt = fileTypeFromMIME(fileType);
-                        var iconPath = getIconPath(fileExt);
-                        var showfu = new FileUtil(iconPath);
-                        let showfileObj = showfu.GetUploadfileobj();
-                        reader.readAsDataURL(showfileObj);
-                        reader.onloadend = () => {
-                            this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: fileSize, style:"vertical-align:middle;"})
-                            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                        }
-                    }
-                }
-            }
-        },
         cleanEditor: function() {
             this.editor.container.getElementsByClassName("ql-editor")[0].innerHTML = "";
         },
@@ -2024,9 +1979,6 @@ export default {
                 this.ipcInited = true;
                 ipcRenderer.on('selectedItem', this.nHandleFiles);
             }
-        },
-        insertImg: function() {
-            // console.log("============== this is ", this);
         },
         nHandleFiles: async function(e, paths) {
             // Select Same File Failed.
@@ -2105,20 +2057,9 @@ export default {
         },
         SendFiles: function(fileinfos) {
             for(let i=0;i<fileinfos.length;i++) {
-                // this.sendFile(fileinfos[i]);
                 this.newSendFile(fileinfos[i]);
             }
             this.closeSendFileDlg();
-        },
-        myArrayBuffer(theFile) {
-            // this: File or Blob
-            return new Promise((resolve) => {
-                let fr = new FileReader();
-                fr.onload = () => {
-                    resolve(fr.result);
-                };
-                fr.readAsArrayBuffer(theFile);
-            })
         },
         onUploadProgress(ev) {
             console.log("=========== ",ev);
@@ -2147,6 +2088,15 @@ export default {
                 var showfu = new FileUtil(fileinfo.path);
                 showfileObj = showfu.GetUploadfileobj();
             }
+            
+            let r = null;
+            try{
+                r = await this.loadImageElement(showfileObj);
+            }
+            catch(e) {
+                console.log("******** ", e);
+            }
+
             const content = {
                 body: fileinfo.name || 'Attachment',
                 info: {
@@ -2154,6 +2104,10 @@ export default {
                 },
                 msgtype: "", // set later
             };
+            if(r && r.width && r.height) {
+                content.info.w = r.width;
+                content.info.h = r.height;
+            }
             // extend(content.info, showfileObj);
             var reader = new FileReader();
             reader.readAsDataURL(showfileObj);
@@ -2199,153 +2153,6 @@ export default {
                         }
                     })
                 }, 100)
-            }
-        },
-        sendFile: async function(fileinfo) {
-            console.log("fileinfo is ", fileinfo);
-            const content = {
-                body: fileinfo.name || 'Attachment',
-                info: {
-                    size: fileinfo.size,
-                },
-                msgtype: "", // set later
-            };
-            var showfileObj = undefined;
-            var stream = "";
-            var encryptInfo;
-            var uploadPromise;
-            if(!fs.existsSync(fileinfo.path)) {
-                showfileObj = this.path2File[fileinfo.path];
-                var arrayBuf = await this.myArrayBuffer(showfileObj);
-                stream = Buffer.from(arrayBuf);
-            }
-            else {
-                var showfu = new FileUtil(fileinfo.path);
-                showfileObj = showfu.GetUploadfileobj();
-                stream = showfu.ReadfileSync(fileinfo.path);
-            }
-            var reader = new FileReader();
-            reader.readAsDataURL(showfileObj);
-
-            reader.onload = () => {
-                let type = GetFileType(reader.result);
-                // content.info.mimetype = fileinfo.type;
-                let fileResult = reader.result;
-                this.showUploadProgress = true;
-                this.UploadingName = fileinfo.name;
-                let filename = fileinfo.name;
-                var roomID = this.curChat.roomId;
-                if(type == 'm.image'){
-                    content.msgtype = 'm.image';
-                    // this.SendImage(showfileObj, fileResult, stream)
-                    this.infoForImageFile(this.curChat.roomId, showfileObj).then((imageInfo) => {
-                        extend(content.info, imageInfo);
-                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                        })
-                    }, (e) => {
-                        console.log("**** getInfoForImageFile Exception ", e);
-                    })
-                }
-                else{
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
-                        var prom = this.readFileAsArrayBuffer(showfileObj).then((data) => {
-                            return encrypt.encryptAttachment(data);
-                        }).then((encryptResult) => {
-                            encryptInfo = encryptResult.info;
-                            var blob = new Blob([encryptResult.data]);
-                            global.mxMatrixClientPeg.matrixClient.uploadContent(
-                                    blob,
-                                    {includeFilename: false,
-                                    progressHandler: this.onUploadProgress}
-                                ).then((url)=>{
-                                    encryptInfo.url = url;
-                                    encryptInfo.mimetype = fileinfo.type;
-                                    var content = {
-                                        msgtype: 'm.file',
-                                        body: filename,
-                                        file: encryptInfo,
-                                        url: url,
-                                        info:{
-                                            size: fileinfo.size,
-                                            mimetype: fileinfo.type
-                                        }
-                                    };
-                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                                    this.showUploadProgress = false;
-                                });
-                        })
-                    }
-                    else {
-                        let filename = fileinfo.name;
-                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                        // global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
-                        //     name: filename,
-                        //     progressHandler: this.onUploadProgress
-                        // }).then((ret)=>{
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            content.msgtype = 'm.file';
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            console.log("*** name is ", filename);
-                            console.log("*** path.extname(filename) is ", path.extname(filename));
-                            content.info.mimetype = fileMIMEFromType(path.extname(filename).split('.')[1]);
-                            console.log("***fileMIMEFromType(path.extname(filename) is ", fileMIMEFromType(path.extname(filename).split('.')[1]));
-                            console.log("***content is ", content);
-                            // var content = {
-                            //     msgtype: 'm.file',
-                            //     body: filename,
-                            //     url: url,
-                            //     info:{
-                            //         size: fileinfo.size,
-                            //         mimetype: fileinfo.type
-                            //     }
-                            // };
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content).then(async (ret) => {
-                                console.log("*** ret is ", ret);
-                                console.log("*** filePath is ", fileinfo.path);
-                                if(fs.existsSync(fileinfo.path)) {
-                                    console.log("*** filePath is exist");
-                                    let msgs = await Message.FindMessageByMesssageID(ret.event_id);
-                                    if(msgs.length != 0){
-                                        msgs[0].file_local_path = fileinfo.path;
-                                        msgs[0].save();
-                                    }
-                                    else{
-                                        let msgValue = {
-                                            message_id: ret.event_id,
-                                            file_local_path: fileinfo.path
-                                        }
-                                        let model = await new(await models.Message)(msgValue);
-                                        model.save();
-                                    }
-                                }
-                            })
-                        });
-                    }
-                }
-                
             }
         },
         readFileAsArrayBuffer(file) {
@@ -4061,7 +3868,6 @@ export default {
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
-                this.fileInput = document.getElementById("fileInput");
                 this.showGroupName(this.curChat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
