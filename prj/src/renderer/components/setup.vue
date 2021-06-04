@@ -21,6 +21,7 @@
           <div class="setup-list-item" @click="jumpToAboutSetup">
             <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px@2x.png">
             <label class="setupAboutLabel">{{$t("setting.about")}}</label>
+            <div v-show = "needUpdate" class = "newversiondot"></div>
           </div>
         </div>
         <div class="setup-details" id="setup-details-id">
@@ -1283,5 +1284,15 @@ export default {
     background: rgba(0, 0, 0, 0.6);
     z-index:3;
   }
+
+  .newversiondot{
+        width: 8px;
+        height: 8px;
+        background: #CE514F;
+        position: relative;
+        display: inline-block;
+        border-radius: 50%;
+        bottom: 18px;
+    }
 
 </style>
