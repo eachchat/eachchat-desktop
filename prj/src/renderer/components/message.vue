@@ -658,9 +658,24 @@ export default {
                 return this.getFileIconThroughExt(ext);
             }
         },
+        isFileSizeSame: function(size, localPath) {
+            let showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+
+            if(size != showfileObj.size) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        },
         downLoadImg: async function(iconUrl) {
             const existLocalFile = await this.getFileExist();
-            if(fs.existsSync(existLocalFile)) return;
+            if(fs.existsSync(existLocalFile)) {
+                if(this.isFileSizeSame(this.msg.event.content.info && this.msg.event.content.info.size, existLocalFile)) {
+                    return;
+                }
+            }
             const chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             const event = this.msg.event;
             const distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
