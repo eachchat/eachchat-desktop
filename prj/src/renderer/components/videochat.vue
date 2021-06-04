@@ -169,7 +169,8 @@ export default {
                 this.hideStateText();
             }
             else{
-                this.showStateText("已接通");
+                this.bShowStateText = true;
+                this.stateText = "";
             }
             
             this.state = "connected"
@@ -625,7 +626,7 @@ export default {
 .video-voice-text{
     z-index: 1;
     position: absolute;
-    left: 310px;
+    left: 394px;
     top: 296px;
     width: 20px;
     display: block;
@@ -640,7 +641,7 @@ export default {
 .video-hangup-text{
     z-index: 1;
     position: absolute;
-    left: 394px;
+    left: 310px;
     top: 296px;
     width: 20px;
     display: block;
