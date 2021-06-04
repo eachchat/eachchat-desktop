@@ -23,6 +23,7 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
                 <span class="tooltiptext">{{getToolTipContent(index)}}</span>
+                <div v-show = "bshowNewversionDot" class = "newversiondot"></div>
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
@@ -102,6 +103,7 @@ export default {
     },
     data () {
         return {
+            bshowNewversionDot: false,
             toUpdateTrayNotice: 0,
             setToRealAll: [],
             isNormal: true,
@@ -302,6 +304,7 @@ export default {
         },
         showSetUpPage: function() {
             this.curindex = 3;
+            this.bshowNewversionDot = false;
             this.$router.push("/main/setup")
         },
         getAppBaseData:function() {
@@ -474,6 +477,7 @@ export default {
                 var sVerName = newVersion.verName;
                 let sProductName = sUrl.split("/").pop();
                 if(needUpdate) {
+                    this.bshowNewversionDot = true;
                     let dbVersion = await Config.GetNewVersion();
                     if(dbVersion && dbVersion.new_version === sVerCode){
                         return;
@@ -1210,6 +1214,16 @@ export default {
 
         position: fixed;
         z-index: 1;
+    }
+
+    .newversiondot{
+        width: 8px;
+        height: 8px;
+        background: #CE514F;
+        position: relative;
+        border-radius: 50%;
+        left:20px;
+        bottom: 30px;
     }
 
     .NavSetUp:hover .tooltiptext {

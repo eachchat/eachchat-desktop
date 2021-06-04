@@ -96,7 +96,8 @@
             </div>
             <div class="setup-title" id="setup-about-id">{{$t("setting.about")}}</div>
             <div class="setup-array-only-label">
-                <label class="setup-array-only-label-label">{{$t("setting.current_version")}}</label>
+                <label class="setup-array-only-newversion-label1">{{$t("setting.current_version")}}</label>
+                <label v-show = "needUpdate" class="setup-array-only-newversion-label2">New</label>
                 <label class="setup-array-only-label-label2">{{lVersion}}</label>
                 <div class="setup-clear-cache-btn" @click="CheckUpdate">{{$t("setting.check_for_update")}}</div>
             </div>
@@ -221,6 +222,7 @@ export default {
       canSelecteFile: true,
       showChangePassword: false,
       showGeneralRecoveryKeyPage: false,
+      needUpdate: false,
     };
   },
   methods: {
@@ -511,6 +513,12 @@ export default {
     },
   },
   mounted: async function() {
+    global.services.common.GetNewVersion().then(newVersion => {
+        var packageFile = require("../../../package.json");
+        var lVersion = packageFile.version;
+        var sVerCode = newVersion.verCode;
+        this.needUpdate = ComponentUtil.needUpgradeVersion(lVersion, sVerCode)
+    });
   },
   created: async function() {
     var message_sound = global.localStorage.getItem("message_sound");
@@ -1056,6 +1064,34 @@ export default {
     display: block;
     letter-spacing: 0px;
   }
+  .setup-array-only-newversion-label1 {
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing: 0px;
+    vertical-align: top;
+  }
+
+  .setup-array-only-newversion-label2 {
+    width: 28px;
+    height: 14px;
+    font-size: 10px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 13px;
+    display: inline-block;
+    vertical-align: top;
+    border-radius: 2px;
+    background: #EF403A;
+    text-align: center;
+    margin-top: 17px;
+    
+  }
 
   .setup-array-only-label-label {
     width:calc(100% - 212px);
@@ -1109,9 +1145,10 @@ export default {
     font-family: PingFangSC-Regular;
     font-size: 14px;
     color:rgba(255, 255, 255, 1);
-    margin: 5px 0px 5px 12px;
+    margin: 5px 15px 5px 12px;
     display: inline-block;
     text-align: center;
+    float: right;
   }
 
   .setup-clear-cache-btn:hover {
@@ -1123,14 +1160,16 @@ export default {
     font-family: PingFangSC-Regular;
     font-size: 14px;
     color:rgba(255, 255, 255, 1);
-    margin: 5px 0px 5px 12px;
+    margin: 5px 15px 5px 12px;
     display: inline-block;
     text-align: center;
+    float: right;
     cursor: pointer;
   }
 
   .setup-array-only-label-label2 {
-    width:94px;
+    position: absolute;
+    right: 115px;
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1143,7 +1182,6 @@ export default {
     color: rgba(153,153,153,1);
     white-space: nowrap;
     text-overflow: ellipsis;
-    text-align:right;
   }
 
   .setup-with-switch {
