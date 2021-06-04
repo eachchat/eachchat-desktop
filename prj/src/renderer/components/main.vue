@@ -304,7 +304,6 @@ export default {
         },
         showSetUpPage: function() {
             this.curindex = 3;
-            this.bshowNewversionDot = false;
             this.$router.push("/main/setup")
         },
         getAppBaseData:function() {
