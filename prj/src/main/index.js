@@ -346,6 +346,7 @@ ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   if(Object.keys(arg).length == 0) {
       noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
       noticeWindow.hide();
+      noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
       return;
   } 
   else {

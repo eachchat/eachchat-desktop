@@ -181,6 +181,7 @@ export default {
           }
           this.VoIPUnreadCount +=1 ;
         }
+        // this.showVoIPPage(this.voIPNoticeList[0])
         this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
       },
       updateNoticeContent(event, NoticeContent) {
