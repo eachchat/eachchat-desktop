@@ -29,8 +29,7 @@
         </div>
         
         <audio id="remoteAudio"></audio>
-        
-        <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
+        <div :class = "GetChatTimeStyle()" v-show = "state == 'connected'">{{getChatTime()}}</div>
         <div>
             <img class = "top-stick" v-if = "bTop" src = "../../../static/Img/VoIP/top.svg" @click = "unTopStick">
             <img class = "top-stick" v-else src = "../../../static/Img/VoIP/untop.svg" @click="topStick"> 
@@ -95,6 +94,7 @@ export default {
         roomInfo(){
             this.bTop = false;
             this.stateText = "";
+            this.state = "";
             this.nTime = 0;
             if(this.roomInfo.direction === "from"){
                 if(this.roomInfo.action && this.roomInfo.action == "show") {
@@ -170,7 +170,8 @@ export default {
             }
             else{
                 this.bShowStateText = true;
-                this.stateText = "";
+                this.stateText = "已接通";
+                clearInterval(this.intervalTime);
             }
             
             this.state = "connected"
@@ -375,6 +376,13 @@ export default {
                 return "videoMeterDiv";
             }
             return "audioMeterDiv";
+        },
+
+        GetChatTimeStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-chat-time";
+            }
+            return "audio-chat-time";
         }
     },
     created(){
@@ -806,10 +814,24 @@ export default {
     background-image: url("../../../static/Img/VoIP/answer.svg"); 
 }
 
-.chat-time{
+.audio-chat-time{
     position: absolute;
     z-index: 1;
     left: 136px;
+    top: 10px;
+    width: 28px;
+    height: 18px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 18px;
+}
+
+.video-chat-time{
+    position: absolute;
+    z-index: 1;
+    left: 300px;
     top: 10px;
     width: 28px;
     height: 18px;

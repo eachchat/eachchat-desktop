@@ -240,7 +240,7 @@ const ComponentUtil = {
             str += nHour;
             str += ":"
         }
-        if(nMinute > 10){
+        if(nMinute >= 10){
             str += nMinute;
         }
         else{
@@ -248,7 +248,7 @@ const ComponentUtil = {
             str += nMinute;
         }
         str += ":"
-        if(nSec > 10){
+        if(nSec >= 10){
             str += nSec
         }
         else{
