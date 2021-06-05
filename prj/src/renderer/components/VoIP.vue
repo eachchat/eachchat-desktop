@@ -81,14 +81,13 @@ export default {
                 width = 640;
                 height = 320;
             }
-            console.log("======= theType ", theType)
-                ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                    size:{width:width,height: height},
-                    roomInfo: { roomID: this.roomId,
-                                name: this.userInfo.userName,
-                                url:this.userInfo.userImg,
-                                voipType: this.isVideo == 1 ? "video" : "voice",
-                                action: "call"}});
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:width,height: height},
+                roomInfo: { roomID: this.roomId,
+                            name: this.userInfo.userName,
+                            url:this.userInfo.userImg,
+                            voipType: this.isVideo == 1 ? "video" : "voice",
+                            action: "call"}});
         }
     },
     watch: {
