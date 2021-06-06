@@ -53,7 +53,7 @@ function _setCallState(call, roomId, status) {
     // console.log(
     //     `Call state in ${roomId} changed to ${status} (${call ? call.call_state : "-"})`,
     // );
-    console.log("======= add call");
+    console.log("======= add call ", roomId);
     global.mxMatrixClientPeg.addCall(roomId, call);
 
     if (status === "ringing") {
@@ -75,7 +75,7 @@ async function updateTrayNotice() {
     for(var k in calls) {
         let checkCall = calls[k];
         console.log("updateTrayNotice ", checkCall);
-        if(checkCall.state && checkCall.state == "ringing") {
+        if(checkCall && checkCall.state && checkCall.state == "ringing") {
             let noticeType = "voice";
             if(checkCall && checkCall.type == "video") {
                 noticeType = "video";
@@ -112,13 +112,13 @@ function _setVideoCallListeners(call, videoCall) {
     call.on("hangup", function() {
         console.log("======= hangup ", updateTrayNotice);
         updateTrayNotice();
-        _setCallState(undefined, call.roomId, "ended");
         videoCall.afterCallState();
+        _setCallState(undefined, call.roomId, "ended");
     });
     // map web rtc states to dummy UI state
     // ringing|ringback|connected|ended|busy|stop_ringback|stop_ringing
     call.on("state", function(newState, oldState) {
-        console.log("===========", newState, oldState)
+        console.log("=========== callId is ", call.roomId, " newstate is ", newState, " oldstate is ", oldState)
         if (newState === "ringing") {
             _setCallState(call, call.roomId, "ringing");
             pause("ringbackAudio");
@@ -218,19 +218,25 @@ class mxVoIP{
     async handleComingVoip(call) {
         console.log("=======inconing call ", call);
         let isCalling = false;
-        let exitCall = global.mxMatrixClientPeg.getCall(call.roomID);
-        
-        console.log("wolegequ=====exitCall ", exitCall);
-        if(exitCall && exitCall.state != "ended") {
-            isCalling = true;
-        }
-        // if(isCalling) {
-        //     // I am busy now.
-        //     call.hangup(call.roomId);
-        //     return;
-        // }
 
-        // if(call.state == "ended") return;
+        let calls = global.mxMatrixClientPeg.getCall();
+
+        for(var k in calls) {
+            let checkCall = calls[k];
+            console.log("updateTrayNotice ", checkCall);
+            if(checkCall && checkCall.state && checkCall.state != "ended") {
+                isCalling = true;
+                break;
+            }
+        }
+        
+        if(isCalling) {
+            // I am busy now.
+            console.log("to hangup call room id ", call.roomId);
+            call.hangup(call.roomId);
+            console.log("hanguped ", call.roomId);
+            return;
+        }
         
         global.mxMatrixClientPeg.addCall(call.roomId, call);
         let noticeType = "voice";

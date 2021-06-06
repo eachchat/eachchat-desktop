@@ -62,12 +62,12 @@ export default {
                                 action: "hangup"}});
 
         for(let i = 0; i < this.voIPNoticeList.length; i++) {
-          if(this.voIPNoticeList[i].roomID == item.roomID) {
+          if(this.voIPNoticeList[i].roomID == item.roomId) {
             this.voIPNoticeList.splice(i, 1);
             break;
           }
         }
-        this.VoIPUnreadCount = this.voIPNoticeList.length;
+        this.VoIPUnreadCount = 0;//this.voIPNoticeList.length;
         this.toHideTrayWindow(true);
       },
       Answer(item) {
@@ -87,12 +87,12 @@ export default {
                                 action: "answer"}});
 
         for(let i = 0; i < this.voIPNoticeList.length; i++) {
-          if(this.voIPNoticeList[i].roomID == item.roomID) {
+          if(this.voIPNoticeList[i].roomID == item.roomId) {
             this.voIPNoticeList.splice(i, 1);
             break;
           }
         }
-        this.VoIPUnreadCount = this.voIPNoticeList.length;
+        this.VoIPUnreadCount = 0;//this.voIPNoticeList.length;
         this.toHideTrayWindow(true);
       },
       async showVoIPPage(item) {
@@ -112,12 +112,12 @@ export default {
                                 action: "show"}});
 
         for(let i = 0; i < this.voIPNoticeList.length; i++) {
-          if(this.voIPNoticeList[i].roomID == item.roomID) {
+          if(this.voIPNoticeList[i].roomID == item.roomId) {
             this.voIPNoticeList.splice(i, 1);
             break;
           }
         }
-        this.VoIPUnreadCount = this.voIPNoticeList.length;
+        this.VoIPUnreadCount = 0;//this.voIPNoticeList.length;
         this.toHideTrayWindow();
       },
       clearAll() {
@@ -226,7 +226,7 @@ export default {
           
           this.hasVoIP = true;
         }
-        this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
+        // this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
       },
       noticeList: function() {
         if(this.noticeList.length == 0) {
@@ -235,7 +235,7 @@ export default {
         else {
           this.hasMsg = true;
         }
-        this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
+        // this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
       }
     }
 }
