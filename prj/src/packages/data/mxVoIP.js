@@ -287,12 +287,12 @@ class mxVoIP{
     }
 
     hangUp(room_id, time) {
-        if (global.mxMatrixClientPeg.getCall(room_id)) {
+        if (room_id && global.mxMatrixClientPeg.getCall(room_id)) {
             console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
             global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
             global.mxMatrixClientPeg.getCall(room_id).hangup();
+            global.mxMatrixClientPeg.removeCall(room_id);
         }
-        global.mxMatrixClientPeg.removeCall(room_id);
         ipcRenderer.emit("close");
         updateTrayNotice();
     }
