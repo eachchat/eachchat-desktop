@@ -1,6 +1,6 @@
 <template>
     <div>
-        <video :class = "GetLargeWindowStyle()" id = "large-window"></video>
+        <video class = "large-window" id = "large-window"></video>
         <video class = "small-window" id = "small-window" v-show = "bSmallWindow"></video>
         <audio id="messageAudio">
             <source src="../../../static/message.ogg" type="audio/ogg" />
@@ -294,13 +294,6 @@ export default {
             this.isMute = true;
         },
 
-        GetLargeWindowStyle(){
-            if(this.roomInfo.voipType == "video"){
-                return "video-large-window";
-            }
-            return "audio-large-window";
-        },
-
         GetUserImgStyle(){
             if(this.roomInfo.voipType === "video"){
                 return "video-user-img";
@@ -401,20 +394,10 @@ export default {
     display: none;
 }
 
-.audio-large-window{
+.large-window{
     z-index: 0;
-    width: 300px;
-    height: 480px;
-    position: absolute;
-    background: #4A4C5B;
-    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);
-    border-radius: 4px;
-}
-
-.video-large-window{
-    z-index: 0;
-    width: 640px;
-    height: 320px;
+    width: 100%;
+    height: 100%;
     position: absolute;
     background: #4A4C5B;
     box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);

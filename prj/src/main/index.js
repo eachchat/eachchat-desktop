@@ -160,6 +160,7 @@ const ipcMain = require('electron').ipcMain;
 
 ipcMain.on('showMainPageWindow', function(event, arg) {
   if(!mainWindow) return;
+  CreateChildWindows();
   isLogin = true;
   mainWindow.hide();
   mainWindow.setResizable(true);
@@ -1404,7 +1405,9 @@ function createWindow () {
     height = 470;
     width = 600;
   }
+}
 
+function CreateChildWindows(){
   let childwindowFactory = new ChildWindow();
   let thirdpartyWindowBrowser = childwindowFactory.CreateThirdPartyBrowser(iconPath);
   let childRenderWindowBrowser = childwindowFactory.CreateChildRenderBrowser(iconPath);
@@ -1456,7 +1459,6 @@ function createWindow () {
     voipWindowBrowser.hide();
     mainWindow.show();
   })
-  
 }
 
 ipcMain.on("openDevTools", function(event) {
