@@ -1825,7 +1825,7 @@ export default {
         width: 70%;
         float: left;
         display: block;
-        margin-left: 8px;
+        margin-left: 16px;
     }
 
     .my-file-progress {
