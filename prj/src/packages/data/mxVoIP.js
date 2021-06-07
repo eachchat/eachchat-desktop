@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import Matrix from 'matrix-js-sdk';
 import {ComponentUtil} from '../../renderer/script/component-util.js';
+import log from 'electron-log';
 
 
 const audioPromises = {};
@@ -108,9 +109,11 @@ async function updateTrayNotice() {
 function _setVideoCallListeners(call, videoCall) {
     call.on("error", function(err) {
         console.error("Call error:", err);
+        log.info("Call error:", err)
     });
     call.on("hangup", function() {
         console.log("======= hangup ", updateTrayNotice);
+        log.info("======= hangup callid:", call.roomId)
         updateTrayNotice();
         videoCall.afterCallState();
         _setCallState(undefined, call.roomId, "ended");
@@ -119,6 +122,7 @@ function _setVideoCallListeners(call, videoCall) {
     // ringing|ringback|connected|ended|busy|stop_ringback|stop_ringing
     call.on("state", function(newState, oldState) {
         console.log("=========== callId is ", call.roomId, " newstate is ", newState, " oldstate is ", oldState)
+        log.info("=========== callId is ", call.roomId, " newstate is ", newState, " oldstate is ", oldState)
         if (newState === "ringing") {
             _setCallState(call, call.roomId, "ringing");
             pause("ringbackAudio");
