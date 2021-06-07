@@ -5,7 +5,8 @@
         </div>
         <div class="voipTimeZero" v-show="duration == 0">
             <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
-            <div class="voip-notime" alt="通话结束" style="vertical-align:middle">{{voipTimeLabel}}</div>
+            <div class="voip-notime" v-show="!isMine" alt="已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
+            <div class="voip-notime-mine" v-show="isMine" alt="对方已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
         </div>
         <div class="voipTime" v-show="duration > 0">
             <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
@@ -100,7 +101,7 @@ export default {
                     }
                     else {
                         if(this.duration == 0) {
-                            this.voipTimeLabel = this.isVideo == 1 ? "视频通话" : "语音通话";
+                            this.voipTimeLabel = this.isMine == 1 ? "已取消" : "对方已取消";
                         }
                         else {
                             let duration = Math.floor(this.duration/1000);
@@ -120,6 +121,9 @@ export default {
                             msgElement.style.float = "left";
                             msgElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
                             msgElement.style.color = "rgba(0, 0, 0, 1)";
+                            if(this.duration == 0) {
+                                msgElement.style.width = ""
+                            }
                         }
                     }
                 })
@@ -191,6 +195,20 @@ export default {
     }
 
     .voip-notime {
+        width: 70px;
+        height: 20px;
+        margin: 10px 12px 10px 4px;
+        display: inline-block;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 20px;
+        letter-spacing: 0px;
+        font-family: 'PingFangSC-Regular';
+        font-weight: 400;
+        font-size: 14px;
+    }
+
+    .voip-notime-mine {
         width: 60px;
         height: 20px;
         margin: 10px 12px 10px 4px;
