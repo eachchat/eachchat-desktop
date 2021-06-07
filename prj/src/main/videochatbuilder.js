@@ -28,6 +28,7 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
             this.showWindow();
         }
         this.childWindow.setResizable(false);
+        this.childWindow.setMaximizable(false);
         if (process.env.NODE_ENV === "development") {
             this.childWindow.webContents.openDevTools();
             this.childWindow.setResizable(true);
