@@ -16,8 +16,8 @@
               <div class="voIPNoticeItemName" v-on:mouseover="mousein">{{voIPNoticeItem.showContent}}</div>
             </div>
             <div class="noticeVoIPControl" v-on:mouseover="mousein">
-              <img class="noticeVoIPControlHangup" src="../../../static/Img/VoIP/noticeHangup@2x.png" @click="Hangup(voIPNoticeItem)" v-on:mouseover="mousein">
               <img class="noticeVoIPControlAnswer" src="../../../static/Img/VoIP/noticeAnswer@2x.png" @click="Answer(voIPNoticeItem)" v-on:mouseover="mousein">
+              <img class="noticeVoIPControlHangup" src="../../../static/Img/VoIP/noticeHangup@2x.png" @click="Hangup(voIPNoticeItem)" v-on:mouseover="mousein">
             </div>
           </li>
         </ul>
