@@ -1,7 +1,7 @@
 <template>
     <div class="groupInfo" id="groupInfoTipId" @click="closeOptionItem">
         <div class="groupInfoTitleDiv">
-            <p class="groupInfoTitle">设置</p>
+            <p class="groupInfoTitle">聊天信息</p>
         </div>
         <div class="innerWrap" :class="{'scrolly': !isDm}">
             <div class="groupInfo-view">
