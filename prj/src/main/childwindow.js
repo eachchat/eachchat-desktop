@@ -30,6 +30,7 @@ class ChildWindow{
 
     CreateChildRenderBrowser(iconPath){
       let browser = this.createBrowser(iconPath);
+      browser.setFullScreenable(false);
       const childwindowURL = process.env.NODE_ENV === 'development'
       ? `http://localhost:9080/#/childwindow`
       : `file://${__dirname}/index.html#childwindow`;
