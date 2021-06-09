@@ -351,26 +351,26 @@ class mxVoIP{
 
     answerVideoChat(room_id, videochat){
         let call = global.mxMatrixClientPeg.getCall(room_id);
-        call.answer();
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
+        call.answer();
         updateTrayNotice();
     }
 
     answerVoiceChat(room_id) {
         let call = global.mxMatrixClientPeg.getCall(room_id);
         if(call) {
-            call.answer();
             let largeWindow = document.getElementById("large-window");
             let smallWindow = document.getElementById("small-window");
             let remoteAudio = document.getElementById("remoteAudio");
             call.setLocalVideoElement(smallWindow);
             call.setRemoteVideoElement(largeWindow);
             call.setRemoteAudioElement(remoteAudio);
+            call.answer();
             updateTrayNotice();
         }
     }
@@ -378,5 +378,6 @@ class mxVoIP{
 }
 
 export{
-    mxVoIP
+    mxVoIP,
+    pause
 }
