@@ -19,6 +19,7 @@
                     <input required type = 'text' class="ownerDisplayInfoBaseLabel2" id="ownerInfoDisplayNameId" v-model = "ownerDisplayName" maxLength = 32
                     placeholder="请输入昵称" @change="displayNameChange()">
                     <img class="ownerInfoEditIcon" src="../../../static/Img/Setup/edit20px@2x.png"/>
+                    <div v-show = "this.ownerDisplayName == 0" class = 'change-name-error-tip'>昵称不能为空</div>
                 </div>
                 <div class="ownerInfoBaseDiv">
                     <label class="ownerInfoBaseLabel">{{$t("setting.username")}}</label>
@@ -361,6 +362,18 @@ export default {
             width: 20px;
             height: 20px;
             margin: 10px 0 10px 0;
+        }
+
+        .change-name-error-tip{
+            width: 84px;
+            height: 20px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #E4312B;
+            line-height: 20px;
+            margin-top: -14px;
+            margin-left: 115px;
         }
     }
 
