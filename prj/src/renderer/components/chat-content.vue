@@ -2199,7 +2199,7 @@ export default {
       let curDomainKey = curIdSpliterInfo.pop();
       let allUid = [];
       let checkingInterval = null;
-      let maxTimes = 60;
+      let maxTimes = 20;
       let curTimes = 0;
       let isOtherDomain = matrix_id => {
         let idSplitInfo = matrix_id.split(":");
