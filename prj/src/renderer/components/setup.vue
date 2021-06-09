@@ -26,9 +26,9 @@
         </div>
         <div class="setup-details" id="setup-details-id">
             <label class="setup-title" id="setup-details-general-id">{{$t("setting.general")}}</label>
-            <div class="setup-array">
+            <div class="setup-array" @click="showOwnerInfo">
                 <label class="setup-array-label">{{$t("setting.myInformation")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showOwnerInfo">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
             <div class="setup-with-drop-down" v-show="false">
                 <label class="setup-with-drop-down-label">多语言</label>
@@ -61,19 +61,19 @@
                 <label class="setup-array-with-label-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
-            <div class="setup-array" v-show="canChangePwd">
+            <div class="setup-array" v-show="canChangePwd" @click="changePassword">
                 <label class="setup-array-label">{{$t("setting.change_password")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
-            <div class="setup-array-with-label">
+            <div class="setup-array-with-label" @click="showDeviceList">
                 <label class="setup-array-with-label-label">{{$t("setting.session_management")}}</label>
                 <label class="setup-array-with-label-label2" id="setup-security-devict-list-label2-id"></label>
-                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
             </div>
-            <div class="setup-array-with-label">
+            <div class="setup-array-with-label" @click="accountManager">
                 <label class="setup-array-with-label-label">{{$t("setting.account_management")}}</label>
                 <label class="setup-array-with-label-label2" id="setup-security-account-manager-label2-id"></label>
-                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
             </div>
             <label class="setup-title" id="setup-details-sys-id">{{$t("setting.system")}}</label>
             <div class="setup-with-switch">
@@ -102,13 +102,13 @@
                 <label class="setup-array-only-label-label2">{{lVersion}}</label>
                 <div class="setup-clear-cache-btn" @click="CheckUpdate">{{$t("setting.check_for_update")}}</div>
             </div>
-            <div class="setup-array">
+            <div class="setup-array" @click="showAgreement">
                 <label class="setup-array-label">{{$t("setting.user_agreement")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
-            <div class="setup-array">
+            <div class="setup-array" @click="showPrivacy">
                 <label class="setup-array-label">{{$t("setting.privacy_policy")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
             <div class="setup-logout" @click="logout()">{{$t("setting.sign_out")}}</div>
         </div>
