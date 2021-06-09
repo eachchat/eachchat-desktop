@@ -226,6 +226,10 @@ export default {
                 that.showUserInfoTips = false;
             }
         });
+
+        document.addEventListener('contextmenu',(e) => {
+            this.showUserInfoTips = false;
+        });
     }
 }
 </script>
