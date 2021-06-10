@@ -326,7 +326,7 @@ export default {
                         return;
                     }
                 }
-                this.dlgElement.style.height = "200px";
+                this.dlgElement.style.height = "294px";
                 this.isBindInputPasswordPage = false;
                 this.isMainPage = true;
                 this.cutTitle = "账号管理";
