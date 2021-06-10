@@ -976,7 +976,7 @@ export default {
             this.curOperate = "multTrans";
             if(this.transmitNeedAlert) {
                 this.alertContnets = {
-                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Details": "你选择的消息中包含语音或音视频不支持转发，是否继续？",
                     "Abstrace": "提示"
                 }
                 this.showAlertDlg = true;
@@ -1232,7 +1232,7 @@ export default {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
-                if(this.MsgIsVoice(k)) {
+                if(this.MsgIsVoice(k) || this.MsgIsVoipCall(k)) {
                     this.transmitNeedAlert = true;
                 }
                 if(this.MsgIsTransmit(k)) {
@@ -1266,6 +1266,10 @@ export default {
             else{
                 return false;
             }
+        },
+        MsgIsVoipCall: function(msg) {
+            if(msg.event.type.indexOf("m.call") >= 0) return true;
+            else return false;
         },
         MsgIsVoice: function(msg) {
             let chatGroupMsgType = msg.event.content.msgtype == undefined ? msg.getContent().msgtype : msg.event.content.msgtype;
