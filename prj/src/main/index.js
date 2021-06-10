@@ -1392,6 +1392,7 @@ function createWindow () {
     })
     noticeWindow.setSkipTaskbar(true);
     noticeWindow.loadURL(trayNoticeURL);
+    noticeWindow.setParentWindow(mainWindow);
     noticeWindow.on('close', (event) => {
       if(clickQuit){
         app.quit();
