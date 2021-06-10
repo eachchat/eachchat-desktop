@@ -221,18 +221,19 @@ class mxVoIP{
 
     async handleComingVoip(call) {
         console.log("=======inconing call ", call);
+        let isExisting = false;
         let isCalling = false;
-
         let calls = global.mxMatrixClientPeg.getCall();
-
         for(var k in calls) {
             let checkCall = calls[k];
-            console.log("updateTrayNotice ", checkCall);
             if(checkCall && checkCall.state && checkCall.state != "ended") {
                 isCalling = true;
-                break;
+                if(call && checkCall.callId == call.callId) {
+                    isExisting = true;
+                }
             }
         }
+        if(isExisting) return;
         
         if(isCalling) {
             // I am busy now.
