@@ -12,6 +12,7 @@ class ChildWindow{
     createBrowser(iconPath){
         return new BrowserWindow({     
             resizable: true,
+            fullscreenable: false,
             webPreferences: {
                 webSecurity:false,
                 nodeIntegration:true,
