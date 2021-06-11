@@ -207,6 +207,7 @@ export default {
             else{
                 global.viopChat.answerVoiceChat(this.roomInfo.roomID);
             }
+            this.setCallInfo(this.roomInfo);
         },
 
         afterAnswerState(){
