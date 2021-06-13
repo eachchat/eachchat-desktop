@@ -309,13 +309,13 @@ function calcTrayNoticePosition() {
     let showX = screenSize.width - trayBounds.x + trayBounds.width/2 > 130 ? (trayBounds.x + trayBounds.width/2 - 130) : screenSize.width - 20 - 240 ;
     let showY = screenSize.height - noticeHeight;
     console.log("final show posision ", showX, " y ", showY)
-    noticeWindow.setPosition(showX, showY)
+    noticeWindow.setPosition(parseInt(showX), parseInt(showY))
   }
   else {
     let showX = screenSize.width - 240 ;
     let showY = noticeHeight;
     console.log("final show posision ", showX, " y ", showY)
-    noticeWindow.setPosition(showX, showY)
+    noticeWindow.setPosition(parseInt(showX), parseInt(showY))
   }
 }
 
@@ -1339,7 +1339,7 @@ function createWindow () {
     }
   }
   else if(process.platform == 'win32') {
-    if(mainWindow && mainWindow.isFocused()) {
+    if(mainWindow && mainWindow.isFocused() && isLogin) {
       globalShortcut.register('Escape', () => {
         mainWindow.hide();
       })
@@ -1392,7 +1392,9 @@ function createWindow () {
     })
     noticeWindow.setSkipTaskbar(true);
     noticeWindow.loadURL(trayNoticeURL);
-    noticeWindow.setParentWindow(mainWindow);
+    if(process.platform == "darwin") {
+      noticeWindow.setParentWindow(mainWindow);
+    }
     noticeWindow.on('close', (event) => {
       if(clickQuit){
         app.quit();
@@ -1624,15 +1626,15 @@ app.on('browser-window-focus', () => {
         }
       })
   }
-  else if(process.platform == 'win32') {
-    // globalShortcut.register('Escape', () => {
-    //   if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
-    //     assistWindow.hide();
-    //   }
-    //   else {
-    //     mainWindow.hide();
-    //   }
-    // })
+  else if(process.platform == 'win32' && isLogin) {
+    globalShortcut.register('Escape', () => {
+      if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+        assistWindow.hide();
+      }
+      else {
+        mainWindow.hide();
+      }
+    })
   }
 })
 
