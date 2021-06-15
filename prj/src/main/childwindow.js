@@ -6,7 +6,9 @@ import {VideoChatWindowBuilder} from "./videochatbuilder.js"
 import { TransmitMsgWindowBuilder } from "./transmitmsglist.js"
 class ChildWindow{
     constructor(){
-
+      this.thirdpartyBrowser = null;
+      this.childrenderBrowser = null;
+      this.voipBrwoser = null;
     }
 
     createBrowser(iconPath){
@@ -25,27 +27,33 @@ class ChildWindow{
     }
 
     CreateThirdPartyBrowser(iconPath){
-      return this.createBrowser(iconPath);
+      if(!this.thirdpartyBrowser){
+        this.thirdpartyBrowser = this.createBrowser(iconPath);
+      }
+      return this.thirdpartyBrowser;
     }
 
 
     CreateChildRenderBrowser(iconPath){
-      let browser = this.createBrowser(iconPath);
-      browser.setFullScreenable(false);
-      const childwindowURL = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080/#/childwindow`
-      : `file://${__dirname}/index.html#childwindow`;
-      browser.loadURL(childwindowURL);
-      return browser;
+      if(!this.childrenderBrowser){
+        this.childrenderBrowser = this.createBrowser(iconPath);
+        const childwindowURL = process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/childwindow`
+        : `file://${__dirname}/index.html#childwindow`;
+        this.childrenderBrowser.loadURL(childwindowURL);
+      }
+      return this.childrenderBrowser;
     }
 
     CreateVoipBrowser(iconPath){
-      let browser = this.createBrowser(iconPath);
-      const voipwindowURL = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080/#/voipwindow`
-      : `file://${__dirname}/index.html#voipwindow`;
-      browser.loadURL(voipwindowURL);
-      return browser;
+      if(!this.voipBrwoser){
+        this.voipBrwoser = this.createBrowser(iconPath);
+        const voipwindowURL = process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/voipwindow`
+        : `file://${__dirname}/index.html#voipwindow`;
+        this.voipBrwoser.loadURL(voipwindowURL);
+      }
+      return this.voipBrwoser;
     }
     
 }

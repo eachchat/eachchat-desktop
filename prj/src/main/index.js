@@ -157,6 +157,7 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 const ipcMain = require('electron').ipcMain;
+let childwindowFactory = new ChildWindow();
 
 ipcMain.on('showMainPageWindow', function(event, arg) {
   if(!mainWindow) return;
@@ -1412,7 +1413,7 @@ function createWindow () {
 }
 
 function CreateChildWindows(){
-  let childwindowFactory = new ChildWindow();
+  console.log("CreateChildWindows function")
   let thirdpartyWindowBrowser = childwindowFactory.CreateThirdPartyBrowser(iconPath);
   let childRenderWindowBrowser = childwindowFactory.CreateChildRenderBrowser(iconPath);
   let voipWindowBrowser = childwindowFactory.CreateVoipBrowser(iconPath);
