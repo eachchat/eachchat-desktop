@@ -976,7 +976,7 @@ export default {
             this.curOperate = "multTrans";
             if(this.transmitNeedAlert) {
                 this.alertContnets = {
-                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Details": "你选择的消息中包含语音或音视频不支持转发，是否继续？",
                     "Abstrace": "提示"
                 }
                 this.showAlertDlg = true;
@@ -1232,7 +1232,7 @@ export default {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
-                if(this.MsgIsVoice(k)) {
+                if(this.MsgIsVoice(k) || this.MsgIsVoipCall(k)) {
                     this.transmitNeedAlert = true;
                 }
                 if(this.MsgIsTransmit(k)) {
@@ -1266,6 +1266,10 @@ export default {
             else{
                 return false;
             }
+        },
+        MsgIsVoipCall: function(msg) {
+            if(msg.event.type.indexOf("m.call") >= 0) return true;
+            else return false;
         },
         MsgIsVoice: function(msg) {
             let chatGroupMsgType = msg.event.content.msgtype == undefined ? msg.getContent().msgtype : msg.event.content.msgtype;
@@ -3269,6 +3273,7 @@ export default {
             let curNum = this.messageList.length;
             this.getDistShowMessage(this.messageFilter, curNum + 10, 'f')
                 .then((ret) => {
+                    if(ret[0] && ret[0].event.room_id != this.curChat.roomId) return;
                     this.messageList = ret
                     this.isRefreshing = false;
                     setTimeout(() => {
@@ -3319,6 +3324,7 @@ export default {
                     this.getShowMessage(this.messageFilter, curNum + 10, 'b')
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
+                            if(ret[0] && ret[0].event.room_id != this.curChat.roomId) return;
                             this.messageList = ret.concat(this.sendingList);
                             setTimeout(() => {
                                 this.$nextTick(() => {
@@ -3355,6 +3361,7 @@ export default {
                     let curNum = this.messageList.length;
                     this.getShowMessage(this.messageFilter, curNum + 10, 'f')
                         .then((ret) => {
+                            if(ret[0] && ret[0].event.room_id != this.curChat.roomId) return;
                             this.messageList = ret.concat(this.sendingList);
                             let index = 0;
                             this.isRefreshing = false;
@@ -3640,7 +3647,7 @@ export default {
                 console.log("*** initMessage 。。。。 ");
                 this.toGetShowMessage()
                     .then((ret) => {
-                        if(ret[0].event.room_id != this.curChat.roomId) {
+                        if(ret[0] && ret[0].event.room_id != this.curChat.roomId) {
                             return;
                         }
                         this.isRefreshing = false;
@@ -3961,6 +3968,7 @@ export default {
                     this.$store.commit('removeSendingEvents', messageListTmp[i]);
                 }
                 if(this.messageFilter(messageListTmp[i])){
+                    if(messageListTmp[i].event.room_id != this.curChat.roomId) return;
                     this.messageList.unshift(messageListTmp[i]);
                 }
             }
@@ -4039,6 +4047,7 @@ export default {
                         this.$store.commit('removeSendingEvents', messageListTmp[i]);
                     }
                     if(this.messageFilter(messageListTmp[i])){
+                        if(messageListTmp[i].event.room_id != this.curChat.roomId) return;
                         this.messageList.unshift(messageListTmp[i]);
                     }
                 }
@@ -4111,6 +4120,7 @@ export default {
                 this.messageList = [];
                 for(var i=messageListTmp.length - 1;i>0;i--){
                     if(this.messageFilter(messageListTmp[i])){
+                        if(messageListTmp[i].event.room_id != this.chat.roomId) return;
                         this.messageList.unshift(messageListTmp[i]);
                     }
                 }
@@ -4170,6 +4180,7 @@ export default {
                     this.$store.commit('removeSendingEvents', messageListTmp[i]);
                 }
                 if(this.messageFilter(messageListTmp[i])){
+                    if(messageListTmp[i].room_id != this.curChat.roomId) return;
                     this.messageList.unshift(messageListTmp[i]);
                 }
             }
@@ -4231,6 +4242,7 @@ export default {
                         this.$store.commit('removeSendingEvents', messageListTmp[i]);
                     }
                     if(this.messageFilter(messageListTmp[i])){
+                        if(messageListTmp[i].event.room_id != this.curChat.roomId) return;
                         this.messageList.unshift(messageListTmp[i]);
                     }
                 }

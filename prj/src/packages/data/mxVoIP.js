@@ -222,15 +222,14 @@ class mxVoIP{
     async handleComingVoip(call) {
         console.log("=======inconing call ", call);
         let isCalling = false;
-
         let calls = global.mxMatrixClientPeg.getCall();
-
         for(var k in calls) {
             let checkCall = calls[k];
-            console.log("updateTrayNotice ", checkCall);
             if(checkCall && checkCall.state && checkCall.state != "ended") {
                 isCalling = true;
-                break;
+                if(call && checkCall.callId == call.callId) {
+                    return;
+                }
             }
         }
         
@@ -351,26 +350,26 @@ class mxVoIP{
 
     answerVideoChat(room_id, videochat){
         let call = global.mxMatrixClientPeg.getCall(room_id);
-        call.answer();
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
+        call.answer();
         updateTrayNotice();
     }
 
     answerVoiceChat(room_id) {
         let call = global.mxMatrixClientPeg.getCall(room_id);
         if(call) {
-            call.answer();
             let largeWindow = document.getElementById("large-window");
             let smallWindow = document.getElementById("small-window");
             let remoteAudio = document.getElementById("remoteAudio");
             call.setLocalVideoElement(smallWindow);
             call.setRemoteVideoElement(largeWindow);
             call.setRemoteAudioElement(remoteAudio);
+            call.answer();
             updateTrayNotice();
         }
     }
@@ -378,5 +377,6 @@ class mxVoIP{
 }
 
 export{
-    mxVoIP
+    mxVoIP,
+    pause
 }

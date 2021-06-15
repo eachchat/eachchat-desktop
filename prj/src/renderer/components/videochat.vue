@@ -61,6 +61,7 @@
 <script>
 import {ipcRenderer} from 'electron'
 import {ComponentUtil} from '../script/component-util.js';
+import {pause} from "../../packages/data/mxVoIP.js"
 
 export default {
     data(){
@@ -101,6 +102,7 @@ export default {
                     this.beforeAnswerState();
                 }
                 else if(this.roomInfo.action && this.roomInfo.action == "answer") {
+                    pause("ringAudio");
                     this.answerState();
                 }
                 else if(this.roomInfo.action && this.roomInfo.action == "hangup") {
@@ -205,6 +207,7 @@ export default {
             else{
                 global.viopChat.answerVoiceChat(this.roomInfo.roomID);
             }
+            this.setCallInfo(this.roomInfo);
         },
 
         afterAnswerState(){

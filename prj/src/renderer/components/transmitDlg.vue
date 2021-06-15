@@ -868,7 +868,7 @@ export default {
             };
             msgs.forEach((msg) => {
                 let curContent = msg.getContent();
-                if(curContent.msgtype == "m.audio") {
+                if(curContent.msgtype == "m.audio" || msg.event.type.indexOf("m.call") >= 0) {
                     return;
                 }
                 if(msg.event.content.info != undefined) {
