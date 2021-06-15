@@ -25,6 +25,7 @@ export default {
         onVoipWindow(e, args){
             console.log(args)
             if(args.type === "videoChatWindow"){
+                if(global.viopChat.callingCall()) return;
                 this.showVideoChat();
                 this.roomInfo = args.args;
             }

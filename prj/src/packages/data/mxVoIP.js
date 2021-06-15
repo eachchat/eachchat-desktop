@@ -219,21 +219,24 @@ class mxVoIP{
         })
     }
 
-    async handleComingVoip(call) {
-        console.log("=======inconing call ", call);
-        let isCalling = false;
+    callingCall(){
         let calls = global.mxMatrixClientPeg.getCall();
         for(var k in calls) {
             let checkCall = calls[k];
             if(checkCall && checkCall.state && checkCall.state != "ended") {
-                isCalling = true;
-                if(call && checkCall.callId == call.callId) {
-                    return;
-                }
+                return checkCall;
             }
         }
+    }
+
+    async handleComingVoip(call) {
+        console.log("=======inconing call ", call);
+        let checkCall = this.callingCall();
+        if(call && checkCall && checkCall.callId == call.callId) {
+            return;
+        }
         
-        if(isCalling) {
+        if(checkCall) {
             // I am busy now.
             console.log("to hangup call room id ", call.roomId);
             call.hangup(call.roomId);
