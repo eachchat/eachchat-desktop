@@ -19,7 +19,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bCollections && !chatGroupItem.localRemoved'>
+                  v-show='bCollections && !chatGroupItem.localRemoved && !isSecret(chatGroupItem)'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-fav-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -51,7 +51,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite" && !chatGroupItem.localRemoved'>
+                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite" && !chatGroupItem.localRemoved && !isSecret(chatGroupItem)'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -81,7 +81,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms && !chatGroupItem.localRemoved'>
+                  v-show='bRooms && !chatGroupItem.localRemoved && !isSecret(chatGroupItem)'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -163,6 +163,7 @@
                   <li class="search-item"
                       v-for="searchChatItem in searchChatItems"
                       @click="toShowDistChat(searchChatItem)"
+                      v-show="!isSecret(searchChatItem)"
                       >
                     <div class="search-list-chat-list-div">
                       <div class="search-item-img-div">
@@ -194,6 +195,7 @@
                   <li :class = 'getGroupClassName(searchMessageItem)("search-item")'
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
+                      v-show="!isSecret(searchChatItem)"
                       >
                     <div :class = 'getGroupDivClassName(searchMessageItem)("search-list-content-list-div")' >
                       <div class="search-item-img-div">
@@ -1255,7 +1257,7 @@ export default {
       setTimeout(()=>{this.viewRoom(room)}, 160);
     },
     isSecret(item) {
-      return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId);
+      return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId ? item.roomId : item.room_id);
     },
     ChatGroupId(item) {
       return "chat-v-bind-" + item.roomId;
