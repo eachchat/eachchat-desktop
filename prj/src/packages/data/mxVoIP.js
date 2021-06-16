@@ -107,7 +107,6 @@ async function updateTrayNotice() {
 }
 
 function _setVideoCallListeners(call, videoCall) {
-    ipcRenderer.send("CallingState", 'busy');
     call.on("error", function(err) {
         console.error("Call error:", err);
         log.info("Call error:", err)
@@ -153,6 +152,7 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(call, call.roomId, "stop_ringing");
             pause("ringbackAudio");
         } else if (newState === "connected") {
+            ipcRenderer.send("CallingState", 'busy');
             _setCallState(call, call.roomId, "connected");
             videoCall.connectedState(call.type);
             pause("ringbackAudio");
@@ -314,6 +314,7 @@ class mxVoIP{
         console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
         _setVideoCallListeners(call, global.viopChat.videochat);
+        ipcRenderer.send("CallingState", 'busy');
         call.placeVoiceCall();
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
@@ -331,6 +332,7 @@ class mxVoIP{
         let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
         _setVideoCallListeners(call, videochat);
+        ipcRenderer.send("CallingState", 'busy');
         call.placeVideoCall();
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
