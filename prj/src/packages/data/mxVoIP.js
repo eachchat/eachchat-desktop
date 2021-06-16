@@ -135,7 +135,7 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(undefined, call.roomId, "ended");
             pause("ringbackAudio");
             play("callendAudio");
-            
+            ipcRenderer.send("CallingState", 'ended');
         } else if (newState === "ended" && oldState === "invite_sent" &&
                 (call.hangupParty === "remote" ||
                 (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
@@ -156,6 +156,7 @@ function _setVideoCallListeners(call, videoCall) {
             pause("ringbackAudio");
             console.log("================connected ", updateTrayNotice);
             updateTrayNotice();
+            ipcRenderer.send("CallingState", 'connected');
         }else {
             console.log("Final undeal state");
         }

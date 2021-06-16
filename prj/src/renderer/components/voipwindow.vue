@@ -25,14 +25,6 @@ export default {
         onVoipWindow(e, args){
             console.log(args)
             if(args.type === "videoChatWindow"){
-                let calling = global.viopChat.callingCall();
-                if(calling && calling.roomId != args.args.roomID ) 
-                {
-                    return;
-                }
-                if(calling && calling.roomId === args.args.roomID && calling.state === "connecting"){
-                    return;
-                }
                 this.showVideoChat();
                 this.roomInfo = args.args;
             }

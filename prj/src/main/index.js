@@ -4,6 +4,7 @@ import fs from 'fs-extra'
 import * as path from 'path'
 import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
 import {createChildWindow, ChildWindow} from './childwindow.js'
+import {callingState} from "./ipcfunc.js"
 
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
@@ -34,6 +35,7 @@ var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 let isLogin = false;
 let toHide = false;
+
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   emptyIconPath = "../../static/Img/Main/logo-empty.ico";
@@ -1417,6 +1419,10 @@ function CreateChildWindows(){
   let thirdpartyWindowBrowser = childwindowFactory.CreateThirdPartyBrowser(iconPath);
   let childRenderWindowBrowser = childwindowFactory.CreateChildRenderBrowser(iconPath);
   let voipWindowBrowser = childwindowFactory.CreateVoipBrowser(iconPath);
+
+  ipcMain.on("CallingState", (event, args) => {
+    callingState.setCallingState(args);
+  })
 
   ipcMain.on("createChildWindow", function(event, args){
     let mainwindowArgs = {};

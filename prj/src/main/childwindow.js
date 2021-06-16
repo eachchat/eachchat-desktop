@@ -4,6 +4,8 @@ import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
 import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
 import {VideoChatWindowBuilder} from "./videochatbuilder.js"
 import { TransmitMsgWindowBuilder } from "./transmitmsglist.js"
+import {callingState} from "./ipcfunc.js"
+
 class ChildWindow{
     constructor(){
       this.thirdpartyBrowser = null;
@@ -59,8 +61,6 @@ class ChildWindow{
 }
 
 function createChildWindow(mainwindowArgs){
-    console.log("createChildWindow", mainwindowArgs);
-
     let mainWindow = mainwindowArgs.mainWindow;
     let isLogin = mainwindowArgs.isLogin;
     let thirdpartyWindowBrowser = mainwindowArgs.thirdpartyBrowser;
@@ -97,6 +97,7 @@ function createChildWindow(mainwindowArgs){
       }
 
       case "videoChatWindow":{
+        if(callingState.calling()) return;
         let VideoChatWindow = new VideoChatWindowBuilder(voipRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
         VideoChatWindow.build();
         break;
