@@ -107,6 +107,7 @@ async function updateTrayNotice() {
 }
 
 function _setVideoCallListeners(call, videoCall) {
+    ipcRenderer.send("CallingState", 'busy');
     call.on("error", function(err) {
         console.error("Call error:", err);
         log.info("Call error:", err)
@@ -117,6 +118,7 @@ function _setVideoCallListeners(call, videoCall) {
         updateTrayNotice();
         videoCall.afterCallState();
         _setCallState(undefined, call.roomId, "ended");
+        ipcRenderer.send("CallingState", 'free');
     });
     // map web rtc states to dummy UI state
     // ringing|ringback|connected|ended|busy|stop_ringback|stop_ringing
@@ -135,7 +137,7 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(undefined, call.roomId, "ended");
             pause("ringbackAudio");
             play("callendAudio");
-            ipcRenderer.send("CallingState", 'ended');
+            ipcRenderer.send("CallingState", 'free');
         } else if (newState === "ended" && oldState === "invite_sent" &&
                 (call.hangupParty === "remote" ||
                 (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
@@ -156,7 +158,6 @@ function _setVideoCallListeners(call, videoCall) {
             pause("ringbackAudio");
             console.log("================connected ", updateTrayNotice);
             updateTrayNotice();
-            ipcRenderer.send("CallingState", 'connected');
         }else {
             console.log("Final undeal state");
         }
@@ -262,37 +263,19 @@ class mxVoIP{
             distUrl = "./static/Img/User/user-40px@2x.png";
         }
         let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-
-        if(noticeType === 'video'){
-            _setVideoCallListeners(call, global.viopChat.videochat);
-            _setCallState(call, call.roomId, "ringing");
-            let trayNoticeObj = {
-                unreadCount:0,
-                imgUrl: distUrl,
-                chatName: showName,
-                roomId: checkRoom.roomId,
-                notictType: noticeType
-            }   
-            let trayNoticeInfo = {};
-            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-            console.log("====ru show notice ");
-            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
-        }
-        else{
-            _setVideoCallListeners(call, global.viopChat.videochat);
-            _setCallState(call, call.roomId, "ringing");
-            let trayNoticeObj = {
-                unreadCount:0,
-                imgUrl: distUrl,
-                chatName: showName,
-                roomId: checkRoom.roomId,
-                notictType: noticeType
-            }   
-            let trayNoticeInfo = {};
-            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-            console.log("====ru show notice ");
-            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
-        }
+        _setVideoCallListeners(call, global.viopChat.videochat);
+        _setCallState(call, call.roomId, "ringing");
+        let trayNoticeObj = {
+            unreadCount:0,
+            imgUrl: distUrl,
+            chatName: showName,
+            roomId: checkRoom.roomId,
+            notictType: noticeType
+        }  
+        let trayNoticeInfo = {};
+        trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+        console.log("====ru show notice ");
+        ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
     }
 
     hangUp(room_id, time) {

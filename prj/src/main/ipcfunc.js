@@ -8,7 +8,7 @@ const callingState = {
 
     calling(){
         console.log("getCallingState", this.state);
-        return this.state === 'connected'
+        return this.state === 'busy'
     }
 }
 
