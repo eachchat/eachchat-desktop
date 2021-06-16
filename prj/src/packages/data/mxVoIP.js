@@ -211,7 +211,9 @@ class mxVoIP{
           switch(state){
             case "PREPARED":
                 global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
-                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingVoip);
+                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", (call) => {
+                    this.handleComingVoip(call);
+                });
               break;
             default:
               break;

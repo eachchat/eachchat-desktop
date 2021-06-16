@@ -27,14 +27,17 @@ class VideoChatWindowBuilder extends RenderWindowBuilder{
         if(!this.roomInfo.action || (this.roomInfo.action && this.roomInfo.action != "hangup")) {
             this.showWindow();
         }
-        this.childWindow.setResizable(false);
-        this.childWindow.setMaximizable(false);
+        
         if(process.platform == "darwin") {
             this.childWindow.setParentWindow(this.mainWindow);
         }
         if (process.env.NODE_ENV === "development") {
             this.childWindow.webContents.openDevTools();
             this.childWindow.setResizable(true);
+        }
+        else{
+            this.childWindow.setResizable(false);
+            this.childWindow.setMaximizable(false);
         }
     }
 
