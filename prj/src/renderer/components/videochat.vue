@@ -39,13 +39,13 @@
         <div :class = "GetUserNameStyle()" v-show="bShowStateText">{{useName}}</div>
         <div :class = "GetStateTextStyle()" v-show="bShowStateText">{{stateText}}</div>
         <div v-if = "bComming">
-            <div class = "comming-hangup-icon" @click="afterCallState"></div>
+            <div class = "comming-hangup-icon" @click="hangup"></div>
             <div class = "comming-answer-icon" @click="answerState"></div>
         </div>
         <div v-else>
             <div v-if = "isMute" :class = "GetMuteIconStyle()" @click="muteVoice"></div>
             <div v-else :class = "GetUnMuteIconStyle()" @click="unMuteVoice"></div>
-            <div :class = "GetHangupIconStyle()" @click="afterCallState"></div>
+            <div :class = "GetHangupIconStyle()" @click="hangup"></div>
             <div :class = "GetVoiceIconStyle()" @click="voiceClick"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1">
                 <img id = "voice-icon-id" src="../../../static/Img/VoIP/voice.svg" v-if = "this.nVoice !== '0'">
                 <img src = "../../../static/Img/VoIP/slience.svg" v-else>
@@ -182,8 +182,11 @@ export default {
             }, 1000)
         },
 
-        afterCallState(){
+        hangup(){
             if(global.viopChat) global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000);
+        },
+
+        afterCallState(){
             ipcRenderer.send("hideVideoChat");
             this.hideStateText();
             clearInterval(this.chatTime);
