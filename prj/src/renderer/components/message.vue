@@ -1716,13 +1716,17 @@ export default {
             }, 500)
             var id = this.updateMsg[1];
             var localPath = this.updateMsg[0];
+            var needOpen = this.updateMsg[2];
 
             if(id != this.msg.event.event_id) {
+                if(!id && localPath.extname(localPath) != ".mp3") {
+                    shell.openPath(localPath);
+                }
                 return;
             }
 
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
-            if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file')
+            if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file' && needOpen)
             {
                 shell.openPath(localPath);
             }

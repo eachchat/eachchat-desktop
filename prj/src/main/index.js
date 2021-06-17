@@ -741,7 +741,7 @@ ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
       if(needOpen) {
           shell.openExternal(finalName);
       }
-      event.sender.send("SAVED_FILE", finalName, eventId);
+      event.sender.send("SAVED_FILE", finalName, eventId, needOpen);
     }
   })
 })
