@@ -164,11 +164,11 @@ let childwindowFactory = new ChildWindow();
 ipcMain.on('showMainPageWindow', function(event, arg) {
   if(!mainWindow) return;
   mainWindow.hide();
-  CreateChildWindows();
-  isLogin = true;
   mainWindow.setResizable(true);
   mainWindow.setMinimumSize(720, 600);
-  mainWindow.setSize(960, 600);
+  mainWindow.setSize(960, 600, true);
+  CreateChildWindows();
+  isLogin = true;
   
   openDevToolsInDevelopment(mainWindow);
   appIcon = new Tray(iconPath);
@@ -191,10 +191,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     }
   });
-
-  mainWindow.center();
-  mainWindow.show();
   
+  setTimeout(() => {
+    mainWindow.center();
+    mainWindow.show();
+  }, 1000)
+
   let contextMenu = Menu.buildFromTemplate([
     {
       label: "显示主界面",

@@ -1265,8 +1265,8 @@ export default {
 
     .loadingDiv {
         padding: 0px;
-        width: calc(100% - 70px);
-        height: 100%;
+        width: 890px;
+        height: 600px;
         vertical-align: top;
         margin: 0px;
         overflow-y:hidden;
