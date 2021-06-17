@@ -173,37 +173,13 @@ export default {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
         sendAgain: function() {
-            function checkPendingEvent(room, txnId) {
-                return Promise.all(room.getPendingEvents().filter(function(ev) {
-                    console.log("getPendingEvents is ", ev);
-                    return (ev._txnId && ev._txnId == txnId) && ev.status == "not_sent";
-                }))
-            }
-
             console.log("===sendAgain event is ", this.msg.event)
             var roomID = this.msg.event.room_id;
-            let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
-            this.msg.message_status = 1;
-            checkPendingEvent(theRoom, this.msg._txnId).then((pendingEvents) => {
-                console.log("get pending event is ", pendingEvents);
-                if(pendingEvents && pendingEvents.length > 0) {
-                    pendingEvents.map((pendingEvent) => {
-                        global.mxMatrixClientPeg.matrixClient.resendEvent(pendingEvent, theRoom).then((res) => {
-                            this.msg.message_status = 0;
-                        }, (err) => {
-                            this.msg.message_status = 2;
-                        })
-                    })
-                }
-                else {
-                    if(this.msg.event.content.msgtype != "m.text") {
-                        this.sendFile();
-                    }
-                    else {
-                        this.sendText();
-                    }
-                }
-            })
+            let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID)
+            let pendingEvents = theRoom.getPendingEvents();
+            for(let event of pendingEvents){
+                global.mxMatrixClientPeg.matrixClient.resendEvent(event, theRoom);
+            }
         },
         transmitMsgId: function() {
             return "message-transmit-" + this.msg.event.event_id;
