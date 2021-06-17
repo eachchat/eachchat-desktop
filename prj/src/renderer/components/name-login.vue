@@ -1863,11 +1863,11 @@ export default {
             this.showLoginView = false;
             this.showLoadingView = true;
             this.tokenRefreshing = true;
+            this.$router.push("/main")
             setTimeout(async () => {
                 // ipcRenderer.send('showMainPageWindow', true); 
                 ipcRenderer.send("showMainPageWindow")
-                this.$router.push("/main")
-            }, 1000);
+            }, 0);
             
             this.isLoading = false;
             this.loginButtonDisabled = false;
@@ -1932,8 +1932,11 @@ export default {
                     if(ret.language) {
                         this.$i18n.locale = ret.language;
                     }
-                    ipcRenderer.send("showMainPageWindow")
                     this.$router.push("/main")
+                    setTimeout(async () => {
+                        // ipcRenderer.send('showMainPageWindow', true); 
+                        ipcRenderer.send("showMainPageWindow")
+                    }, 0);
                 })
             })
         
