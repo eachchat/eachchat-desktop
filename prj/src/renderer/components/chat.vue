@@ -4206,6 +4206,7 @@ export default {
             }
             if(this.newMsg.event.room_id != this.curChat.roomId) return;
             
+            this.$store.commit('removeSendingEvents', this.newMsg);
             this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
                 global.mxMatrixClientPeg.matrixClient, 
@@ -4234,10 +4235,6 @@ export default {
                 }
                 let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
                 for(let i=messageListTmp.length - 1;i>0;i--){
-                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                    if(exitEventIndex >= 0) {
-                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                    }
                     if(this.messageFilter(messageListTmp[i])){
                         if(messageListTmp[i].event.room_id != this.curChat.roomId) return;
                         this.messageList.unshift(messageListTmp[i]);
