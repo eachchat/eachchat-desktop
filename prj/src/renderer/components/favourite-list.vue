@@ -690,7 +690,7 @@ export default {
 
         },
 
-        UpdateFileLocalPath: async function(e, finalName, eventId){
+        UpdateFileLocalPath: async function(e, finalName, eventId, needOpen){
             if(this.favouriteType !== 'file')
                 return;
             this.favourites.map(file => {

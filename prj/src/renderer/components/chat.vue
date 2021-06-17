@@ -3422,13 +3422,10 @@ export default {
             this.ownerTransferDialogVisible = false;
             this.ownerTransferchat = {};
         },
-        updateMsgFile(e, localPath, eventId) {
+        updateMsgFile(e, localPath, eventId, needOpen) {
             console.log("updateMsgfile ", localPath, eventId);
-            var myPackage = [localPath, eventId];
+            var myPackage = [localPath, eventId, needOpen];
             this.updateMsg = myPackage;
-            if(!eventId && path.extname(localPath) != ".mp3") {
-                shell.openPath(localPath);
-            }
             this.curTotal = 0;
             this.lastPercent = 0.01;
             this.curPercent = 0.01;
