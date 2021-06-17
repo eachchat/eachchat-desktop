@@ -673,6 +673,7 @@ export default {
         width: 320px;
         height: 366px;
         z-index: 1;
+        border: 1px solid #dddddd;
     }
 
     .imageBox {
