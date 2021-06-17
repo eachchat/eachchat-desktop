@@ -50,6 +50,7 @@ export default {
             voipType: "",
             userInfo: {},
             voipElementId: "",
+            unableClick: false,
         }
     },
     methods: {
@@ -75,6 +76,8 @@ export default {
             }
         },
         callBack() {
+            if(this.unableClick) return;
+            this.unableClick = true;
             //    mxVoIP.voiceCall(this.roomId);
             let width = 300;
             let height = 480;
@@ -89,6 +92,9 @@ export default {
                             url:this.userInfo.userImg,
                             voipType: this.isVideo == 1 ? "video" : "voice",
                             action: "call"}});
+            setTimeout(() => {
+                this.unableClick = false;
+            }, 1000)
         }
     },
     watch: {
