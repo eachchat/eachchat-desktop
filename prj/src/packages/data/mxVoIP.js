@@ -285,7 +285,6 @@ class mxVoIP{
             global.mxMatrixClientPeg.getCall(room_id).hangup();
             global.mxMatrixClientPeg.removeCall(room_id);
         }
-        ipcRenderer.emit("close");
         updateTrayNotice();
     }
 
