@@ -575,6 +575,10 @@ export default {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
               console.log("***8 new room is ", newRoom);
               if(!newRoom) return;
+              if(this.isSecret(newRoom)) {
+                console.log(newRoom)
+                return;
+              }
               this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
               if(this.dealShowGroupList.every(item=>{
                   return item.roomId != newRoom.roomId
@@ -623,6 +627,10 @@ export default {
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
                 if (member.membership == 'invite') {
+                  if(this.isSecret(newRoom)) {
+                    console.log(newRoom)
+                    return;
+                  }
                   this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
                   if(this.dealShowGroupList.every(item=>{
                       return item.roomId != newRoom.roomId
@@ -1094,6 +1102,10 @@ export default {
       let nInviteRooms = 0;
       this.showGroupList.forEach(async (item)=>{
         if(item.getMyMembership() == "invite") {
+          if(this.isSecret(item)) {
+            console.log(item)
+            return;
+          }
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
           if(this.dealShowGroupList.every(dealitem=>{
                 return dealitem.roomId != item.roomId
@@ -3577,6 +3589,10 @@ export default {
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
+          if(this.isSecret(item)) {
+            console.log(item)
+            return;
+          }
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
         }
         else{
