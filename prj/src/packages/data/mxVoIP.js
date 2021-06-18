@@ -243,7 +243,7 @@ class mxVoIP{
         if(checkCall) {
             // I am busy now.
             console.log("to hangup call room id ", call.roomId);
-            call.hangup(call.roomId);
+            call.hangup(call.roomId, 'user_busy');
             console.log("hanguped ", call.roomId);
             return;
         }
