@@ -1861,8 +1861,8 @@ export default {
             this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
             // this.loginState = "登录成功";
             this.showLoginView = false;
-            this.showLoadingView = true;
-            this.tokenRefreshing = true;
+            this.showLoadingView = false;
+            this.tokenRefreshing = false;
             this.$router.push("/main")
             setTimeout(async () => {
                 // ipcRenderer.send('showMainPageWindow', true); 
@@ -1913,9 +1913,10 @@ export default {
                     return
                 }
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
+                    this.tokenRefreshing = false;
+                    this.showLoadingView = false;
+                    this.showLoginView = false;
                     if(ret == undefined) {
-                        this.tokenRefreshing = false;
-                        this.showLoadingView = false;
                         this.showLoginView = true;
                         return;
                     }
