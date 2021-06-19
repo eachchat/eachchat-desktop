@@ -1269,6 +1269,7 @@ export default {
       setTimeout(()=>{this.viewRoom(room)}, 160);
     },
     isSecret(item) {
+      if(!item) return;
       return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId ? item.roomId : item.room_id);
     },
     ChatGroupId(item) {
