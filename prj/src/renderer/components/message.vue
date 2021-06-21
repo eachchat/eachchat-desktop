@@ -226,6 +226,11 @@ export default {
         },
         getUserIconSrc: function() {
             var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            if(this.msg.event.type == "m.call.hangup") {
+                if(this.msg.event.content.caller_id) {
+                    userId = this.msg.event.content.caller_id;
+                }
+            }
             var avater = this.$store.getters.getAvater(userId);
             if(avater.length == 0) {
                 return "../../../static/Img/User/user-40px@2x.png";
@@ -1231,11 +1236,31 @@ export default {
             }
         },
         MsgIsMine:function() {
-            if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
-                return true;
+            if(this.msg.event.type == "m.call.hangup") {
+                if(this.msg.event.content.caller_id) {
+                    if(this.msg.event.content.caller_id === this.$store.state.userId) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
             }
             else {
-                return false;
+                if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
         },
         MsgBelongUserImg: async function () {
@@ -1252,6 +1277,11 @@ export default {
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
 
             var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            if(this.msg.event.type == "m.call.hangup") {
+                if(this.msg.event.content.caller_id) {
+                    userId = this.msg.event.content.caller_id;
+                }
+            }
             var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(userId);
             if(this.$store.getters.getShowName(userId) != fromUserName) {
                 this.$store.commit("setShowName", [userId, fromUserName]);

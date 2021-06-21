@@ -240,10 +240,15 @@ class mxVoIP{
             return;
         }
         
+        let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
+        const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+        
+        call.setCallerId(distUserId);
+
         if(checkCall) {
             // I am busy now.
             console.log("to hangup call room id ", call.roomId);
-            call.hangup(call.roomId);
+            call.hangup("user_busy");
             console.log("hanguped ", call.roomId);
             return;
         }
@@ -254,9 +259,6 @@ class mxVoIP{
             noticeType = "video";
         }
 
-        let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
-        const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
-        
         let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
         let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
         if(!distUrl || (distUrl && distUrl == '')) {
@@ -310,6 +312,7 @@ class mxVoIP{
             return;
         }
         const call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, room_id);
+        call.setCallerId(global.mxMatrixClientPeg.matrixClient.getUserId());
         console.log("====to create call is ", call);
         console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
@@ -328,6 +331,7 @@ class mxVoIP{
         let bSupportVoip = global.mxMatrixClientPeg.matrixClient.supportsVoip();
         console.log("support voip", bSupportVoip)
         let call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, roomInfo.roomID);
+        call.setCallerId(global.mxMatrixClientPeg.matrixClient.getUserId());
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
