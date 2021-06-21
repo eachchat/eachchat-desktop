@@ -195,7 +195,7 @@
                   <li :class = 'getGroupClassName(searchMessageItem)("search-item")'
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
-                      v-show="!isSecret(searchChatItem)"
+                      v-show="!isSecret(searchMessageItem)"
                       >
                     <div :class = 'getGroupDivClassName(searchMessageItem)("search-list-content-list-div")' >
                       <div class="search-item-img-div">
