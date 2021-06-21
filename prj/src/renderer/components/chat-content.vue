@@ -2697,30 +2697,33 @@ export default {
 
         var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
 
-        var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
-        if(!distUserId) {
-          searchChatMsgNameElement.innerHTML = curRoom.name;
+        if(searchChatMsgNameElement){
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+          let name = "";
+          if(!distUserId) {
+            name = curRoom.name;
+          }
+          else {
+            name = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          }
+          searchChatMsgNameElement.innerHTML = name;
         }
-        else {
-          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-          searchChatMsgNameElement.innerHTML = displayName;
-        }
-
-        var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
-        if(!distUrl || distUrl == '') {
-            let defaultGroupIcon;
-            if(global.mxMatrixClientPeg.DMCheck(curRoom))
-                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
-            else
-                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            searchChatImgMsgElement.setAttribute("src", defaultGroupIcon);
-        }
-        if(searchChatImgMsgElement != undefined && distUrl) {
+        
+        if(searchChatImgMsgElement){
+          var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
+          if(!distUrl || distUrl == '') {
+              if(global.mxMatrixClientPeg.DMCheck(curRoom))
+                  distUrl = "./static/Img/User/user-40px@2x.png";
+              else
+                  distUrl = "./static/Img/User/group-40px@2x.png";
+          }
           searchChatImgMsgElement.setAttribute("src", distUrl);
         }
 
-        if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
-          searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+        if(searchChatMsgContentElement){
+          if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
+            searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+          }
         }
       }
       /*
