@@ -554,6 +554,16 @@ export default {
             });
             this.mxMembers = [...mxMembers];
         },
+        isOwnerAndNoAnotherOwner: function() {
+            if(!this.isOwner) return false;
+            let myId = window.mxMatrixClientPeg.matrixClient.getUserId();
+            this.mxMembers.forEach((m) => {
+                if (m.userId != myId && m.powerLevel == 100) {
+                    return false;
+                }
+            })
+            return true;
+        },
         mxLeaveRoom: function() {
             console.log('----mxLeaveRoom----')
             if (!window.alertIsShow) {
@@ -576,6 +586,21 @@ export default {
                         // ));
                         warning += '  这个群组不是公开的，退出后无法直接加入';
                     }
+                }
+                if(this.isOwnerAndNoAnotherOwner()) {
+                    warning = `请您先设置一位群主，以确保群组管理的正常使用。`;
+                    vtx.$warningDlg({
+                        title: `退出${room.name}`,
+                        content: warning,
+                        cancelBtn: false,
+                        close () {
+                        },
+                        confirm () {
+                        },
+                        cancel () {
+                        }
+                    })
+                    return;
                 }
                 vtx.$warningDlg({
                     title: `退出${room.name}`,
