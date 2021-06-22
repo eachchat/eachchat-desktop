@@ -40,6 +40,10 @@ export default {
         duration: {
             type: Number,
             default: -1
+        },
+        hangUpReason: {
+            type: String,
+            default: ""
         }
     },
     data () {
@@ -107,7 +111,15 @@ export default {
                     }
                     else {
                         if(this.duration == 0) {
-                            this.voipTimeLabel = this.isMine == 1 ? "已取消" : "对方已取消";
+                            if(this.hangUpReason == "user_busy") {
+                                this.voipTimeLabel = this.isMine == 1 ? "对方忙线中" : "忙线未接听";
+                            }
+                            else if(this.hangUpReason == "user_hangup"){
+                                this.voipTimeLabel = this.isMine == 1 ? "已取消" : "对方已取消";
+                            }
+                            else {
+                                this.voipTimeLabel = this.isMine == 1 ? "对方无应答" : "对方已取消";
+                            }
                         }
                         else {
                             let duration = Math.floor(this.duration/1000);
@@ -215,7 +227,7 @@ export default {
     }
 
     .voip-notime-mine {
-        width: 60px;
+        width: 70px;
         height: 20px;
         margin: 10px 12px 10px 4px;
         display: inline-block;
