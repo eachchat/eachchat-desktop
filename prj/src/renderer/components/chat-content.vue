@@ -626,6 +626,7 @@ export default {
                 console.log("membership ", member.membership)
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if(this.isSecret(newRoom)) return;
                 if (member.membership == 'invite') {
                   if(this.isSecret(newRoom)) {
                     console.log(newRoom)
@@ -664,6 +665,7 @@ export default {
                   return;
                 }
                 let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if(this.isSecret(newRoom)) return;
                 if(getRoom) {
                   getRoom.distTimeLine = event;
                 }
@@ -1420,6 +1422,7 @@ export default {
       // console.log("*** room ", room.name);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      if(this.isSecret(room)) return;
       this.setRemovedTab(ev)
 
       if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
