@@ -665,7 +665,7 @@ export default {
                   return;
                 }
                 let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
-                if(this.isSecret(newRoom)) return;
+                if(this.isSecret(getRoom)) return;
                 if(getRoom) {
                   getRoom.distTimeLine = event;
                 }
