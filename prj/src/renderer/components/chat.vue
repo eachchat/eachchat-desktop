@@ -891,22 +891,47 @@ export default {
                 // })
             }
         },
-        menuQuote(msg) {
+        async menuQuote(msg) {
+            this.editor.setSelection(this.editor.selection.savedRange.index)
+            var dom = document.getElementById('quote-img')
+            const exist = !!dom
+            if (!exist) {
+                dom = document.createElement('div')
+            }
+            dom.setAttribute('class', 'quote-content')
+            dom.setAttribute('id', 'quote-text')
+            dom.setAttribute('data-roomid', this.curChat.roomId)
+            dom.setAttribute('contenteditable', false)
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             var msgContent = msg.getContent();
             var text = msgContent.body;
-            var sender = msg.sender.name;
-            var quoteText = '「' + sender + ':' + text + '」' + "<br>- - - - - - - - - - - - - - -";
-            this.content = quoteText + this.content;
-            console.log("this.curontent is ", this.content);
-            this.editor.setContents(this.content);
-            this.$nextTick(() => {
-                this.editor.insertText(this.content.length, '\n');
-                this.editor.setSelection(this.content.length + 1);
-            })
+            dom.innerHTML=`
+                <div class="quote-content-text" >${userName} :${text}</div>
+                <img class="quote-img-delete" id="quote-img-delete" src="${deleteIcon}" />
+            `
+            if (!exist) {
+                this.editor.insertText(this.editor.selection.savedRange.index,' ')
+                this.editor.insertEmbed(this.editor.selection.savedRange.index, 'span', dom)
+                this.editor.insertText(this.editor.selection.savedRange.index + 1,' ')
+                this.editor.setSelection(this.editor.selection.savedRange.index - 1)
+            }
+            const deleteBtn = document.getElementById('quote-img-delete')
+            const handler = () => {
+                if (dom && dom.parentNode){
+                    dom.parentNode.removeChild(dom)
+                }
+            }
+            deleteBtn.addEventListener('click', handler, true) 
         },
 
         getQuoteImgMsg(){
             const dom = document.getElementById('quote-img')
+            return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
+        },
+
+        getQuoteTextMsg(){
+            const dom = document.getElementById('quote-text')
             return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
         },
 
@@ -2412,6 +2437,12 @@ export default {
             if (quoteImgMsg) {
                 sendBody.quote_event = quoteImgMsg
             }
+
+            const quatoTextMsg = this.getQuoteTextMsg()
+            if(quatoTextMsg){
+                sendBody.quote_event = quatoTextMsg
+            }
+
             this.cleanEditor();
             let curTimeSeconds = new Date().getTime();
             var eventTmp = {
@@ -2454,11 +2485,7 @@ export default {
                 alert("不能发送空白信息。")
                 return;
             }
-            // console.log("varcontent is ", varcontent);
-            var uid = this.curChat.user_id;
-            var gorupId = this.curChat.group_id == null ? '' : this.curChat.group_id;
             let sendText = '';
-            let exsitAt = false;
             let sendBody = {
                 msgtype: "m.text",
                 body: sendText
@@ -2466,14 +2493,12 @@ export default {
             for(var i=0;i<varcontent.ops.length;i++){
                 // console.log("i is ", i);
                 let curMsgItem = varcontent.ops[i].insert;
-                let curTimeSeconds = new Date().getTime();
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    if (curMsgItem.span.id !== 'quote-img') {    
+                    if (curMsgItem.span.id !== 'quote-img' && curMsgItem.span.id !== 'quote-text') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
-                        var filePath = msgInfo.path;
                         var fileType = msgInfo.type;
                         if(fileType == "at") {
                             sendText += ("@" + msgInfo.atName + " ");

@@ -31,6 +31,13 @@ export function getImgUrlByEvent (event) {
     }
 }
 
+export function getTextByEvent(event){
+    if(event.content && event.content.body) {
+        return event.content.body;
+    }
+    return "";
+}
+
 export function copyImgToClipboard(url){
     var canvas = document.createElement('CANVAS'),
     ctx = canvas.getContext('2d'),

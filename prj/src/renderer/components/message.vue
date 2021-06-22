@@ -57,11 +57,17 @@
                     </div>
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <div class="quote-content" v-if="hasQuote()">
+                <div class="quote-content" v-if="hasImgQuote()">
                     <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
                     </div>
                 </div>
+                <div class="quote-content" v-if="hasTextQuote()">
+                    <div class="quote-content-text">
+                    {{quoteName}} :{{quoteText}}
+                    </div>
+                </div>
+                
             </div>
             <div class="msg-info-others" v-else>
                 <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
@@ -105,9 +111,12 @@
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
-                <div class="quote-content" v-if="hasQuote()">
+                <div class="quote-content" v-if="hasImgQuote()">
                     <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
+                </div>
+                <div class="quote-content" v-if="hasTextQuote()">
+                    <div class="quote-content-text">{{quoteName}} :{{quoteText}}</div>
                 </div>
             </div>
         </div>
@@ -132,7 +141,7 @@ import {ComponentUtil} from '../script/component-util.js'
 import { models } from '../../packages/data/models.js';
 import linkify from './linkify'
 import emoji from './emoji'
-import { getImgUrlByEvent } from '../../utils/commonFuncs'
+import { getImgUrlByEvent, getTextByEvent } from '../../utils/commonFuncs'
 import {faceUtils} from '../../packages/core/Utils.js'
 import VoIP from './VoIP'
 
@@ -155,12 +164,34 @@ export default {
     computed: {
         quoteUrl (){
             return getImgUrlByEvent(this.msg.event.content.quote_event)
+        },
+
+        quoteText(){
+            let text = getTextByEvent(this.msg.event.content.quote_event);;
+            return text;
         }
     },
     methods: {
-        hasQuote: function() {
+        hasQuote: function(){
             return  !!this.msg.event.content.quote_event
         },
+
+        hasImgQuote: function() {
+            let imgEvent = this.msg.event.content.quote_event;
+            if(imgEvent && imgEvent.content && imgEvent.content.msgtype === "m.image"){
+                return true;
+            }
+            return false;
+        },
+
+        hasTextQuote: function(){
+            let textEvent = this.msg.event.content.quote_event;
+            if(textEvent && textEvent.content && textEvent.content.msgtype === "m.text"){
+                return true;
+            }
+            return false;
+        },
+
         getMsgStateClass: function() {
             if(this.msg.event.content.msgtype != "m.text") {
                 return "fileMsgState";
@@ -2528,6 +2559,14 @@ export default {
         .quote-content-img{
             width: 40px;
             height: 40px;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .quote-content-text{
+            font-size: 13px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #666666;
             background-repeat: no-repeat;
             background-size: cover;
         }
