@@ -64,7 +64,7 @@
                 </div>
                 <div class="quote-content" v-if="hasTextQuote()">
                     <div class="quote-content-text">
-                    {{quoteName}} :{{quoteText}}
+                    {{quoteName}} : {{quoteText}}
                     </div>
                 </div>
                 
@@ -116,7 +116,7 @@
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
                 </div>
                 <div class="quote-content" v-if="hasTextQuote()">
-                    <div class="quote-content-text">{{quoteName}} :{{quoteText}}</div>
+                    <div class="quote-content-text">{{quoteName}} : {{quoteText}}</div>
                 </div>
             </div>
         </div>
