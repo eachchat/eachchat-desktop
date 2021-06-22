@@ -1829,8 +1829,8 @@ export default {
             if(!distImageInfo.imageUrl) {
                 let event = distEvent.event;
                 let localPath = await this.getFileExist(event.event_id);
-                let chatGroupMsgContent = distEvent.getContent();
-
+                let chatGroupMsgContent = event.content;
+                
                 let maxSize = 390;
                 var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
     
