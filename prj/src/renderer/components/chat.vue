@@ -1741,33 +1741,7 @@ export default {
             return timelineSet;
         },
         async toGetShowImage(distRoom) {
-            var curTimeLineSetRoomId = this.imgTimeLineSet ? this.imgTimeLineSet.room.roomId : undefined;
-            if(distRoom.roomId == curTimeLineSetRoomId) {
-                var fileListInfo = this._imgTimelineWindow.getEvents();
-                var thresholdNum = fileListInfo.length;
-                while(fileListInfo.length == thresholdNum && this._imgTimelineWindow.canPaginate('b')) {
-                    await this._imgTimelineWindow.paginate("b", 20);
-                    fileListInfo = await this._imgTimelineWindow.getEvents();
-                }
-                return fileListInfo;
-            }
-            else {
-                this.imgTimeLineSet = await this.updateImgTimelineSet(distRoom);
-                console.log("*** imgTimeLineSet ", this.imgTimeLineSet);
-                // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
-                this._imgTimelineWindow = new Matrix.TimelineWindow(
-                    global.mxMatrixClientPeg.matrixClient, 
-                    this.imgTimeLineSet,
-                    {windowLimit:Number.MAX_VALUE},
-                )
-                await this._imgTimelineWindow.load(undefined, 20);
-                var fileListInfo = this._imgTimelineWindow.getEvents();
-                while(fileListInfo.length == 0 && this._imgTimelineWindow.canPaginate('b')) {
-                    await this._imgTimelineWindow.paginate("b", 20);
-                    fileListInfo = await this._imgTimelineWindow.getEvents();
-                }
-                return fileListInfo;
-            }
+            return distRoom.timeline;
         },
         async getFileExist(id) {
             let msgs = await Message.FindMessageByMesssageID(id);
