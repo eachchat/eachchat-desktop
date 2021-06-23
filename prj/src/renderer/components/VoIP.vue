@@ -110,7 +110,7 @@ export default {
                         this.voipTimeLabel = "通话结束";
                     }
                     else {
-                        if(this.duration == 0) {
+                        if(this.duration == 0 || this.hangUpReason != "") {
                             if(this.hangUpReason == "user_busy") {
                                 this.voipTimeLabel = this.isMine == 1 ? "对方忙线中" : "忙线未接听";
                             }
