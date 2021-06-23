@@ -361,9 +361,55 @@ export default {
     scrollToRecentUnread: {
       type: Boolean,
       default: false
+    },
+    toUpdateRooms: {
+      type: Number,
+      default: 0
     }
   },
   watch: {
+    toUpdateRooms: function() {
+        this.showGroupList.length = 0;
+        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+          // console.log("this is ", r);
+          // console.log("r.getMyMembership() ", r.getMyMembership());
+          // console.log("roomname ", r.name)
+          if(r.getMyMembership() != "leave") {
+            this.showGroupList.push(r);
+          }
+        })
+
+        let removedRoomIds = [];
+        let ls = localStorage.getItem('removedRoomIds');
+        if (ls) {
+          removedRoomIds = ls.split(',');
+        }
+        console.log('-----created removedRoomIds-----', removedRoomIds)
+        removedRoomIds = [...removedRoomIds];
+        let sg = [...this.showGroupList];
+        console.log('kankanSg----', sg)
+        sg.forEach(s => {
+          if (removedRoomIds.indexOf(sg.roomId) >= 0) {
+            s.localRemoved = true
+          } else {
+            s.localRemoved = false
+          }
+        })
+        this.showGroupList = [...sg];
+
+        this.ShowAllGroup();
+        this.$nextTick(() => {
+          this.showGroupIconName()
+            .then((ret) => {
+              setTimeout(() => {
+                this.sortGroup();
+                this.updateTrayNoticeInfo()
+              }, 2000)
+            })
+          this.$emit('matrixSyncEnd', true);
+        })
+
+    },
     toUpdateTrayNotice: function() {
       console.log("to update tray notice ");
       try{

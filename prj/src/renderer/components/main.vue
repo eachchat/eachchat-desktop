@@ -31,7 +31,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading">
@@ -105,6 +105,7 @@ export default {
         return {
             bshowNewversionDot: false,
             toUpdateTrayNotice: 0,
+            toUpdateRooms: 0,
             setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
@@ -511,6 +512,9 @@ export default {
                 return;
             }
         },
+        updateRooms() {
+            this.toUpdateRooms += 1;
+        },
         async _doBootstrapUIAuth(makeRequest) {
             let response = null;
             var checkType = global.mxMatrixClientPeg.checkType;
@@ -679,6 +683,11 @@ export default {
               this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;
+            case "ERROR":
+                break;
+            case "CATCHUP":
+                this.updateRooms();
+                break;
             default:
               break;
           }
