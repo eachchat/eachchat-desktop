@@ -2423,6 +2423,7 @@ export default {
 
     .msg-image {
         height: 400px;
+        border: 1px solid #dddddd;
     }
 
     .chat-msg-content-mine-file {
