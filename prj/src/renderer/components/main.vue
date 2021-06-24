@@ -103,6 +103,7 @@ export default {
     },
     data () {
         return {
+            lastSyncTime: 0,
             bshowNewversionDot: false,
             toUpdateTrayNotice: 0,
             toUpdateRooms: 0,
@@ -513,7 +514,9 @@ export default {
             }
         },
         updateRooms() {
-            this.toUpdateRooms += 1;
+            setTimeout(() => {
+                this.toUpdateRooms += 1;
+            }, 1000)
         },
         async _doBootstrapUIAuth(makeRequest) {
             let response = null;
@@ -567,6 +570,11 @@ export default {
                 catch(e) {
                     console.log(e.message);
                 }
+            }
+        },
+        checkSync: function() {
+            if(this.lastSyncTime != 0 && new Date().getTime() - this.lastSyncTime > 40 * 1000) {
+                global.mxMatrixClientPeg.matrixClient.retryImmediately();
             }
         },
     },
@@ -686,8 +694,10 @@ export default {
             case "ERROR":
                 break;
             case "CATCHUP":
-                this.updateRooms();
                 break;
+            case "SYNCING":
+                this.lastSyncTime = new Date().getTime();
+                if(prevState == "CATCHUP") this.updateRooms();
             default:
               break;
           }
@@ -711,6 +721,7 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             // console.log("e.target.classname is ", e.target.className)
+            _this.checkSync();
             if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     // console.log("============")
