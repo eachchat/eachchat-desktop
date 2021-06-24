@@ -649,7 +649,7 @@ export default {
                 opts.guestAccess = false;
                 // const {alias} = this.state;
                 // const localPart = alias.substr(1, alias.indexOf(":") - 1);
-                // createOpts['room_alias_name'] = localPart;  //无此设置
+                // createOpts['room_alias_name'] = localPart;  
             }
             if (this.topic) {
                 createOpts.topic = this.topic;
@@ -668,7 +668,7 @@ export default {
                 }
             }
 
-            // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) { //无此设置
+            // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) {
             //     opts.associatedWithCommunity = CommunityPrototypeStore.instance.getSelectedCommunityId();
             // }
 
@@ -683,7 +683,7 @@ export default {
                 var roomNameInfo = [roomId, senderName];
                 this.$store.commit("setIdToName", roomNameInfo);
                 // const obj = {data: res, handler: 'viewRoom'};
-                this.$emit('close', 'close'); // 新创建时可以靠上层组件中的监听跳跳转，无需传obj
+                this.$emit('close', 'close'); 
             })
 
             // let modal;

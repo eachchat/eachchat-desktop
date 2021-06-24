@@ -119,7 +119,7 @@ export default {
             displayName: '',
             userInfo: undefined,
             isOwn: true,
-            userInfoTipKey: 1,   //用户信息弹窗强制更新
+            userInfoTipKey: 1,
             pagePosition:{},
             userType: "mainUserInfo",
             unReadCount: 0,

@@ -129,7 +129,6 @@ export default {
                 }
 
 
-                //todo  更精确的权限控制
                 // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
                 //     try {
                 //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);

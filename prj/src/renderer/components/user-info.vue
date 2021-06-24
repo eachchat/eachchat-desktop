@@ -708,9 +708,7 @@ export default {
 }
 
 input::-webkit-input-placeholder {
-    /* placeholder颜色 */
     color: rgb(153, 153, 153);
-    /* placeholder字体大小 */
     font-size: 12px;
 }
 

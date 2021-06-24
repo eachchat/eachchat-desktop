@@ -333,7 +333,7 @@ export default {
                 opts.guestAccess = false;
                 // const {alias} = this.state;
                 // const localPart = alias.substr(1, alias.indexOf(":") - 1);
-                // createOpts['room_alias_name'] = localPart;  //无此设置
+                // createOpts['room_alias_name'] = localPart;  
             }
             if (this.topic) {
                 createOpts.topic = this.topic;
@@ -352,7 +352,7 @@ export default {
                 }
             }
 
-            // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) { //无此设置
+            // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) {
             //     opts.associatedWithCommunity = CommunityPrototypeStore.instance.getSelectedCommunityId();
             // }
 

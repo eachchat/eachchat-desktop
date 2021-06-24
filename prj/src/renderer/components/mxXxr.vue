@@ -400,7 +400,6 @@ export default {
                 }
 
 
-                //todo  更精确的权限控制
                 // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
                 //     try {
                 //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);
@@ -485,7 +484,7 @@ export default {
             this.choosenMembers = [...gChoosenMembers];
             return this.tn;
         },
-        async caonima4(ele) { //向下迭代状态  只针对dep类型
+        async caonima4(ele) { 
             const client = window.mxMatrixClientPeg.matrixClient;
             let xie = ele.choosen;
             if (ele.czs && ele.czs.length) {
@@ -530,7 +529,7 @@ export default {
                 }
             }
         },
-        async caonima3(ele) { //向上迭代状态
+        async caonima3(ele) {
             if (ele.parent) {
                 let xie = true;
                 ele.parent.czs.forEach(c => {
@@ -540,7 +539,7 @@ export default {
                 await this.caonima3(ele.parent);
             }
         },
-        async caonima1(ele, choosen) {  //用于勾选
+        async caonima1(ele, choosen) {
             ele.choosen = choosen;
             // if (ele.type === 'user') {
             //     if (ele.choosen) {
@@ -552,16 +551,16 @@ export default {
             //         this.choosenMembers = this.choosenMembers.filter(c => c.id !== ele.id);
             //     }
             // }
-            if (ele.type === 'dep') { //选中或反选 部门
+            if (ele.type === 'dep') {
                 await this.caonima3(ele)
                 await this.caonima4(ele)
-            } else { //选中或反选 成员
+            } else {
                 await this.caonima3(ele)
             }
             // this.choosenMembers = this.choosenMembers.filter(c => c.id !== ele.id);
             this.mxTree = {...this.mxTree}
         },
-        async caonima2(ele) { //用于列表中dep点击转换层级 以及 crumbs点击层级转换 只针对dep类型
+        async caonima2(ele) { 
             const client = window.mxMatrixClientPeg.matrixClient;
             if (ele.czs && ele.czs.length) {
                 let crumbs = this.crumbs;
@@ -643,7 +642,6 @@ export default {
             }
 
             const createRoomOptions = {inlineErrors: true};
-            //加密处理
             if (this.erpDm) {
                 console.log('走了加密')
                 createRoomOptions.encryption = true;
@@ -919,7 +917,7 @@ export default {
                 opts.guestAccess = false;
                 // const {alias} = this.state;
                 // const localPart = alias.substr(1, alias.indexOf(":") - 1);
-                // createOpts['room_alias_name'] = localPart;  //无此设置
+                // createOpts['room_alias_name'] = localPart;
             }
             if (this.topic) {
                 createOpts.topic = this.topic;
@@ -938,7 +936,7 @@ export default {
                 }
             }
 
-            // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) { //无此设置
+            // if (CommunityPrototypeStore.instance.getSelectedCommunityId()) {
             //     opts.associatedWithCommunity = CommunityPrototypeStore.instance.getSelectedCommunityId();
             // }
 
@@ -950,7 +948,7 @@ export default {
                 let roomId = res.room_id;
                 if(roomId) Rooms.setDMRoom(roomId, opts.dmUserId);
                 // const obj = {data: res, handler: 'viewRoom'};
-                this.$emit('close', 'close'); // 新创建时可以靠上层组件中的监听跳跳转，无需传obj
+                this.$emit('close', 'close'); 
             })
 
             // let modal;

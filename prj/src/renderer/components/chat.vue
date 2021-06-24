@@ -177,12 +177,8 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
-import confservice from '../../packages/data/conf_service'
-// import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
-
-import {APITransaction} from '../../packages/data/transaction.js'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import userInfoTip from './userinfo-tip.vue'
@@ -202,7 +198,6 @@ import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import mxChatTopicDlg from './mxChatTopicDlg'
-import {EventTimeline} from "matrix-js-sdk";
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
@@ -213,10 +208,9 @@ import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
-import { models } from '../../packages/data/models.js';
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
-const {Menu, MenuItem, nativeImage} = remote;
+const {Menu, MenuItem} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
 var canNewLine = false;
@@ -491,7 +485,6 @@ export default {
         mxChatInfoDlgSetting: function(close) {
             if (close) {
                 return this.mxChat = false;
-                console.log('close ccccc')
             }
             this.closeGroupInfo();
             this.mxChat = true;
@@ -506,7 +499,6 @@ export default {
         mxRoomSetting: function(close, serverAddress) {
             if (close) {
                 return this.mxRoomDlg = false;
-                console.log('closeeeeeeee')
             }
             this.closeGroupInfo();
             this.mxRoomDlg = true;
@@ -517,7 +509,7 @@ export default {
         handleCustomMatcher(node, Delta) {
             let ops = []
             Delta.ops.forEach(op => {
-                if (op.insert && typeof op.insert === 'string') {// 如果粘贴了图片，这里会是一个对象，所以可以这样处理
+                if (op.insert && typeof op.insert === 'string') {
                 ops.push({
                     insert: op.insert,
                 })
@@ -2719,7 +2711,7 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            // 数据库缺省type = 0 
+            //type = 0 
             /*
                 // src/TextForEvent.js
                 'm.room.canonical_alias': textForCanonicalAliasEvent,
