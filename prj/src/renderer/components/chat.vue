@@ -125,14 +125,12 @@
             @openUserInfoTip="openUserInfoTip" 
             @leaveGroup="leaveGroup" 
             @updateChatGroupStatus="updateChatGroupStatus" 
-            @updateChatGroupNotice="updateChatGroupNotice" 
             @openSetting="mxRoomSetting"
             @openChatInfoDlg="mxChatInfoDlgSetting"
             @openChatTopicDlg="mxChatTopicDlgSetting"
             @closeGroupInfo="closeGroupInfo"
         >
         </groupInfoTip> <!--todo html-->
-        <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @clickAtMember="clickAtMember" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
         <userInfoContent 
             :userInfo="userInfo" 
@@ -183,7 +181,6 @@ import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, 
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import transmit from './transmit.vue'
-import noticeEditDlg from './noticeEditDlg.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
@@ -289,7 +286,6 @@ export default {
         Faces,
         groupInfoTip,
         transmit,
-        noticeEditDlg,
         chatMemberDlg,
         transmitDlg,
         chatCreaterDlg,
@@ -3377,23 +3373,6 @@ export default {
 
             }
         },
-        updateChatGroupNotice(groupId, originalNotice, isOwner) {
-            // console.log("==========")
-            this.noticeDialogVisible = true;
-            this.groupNoticeInfo = {};
-            this.groupNoticeInfo.originalNotice = originalNotice;
-            this.groupNoticeInfo.groupId = groupId;
-            this.groupNoticeInfo.isOwner = isOwner;
-        },
-        closeNoticeDlg(content) {
-            if(content.length == 0) {
-                this.noticeDialogVisible = false;
-                this.groupNoticeInfo = {};
-            }
-            else {
-                this.noticeDialogVisible = false;
-            }
-        },
         updateMsgFile(e, localPath, eventId, needOpen) {
             console.log("updateMsgfile ", localPath, eventId);
             var myPackage = [localPath, eventId, needOpen];
@@ -3732,7 +3711,6 @@ export default {
             messageListElement: null,
             checkClassName: ["emojiDiv", "emoji", "chat-msg-content-mine-linkify", "chat-msg-content-others-linkify", "linkify", "msg-info-user-img-with-name", "file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
-            groupNoticeInfo: {},
             updateUser: 1,
             updateMsg: {},
             menu: null,
@@ -3740,7 +3718,6 @@ export default {
             playingMsgId: '',
             multiSelect: false,
             dialogVisible: false,
-            noticeDialogVisible: false,
             chatMemberDlgVisible: false,
             chatMemberSearchKey: null,
             canCheckChatMemberSearch: false,

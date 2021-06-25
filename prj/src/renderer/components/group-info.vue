@@ -35,13 +35,6 @@
                         @click.stop="changeChateInfo()"></p>
                 </div>
                 <div @contextmenu.prevent="openMenu" class="chat-desc">{{groupAddress}}</div>
-                <!-- <div class="peopleInfo" v-if="!isGroup">
-                    <input class="peopleInfoInput" id="peopleInfoInputId" type="text" :disabled="!isOwner" v-model="peopleState" name="peopleInfo" placeholder="未设置"/>
-                </div>
-                <div class="groupInfoNotice" @click="updateGroupNotice" v-else>
-                    <input class="groupInfoNoticeInput" id="groupInfoNoticeInputId" type="text" :disabled="!isOwner" v-model="groupNotice" name="groupInfoNotice" placeholder="未设置" @mousemove="showNoticeEdit" @mouseout="hideNoticeEdit"/>
-                    <p class="groupInfoNoticeEdit" id="groupInfoNoticeEditId"></p>
-                </div> -->
             </div>
             <div class="groupInfoNoticeAndName" v-else>
                 <div class="groupInfoName">
@@ -1054,9 +1047,6 @@ export default {
             updateGroupNameInputElement.blur();
             services.common.UpdateGroupName(this.groupId, this.newGroupName);
             this.groupName = this.newGroupName;
-        },
-        updateGroupNotice: function(event) {
-            this.$emit("updateChatGroupNotice", this.groupId, this.groupNotice, this.isOwner);
         },
         Close: function() {
             this.$emit("closeGroupInfo");
