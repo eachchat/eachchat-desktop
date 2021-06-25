@@ -55,7 +55,6 @@
 import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
-import userInfoTip from './userinfo-tip';
 import addContact from './add-contact';
 import InputContactInfo from './input-contact-info';
 import AlertDlg from './alert-dlg.vue'
@@ -69,7 +68,6 @@ export default {
     components: {
         yidrawer,
         userInfoContent,
-        userInfoTip,
         addContact,
         InputContactInfo,
         AlertDlg

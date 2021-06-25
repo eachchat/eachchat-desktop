@@ -781,7 +781,6 @@ export default {
         },
 
         getUserImg: async function (userInfo, key=''){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(userInfo.user_id == undefined || userInfo == null) {
                 return "";
             }

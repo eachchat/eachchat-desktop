@@ -181,7 +181,6 @@ import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
 import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
-import userInfoTip from './userinfo-tip.vue'
 import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
@@ -292,7 +291,6 @@ export default {
         quillEditor,
         imessage,
         Faces,
-        userInfoTip,
         groupInfoTip,
         chatGroupCreater,
         transmit,

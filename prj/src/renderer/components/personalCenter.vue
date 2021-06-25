@@ -264,7 +264,6 @@ export default {
             }
         },
         getUserInfo: async function (uId){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(uId == '') {
                 return "";
             }
