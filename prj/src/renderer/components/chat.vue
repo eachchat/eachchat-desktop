@@ -126,7 +126,6 @@
             @leaveGroup="leaveGroup" 
             @updateChatGroupStatus="updateChatGroupStatus" 
             @updateChatGroupNotice="updateChatGroupNotice" 
-            @showOwnerTransferDlg="showOwnerTransferDlg"
             @openSetting="mxRoomSetting"
             @openChatInfoDlg="mxChatInfoDlgSetting"
             @openChatTopicDlg="mxChatTopicDlgSetting"
@@ -134,7 +133,6 @@
         >
         </groupInfoTip> <!--todo html-->
         <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
-        <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @clickAtMember="clickAtMember" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
         <userInfoContent 
             :userInfo="userInfo" 
@@ -184,10 +182,8 @@ import Faces from './faces.vue';
 import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
-import chatGroupCreater from './chatgroup-creater'
 import transmit from './transmit.vue'
 import noticeEditDlg from './noticeEditDlg.vue'
-import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
@@ -292,10 +288,8 @@ export default {
         imessage,
         Faces,
         groupInfoTip,
-        chatGroupCreater,
         transmit,
         noticeEditDlg,
-        ownerTransferDlg,
         chatMemberDlg,
         transmitDlg,
         chatCreaterDlg,
@@ -658,9 +652,6 @@ export default {
                 this.messageListElement = document.getElementById("message-show-list");
             }
             this.messageListElement.style.overflowY = "hidden"
-        },
-        handleDialogClose() {
-            this.$refs.chatGroupCreater.initData();
         },
         canRedact: function(curEvent) {
             const cli = global.mxMatrixClientPeg.matrixClient;
@@ -3403,14 +3394,6 @@ export default {
                 this.noticeDialogVisible = false;
             }
         },
-        showOwnerTransferDlg() {
-            this.ownerTransferDialogVisible = true;
-            this.ownerTransferchat = this.curChat;
-        },
-        closeOwnerTransferDlg() {
-            this.ownerTransferDialogVisible = false;
-            this.ownerTransferchat = {};
-        },
         updateMsgFile(e, localPath, eventId, needOpen) {
             console.log("updateMsgfile ", localPath, eventId);
             var myPackage = [localPath, eventId, needOpen];
@@ -3758,7 +3741,6 @@ export default {
             multiSelect: false,
             dialogVisible: false,
             noticeDialogVisible: false,
-            ownerTransferDialogVisible: false,
             chatMemberDlgVisible: false,
             chatMemberSearchKey: null,
             canCheckChatMemberSearch: false,

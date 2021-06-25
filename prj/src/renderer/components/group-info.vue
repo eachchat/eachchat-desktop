@@ -852,9 +852,6 @@ export default {
             }
             // this.$emit("closeGroupInfo");
         },
-        ownerTransfer: function() {
-            this.$emit("showOwnerTransferDlg");
-        },
         searchMember: function() {
             if(this.searchKey.length == 0) {
                 this.memberListShow = this.memberListShowOriginal;

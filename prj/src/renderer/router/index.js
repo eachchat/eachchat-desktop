@@ -11,8 +11,6 @@ import VoipWindow from "../components/voipwindow.vue";
 
 import setup from '../components/setup.vue';
 Vue.use(Router);
-import SearchFilesListDlg from '../components/searchFileList.vue';
-import SearchMessagesListDlg from '../components/searchMessageList.vue';
 import TransmitMsgListDlg from '../components/transmitTogetherContent.vue';
 import ImgViewDlg from '../components/imgViewer.vue';
 import TrayNotice from '../components/trayNotice.vue';
@@ -70,16 +68,6 @@ export default new Router({
       path:'/childwindow',
       name: "childwindow",
       component: childwindow,
-    },
-    {
-      path:'/searchFilesList',
-      name: 'searchFilesList',
-      component: SearchFilesListDlg,
-    },
-    {
-      path:'/searchMessageList',
-      name: 'searchMessageList',
-      component: SearchMessagesListDlg,
     },
     {
       path:'/TransmitMsgList',
