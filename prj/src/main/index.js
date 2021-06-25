@@ -493,18 +493,6 @@ ipcMain.on('showTransTmpWindow', function(event, msgListInfo, path) {
   tmp.show();
 });
 
-ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
-  if(!mainWindow) return;
-  mainWindow.webContents.send("SearchAddSenders", selectedSenderIds);
-  mainWindow.focus();
-})
-
-ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
-  if(!mainWindow) return;
-  mainWindow.webContents.send("SearchAddGroup", selectedGroupIds);
-  mainWindow.focus();
-})
-
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
   if(!mainWindow) return;
   console.log("=============== ", transmitInfoStr);

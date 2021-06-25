@@ -264,10 +264,6 @@
           <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" :updateRoomStata="updateRoomStata" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom" @CloseSearchPage = "CloseSearchPage"></ChatPage>
         </div>
       </div>
-      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
-      </searchSenderSelecterDlg>
-      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
-      </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
       <div class="TheBorder" v-show="showImportE2EKeyPage">
           <ImportE2EKeypage @closeE2EImportPage="closeE2EImportPage"></ImportE2EKeypage>
@@ -297,9 +293,6 @@ import winHeaderBarWhite from './win-header-login.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
-import searchChatSelecterDlg from './searchChatSelecter.vue'
-import searchSenderSelecterDlg from './searchSenderSelect.vue'
-// import listItem from './list-item.vue'
 import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
@@ -326,8 +319,6 @@ export default {
     winHeaderBar,
     winHeaderBarWhite,
     imageLayer,
-    searchChatSelecterDlg,
-    searchSenderSelecterDlg,
     userInfoContent,
     ImportE2EKeypage,
     // avatarBlock,
@@ -706,15 +697,6 @@ export default {
       unreadCount: 0,
       cleanSearchKey: false,
       dealedMsgSequenceId:[],
-      searchSelectedSenderDialogRootDepartments: [],
-      searchSelectedSenderDialogTitle: "",
-      searchSelectedSenders: [],
-      searchAddSenderKey: 199,
-      recentGroups: [],
-      searchSelectedGroupKey: 99,
-      searchSelectedGroupIds:[],
-      showSearchSelectedSenderDlg: false,
-      showSearchSelecterDlg: false,
       showSearchMessage: true,
       showSearchAllChat: true,
       showSearchAllChatMsg: true,
@@ -1591,43 +1573,7 @@ export default {
         this.callback(newMsg, false);
       }
     },
-    closeSearchChatFilterDlg() {
-        this.showSearchSelecterDlg = false;
-        this.searchSelectedGroupIds = [];
-    },
-    closeSearchSenderSelectDlg() {
-      this.showSearchSelectedSenderDlg = false;
-      this.searchSelectedSenders = [];
-    },
-    async SearchAddGroup(event, selectedIds) {
-        console.log("SearchAddGroup ", selectedIds);
-        this.searchSelectedGroupIds = selectedIds;
 
-        this.recentGroups = await Group.GetGroupByTime();
-        this.searchSelectedGroupKey ++;
-        this.showSearchSelecterDlg = true;
-    },
-    async searchAddSenders(event, selectedSenderIds) {
-      console.log("selectedSenderIds ", selectedSenderIds);
-        for(let i=0;i<selectedSenderIds.length;i++) {
-          let selectedSenderVar = await UserInfo.GetUserInfo(selectedSenderIds[i]);
-          if(selectedSenderVar != undefined) {
-            this.searchSelectedSenders.push(selectedSenderVar);
-          }
-        }
-        var root = await Department.GetRoot();
-        var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-        var temp = [];
-        for(let i = 0; i < rootDepartmentModels.length; i ++) {
-            var department = rootDepartmentModels[i];
-            temp[department.show_order] = department;
-        }
-        this.searchSelectedSenderDialogRootDepartments =  temp;
-
-        this.searchAddSenderKey ++;
-        this.showSearchSelectedSenderDlg = true;
-        this.searchSelectedSenderDialogTitle = "指定发送人";
-    },
     getSearchChatItemImgElementId: function(itemId) {
       return "all-search-chat-img-" + itemId;
     },
@@ -3717,7 +3663,6 @@ export default {
     }
 
     ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
-    ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
