@@ -35,12 +35,6 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="NewChatView" v-show="!showSearchView && false">
-                        <img ondragstart="return false" class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
-                        <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
-                        <p class="createNewChatTitle">创建新聊天</p>
-                        </div>
-                    </div>
                     <div class="RecentChatHeader" v-show="!showSearchView">
                         最近聊天
                     </div>
@@ -77,14 +71,9 @@
                     </div>
                 </el-main>
             </el-container>
-            <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
             <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
                 <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确定</button>
-            </div>
-            <div class="TransmitFotter" v-show="showCreateNewChat">
-                <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确定</button>
             </div>
         </div>
     </div>
@@ -100,14 +89,13 @@ import { object } from '../../packages/core/types'
 import confservice from '../../packages/data/conf_service';
 import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict } from '../../packages/core/Utils.js'
 import * as path from 'path'
-import chatCreaterContent from './chatCreaterContent.vue';
 import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
 import conf_service from '../../packages/data/conf_service'
 import {ComponentUtil} from '../script/component-util.js';
 export default {
     name: 'TransmitDlg',
     components:{
-        chatCreaterContent,
+        
     },
     props: {
         transmitMergeInfo: {
@@ -398,16 +386,6 @@ export default {
                 this.updageSelectedChatNameAndImg();
             });
         },
-        createNewChatButtonClicked:async function() {
-            
-            var self = await services.common.GetSelfUserModel();
-            this.chatCreaterDisableUsers.push(self.id);
-            var root = await Department.GetRoot();
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            var temp = rootDepartmentModels;
-            this.rootDepartments =  temp.sort(this.compare("show_order"));
-            this.showCreateNewChat = true;
-        },
         compare(property){
             return function(a,b){
                 var value1 = a[property];
@@ -485,7 +463,6 @@ export default {
         Transmit:async function() {
             // get createNewChat Users
             if(this.showCreateNewChat){
-                console.log(this.$refs.chatCreaterContent.getSelectedUsers());
                 this.$emit("closeTransmitDlg", "");
                 this.$toastMessage({message:'转发成功', time:1500, type:'success'});
                 return;
@@ -526,141 +503,7 @@ export default {
                 this.$toastMessage({message:'转发成功', time:1500, type:'success'});
             }
         },
-        createGroupAndTransmit: async function() {
-            console.log(this.$refs.chatCreaterContent.getSelectedUsers());
-            var selectedUsers = this.$refs.chatCreaterContent.getSelectedUsers();
-            var selfUser = await services.common.GetSelfUserModel();
-            var groupUserIds = [];
-            var groupUserName = []
-            for(var i=0;i<selectedUsers.length;i++) {
-                groupUserIds.push(selectedUsers[i].user_id)
-                if(i < 4) {
-                    groupUserName.push(selectedUsers[i].user_display_name)
-                }
-            }
-            // console.log("group groupUserName ids is ", groupUserName)
-            var groupName = '';
-            if(groupUserName.length > 1) {
-                groupName = groupUserName.join(",");
-            }
-            else if(groupUserName.length == 4) {
-                groupName = groupUserName.join(",");
-                groupName = groupName + "...";
-            }
-            else {
-                groupName = groupUserName[0];
-            }
-            // console.log("group user ids is ", groupUserIds)
-            // console.log("group groupName ids is ", groupName)
-            if(selectedUsers.length == 0) {
-                alert("未选择用户")
-            }
-            else if(selectedUsers.length == 1) {
-                var groupItem = {};
-                var selectedId = selectedUsers[0];
-                var chatUserInfo = await UserInfo.GetUserInfo(selectedId.id);
-                console.log("userInfos is ", chatUserInfo);
-                var chatAvater = chatUserInfo.avatar_t_url;
-                var chatName = chatUserInfo.user_display_name;
-                var groupCheck = await Group.SearchChatByNameKey(chatName);
-                console.log("groupCheck is ", groupCheck)
-                groupUserIds.push(selfUser.id);
-                var contain_user_ids = groupUserIds.join(",");
-                if(groupCheck.contain_user_ids == undefined) {
-                    groupItem["contain_user_ids"] = contain_user_ids;
-                    groupItem["group_avarar"] = chatAvater;
-                    groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 102;
-                    groupItem["last_message_time"] = 0;
-                    groupItem["message_content"] = null;
-                    groupItem["message_content_type"] = 101;
-                    groupItem["message_from_id"] = selfUser.id;
-                    groupItem["message_id"] = '';
-                    groupItem["owner"] = null;
-                    groupItem["sequence_id"] = 0;
-                    groupItem["status"] = "00000000";
-                    groupItem["un_read_count"] = 0;
-                    groupItem["updatetime"] = new Date().getTime();
-                    groupItem["user_id"] = selectedUsers[0].user_id;
-                }
-                else {
-                    groupItem = groupCheck;
-                }
-
-                this.$emit('getCreateGroupInfo', groupItem);
-
-                this.selectedGroups = [groupItem];
-                if(this.transmitCollection){
-                    var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                    this.$emit("closeTransmitDlg", "");
-                    if(suc == false) {
-                        this.$message('转发失败');
-                    }
-                    else {
-                        this.$message('转发成功');
-                    }
-                    return;
-                }
-                var newmsgret = await this.sendMsg(this.selectedGroups, this.transmitMessages);
-                console.log('newmsgret ', newmsgret);
-                this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
-            }
-            else {
-                groupUserIds.push(selfUser.id);
-                services.common.CreateGroup(groupName, groupUserIds)
-                    .then((ret) => {
-                        if(ret == undefined) {
-                            console.log("!!!!!!!!!!!1 ")
-                            // ToDo exception notice.
-                            return;
-                        }
-                        ret.message_content = null;
-                        
-                        var groupItem = {};
-                        groupItem["contain_user_ids"] = ret.contain_user_ids;
-                        groupItem["group_id"] = ret.group_id;
-                        groupItem["group_avarar"] = ret.group_avarar;
-                        groupItem["group_name"] = ret.group_name;
-                        groupItem["group_type"] = ret.group_type;
-                        groupItem["last_message_time"] = ret.last_message_time;
-                        groupItem["message_content"] = null;
-                        groupItem["message_content_type"] = ret.message_content_type;
-                        groupItem["message_from_id"] = ret.message_from_id;
-                        groupItem["message_id"] = ret.message_id;
-                        groupItem["owner"] = ret.owner;
-                        groupItem["sequence_id"] = ret.sequence_id;
-                        groupItem["status"] = ret.status;
-                        groupItem["un_read_count"] = ret.un_read_count;
-                        groupItem["updatetime"] = ret.updatetime;
-                        groupItem["user_id"] = '';
-                
-                        // console.log("services.CreateGroup ret is ", groupItem);
-                        this.$emit('getCreateGroupInfo', groupItem);
-                        setTimeout(async () => {
-                            this.selectedGroups = [groupItem];
-                            if(this.transmitCollection){
-                                var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                                this.$emit("closeTransmitDlg", "");
-                                if(suc == false) {
-                                    this.$message('转发失败');
-                                }
-                                else {
-                                    this.$message('转发成功');
-                                }
-                                return;
-                            }
-                            await this.sendMsg(this.selectedGroups, this.transmitMessages);
-                            // for(var i=0;i<this.groupList.length;i++) {
-                            //     this.groupList[i].checkState = false;
-                            // }
-                            // this.selectedChat = [];
-                            this.$emit("closeTransmitDlg", "");
-                            this.$message('转发成功');
-                        }, 500)
-                    })
-            }
-        },
+        
         sendMsg: async function(distGroups, msgs) {
             if(this.transmitTogether) {
                 await this.sendTogetherMsg(distGroups, msgs);
