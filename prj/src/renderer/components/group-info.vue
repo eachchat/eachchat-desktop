@@ -26,7 +26,6 @@
             </div>
             <div class="groupInfoNoticeAndName" v-if="!isDm">
                 <div class="groupInfoName">
-                    <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{groupName}}</div>
                     <p 
                         class="groupInfoNameEdit" 
@@ -38,7 +37,6 @@
             </div>
             <div class="groupInfoNoticeAndName" v-else>
                 <div class="groupInfoName">
-                    <!-- <input class="groupInfoNameInput" id="groupInfoNameInputId" type="text" :disabled="!isOwner" v-model="newGroupName" @input="inputChanget($event)" @keyup="keyUpdateGroupName($event)" @mousemove="showNameEdit" @mouseout="hideNameEdit"/> -->
                     <div class="chat-name">{{dmMember.dspName || dmMember.name}}</div>
                 </div>
                 <div @contextmenu.prevent="openMenu" class="chat-desc">{{dmMember.userId || ''}}</div>
@@ -115,30 +113,6 @@
             >
             </el-switch>
         </div>
-        <!-- <div class="groupSettingTopDiv" v-show="!isSecret">
-            <label class="groupSettingTopLabel">置顶聊天</label>
-            <el-switch 
-                class="groupSettingTopSwitch" 
-                v-model="groupTopState" 
-                @change="groupTopStateChange(groupTopState)"
-                :active-color="'#24B36B'"
-            >
-            </el-switch>
-        </div> -->
-        <!-- <div class="groupSettingFavouriteDiv" v-show="isGroup">
-            <label class="groupSettingFavouriteLabel">保存到收藏</label>
-            <el-switch 
-                class="groupSettingFavouriteSwitch" 
-                v-model="groupFavouriteState" 
-                @change="groupFavouriteStateChange(groupFavouriteState)"
-                :active-color="'#24B36B'"
-            >
-            </el-switch>
-        </div> -->
-        <!-- <div class="groupSettingOwnerTransferDiv" v-show="isGroup && isOwner" @click="ownerTransfer">
-            <label class="groupSettingOwnerTransferLabel">转让群主</label>
-            <img id="groupSettingOwnerTransferImageId" class="groupSettingOwnerTransferImage" src="../../../static/Img/Chat/arrow-20px@2x.png">
-        </div> -->
         <div class="groupMemberDiv" v-if="isGroup && !isDm">
             <div class="groupMemberSearchDiv" v-if="isSearch">
                 <input 
@@ -167,12 +141,7 @@
         <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
             <ul class="groupMember-list" v-if="isGroup && !isDm">
 
-                <li v-for="(item, index) in mxMembers" class="memberItemWrap" @click.stop="bubbleGet($event, item, index)"> <!--todo @mouseout="hideDeleteButton(item)" @mousemove="showDeleteButton(item)"-->
-                    <!-- <div class="groupMemberInfoDiv">
-                        <img :id="getIdThroughMemberUid(item.userId)" class="groupMemberInfoImage" @click="showUserInfoTip($event, item)" src="../../../static/Img/User/user-40px@2x.png">
-                        <label :id="getLabelIdThroughMemberUid(item.userId)" class="groupMemberInfoLabel" @click="showUserInfoTip($event, item)">{{item.name}}</label>
-                    </div> -->
-                    <!-- <img class="groupMemberClickOut" :id="getDeleteIdThroughMemberUid(item.user_id)" src="../../../static/Img/Chat/delete-20px@2x.png" @click="deleteMember(item)" v-show="notOwner(item)"> -->
+                <li v-for="(item, index) in mxMembers" class="memberItemWrap" @click.stop="bubbleGet($event, item, index)">
                     <div class="dvd" v-if="item.dvd">{{item.name}}</div>
                     <div class="memberItem" v-else>
                         <div class="memberItemLeft">
@@ -250,14 +219,9 @@
     </div>
 </template>
 <script>
-import * as path from 'path'
 import * as fs from 'fs-extra'
-import {services} from '../../packages/data/index.js'
-import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
-import confservice from '../../packages/data/conf_service.js'
-import {ipcRenderer, remote} from 'electron'
-import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
-import { stat } from 'fs'
+import {FileUtil} from '../../packages/core/Utils.js'
+import {remote} from 'electron'
 import imageCropper from './imageCropper.vue'
 import { UserInfo, Contact, ContactRoom, Department} from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
@@ -826,25 +790,6 @@ export default {
             }
             return true;
         },
-        deleteMember: async function(distUser) {
-            var ret = await services.common.DeleteGroupUsers(this.groupId, [distUser.user_id]);
-            console.log("ret is ", ret);
-            if(ret) {
-                for(let i=0;i<this.memberListShow.length;i++) {
-                    if(this.memberListShow[i].user_id == distUser.user_id) {
-                        this.memberListShow.splice(i, 1);
-                        break;
-                    }
-                }
-                for(let i=0;i<this.memberListShowOriginal.length;i++) {
-                    if(this.memberListShowOriginal[i].user_id == distUser.user_id) {
-                        this.memberListShowOriginal.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            // this.$emit("closeGroupInfo");
-        },
         searchMember: function() {
             if(this.searchKey.length == 0) {
                 this.memberListShow = this.memberListShowOriginal;
@@ -961,19 +906,6 @@ export default {
                             if(files && files.length > 0) {
                                 this.showImageCropper = true;
                                 this.selectImageSource = files[0];
-                                // var targetDir = confservice.getUserThumbHeadPath();
-                                // var targetPath = path.join(targetDir, this.groupId + '.png');
-                                // if(fs.existsSync(targetPath)) {
-                                //     fs.unlinkSync(targetPath);
-                                // }
-                                // var distFilePath = pathDeal(files[0]);
-                                
-                                // var ret = await services.common.UpdateGroupAvatar(this.groupId, distFilePath, this.groupAvarar);
-                                // console.log("ret is ", ret);
-                                // if(ret.ok == true && ret.success == true) {
-                                //     ipcRenderer.send('modifyGroupImg', [this.groupId, distFilePath]);
-                                // }
-                                
                             }
                     })
                 }
@@ -1024,40 +956,14 @@ export default {
                 this.newGroupName = this.newGroupName.substring(0, 25);
             }
         },
-        keyUpdateGroupName: function(event) {
-            if(event.code == "Enter") {
-                if(this.newGroupName == this.groupName){
-                    return;
-                }
-                var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
-                updateGroupNameInputElement.blur();
-                services.common.UpdateGroupName(this.groupId, this.newGroupName);
-                this.groupName = this.newGroupName;
-            }
-        },
-        updateGroupName: function() {
-            if(this.newGroupName == this.groupName){
-                return;
-            }
-            if(this.newGroupName.trim().length > 25) {
-                this.$toastMessage({message:'群名称超长，最多只支持25个字符，请重新输入。', time:1500, type:'success'});
-                return;
-            }
-            var updateGroupNameInputElement = document.getElementById("groupInfoNameInputId")
-            updateGroupNameInputElement.blur();
-            services.common.UpdateGroupName(this.groupId, this.newGroupName);
-            this.groupName = this.newGroupName;
-        },
         Close: function() {
             this.$emit("closeGroupInfo");
         },
         clearCache: async function(alertType) {
             if(alertType == "leaveGroup") {
-                var ret = await services.common.QuitGroup(this.groupId);
                 this.$emit("leaveGroup", this.groupId);
             }
             else if(alertType == "dismissGroup") {
-                var ret = await services.common.DeleteGroup(this.groupId);
                 this.$emit("leaveGroup", this.groupId);
             }
             this.closeAlertDlg();
@@ -1080,37 +986,6 @@ export default {
         },
         clearAll: function() {
             console.log("clear all");
-        },
-        slienceStateChange: async function(state){
-            services.common.GroupStatus(this.groupId, this.groupTopState, this.slienceState)
-                .then((ret) => {
-                    this.$emit("updateChatGroupStatus", this.groupId, ret, "slience");
-                    console.log("slienceStateChange ", ret);
-                })
-        },
-        groupTopStateChange: async function(state){
-            services.common.GroupStatus(this.groupId, this.groupTopState, this.slienceState)
-                .then((ret) => {
-                    this.$emit("updateChatGroupStatus", this.groupId, ret, 'top');
-                    console.log("groupTopStateChange ", ret);
-                })
-        },
-        groupFavouriteStateChange: function(state){
-            // console.log("fav state is ", state);
-            if(state) {
-                services.common.CollectGroup(this.groupId)
-                    .then((ret) => {
-                        console.log("CollectGroup ", ret);
-                        this.$emit("updateChatGroupStatus", this.groupId, true, 'fav');
-                    })
-            }
-            else {
-                services.common.DeleteCollectionGroup(this.groupId)
-                    .then((ret) => {
-                        console.log("DeleteCollectionGroup ", ret);
-                        this.$emit("updateChatGroupStatus", this.groupId, false, 'fav');
-                    })
-            }
         },
         getClassNameThroughMemberUid: function(memberUid) {
             return "member-img-class-" + memberUid;
@@ -1141,14 +1016,6 @@ export default {
                     return;
                 distElement.setAttribute("src", avaterUrl);
             })
-
-            for(var i=0; i < this.memberListShow.length; i++) {
-                var distUserInfo = this.memberListShow[i];
-                var targetPath = '';
-                if(fs.existsSync(targetPath = await services.common.downloadUserTAvatar(distUserInfo.avatar_t_url, distUserInfo.user_id))){
-                    
-                }
-            }
         },
         updateUserImage: function(e, args) {
             var state = args[0];
@@ -1264,83 +1131,11 @@ export default {
             this.groupAddress = content.alias || ''
         }
 
-        // this.$nextTick(()=>{
-        //     this.getMemberImage();
-        // })
         this.firstLoad = true;
         console.log('showGroupInfo.userLevel',    this.showGroupInfo.userLevel);
         console.log('showGroupInfo.totalLevels' , this.showGroupInfo.totalLevels);
     },
     watch: {
-        // showGroupInfoTips: function() {
-        //     console.log('----watch showGroupInfoTips----', showGroupInfoTips);
-        //     if (this.showGroupInfoTips) {
-        //         this.getRoomNotifsState();
-        //         this.mxGetMembers();
-        //     }
-        // },
-        // showGroupInfo: {
-        //     handler: async function() {
-        //         if(this.wholeTipElement == null) {
-        //             this.wholeTipElement = document.getElementById("groupInfoTipId");
-        //             // console.log("this.wholeTipElement ", this.wholeTipElement)
-        //         }
-        //         console.log("this.showGroupInfo ", this.showGroupInfo)
-        //         // console.log("this.wholeTipElement ", this.wholeTipElement)
-        //         if(this.showGroupInfo.groupNotice == undefined || this.wholeTipElement == null) {
-        //             return;
-        //         }
-        //         this.memberList = this.showGroupInfo.memberList;
-        //         this.groupName = this.showGroupInfo.groupName;
-        //         console.log('xxxxxx', this.showGroupInfo.groupName)
-        //         this.groupAvarar = this.showGroupInfo.groupAvarar;
-        //         this.groupNotice = this.showGroupInfo.groupNotice;
-        //         this.groupId = this.showGroupInfo.groupId;
-        //         this.isGroup = this.showGroupInfo.isGroup;
-        //         this.slienceState = this.showGroupInfo.isSlience;
-        //         this.groupTopState = this.showGroupInfo.isTop;
-        //         this.groupFavouriteState = this.showGroupInfo.isFav;
-        //         this.isOwner = this.showGroupInfo.isOwner //this.showGroupInfo.groupType == 101 ? this.showGroupInfo.isOwner : false;
-        //         this.ownerId = this.showGroupInfo.ownerId;
-        //         if(this.showGroupInfo.groupType == 102) {
-        //             var ownerUserInfo = await UserInfo.GetUserInfo(this.ownerId);
-        //             console.log("ownerUserInfo ", ownerUserInfo);
-        //             if(ownerUserInfo != undefined) {
-        //                 this.peopleState = ownerUserInfo.status_description;
-        //             }
-        //         }
-        //         this.isSecret = this.showGroupInfo.isSecret;
-        //         console.log("this.peopleState ", this.peopleState)
-        //         // console.log("this.slienceState ", this.slienceState)
-        //         var adddedMemberId = [];
-        //         this.memberList.forEach(async (item)=>{
-        //             let res = await Contact.GetContactInfo(item);
-        //             if(!res)
-        //                 res = await UserInfo.GetContactInfo(item);
-        //             this.memberListShow.push(res);
-        //             this.memberListShowOriginal.push(res)
-        //         })
-                
-        //         // console.log("watch memberListShow is ", this.memberListShow);
-        //         this.wholeTipElement.style.right = "0px";
-        //         this.wholeTipElement.style.top = "0px";
-
-        //         let elementImg = document.getElementById("groupInfoImageId");
-        //         elementImg.setAttribute("src", this.groupAvarar);
-
-        //         console.log("this.groupNotice is ", this.groupNotice);
-        //         if(this.groupNotice.length == 0) {
-        //             this.groupNotice = ""
-        //         }
-        //         this.newGroupName = this.groupName;
-        //         setTimeout(() => {
-        //             this.$nextTick(() => {
-        //                 this.getMemberImage();
-        //             })
-        //         }, 0)
-        //     },
-        //     immediate: true
-        // },
         cleanCache: function() {
             console.log("cleancache is ", this.cleanCache)
             if(this.cleanCache) {

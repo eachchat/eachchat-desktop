@@ -180,7 +180,6 @@ import Faces from './faces.vue';
 import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
-import transmit from './transmit.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import chatCreaterDlg from './chatCreaterDlg.vue'
@@ -285,7 +284,6 @@ export default {
         imessage,
         Faces,
         groupInfoTip,
-        transmit,
         chatMemberDlg,
         transmitDlg,
         chatCreaterDlg,
