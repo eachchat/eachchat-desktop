@@ -14,8 +14,8 @@ class roomTimeLineHandler {
         return global.mxMatrixClientPeg.roomTimeLineHandler;
     }
 
-    isTimelineInvalid(event) {
-        if(event.room_id != this._curChat.roomId) {
+    isTimelineInvalid(timelines) {
+        if(timelines[0] && timelines[0].event.room_id != this._curChat.roomId) {
             return true;
         }
         else {
@@ -37,14 +37,14 @@ class roomTimeLineHandler {
 
     async showPageUp(distRoomId, num) {
         let messageList = [];
-        while(messageList.length == 0 && this._timelineWindow.canPaginate(b)) {
+        while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('b')) {
             let newTimeline = [];
             await this.pageUp(distRoomId, 20);
 
+            if(this.isTimelineInvalid(this._curChat.timeline)) {
+                return null;
+            }
             for(let i = 0; i < this._lastTimelineNum.length; i++){
-                if(this.isTimelineInvalid(this._curChat.timeline[i])) {
-                    return null;
-                }
                 if(this.messageFilter(this._curChat.timeline[i])){
                     newTimeline.push(this._curChat.timeline[i]);
                 }
@@ -59,14 +59,15 @@ class roomTimeLineHandler {
             return null;
         }
         let messageList = [];
-        while(messageList.length == 0 && this._timelineWindow.canPaginate(f)) {
+        while(messageList.length == 0 && this._timelineWindow.canPaginate('f')) {
             let newTimeline = [];
             await this.pageDown(distRoomId, 20);
 
+            if(this.isTimelineInvalid(this._curChat.timeline)) {
+                return null;
+            }
+
             for(let i = 0; i < this._lastTimelineNum.length; i++){
-                if(this.isTimelineInvalid(this._curChat.timeline[i])) {
-                    return null;
-                }
                 if(this.messageFilter(this._curChat.timeline[i])){
                     newTimeline.push(this._curChat.timeline[i]);
                 }
@@ -101,42 +102,47 @@ class roomTimeLineHandler {
         return this._initTimeline();
     }
 
-    getRoomShowTimeline(distRoomId) {
-        return new Promise((resolve, reject) => {
-            let messageList = [];
-            let sendingTxIds = store.getters.getSendingEventsTxnIds(distRoomId);
-            
-            for(let i = 0; i < this._curChat.timeline.length; i++){
-                let exitEventIndex = this._curChat.timeline[i]._txnId ? sendingTxIds.indexOf(this._curChat.timeline[i]._txnId) : -1;
-                if(exitEventIndex >= 0) {
-                    store.commit('removeSendingEvents', this._curChat.timeline[i]);
-                }
-                if(this.messageFilter(this._curChat.timeline[i])){
-                    messageList.push(this._curChat.timeline[i]);
-                }
+    async getRoomShowTimeline(distChat) {
+        console.log("getRoomShowTimeline ", distChat);
+        this._curChat = distChat;
+        let messageList = [];
+        let sendingTxIds = store.getters.getSendingEventsTxnIds(this._curChat.roomId);
+        
+        for(let i = 0; i < this._curChat.timeline.length; i++){
+            let exitEventIndex = this._curChat.timeline[i]._txnId ? sendingTxIds.indexOf(this._curChat.timeline[i]._txnId) : -1;
+            if(exitEventIndex >= 0) {
+                store.commit('removeSendingEvents', this._curChat.timeline[i]);
             }
-            let sendingList = store.getters.getSendingEvents(this._curChat.roomId);
-            for(let i=sendingList.length - 1; i > 0; i--){
-                messageList.unshift(sendingList[i]);
+            if(this.messageFilter(this._curChat.timeline[i])){
+                messageList.push(this._curChat.timeline[i]);
             }
-            if(messageList.length > 0) {
-                console.log("0000000000");
-                this._initTimeline();
-                
-                resolve(messageList);
+        }
+        let sendingList = store.getters.getSendingEvents(this._curChat.roomId);
+        for(let i=sendingList.length - 1; i > 0; i--){
+            messageList.unshift(sendingList[i]);
+        }
+        if(messageList.length > 0) {
+            console.log("messagelist is ", messageList);
+            if(this.isTimelineInvalid(messageList)) {
+                console.log("is valid");
+                return null;
             }
             else {
-                //messageList is []
-                console.log("1111111111");
-                this._initTimeline().then(() => {
-                    this.showPageUp(10).then((newTimeline) => {
-                        if(!newTimeline) reject();
-                        messageList = [...newTimeline];
-                        resolve(messageList);
-                    })
-                });
+                return messageList;
             }
-        });
+        }
+        else {
+            //messageList is []
+            console.log("1111111111");
+            messageList = await this.showPageUp(10);
+            if(!messageList) return null;
+            if(this.isTimelineInvalid(messageList)) {
+                return null;
+            }
+            else {
+                return messageList;
+            }
+        }
     }
 }
 

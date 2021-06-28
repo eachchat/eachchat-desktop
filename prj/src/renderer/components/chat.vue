@@ -3510,6 +3510,7 @@ export default {
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
                     this.getShowMessage(this.messageFilter, curNum + 10, 'b')
+                    // roomTimeLineHandler.shareInstance().showPageUp(this.chat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
                             this.messageList = ret.concat(this.sendingList);
@@ -3547,6 +3548,7 @@ export default {
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
                     this.getShowMessage(this.messageFilter, curNum + 10, 'f')
+                    // roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 10)
                         .then((ret) => {
                             this.messageList = ret.concat(this.sendingList);
                             let index = 0;
@@ -4132,14 +4134,20 @@ export default {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
             this.messageList = [];
-            roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
-                .then(() => {
-                    return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
-                })
+            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
                 .then((messageList) => {
+                    console.log("==========", messageList);
                     if(!messageList) return;
                     for(let i=messageList.length - 1;i>0;i--){
                         this.messageList.unshift(messageList[i]);
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                let div = document.getElementById("message-show-list");
+                                if(div) {
+                                    div.scrollTop = div.scrollHeight;
+                                }
+                            })
+                        }, 90)
                     }
                 })
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
@@ -4204,14 +4212,19 @@ export default {
                 this.multiToolsClose();
                 
                 this.messageList = [];
-                roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
-                    .then(() => {
-                        return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
-                    })
+                roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
                     .then((messageList) => {
                         if(!messageList) return;
                         for(let i=messageList.length - 1;i>0;i--){
                             this.messageList.unshift(messageList[i]);
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    let div = document.getElementById("message-show-list");
+                                    if(div) {
+                                        div.scrollTop = div.scrollHeight;
+                                    }
+                                })
+                            }, 90)
                         }
                     })   
 
@@ -4230,18 +4243,18 @@ export default {
                     this.showGroupName(this.curChat);
                 }, 1000);
 
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight;
-                            setTimeout(() => {
-                                this.initMessage();
-                            }, 500)
-                        }
+                // setTimeout(() => {
+                //     this.$nextTick(() => {
+                //         let div = document.getElementById("message-show-list");
+                //         if(div) {
+                //             div.scrollTop = div.scrollHeight;
+                //             setTimeout(() => {
+                //                 this.initMessage();
+                //             }, 500)
+                //         }
                         
-                    })
-                }, 90)
+                //     })
+                // }, 90)
             }
         },
         searchChat: function() {
@@ -4276,14 +4289,19 @@ export default {
                 this.multiToolsClose();
                 
                 this.messageList = [];
-                roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
-                    .then(() => {
-                        return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
-                    })
+                roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
                     .then((messageList) => {
                         if(!messageList) return;
                         for(let i=messageList.length - 1;i>0;i--){
                             this.messageList.unshift(messageList[i]);
+                            setTimeout(() => {
+                                this.$nextTick(() => {
+                                    let div = document.getElementById("message-show-list");
+                                    if(div) {
+                                        div.scrollTop = div.scrollHeight;
+                                    }
+                                })
+                            }, 90)
                         }
                     })
 
@@ -4302,17 +4320,17 @@ export default {
                     this.showGroupName(this.curChat);
                 }, 1000);
 
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight;
-                            setTimeout(() => {
-                                this.initMessage();
-                            }, 500)
-                        }
-                    })
-                }, 90)
+                // setTimeout(() => {
+                //     this.$nextTick(() => {
+                //         let div = document.getElementById("message-show-list");
+                //         if(div) {
+                //             div.scrollTop = div.scrollHeight;
+                //             setTimeout(() => {
+                //                 this.initMessage();
+                //             }, 500)
+                //         }
+                //     })
+                // }, 90)
             }
         },
         toBottom: function() {
@@ -4334,27 +4352,32 @@ export default {
             }
             
             this.messageList = [];
-            roomTimeLineHandler.shareInstance().initRoomTimelineWindow(this.chat.roomId)
-                .then(() => {
-                    return roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat.roomId)
-                })
+            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
                 .then((messageList) => {
                     if(!messageList) return;
                     for(let i=messageList.length - 1;i>0;i--){
                         this.messageList.unshift(messageList[i]);
-                    }
-                })
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.scrollTop = div.scrollHeight + 52;
                         setTimeout(() => {
-                            this.initMessage();
-                        }, 500)
+                            this.$nextTick(() => {
+                                let div = document.getElementById("message-show-list");
+                                if(div) {
+                                    div.scrollTop = div.scrollHeight;
+                                }
+                            })
+                        }, 90)
                     }
                 })
-            }, 0)
+            // setTimeout(() => {
+            //     this.$nextTick(() => {
+            //         let div = document.getElementById("message-show-list");
+            //         if(div) {
+            //             div.scrollTop = div.scrollHeight + 52;
+            //             setTimeout(() => {
+            //                 this.initMessage();
+            //             }, 500)
+            //         }
+            //     })
+            // }, 0)
             
             this.updateUser++;
         },
