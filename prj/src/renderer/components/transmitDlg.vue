@@ -80,17 +80,8 @@
 </template>
 
 <script>
-//import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import {APITransaction} from '../../packages/data/transaction.js'
-import * as fs from 'fs-extra'
-import {ipcRenderer, remote} from 'electron'
-import { object } from '../../packages/core/types'
-import confservice from '../../packages/data/conf_service';
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict } from '../../packages/core/Utils.js'
-import * as path from 'path'
-import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
-import conf_service from '../../packages/data/conf_service'
+import {ipcRenderer} from 'electron'
+import {FileUtil} from '../../packages/core/Utils.js'
 import {ComponentUtil} from '../script/component-util.js';
 export default {
     name: 'TransmitDlg',
@@ -404,20 +395,7 @@ export default {
             }
             return index;
         },
-        // selectedGroupImageId(id) {
-        //     return "selected" + id;
-        // },
-        // UpdateTransmit: function() {
-        //     if(this.TransmitContent.length == 0){
-        //         alert("公告内容不能为空");
-        //         return;
-        //     }
-        //     services.common.UpdateGroupTransmit(this.groupId, this.TransmitContent)
-        //         .then((ret) => {
-        //             console.log("ret ", ret)
-        //             this.$emit("closeTransmitDlg", this.TransmitContent);
-        //         })
-        // },
+
         getGroupAvatarContent:async function(group, key='') {
             if(!group) return;
             var groupAvatarElement = document.getElementById(key + group.roomId);
@@ -734,79 +712,8 @@ export default {
             })
             return content;
         },
-        getMsgContent: async function(msg) {
-            if(this.msg === null) {
-                return '';
-            }
-            var messageContent = '';
-            let chatGroupMsgType = msg.message_type;
-            var chatGroupMsgContent = strMsgContentToJson(msg.message_content);
-
-            var nameTemp = "";
-            var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
-            // var userInfos = await UserInfo.GetUserInfo(this.curChat.uid);
-            if(userInfos.length == 1) {
-                var distUserInfo = userInfos[0];
-                if(distUserInfo != undefined){
-                    nameTemp = distUserInfo.user_display_name;
-                }
-            }
-
-            console.log("chatGroupMsgContent is ", nameTemp)
-            // console.log("this. msg is ", this.msg)
-
-            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
-            {
-                messageContent = nameTemp + ":" + chatGroupMsgContent.text;
-                console.log("aboutUserName ",nameTemp);
-                console.log("getMsgContent ",messageContent);
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 102)
-            {
-                messageContent = nameTemp + ":" + "[图片]:" + chatGroupMsgContent.fileName;
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 103)
-            {
-                messageContent = nameTemp + ":" + "[文件}:" + chatGroupMsgContent.fileName;   
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 106)
-            {
-                return messageContent = chatGroupMsgContent.title + ":" + "的聊天记录";
-            }
-            else {
-                return messageContent = "不支持的消息类型，请升级客户端。"
-            }
-        },
-        getDistUidThroughUids: async function(uids) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            if(uids.length > 2) {
-                return "";
-            }
-            else if(uids.length == 1) {
-                return uids[0];
-            }
-            else {
-                if(uids[0] == this.curUserInfo.id) {
-                    return uids[1];
-                }
-                else {
-                    return uids[0];
-                }
-            }
-        },
     },
     created() {
-            //this.curUserInfo = await services.common.GetSelfUserModel();
-            //console.log("this.curuser info is ", this.curUserInfo);
-            // var showPosition = this.calcImgPosition();
-            // console.log(showPosition);
-            // this.dlgPosition.left = showPosition.left.toString() + "px";
-            // this.dlgPosition.top = showPosition.top.toString() + "px";
     },
     mounted: function() {
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);

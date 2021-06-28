@@ -182,7 +182,6 @@ import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
-import chatCreaterDlg from './chatCreaterDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
@@ -286,7 +285,6 @@ export default {
         groupInfoTip,
         chatMemberDlg,
         transmitDlg,
-        chatCreaterDlg,
         userInfoContent,
         SendFileDlg,
         mxSettingDialog,
