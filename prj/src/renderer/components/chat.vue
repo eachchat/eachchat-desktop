@@ -1935,20 +1935,20 @@ export default {
                 }
             }
 
-            this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
-            console.log("=================distUrl ", this.distUrl);
-            if(!this.distUrl || this.distUrl == '') {
+            this.chatIconUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
+            console.log("=================distUrl ", this.chatIconUrl);
+            if(!this.chatIconUrl || this.chatIconUrl == '') {
                 let defaultGroupIcon;
                 if(global.mxMatrixClientPeg.DMCheck(this.curChat))
-                    this.distUrl = "./static/Img/User/user-40px@2x.png";
+                    this.chatIconUrl = "./static/Img/User/user-40px@2x.png";
                 else
-                    this.distUrl = "./static/Img/User/group-40px@2x.png";
+                    this.chatIconUrl = "./static/Img/User/group-40px@2x.png";
                 if(groupIcoElement) {
-                    groupIcoElement.setAttribute("src", this.distUrl); 
+                    groupIcoElement.setAttribute("src", this.chatIconUrl); 
                 }
             }
-            if(groupIcoElement != undefined && this.distUrl) {
-              groupIcoElement.setAttribute("src", this.distUrl);
+            if(groupIcoElement != undefined && this.chatIconUrl) {
+              groupIcoElement.setAttribute("src", this.chatIconUrl);
             }
         },
         insertFace: function(item) {
@@ -3189,7 +3189,7 @@ export default {
                 "memberList": idsList,
                 "groupName": name, //this.curChat.group_name,
                 "groupTopic": topic,
-                "groupAvarar": this.distUrl, //this.curChat.group_avarar,
+                "groupAvarar": this.chatIconUrl, //this.curChat.group_avarar,
                 "groupNotice": this.curChat.group_notice != undefined ? this.curChat.group_notice : '',
                 "groupId": this.curChat.roomId, //this.curChat.group_id,
                 "isGroup": true, //isGroup,
@@ -3283,8 +3283,6 @@ export default {
                 }, 500);
             })
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(distChat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
             this.existingMsgId = [];
             this.showGroupName(distChat);
             if(this.editor == undefined) {
@@ -3502,7 +3500,7 @@ export default {
                     return;
                 }
                 // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
-                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
+                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
                     this.isScroll = true;
                     this.lastScrollHeight = uldiv.scrollHeight;
                     this.isRefreshing = true;
@@ -3815,7 +3813,7 @@ export default {
             }
             return fileListInfo;
         },
-        initMessage: function() {
+        oldinitMessage: function() {
             if(!this.curChat) return;
             if(this.$store.getters.getCurChatId() != this.curChat.roomId) return;
             // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
@@ -3860,8 +3858,6 @@ export default {
                     })
             }
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
             this.existingMsgId = [];
             this.showGroupName(this.curChat);
             if(this.editor == undefined) {
@@ -3873,10 +3869,110 @@ export default {
             setTimeout(() => {
                 this.showGroupName(this.curChat);
             }, 1000);
+        },
+        setShowSearch: function() {
+            this.isSerach = true;
+        },
+        initPage: function() {
+            this.CloseFileListPage();
+            this.multiToolsClose();
+            this.updateGroupIcon();
+            this.updateGroupName();
+        },
+        updateGroupIcon: function() {
+            if(!this.groupIconElement) {
+                this.groupIconElement = document.getElementById("chat-group-img");
+                if(!this.groupIcoElement) return;
+            }
+
+            console.log("=================distUrl ", this.chatIconUrl);
+            if(!this.chatIconUrl || this.chatIconUrl == '') {
+                if(this.isDm)
+                    this.chatIconUrl = "./static/Img/User/user-40px@2x.png";
+                else
+                    this.chatIconUrl = "./static/Img/User/group-40px@2x.png";
+            }
+            if(this.chatIconUrl) {
+              this.groupIconElement.setAttribute("src", this.chatIconUrl);
+            }
+        },
+        updateGroupName: function() {
+            if(!this.groupNameElement) {
+                this.groupNameElement = document.getElementById("chat-group-content-num");
+                if(!this.groupNameElement) return;
+            }
+            if(!this.groupContentNumElement) {
+                this.groupContentNumElement = document.getElementById("chat-group-name");
+                if(!this.groupContentNumElement) return;
+            }
+            if(this.isDm) {
+                if(this.dmUserId) {
+                    ComponentUtil.GetDisplayNameByMatrixID(this.dmUserId)
+                        .then((displayName) => {
+                            this.groupNameElement.innerHTML = displayName;
+                        })
+                }
+                this.groupContentNumElement.innerHTML = "";
+            }
+            else {
+                this.mxGetMembers()
+                    .then((totalMemberCount) => {
+                        this.groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
+                    })
+            }
+        },
+        initData: function() {
+            if(global.mxMatrixClientPeg.DMCheck(this.chat)) {
+                this.isDm = true;
+            }
+            else{
+                this.isDm = false;
+            }
+            this.newMsgNum = 0;
+            this.inviterInfo = undefined;
+            this.isInvite = false;
+            this.initSearchKey = '';
+            this.haveNewMsg = false;
+            this.isJumpPage = false;
+            this.curGroupId = this.chat.roomId;
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
+            this.chatIconUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
+            this.dmUserId = global.mxMatrixClientPeg.getDMMemberId(this.chat);
+            if(!global.mxMatrixClientPeg.mediaConfig) {
+                global.mxMatrixClientPeg.ensureMediaConfigFetched();
+            }
+            this.needToBottom = false;
+            this.existingMsgId = [];
+        },
+        initMessage: function() {
+            this.messageList = [];
+            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
+                .then((messageList) => {
+                    console.log("==========", messageList);
+                    if(!messageList) return;
+                    for(let i=messageList.length - 1;i>0;i--){
+                        this.messageList.unshift(messageList[i]);
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                let div = document.getElementById("message-show-list");
+                                if(div) {
+                                    div.scrollTop = div.scrollHeight;
+                                    if(div.clientHeight < div.offsetHeight) {
+                                        this.paginageForwork();
+                                    }
+                                }
+                            })
+                        }, 90)
+                    }
+                })
         }
     },
     data() {
         return {
+            dmUserId: undefined,
+            groupIconElement: undefined,
+            groupContentNumElement: undefined,
+            groupNameElement: undefined,
             newMsgNum: 0,
             haveNewMsg: false,
             sendingList: [],
@@ -3931,8 +4027,6 @@ export default {
                 "id": "",
             },
             needToBottom: false,
-            needScrollTop: true,
-            needScrollBottom: true,
             isOwn: false,
             createNewChat: false,
             addMemberGroupType: 101,
@@ -4052,6 +4146,10 @@ export default {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         setTimeout(() => {
             this.$nextTick(() => {
+                this.groupIconElement = document.getElementById("chat-group-img");
+                // var groupStateElement = document.getElementById("chat-group-state");
+                this.groupContentNumElement = document.getElementById("chat-group-content-num");
+                this.groupNameElement = document.getElementById("chat-group-name");
                 // console.log("==============ipc on")
                 ipcRenderer.on('SAVED_FILE', this.updateMsgFile);
                 ipcRenderer.on('updateUserImage', this.updateUserImage);
@@ -4065,7 +4163,6 @@ export default {
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
                 this.fileInput = document.getElementById("fileInput");
-                this.showGroupName(this.curChat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
                 const editorEle = this.editor.container.getElementsByClassName("ql-editor")[0]
@@ -4098,7 +4195,37 @@ export default {
             }
         }
     },
-    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg', 'updateRoomStata'],
+    props: {
+        chat: {
+            type: Object,
+            default: null
+        },
+        newMsg: {
+            type: Object,
+            default: null
+        },
+        toBottom: {
+            type: Boolean,
+            default: false
+        },
+        searchKeyFromList: {
+            type: String,
+            default: ''
+        },
+        searchChat: {
+            type: Object,
+            default: null
+        },
+        updateImg: {
+            type: Object,
+            default: null
+        },
+        updateRoomStata: {
+            type: Object,
+            default: null
+        }
+    },
+    // props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg', 'updateRoomStata'],
     watch: {
         updateRoomStata: function() {
             this.groupIsSlience();
@@ -4110,60 +4237,19 @@ export default {
             if(!this.chat || (this.chat && !this.chat.roomId)) {
                 return;
             }
-            this.newMsgNum = 0;
             this.curChat = this.chat;
-            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
-                this.isDm = true;
-            }
-            else{
-                this.isDm = false;
-            }
-            this.initSearchKey = '';
-            this.inviterInfo = undefined;
-            this.isInvite = false;
-            this.newMsgNum = 0;
-            this.haveNewMsg = false;
-            this.isJumpPage = false;
-            this.curGroupId = this.chat.roomId;
             console.log("***1 chat")
-            this.isSerach = false;
-            this.CloseFileListPage();
-            this.multiToolsClose();
             console.log("chat ============", this.chat);
-            if(!global.mxMatrixClientPeg.mediaConfig) {
-                global.mxMatrixClientPeg.ensureMediaConfigFetched();
-            }
-            this.messageList = [];
-            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
-                .then((messageList) => {
-                    console.log("==========", messageList);
-                    if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.unshift(messageList[i]);
-                        setTimeout(() => {
-                            this.$nextTick(() => {
-                                let div = document.getElementById("message-show-list");
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight;
-                                }
-                            })
-                        }, 90)
-                    }
-                })
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
-            this.existingMsgId = [];
-            this.showGroupName(this.curChat);
+            this.initData();
+            this.initPage();
+            this.initMessage();
+            
             if(this.editor == undefined) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
             var content = this.$store.getters.getDraft(this.curChat.roomId);
             this.editor.setContents(content);
             this.editor.setSelection(this.content.length + 1);
-            setTimeout(() => {
-                this.showGroupName(this.curChat);
-            }, 1000);
 
             // setTimeout(() => {
             //     this.$nextTick(() => {
@@ -4181,144 +4267,28 @@ export default {
         },
         searchKeyFromList: function() {
             if(this.searchKeyFromList != '') {
-                this.inviterInfo = undefined;
-                this.isInvite = false;
-                this.isJumpPage = false;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.curGroupId = this.curChat.roomId;
                 console.log("***1 searchKeyFromList")
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
                 
                 this.initSearchKey = this.searchKeyFromList;
                 this.showHistoryMsgList();
-            }
-            else {
-                this.newMsgNum = 0;
-                this.initSearchKey = '';
-                this.inviterInfo = undefined;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.isInvite = false;
-                this.isJumpPage = false;
-                this.curGroupId = this.curChat.roomId;
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                
-                this.messageList = [];
-                roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
-                    .then((messageList) => {
-                        if(!messageList) return;
-                        for(let i=messageList.length - 1;i>0;i--){
-                            this.messageList.unshift(messageList[i]);
-                            setTimeout(() => {
-                                this.$nextTick(() => {
-                                    let div = document.getElementById("message-show-list");
-                                    if(div) {
-                                        div.scrollTop = div.scrollHeight;
-                                    }
-                                })
-                            }, 90)
-                        }
-                    })   
-
-                this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
-                this.showGroupName(this.curChat);
-                if(this.editor == undefined) {
-                    this.editor = this.$refs.chatQuillEditor.quill;
-                }
-                var content = this.$store.getters.getDraft(this.curChat.roomId);
-                this.editor.setContents(content);
-                this.editor.setSelection(this.content.length + 1);
-                setTimeout(() => {
-                    this.showGroupName(this.curChat);
-                }, 1000);
-
-                // setTimeout(() => {
-                //     this.$nextTick(() => {
-                //         let div = document.getElementById("message-show-list");
-                //         if(div) {
-                //             div.scrollTop = div.scrollHeight;
-                //             setTimeout(() => {
-                //                 this.initMessage();
-                //             }, 500)
-                //         }
-                        
-                //     })
-                // }, 90)
             }
         },
         searchChat: function() {
             if(this.searchKeyFromList != '') {
-                this.inviterInfo = undefined;
-                this.isInvite = false;
-                this.isJumpPage = false;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.curGroupId = this.curChat.roomId;
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
                 
                 this.initSearchKey = this.searchKeyFromList;
                 this.showHistoryMsgList();
             }
             else {
-                this.newMsgNum = 0;
-                this.initSearchKey = '';
-                this.inviterInfo = undefined;
-                this.isInvite = false;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.isJumpPage = false;
-                this.curGroupId = this.curChat.roomId;
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                
-                this.messageList = [];
-                roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
-                    .then((messageList) => {
-                        if(!messageList) return;
-                        for(let i=messageList.length - 1;i>0;i--){
-                            this.messageList.unshift(messageList[i]);
-                            setTimeout(() => {
-                                this.$nextTick(() => {
-                                    let div = document.getElementById("message-show-list");
-                                    if(div) {
-                                        div.scrollTop = div.scrollHeight;
-                                    }
-                                })
-                            }, 90)
-                        }
-                    })
-
-                this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
-                this.showGroupName(this.curChat);
+                this.initData();
+                this.initPage();
+                this.initMessage();
                 if(this.editor == undefined) {
                     this.editor = this.$refs.chatQuillEditor.quill;
                 }
                 var content = this.$store.getters.getDraft(this.curChat.roomId);
                 this.editor.setContents(content);
                 this.editor.setSelection(this.content.length + 1);
-                setTimeout(() => {
-                    this.showGroupName(this.curChat);
-                }, 1000);
 
                 // setTimeout(() => {
                 //     this.$nextTick(() => {
@@ -4350,23 +4320,11 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
-            
-            this.messageList = [];
-            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
-                .then((messageList) => {
-                    if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.unshift(messageList[i]);
-                        setTimeout(() => {
-                            this.$nextTick(() => {
-                                let div = document.getElementById("message-show-list");
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight;
-                                }
-                            })
-                        }, 90)
-                    }
-                })
+                
+            this.initData();
+            this.initPage();
+            this.initMessage();
+                
             // setTimeout(() => {
             //     this.$nextTick(() => {
             //         let div = document.getElementById("message-show-list");
@@ -4386,15 +4344,9 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
-            this.messageList = [];
-            roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 10)
-                .then((messageList) => {
-                    if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.push(messageList[i]);
-                    }
-                })
-
+                
+            this.initMessage();
+                
             // this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
             // this._timelineWindow = new Matrix.TimelineWindow(
             //     global.mxMatrixClientPeg.matrixClient, 
@@ -4410,7 +4362,6 @@ export default {
             }
             else {
             }
-            this.showGroupName(this.curChat);
             // this._timelineWindow.paginate("f", 10).then(() => {
             //     console.log("=======this.sendingList ", this.sendingList);
                 
@@ -4460,7 +4411,7 @@ export default {
 
 <style lang="scss" scoped>
     ::-webkit-scrollbar-track-piece {
-        background-color: #F1F1F1;
+        background-color: #f1f1f1;
         border-radius: 10px;
     }
 
