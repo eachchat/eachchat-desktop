@@ -32,12 +32,8 @@
 </template>
 
 <script>
-import {services, environment} from '../../packages/data/index.js'
-import * as fs from 'fs-extra'
-import confservice from '../../packages/data/conf_service';
-import { FilenameToContentType, strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict, getIconPath, getFileSizeByNumber } from '../../packages/core/Utils.js'
+import { FilenameToContentType, getIconPath, getFileSizeByNumber } from '../../packages/core/Utils.js'
 import * as path from 'path'
-import {UserInfo, Group} from '../../packages/data/sqliteutil.js';
 export default {
     name: 'SendFileDlg',
     props: {

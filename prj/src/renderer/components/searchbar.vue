@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import {services, environment} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/index.js'
 import { openBaseMenu } from '../../utils/commonFuncs'
 import { ipcRenderer } from 'electron';
 export default {

@@ -130,19 +130,14 @@ import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
 import { remote } from 'electron'
 import BenzAMRRecorder from 'benz-amr-recorder'
-import axios from "axios";
-
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, fileMIMEFromType, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
-import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
+import {fileMIMEFromType, FileUtil, getIconPath, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
+import { Message } from '../../packages/data/sqliteutil.js'
 import {ComponentUtil} from '../script/component-util.js'
 import { models } from '../../packages/data/models.js';
 import linkify from './linkify'
 import emoji from './emoji'
 import { getImgUrlByEvent, getTextByEvent } from '../../utils/commonFuncs'
-import {faceUtils} from '../../packages/core/Utils.js'
 import VoIP from './VoIP'
 
 const MAX_WIDTH = 800;

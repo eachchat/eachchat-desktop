@@ -41,16 +41,8 @@
     </div>
 </template>
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-//import { services } from '../../packages/data'
-import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
-import confservice from '../../packages/data/conf_service.js'
-import {services} from '../../packages/data/index.js';
 import {Department} from '../../packages/data/sqliteutil.js'
 import imageCropper from './imageCropper.vue'
-import * as utils from '../../packages/core/Utils.js'
-import axios from "axios";
 
 export default {
     name: 'user-info',
@@ -126,22 +118,7 @@ export default {
                 alert("请选择一个图片文件");
             }
             this.showImageCropper = true;
-            this.selectImageSource = fileList.filePaths[0];
-
-            // var showfu = new utils.FileUtil(this.selectImageSource);
-            // var stream = showfu.ReadfileSync(this.selectImageSource);
-            // let uploadFile = showfu.GetUploadfileobj();
-            // let matrixClient = global.mxMatrixClientPeg.matrixClient;
-            // const httpPromise = matrixClient.uploadContent(uploadFile).then(function(url) {
-            //         var avaterUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(url);
-            //         let userIconElement = document.getElementsByClassName('personalCenter-icon')[0];
-            //         if(avaterUrl != '') {
-            //             userIconElement.setAttribute("src", avaterUrl);
-            //         }
-            //         matrixClient.setAvatarUrl(url);
-            //         var elementImg = document.getElementById("userHead");
-            //         elementImg.setAttribute("src", avaterUrl);
-            // });       
+            this.selectImageSource = fileList.filePaths[0];       
         },
         personalDetailClicked(){
             this.$emit("showPersonalInfoHanlder", true)

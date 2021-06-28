@@ -40,12 +40,7 @@
 </div>
 </template>
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import {FileUtil, fileMIMEFromType} from '../../packages/core/Utils.js';
-import {services} from '../../packages/data/index.js';
-import { read } from 'fs'
-import confservice from '../../packages/data/conf_service.js'
+import {FileUtil} from '../../packages/core/Utils.js';
 export default {
     name: 'cropper',
     data() {

@@ -57,7 +57,7 @@
 
 <script>
 import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, sliceReturnsOfString, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import {ipcRenderer, remote} from 'electron'
