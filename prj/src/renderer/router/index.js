@@ -3,8 +3,6 @@ import Router from 'vue-router';
 import organization from '../components/organization.vue';
 import ChatContent from '../components/chat-content.vue';
 import favourite from '../components/favourite.vue';
-import fileList from '../components/file-list.vue';
-import historyMsg from '../components/history-message.vue';
 import thirdpartyBind from '../components/thirdpartyBind.vue';
 import childwindow from "../components/childwindow.vue";
 import VoipWindow from "../components/voipwindow.vue";
@@ -48,17 +46,7 @@ export default new Router({
           component: setup,
         },
       ]
-    },
-    {
-      path: '/fileList',
-      name: "fileListDlg",
-      component: fileList
-    },
-    {
-      path: '/historyMsgList',
-      name: "historyMsgDlg",
-      component: historyMsg
-    },    
+    },   
     {
       path:'/thirdpartyBind',
       name: "thirdpartyBind",

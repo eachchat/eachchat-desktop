@@ -19,8 +19,6 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
-                <!-- <div class="chat-tool-invite-div" @click.stop="createAnother"></div>  -->
-                <!-- @click="showAddMembersPrepare()" -->
                 <div class="chat-tool-call" @click="voiceCall()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
@@ -175,7 +173,6 @@ import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
-import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
 import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
@@ -372,35 +369,7 @@ export default {
         mxSelectMember() {
 
         },
-        createAnother() {
-            console.log('this.curChat', this.curChat)
-            const client = window.mxMatrixClientPeg.matrixClient;
-            const mDirectEvent = client.getAccountData('m.direct');
-            let dmRoomMap = {};
-            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-            let currentRoom = this.curChat;
-            let dmRoomIdArr = [];
-            const roomId = currentRoom.roomId;
-            const userId = client.getUserId();
-            Object.keys(dmRoomMap).forEach(k=>{
-                let arr = dmRoomMap[k];
-                arr.forEach(a=>dmRoomIdArr.push(a))
-            })
-            if (dmRoomIdArr.includes(roomId)) {
-                this.isDm = true;
-                console.log('这是一个单聊', currentRoom);
-                Object.keys(currentRoom.currentState.members).forEach(id => {
-                    if (id != userId) {
-                        let dmMember = currentRoom.currentState.members[id];
-                        console.log( 'dmMember', dmMember)
-                        console.log( 'dmMember.user', dmMember.user)
-                        if (!dmMember.user) dmMember.user = {};
-                        dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
-                        this.dmMember = dmMember;
-                    }
-                })
-            } else {this.isDm = false;}
-        },
+        
         showImportE2EKey() {
             this.$emit("showImportE2EKey");
         },
@@ -1017,58 +986,14 @@ export default {
                 this.transmitTogether = false;
             }
         },
-        showAddMembersPrepare: async function() {
-            // var memeberList = this.curChat.contain_user_ids.split(",");
-            // this.showAddMembers(memeberList);
-            ////////////////////////////////////////////////////
-            var self = await services.common.GetSelfUserModel();
-            console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(self.id);
-            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            if(this.curChat.contain_user_ids.length != 0) {
-                var contain_user_ids = this.curChat.contain_user_ids.split(",");
-                for(var i=0;i<contain_user_ids.length;i++) {
-                    if(this.chatCreaterDisableUsers.indexOf(contain_user_ids[i]) == -1) {
-                        this.chatCreaterDisableUsers.push(contain_user_ids[i]);
-                    }
-                }
-            }
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = rootDepartmentModels;
-            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            this.createNewChat = false;
-            this.addMemberGroupType = this.curChat.group_type;
-            this.chatCreaterKey ++;
-            this.showChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "添加成员";
-        },
+        
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
             this.createNewChat = false;
             this.chatCreaterDisableUsers = [];
         },
         showAddMembers: async function(existedMembers){
-            // this.chatCreaterDisableUsers = existedMembers;
-            // var self = await services.common.GetSelfUserModel();
-            // console.log("self is ", self);
-            // this.chatCreaterDisableUsers.push(self.id);
-            // console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            // var root = await Department.GetRoot();
-            // console.log("root is ", root);
-            // var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            // console.log("rootDepartmentModels is ", rootDepartmentModels);
-            // var temp = rootDepartmentModels;
-            // this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            // this.chatCreaterKey ++;
-            // this.createNewChat = false;
-            // this.addMemberGroupType = this.curChat.group_type;
-            // this.showChatCreaterDlg = true;
-            // this.chatCreaterDialogTitle = "添加成员";
+
         },
         compare(property){
             return function(a,b){
@@ -1077,16 +1002,7 @@ export default {
                 return value1 - value2;
             }
         },
-        AddNewMembers: async function() {
-            console.log("add member s ", this.usersSelected);
-            var addUids = [];
-            for(var i=0;i<this.usersSelected.length;i++) {
-                addUids.push(this.usersSelected[i].id)
-            }
-            var ret = await services.common.AddGroupUsers(this.curChat.group_id, addUids);
-            console.log("AddGroupUsers ret is ", ret);
-            this.dialogVisible = false;
-        },
+
         async menuFav(msg) {
             console.log("fav msg is ", msg);
             console.log("cointent is ", strMsgContentToJson(msg.message_content));
@@ -3849,8 +3765,8 @@ export default {
         });
     },
     created: async function() {
-        this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;
+        this.curUserInfo = undefined;
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
