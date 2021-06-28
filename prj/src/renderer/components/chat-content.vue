@@ -195,7 +195,7 @@
                   <li :class = 'getGroupClassName(searchMessageItem)("search-item")'
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
-                      v-show="!isSecret(searchChatItem)"
+                      v-show="!isSecret(searchMessageItem)"
                       >
                     <div :class = 'getGroupDivClassName(searchMessageItem)("search-list-content-list-div")' >
                       <div class="search-item-img-div">
@@ -343,9 +343,55 @@ export default {
     scrollToRecentUnread: {
       type: Boolean,
       default: false
+    },
+    toUpdateRooms: {
+      type: Number,
+      default: 0
     }
   },
   watch: {
+    toUpdateRooms: function() {
+        this.showGroupList.length = 0;
+        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+          // console.log("this is ", r);
+          // console.log("r.getMyMembership() ", r.getMyMembership());
+          // console.log("roomname ", r.name)
+          if(r.getMyMembership() != "leave") {
+            this.showGroupList.push(r);
+          }
+        })
+
+        let removedRoomIds = [];
+        let ls = localStorage.getItem('removedRoomIds');
+        if (ls) {
+          removedRoomIds = ls.split(',');
+        }
+        console.log('-----created removedRoomIds-----', removedRoomIds)
+        removedRoomIds = [...removedRoomIds];
+        let sg = [...this.showGroupList];
+        console.log('kankanSg----', sg)
+        sg.forEach(s => {
+          if (removedRoomIds.indexOf(sg.roomId) >= 0) {
+            s.localRemoved = true
+          } else {
+            s.localRemoved = false
+          }
+        })
+        this.showGroupList = [...sg];
+
+        this.ShowAllGroup();
+        this.$nextTick(() => {
+          this.showGroupIconName()
+            .then((ret) => {
+              setTimeout(() => {
+                this.sortGroup();
+                this.updateTrayNoticeInfo()
+              }, 2000)
+            })
+          this.$emit('matrixSyncEnd', true);
+        })
+
+    },
     toUpdateTrayNotice: function() {
       console.log("to update tray notice ");
       try{
@@ -557,6 +603,10 @@ export default {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
               console.log("***8 new room is ", newRoom);
               if(!newRoom) return;
+              if(this.isSecret(newRoom)) {
+                console.log(newRoom)
+                return;
+              }
               this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
               if(this.dealShowGroupList.every(item=>{
                   return item.roomId != newRoom.roomId
@@ -604,7 +654,12 @@ export default {
                 console.log("membership ", member.membership)
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if(this.isSecret(newRoom)) return;
                 if (member.membership == 'invite') {
+                  if(this.isSecret(newRoom)) {
+                    console.log(newRoom)
+                    return;
+                  }
                   this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
                   if(this.dealShowGroupList.every(item=>{
                       return item.roomId != newRoom.roomId
@@ -638,6 +693,7 @@ export default {
                   return;
                 }
                 let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if(this.isSecret(getRoom)) return;
                 if(getRoom) {
                   getRoom.distTimeLine = event;
                 }
@@ -1067,6 +1123,10 @@ export default {
       let nInviteRooms = 0;
       this.showGroupList.forEach(async (item)=>{
         if(item.getMyMembership() == "invite") {
+          if(this.isSecret(item)) {
+            console.log(item)
+            return;
+          }
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
           if(this.dealShowGroupList.every(dealitem=>{
                 return dealitem.roomId != item.roomId
@@ -1230,6 +1290,7 @@ export default {
       setTimeout(()=>{this.viewRoom(room)}, 160);
     },
     isSecret(item) {
+      if(!item) return;
       return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId ? item.roomId : item.room_id);
     },
     ChatGroupId(item) {
@@ -1380,6 +1441,7 @@ export default {
       // console.log("*** room ", room.name);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      if(this.isSecret(room)) return;
       this.setRemovedTab(ev)
 
       if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
@@ -2555,30 +2617,33 @@ export default {
 
         var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
 
-        var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
-        if(!distUserId) {
-          searchChatMsgNameElement.innerHTML = curRoom.name;
+        if(searchChatMsgNameElement){
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+          let name = "";
+          if(!distUserId) {
+            name = curRoom.name;
+          }
+          else {
+            name = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          }
+          searchChatMsgNameElement.innerHTML = name;
         }
-        else {
-          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-          searchChatMsgNameElement.innerHTML = displayName;
-        }
-
-        var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
-        if(!distUrl || distUrl == '') {
-            let defaultGroupIcon;
-            if(global.mxMatrixClientPeg.DMCheck(curRoom))
-                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
-            else
-                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            searchChatImgMsgElement.setAttribute("src", defaultGroupIcon);
-        }
-        if(searchChatImgMsgElement != undefined && distUrl) {
+        
+        if(searchChatImgMsgElement){
+          var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
+          if(!distUrl || distUrl == '') {
+              if(global.mxMatrixClientPeg.DMCheck(curRoom))
+                  distUrl = "./static/Img/User/user-40px@2x.png";
+              else
+                  distUrl = "./static/Img/User/group-40px@2x.png";
+          }
           searchChatImgMsgElement.setAttribute("src", distUrl);
         }
 
-        if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
-          searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+        if(searchChatMsgContentElement){
+          if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
+            searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+          }
         }
       }
       /*
@@ -3448,6 +3513,10 @@ export default {
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
+          if(this.isSecret(item)) {
+            console.log(item)
+            return;
+          }
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
         }
         else{

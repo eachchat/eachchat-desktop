@@ -31,7 +31,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading">
@@ -103,8 +103,10 @@ export default {
     },
     data () {
         return {
+            lastSyncTime: 0,
             bshowNewversionDot: false,
             toUpdateTrayNotice: 0,
+            toUpdateRooms: 0,
             setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
@@ -511,6 +513,11 @@ export default {
                 return;
             }
         },
+        updateRooms() {
+            setTimeout(() => {
+                this.toUpdateRooms += 1;
+            }, 1000)
+        },
         async _doBootstrapUIAuth(makeRequest) {
             let response = null;
             var checkType = global.mxMatrixClientPeg.checkType;
@@ -563,6 +570,11 @@ export default {
                 catch(e) {
                     console.log(e.message);
                 }
+            }
+        },
+        checkSync: function() {
+            if(this.lastSyncTime != 0 && new Date().getTime() - this.lastSyncTime > 40 * 1000) {
+                global.mxMatrixClientPeg.matrixClient.retryImmediately();
             }
         },
     },
@@ -679,6 +691,13 @@ export default {
               this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;
+            case "ERROR":
+                break;
+            case "CATCHUP":
+                break;
+            case "SYNCING":
+                this.lastSyncTime = new Date().getTime();
+                if(prevState == "CATCHUP") this.updateRooms();
             default:
               break;
           }
@@ -702,6 +721,7 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             // console.log("e.target.classname is ", e.target.className)
+            // _this.checkSync();
             if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     // console.log("============")
