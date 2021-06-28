@@ -284,34 +284,27 @@
 
 <script>
 import * as path from 'path'
-import * as fs from 'fs-extra'
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services, environment} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
 import winHeaderBarWhite from './win-header-login.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
+import {changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
 import { UpdateUserAvater } from '../../utils/commonFuncs.js'
-// import avatarBlock from './avatar.vue';
-import {shell} from 'electron'
-import confservice from '../../packages/data/conf_service.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
-import log from 'electron-log';
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
-const {Menu, MenuItem, clipboard, nativeImage} = remote;
+const {Menu, MenuItem} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
-import axios from "axios";
-import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
+import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
 export default {
   components: {
     ChatPage,
@@ -321,8 +314,6 @@ export default {
     imageLayer,
     userInfoContent,
     ImportE2EKeypage,
-    // avatarBlock,
-    // listItem
   },
   props: {
     toUpdateTrayNotice: {
@@ -1602,27 +1593,7 @@ export default {
       return "file-name-element-" + itemId;
     },
     showFileInfo: async function(fileInfo) {
-      console.log("showfileINfo file info is ", fileInfo);
-      var targetPath = await services.common.GetFilePath(fileInfo.msgId);
-      var chatGroupMsgContent = fileInfo.content;
-      var targetFileName = chatGroupMsgContent.fileName;
-      var theExt = path.extname(targetFileName);
-      if(!fs.existsSync(targetPath)) {
-        var targetDir = confservice.getFilePath(fileInfo.timestamp);
-        var targetPath = path.join(targetDir, targetFileName);
-      }
-      var needOpen = false;
-      console.log("targetPath is ", targetPath)
-      if(!fs.existsSync(targetPath)){
-        // console.log("this.msg.timelineid is ", fileInfo.timelineId)
-        // console.log("targetfilename is ", targetFileName);
-
-        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, targetFileName, true, chatGroupMsgContent.fileSize);
-        this.$toastMessage({message:'文件正在下载，请稍后', time:1500, type:'success'});
-      }
-      else {
-        shell.openItem(targetPath);
-      }
+      
     },
     closeUserInfoTip: function() {
       this.showUserInfoTips = false;
@@ -1819,27 +1790,6 @@ export default {
           }));
         }
 
-        /*
-        if(this.groupIsSlience(groupItem)) {
-          this.menu.append(new MenuItem({
-              label: "允许消息通知",
-              click: () => {
-                  this.setUnSlience(groupItem)
-              }
-          }));
-        }
-        else {
-          if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
-          {
-            this.menu.append(new MenuItem({
-                label: "消息免打扰",
-                click: () => {
-                    this.setSlience(groupItem)
-                }
-            }));
-          }
-        }
-        */
         if(this.groupIsInFavourite(groupItem)) {
           this.menu.append(new MenuItem({
               label: "取消置顶",
@@ -1909,31 +1859,6 @@ export default {
     },
     unFavouriteIt: function(groupItem){
       global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.favourite");
-    },
-    setSlience: async function(groupItem){
-      var groupIsTop = this.groupIsTop(groupItem);
-      services.common.GroupStatus(groupItem.group_id, groupIsTop, true)
-          .then((ret) => {
-              this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
-              this.unreadCount = this.unreadCount - groupItem.un_read_count;
-              if(this.unreadCount < 0) {
-                this.unreadCount = 0;
-              }
-              ipcRenderer.send("updateUnreadCount", this.unreadCount);
-          })
-    },
-    setUnSlience: async function(groupItem){
-      var groupIsTop = this.groupIsTop(groupItem);
-      services.common.GroupStatus(groupItem.group_id, groupIsTop, false)
-          .then((ret) => {
-              this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
-              this.unreadCount = this.unreadCount + groupItem.un_read_count;
-              if(this.unreadCount < 0) {
-                this.unreadCount = 0;
-              }
-              ipcRenderer.send("updateUnreadCount", this.unreadCount);
-              console.log("slienceStateChange ", ret);
-          })
     },
 
     getUidFromUids(groupInfo) {
@@ -3760,7 +3685,6 @@ export default {
     })
   },
   created: async function() {
-    //global.services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")
