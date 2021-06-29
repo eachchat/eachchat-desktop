@@ -7,6 +7,7 @@ class roomTimeLineHandler {
         this._timelineSet = null;
         this._timelineWindow = null;
         this._lastTimelineNum = null;
+        this._needInitTimelineWindow = true;
     }
 
     static shareInstance() {
@@ -14,66 +15,84 @@ class roomTimeLineHandler {
         return global.mxMatrixClientPeg.roomTimeLineHandler;
     }
 
-    isTimelineInvalid(timelines) {
-        if(timelines[0] && timelines[0].event.room_id != this._curChat.roomId) {
-            return true;
+    /**
+     * To check the will show timeline is outdated
+     * @param {Array} timelines to checked timeline
+     * @returns Boolean
+     */
+    _isTimelineOutDated(timelines) {
+        if(timelines) {
+            if(timelines[0] && timelines[0].event.room_id != this._curChat.roomId) return true;
+            else return false;
         }
         else {
             return false;
         }
     }
 
-    async pageUp(distRoomId, num) {
-        await this._timelineWindow.paginate("b", num);
-        
-        this._lastTimelineNum = this._curChat.timeline.length;
+    /**
+     * to check cur operate is outdated for the _curChat is a new one
+     * @param {String} roomId 
+     * @returns Boolean
+     */
+    _isOperateOutDated(roomId) {
+        if(this._curChat && this._curChat.roomId != roomId) return true;
+        else return false;
     }
 
-    async pageDown(distRoomId, num) {
-        await this._timelineWindow.paginate("f", num);
-        
+    async _pageUp(distRoomId, num) {
         this._lastTimelineNum = this._curChat.timeline.length;
+        console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
+        await this._timelineWindow.paginate("b", num);
+    }
+
+    async _pageDown(distRoomId, num) {
+        this._lastTimelineNum = this._curChat.timeline.length;
+        console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
+        await this._timelineWindow.paginate("f", num);
+    }
+
+    canLoadMore(distRoomId, direction) {
+        if(this._isOperateOutDated(distRoomId)) return false;
+        this.initRoomTimelineWindow();
+        return this._timelineWindow.canPaginate(direction);
     }
 
     async showPageUp(distRoomId, num) {
+        if(this._isOperateOutDated(distRoomId)) return null;
+        this.initRoomTimelineWindow();
         let messageList = [];
         while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('b')) {
             let newTimeline = [];
-            await this.pageUp(distRoomId, 20);
-
-            if(this.isTimelineInvalid(this._curChat.timeline)) {
-                return null;
-            }
-            for(let i = 0; i < this._lastTimelineNum.length; i++){
+            await this._pageUp(distRoomId, 20);
+            this._timelineWindow.getEvents();
+            for(let i = 0; i < (this._curChat.timeline.length - this._lastTimelineNum); i++){
                 if(this.messageFilter(this._curChat.timeline[i])){
                     newTimeline.push(this._curChat.timeline[i]);
                 }
             }
             messageList = [...newTimeline, ...messageList];
         }
+        if(this._isTimelineOutDated(messageList)) return null;
         return messageList;
     }
 
     async showPageDown(distRoomId, num) {
-        if(this._curChat && this._curChat.roomId != distRoomId) {
-            return null;
-        }
+        if(this._isOperateOutDated(distRoomId)) return null;
+        this.initRoomTimelineWindow();
         let messageList = [];
-        while(messageList.length == 0 && this._timelineWindow.canPaginate('f')) {
+        while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('f')) {
             let newTimeline = [];
-            await this.pageDown(distRoomId, 20);
-
-            if(this.isTimelineInvalid(this._curChat.timeline)) {
-                return null;
-            }
-
-            for(let i = 0; i < this._lastTimelineNum.length; i++){
+            await this._pageDown(distRoomId, 20);
+            this._timelineWindow.getEvents();
+            for(let i = this._lastTimelineNum; i < this._curChat.timeline.length; i++){
                 if(this.messageFilter(this._curChat.timeline[i])){
-                    newTimeline.push(this._curChat.timeline[i]);
+                    newTimeline.unshift(this._curChat.timeline[i]);
                 }
             }
-            messageList = [...newTimeline, ...messageList];
+            messageList = [...messageList, ...newTimeline];
         }
+        if(this._isTimelineOutDated(messageList)) return null;
         return messageList;
     }
 
@@ -85,7 +104,7 @@ class roomTimeLineHandler {
     /**
      * The room who wants to get timeline must init the timeline window and load first 
      */
-    async _initTimeline() {
+    _initTimeline() {
         this._timelineSet = this._curChat.getUnfilteredTimelineSet();
         this._timelineWindow = new Matrix.TimelineWindow(
             global.mxMatrixClientPeg.matrixClient, 
@@ -97,12 +116,16 @@ class roomTimeLineHandler {
         this._lastTimelineNum = this._curChat.timeline.length;
     }
 
-    initRoomTimelineWindow(distRoomId) {
-        this._curChat = global.mxMatrixClientPeg.matrixClient.getRoom(distRoomId);
-        return this._initTimeline();
+    initRoomTimelineWindow() {
+        if(this._needInitTimelineWindow){
+            this._initTimeline();
+            this._needInitTimelineWindow = false;
+        }
+        return;
     }
 
     async getRoomShowTimeline(distChat) {
+        this._needInitTimelineWindow = true;
         console.log("getRoomShowTimeline ", distChat);
         this._curChat = distChat;
         let messageList = [];
@@ -123,7 +146,7 @@ class roomTimeLineHandler {
         }
         if(messageList.length > 0) {
             console.log("messagelist is ", messageList);
-            if(this.isTimelineInvalid(messageList)) {
+            if(this._isTimelineOutDated(messageList)) {
                 console.log("is valid");
                 return null;
             }
@@ -136,7 +159,7 @@ class roomTimeLineHandler {
             console.log("1111111111");
             messageList = await this.showPageUp(10);
             if(!messageList) return null;
-            if(this.isTimelineInvalid(messageList)) {
+            if(this._isTimelineOutDated(messageList)) {
                 return null;
             }
             else {

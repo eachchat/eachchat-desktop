@@ -3518,7 +3518,6 @@ export default {
         this.showGroupIconName();
       }
       else {
-        this.searchKeyFromList = "";
         /*
         let groupItemElementID = this.ChatGroupId(chatGroup);
         let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
@@ -3551,8 +3550,7 @@ export default {
 
         console.log("*** ", searchKey, " *** ", index);
         this.curChat = chatGroup;
-        this.searchChat = chatGroup;
-
+        
         ipcRenderer.send("stopFlash");
 
         this.curindex = index;

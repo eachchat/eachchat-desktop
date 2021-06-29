@@ -16,8 +16,10 @@ export default {
           default: ''
         }
     },
-    data: {
-      fontSize: "18px",
+    data() {
+      return {
+        fontSize: "18px",
+      }
     },
     methods: {
       isWindows() {
@@ -53,9 +55,9 @@ export default {
         let codedText = this.text.replace(new RegExp(ranges.join('|'), 'g'), function(emoji){
             return `%-special-code-%${emoji}%-special-code-%`
           });
-        console.log("emoji")
-        console.log(this.text)
-        console.log(codedText)
+        // console.log("emoji")
+        // console.log(this.text)
+        // console.log(codedText)
         return codedText.split('%-special-code-%')
       },
     }
