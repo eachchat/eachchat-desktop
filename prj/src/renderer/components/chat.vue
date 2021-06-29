@@ -217,7 +217,6 @@ import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../.
 import { models } from '../../packages/data/models.js';
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
-import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
@@ -351,7 +350,6 @@ export default {
                     return "空聊天室";
                 }
             }
-            console.log("getshowgroupname is ", this.curChat.contactName ? this.curChat.contactName : this.curChat.name)
             return this.curChat.contactName ? this.curChat.contactName : this.curChat.name;
         },
         clearCache: function() {
@@ -493,7 +491,6 @@ export default {
         mxChatInfoDlgSetting: function(close) {
             if (close) {
                 return this.mxChat = false;
-                console.log('close ccccc')
             }
             this.closeGroupInfo();
             this.mxChat = true;
@@ -508,7 +505,6 @@ export default {
         mxRoomSetting: function(close, serverAddress) {
             if (close) {
                 return this.mxRoomDlg = false;
-                console.log('closeeeeeeee')
             }
             this.closeGroupInfo();
             this.mxRoomDlg = true;
@@ -519,7 +515,7 @@ export default {
         handleCustomMatcher(node, Delta) {
             let ops = []
             Delta.ops.forEach(op => {
-                if (op.insert && typeof op.insert === 'string') {// 如果粘贴了图片，这里会是一个对象，所以可以这样处理
+                if (op.insert && typeof op.insert === 'string') {
                 ops.push({
                     insert: op.insert,
                 })
@@ -577,7 +573,6 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -596,11 +591,9 @@ export default {
             if(this.searchKeyFromList.length != 0) {
                 this.HistorySearchRoomId = "";
                 this.$emit("CloseSearchPage")
-                // this.initMessage();
             }
         },
         showFileList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -2850,7 +2843,7 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            // 数据库缺省type = 0 
+            //type = 0 
             /*
                 // src/TextForEvent.js
                 'm.room.canonical_alias': textForCanonicalAliasEvent,
@@ -3178,6 +3171,37 @@ export default {
             }
             return ret;
         },
+        _initTimeline() {
+            this._timelineSet = this.chat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this._timelineSet,
+                {windowLimit:Number.MAX_VALUE},
+            );
+            this._timelineWindow.load(undefined, this.chat.timeline.length);
+        },
+        initRoomTimelineWindow() {
+            if(this.needInitTimelineWindow){
+                this._initTimeline();
+                this.needInitTimelineWindow = false;
+            }
+            return;
+        },
+        async pageUp(num) {
+            this.initRoomTimelineWindow();
+            await this._timelineWindow.paginate("b", num);
+            this._timelineWindow.getEvents();
+            return true;
+        },
+        async pageDown(num) {
+            this.initRoomTimelineWindow();
+            await this._timelineWindow.paginate("f", num);
+            this._timelineWindow.getEvents();
+        },
+        canLoadMore(direction) {
+            this.initRoomTimelineWindow();
+            return this._timelineWindow.canPaginate(direction);
+        },
         _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat, num=20) {
             this.timeLineSet = distChat.getUnfilteredTimelineSet();
             this._timelineWindow = new Matrix.TimelineWindow(
@@ -3428,7 +3452,7 @@ export default {
             if(uldiv.scrollTop == 0){
                 console.log("to update msg")
                 var curTime = new Date().getTime();
-                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.chat.roomId, "b")) {
+                if(!this.canLoadMore("b")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3440,16 +3464,8 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
-                    // this.getShowMessage(this.messageFilter, curNum + 10, 'b')
-                    roomTimeLineHandler.shareInstance().showPageUp(this.chat.roomId, 10)
+                    this.pageUp(10)
                         .then((ret) => {
-                            console.log("++++++++++ ", ret);
-                            
-                            for(let i=ret.length - 1;i>0;i--){
-                                this.messageList.unshift(ret[i]);
-                            }
-                            
-                            // this.messageList = ret.concat(this.sendingList);
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
@@ -3471,7 +3487,7 @@ export default {
             else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
                 console.log("=======wo bottom");
                 var curTime = new Date().getTime();
-                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.chat.roomId, "f")) {
+                if(!this.canLoadMore("f")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3482,12 +3498,8 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
-                    // this.getShowMessage(this.messageFilter, curNum + 10, 'f')
-                    roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 10)
+                    this.pageDown(10)
                         .then((ret) => {
-                            for(let i=ret.length - 1;i>0;i--){
-                                this.messageList.unshift(ret[i]);
-                            }
                             this.isRefreshing = false;
                             setTimeout(() => {
                                 this.$nextTick(() => {
@@ -3751,7 +3763,7 @@ export default {
             }
             return fileListInfo;
         },
-        oldinitMessage: function() {
+        initMessage: function() {
             if(!this.curChat) return;
             if(this.$store.getters.getCurChatId() != this.curChat.roomId) return;
             // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
@@ -3771,7 +3783,7 @@ export default {
                 console.log("*** initMessage 。。。。 ");
                 this.toGetShowMessage()
                     .then((ret) => {
-                        if(ret[0].event.room_id != this.curChat.roomId) {
+                        if(ret[0] && ret[0].event.room_id != this.curChat.roomId) {
                             return;
                         }
                         this.isRefreshing = false;
@@ -3863,6 +3875,7 @@ export default {
             else{
                 this.isDm = false;
             }
+            this.needInitTimelineWindow = true;
             this.newMsgNum = 0;
             this.inviterInfo = undefined;
             this.isInvite = false;
@@ -3879,31 +3892,10 @@ export default {
             this.needToBottom = false;
             this.existingMsgId = [];
         },
-        initMessage: function() {
-            this.messageList = [];
-            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
-                .then((messageList) => {
-                    console.log("==========", messageList);
-                    if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.unshift(messageList[i]);
-                        setTimeout(() => {
-                            this.$nextTick(() => {
-                                let div = this.getMsgListElement();
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight;
-                                    // if(div.clientHeight < div.offsetHeight) {
-                                    //     this.paginageForwork();
-                                    // }
-                                }
-                            })
-                        }, 90)
-                    }
-                })
-        }
     },
     data() {
         return {
+            needInitTimelineWindow: true,
             dmUserId: undefined,
             groupIconElement: undefined,
             groupContentNumElement: undefined,
@@ -4119,8 +4111,8 @@ export default {
         });
     },
     created: async function() {
-        this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;
+        this.curUserInfo = undefined;
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
@@ -4130,7 +4122,28 @@ export default {
             get: function() {
                 // var final = this.messageList;//.sort(this.mxEvCompare());
                 // console.log("final msglist is ", final);
-                return this.messageList;
+                // return this.messageList;
+                
+                let finalTimeline = [];
+                if(!this.chat.roomId) return finalTimeline;
+                
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
+                
+                for(let i = 0; i < this.chat.timeline.length; i++){
+                    let exitEventIndex = this.chat.timeline[i]._txnId ? sendingTxIds.indexOf(this.chat.timeline[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', this.chat.timeline[i]);
+                    }
+                    if(this.messageFilter(this.chat.timeline[i])){
+                        finalTimeline.push(this.chat.timeline[i]);
+                    }
+                }
+                let sendingList = this.$store.getters.getSendingEvents(this.chat.roomId);
+                for(let i=sendingList.length - 1; i > 0; i--){
+                    finalTimeline.unshift(sendingList[i]);
+                }
+
+                return finalTimeline;
             }
         }
     },
@@ -4182,9 +4195,20 @@ export default {
             this.initDraft();
             this.initData();
             this.initPage();
-            this.initMessage();
 
             this.groupIsSlience();
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    let div = document.getElementById("message-show-list");
+                    if(div) {
+                        div.scrollTop = div.scrollHeight;
+                        setTimeout(() => {
+                            this.initMessage();
+                        }, 500)
+                    }
+                })
+            }, 90)
+            
         },
         searchKeyFromList: function() {
             if(this.searchKeyFromList != '') {
@@ -4202,7 +4226,6 @@ export default {
             else {
                 this.initData();
                 this.initPage();
-                this.initMessage();
                 if(this.editor == undefined) {
                     this.editor = this.$refs.chatQuillEditor.quill;
                 }
@@ -4231,7 +4254,6 @@ export default {
                 
             this.initData();
             this.initPage();
-            this.initMessage();
             this.updateUser++;
         },
         newMsg: async function() {
@@ -4239,13 +4261,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
-                
-            roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 1)
-                .then((ret) => {
-                    for(let i=ret.length - 1;i>0;i--){
-                        this.messageList.unshift(ret[i]);
-                    }
-                })
+            
             let toBottom = false;
 
             if(this.IsBottom()) {
