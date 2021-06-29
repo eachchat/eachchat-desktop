@@ -493,7 +493,6 @@ export default {
         mxChatInfoDlgSetting: function(close) {
             if (close) {
                 return this.mxChat = false;
-                console.log('close ccccc')
             }
             this.closeGroupInfo();
             this.mxChat = true;
@@ -508,7 +507,6 @@ export default {
         mxRoomSetting: function(close, serverAddress) {
             if (close) {
                 return this.mxRoomDlg = false;
-                console.log('closeeeeeeee')
             }
             this.closeGroupInfo();
             this.mxRoomDlg = true;
@@ -519,7 +517,7 @@ export default {
         handleCustomMatcher(node, Delta) {
             let ops = []
             Delta.ops.forEach(op => {
-                if (op.insert && typeof op.insert === 'string') {// 如果粘贴了图片，这里会是一个对象，所以可以这样处理
+                if (op.insert && typeof op.insert === 'string') {
                 ops.push({
                     insert: op.insert,
                 })
@@ -577,7 +575,6 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -596,11 +593,9 @@ export default {
             if(this.searchKeyFromList.length != 0) {
                 this.HistorySearchRoomId = "";
                 this.$emit("CloseSearchPage")
-                // this.initMessage();
             }
         },
         showFileList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -2850,7 +2845,7 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            // 数据库缺省type = 0 
+            //type = 0 
             /*
                 // src/TextForEvent.js
                 'm.room.canonical_alias': textForCanonicalAliasEvent,
@@ -3177,6 +3172,37 @@ export default {
                 ret.count = this.messageList.length + 20;
             }
             return ret;
+        },
+        _initTimeline() {
+            this._timelineSet = this.chat.getUnfilteredTimelineSet();
+            this._timelineWindow = new Matrix.TimelineWindow(
+                global.mxMatrixClientPeg.matrixClient, 
+                this._timelineSet,
+                {windowLimit:Number.MAX_VALUE},
+            );
+            this._timelineWindow.load(undefined, this.chat.timeline.length);
+        },
+        initRoomTimelineWindow() {
+            if(this.needInitTimelineWindow){
+                this._initTimeline();
+                this.needInitTimelineWindow = false;
+            }
+            return;
+        },
+        async pageUp(num) {
+            this.initRoomTimelineWindow();
+            await this._timelineWindow.paginate("b", num);
+            this._timelineWindow.getEvents();
+            return true;
+        },
+        async pageDown(num) {
+            this.initRoomTimelineWindow();
+            await this._timelineWindow.paginate("f", num);
+            this._timelineWindow.getEvents();
+        },
+        canLoadMore(direction) {
+            this.initRoomTimelineWindow();
+            return this._timelineWindow.canPaginate(direction);
         },
         _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat, num=20) {
             this.timeLineSet = distChat.getUnfilteredTimelineSet();
@@ -4119,8 +4145,8 @@ export default {
         });
     },
     created: async function() {
-        this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;
+        this.curUserInfo = undefined;
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
