@@ -22,6 +22,7 @@ export function openBaseMenu() {
 
 export function getImgUrlByEvent (event) {
     var distUrl = (event.content.info && event.content.info.thumbnail_url && event.content.info.thumbnail_url.length != 0) ? event.content.info.thumbnail_url : event.content.url;
+    if(!distUrl) return;
     if(!distUrl.startsWith('blob:')) {
         let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distUrl);
         return iconPath;
