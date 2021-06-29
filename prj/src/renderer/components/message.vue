@@ -331,6 +331,28 @@ export default {
                 event:this.msg.event.content.quote_event
             });
         },
+
+        SaveFile(content, path, event_id, needOpen){
+                getFileBlob(content.info, this.matrixClient.mxcUrlToHttp(content.url), this.ProCallback)
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            var buffer = new Buffer(reader.result);
+                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                            ipcRenderer.send("save_file", path, buffer, event_id, needOpen);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
+
+            this.downloadingInterval = setInterval(() => {
+                this.showProgress = true;
+                this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
+                    // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+            }, 200);
+        },
+
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
             let msgType = this.msg.msgtype;
@@ -369,33 +391,16 @@ export default {
                         return;
                     }
                     console.log("========= file ");
+                    if(this.isDownloading) {
+                        return;
+                    }
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                     var existLocalFile = await this.getFileExist();
                     this.checkingTmpPath = finalPath + "_tmp";
                     if(!fs.existsSync(existLocalFile)) {
-                        if(this.isDownloading) {
-                            return;
-                        }
                         this.isDownloading = true;
-                        getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
-                            .then((blob) => {
-                                let reader = new FileReader();
-                                reader.onload = function() {
-                                    if(reader.readyState == 2) {
-                                        var buffer = new Buffer(reader.result);
-                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
-                                        ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
-                                    }
-                                }
-                                reader.readAsArrayBuffer(blob);
-                            })
-
-                        this.downloadingInterval = setInterval(() => {
-                            this.showProgress = true;
-                            this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
-                                // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
-                        }, 200);
+                        this.SaveFile(chatGroupMsgContent, finalPath, event.event_id, true);
                     }
                     else {
                         shell.openPath(existLocalFile);

@@ -42,7 +42,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="!isDm" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
+                            <imessage :ref = "item.event.event_id"  :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="!isDm" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
@@ -1099,22 +1099,16 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            var chatGroupMsgContent = msg.getContent();
-            getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
-                .then((blob) => {
-                    let reader = new FileReader();
-                    reader.onload = function() {
-                        if(reader.readyState == 2) {
-                            let a = document.createElement('a');
-                            a.href = window.URL.createObjectURL(blob);
-                            a.download = chatGroupMsgContent.body;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                        }
-                    }
-                    reader.readAsArrayBuffer(blob);
-                })
+            let paths = ipcRenderer.sendSync("get_save_filepath");
+            let folders = paths.filePaths;
+            if(folders.length == 0) return;
+            let folder = folders[0];
+            console.log(folder)
+            let msgElements = this.$refs[msg.event.event_id];
+            if(msgElements.length === 0) return;
+            let msgElement = msgElements[0];
+            var chatGroupMsgContent = msg.event.content ? msg.event.content : msg.getContent();
+            msgElement.SaveFile(chatGroupMsgContent, path.join(folder, chatGroupMsgContent.body), msg.event.event_id, false);
         },
 
         cleanSelected() {

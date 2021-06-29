@@ -2,9 +2,9 @@ import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, Dow
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
-import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
+import {makeFlieNameForConflict} from '../packages/core/Utils.js';
 import {createChildWindow, ChildWindow} from './childwindow.js'
-import {callingState} from "./ipcfunc.js"
+import {callingState, ipcFileFunc} from "./ipcfunc.js"
 
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
@@ -707,33 +707,12 @@ ipcMain.on('open-download-recoveryKey-dialog', function(event) {
   })
 });
 
-ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
-  // var path = args[0];
-  // var buffer = args[1];
-  // var eventId = args[2];
-  // var needOpen = args[3];
-  var path = path;
-  var buffer = buffer;
-  var eventId = eventId;
-  var needOpen = needOpen;
-  console.log("args is ", buffer);
-  var distPath = path + '_tmp';
-  fs.outputFile(distPath, buffer, async err => {
-    if(err) {
-      console.log("ERROR ", err.message)
-      event.sender.send("ERROR", err.message, eventId);
-    }
-    else {
-      var finalName = await makeFlieNameForConflict(path);
-      console.log("get final name ", finalName)
-      fs.renameSync(distPath, finalName);
-      if(needOpen) {
-          shell.openExternal(finalName);
-      }
-      event.sender.send("SAVED_FILE", finalName, eventId, needOpen);
-    }
-  })
-})
+ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen){
+  ipcFileFunc.SaveFile(event, path, buffer, eventId, needOpen);
+});
+ipcMain.on("get_save_filepath", function(event){
+  ipcFileFunc.GetSaveFilepath(mainWindow, event);
+});
 
 function downloadFile(event, arg) {
   return function f() {
