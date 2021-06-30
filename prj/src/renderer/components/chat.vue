@@ -4195,6 +4195,7 @@ export default {
             this.initDraft();
             this.initData();
             this.initPage();
+            this.initMessage();
 
             this.groupIsSlience();
             setTimeout(() => {
@@ -4226,6 +4227,7 @@ export default {
             else {
                 this.initData();
                 this.initPage();
+                this.initMessage();
                 if(this.editor == undefined) {
                     this.editor = this.$refs.chatQuillEditor.quill;
                 }
@@ -4254,6 +4256,7 @@ export default {
                 
             this.initData();
             this.initPage();
+            this.initMessage();
             this.updateUser++;
         },
         newMsg: async function() {
@@ -4263,6 +4266,7 @@ export default {
             }
             
             let toBottom = false;
+            this.messageList.unshift(this.newMsg);
 
             if(this.IsBottom()) {
                 console.log("======IsBottom========")
