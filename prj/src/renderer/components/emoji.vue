@@ -16,8 +16,10 @@ export default {
           default: ''
         }
     },
-    data: {
-      fontSize: "18px",
+    data() {
+      return{
+        fontSize: "18px",
+      }
     },
     methods: {
       isWindows() {

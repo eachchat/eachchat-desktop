@@ -391,30 +391,6 @@ export default {
             global.mxMatrixClientPeg.matrixClient.joinRoom(this.curChat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
                     this.isInvite = false;
-                    // this.isRefreshing = true;
-                    setTimeout(() => {
-                        this.$emit('JoinRoom', this.curChat.roomId);
-                    }, 500)
-                    setTimeout(() => {
-                        this._loadTimeline(undefined, undefined, undefined)
-                            .then((ret) => {
-                                console.log("join room chat is ", this.curChat);
-                                this.isRefreshing = false;
-                                this.messageList = this._getEvents();
-                                
-                                setTimeout(() => {
-                                    this.$nextTick(() => {
-                                        this.needToBottom = true;
-                                        
-                                        let div = this.getMsgListElement();
-                                        div.scrollTop = div.scrollHeight;
-                                        if(div) {
-                                            // div.addEventListener('scroll', this.handleScroll);
-                                        }
-                                    })
-                                }, 100)
-                            })
-                    }, 500)
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);
@@ -1568,46 +1544,6 @@ export default {
             console.log("chat get create group info is ", groupInfo);
             this.$emit('getCreateGroupInfo', groupInfo);
             this.showUserInfoTips = false;
-        },
-        async updateImgTimelineSet(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-            
-            if (room) {
-                let timelineSet;
-
-                try {
-                    timelineSet = await this.fetchFileEventsServer(room);
-                } catch (error) {
-                    console.error("Failed to get or create file panel filter", error);
-                }
-                return timelineSet;
-            } else {
-                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
-            }
-        },
-        async fetchFileEventsServer(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-
-            const filter = new Filter(client.credentials.userId);
-            filter.setDefinition(
-                {
-                    "room": {
-                        "timeline": {
-                            "contains_url": true,
-                            "types": [
-                                "m.room.message", 
-                                'm.call.hangup'
-                            ],
-                        },
-                    },
-                },
-            );
-
-            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
-            filter.filterId = filterId;
-            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
-
-            return timelineSet;
         },
         async toGetShowImage(distRoom) {
             return distRoom.timeline;
@@ -2850,68 +2786,6 @@ export default {
                 return value2 - value1;
             }
         },
-        getLatestMessageSequenceIdAndCount: function() {
-            var ret = {
-                "latestSequenceId": "",
-                "count": 20
-            };
-            for(var i=0;i<this.messageList.length;i++) {
-                if(this.messageList[i].sequence_id.length != 0) {
-                    ret.latestSequenceId = this.messageList[i].sequence_id;
-                    break;
-                }
-            }
-            if(ret.latestSequenceId.length == 0) {
-                ret.latestSequenceId = this.curChat.sequence_id;
-                ret.count = this.messageList.length + 20;
-            }
-            return ret;
-        },
-        _initTimeline() {
-            this._timelineSet = this.chat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this._timelineSet,
-                {windowLimit:Number.MAX_VALUE},
-            );
-            this._timelineWindow.load(undefined, this.chat.timeline.length);
-        },
-        initRoomTimelineWindow() {
-            if(this.needInitTimelineWindow){
-                this._initTimeline();
-                this.needInitTimelineWindow = false;
-            }
-            return;
-        },
-        async pageUp(num) {
-            this.initRoomTimelineWindow();
-            await this._timelineWindow.paginate("b", num);
-            this._timelineWindow.getEvents();
-            return true;
-        },
-        async pageDown(num) {
-            this.initRoomTimelineWindow();
-            await this._timelineWindow.paginate("f", num);
-            this._timelineWindow.getEvents();
-        },
-        canLoadMore(direction) {
-            this.initRoomTimelineWindow();
-            return this._timelineWindow.canPaginate(direction);
-        },
-        _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat, num=20) {
-            this.timeLineSet = distChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            return this._timelineWindow.load(eventId, num);
-        },
-        _getEvents() {
-            var events = this._timelineWindow.getEvents();
-            // console.log("========== getEvent ", events);
-            return events;
-        },
         jumpToEvent: function(eventId, distChat) {
             let div = this.getMsgListElement();
             div.removeEventListener('scroll', this.handleScroll);
@@ -2926,29 +2800,31 @@ export default {
             this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             // this.curChat.resetLiveTimeline();
             this.curChat = distChat;
-            this._loadTimeline(eventId, undefined, undefined, distChat, 1).then(() => {
-                this.messageList = this._getEvents().concat(this.sendingList.length == 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                console.log("*** this.messageList is ", this.messageList);
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        this.scrollToDistMsg(eventId);
-                        let uldiv = this.getMsgListElement();
-                        if(uldiv.clientHeight < uldiv.offsetHeight) {
-                            this.paginageForwork();
-                        }
-                        div.addEventListener('scroll', this.handleScroll);
-                    })
-                }, 500);
-            })
+            roomTimeLineHandler.shareInstance().getDistTimeLine(distChat, eventId)
+                .then((distEvent) => {
+                    this.isRefreshing = false;
+                    this.messageList = distEvent;
+                    console.log("*** this.messageList is ", this.messageList);
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.scrollToDistMsg(eventId);
+                            let uldiv = this.getMsgListElement();
+                            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.offsetHeight)
+                            if(uldiv.clientHeight < uldiv.offsetHeight) {
+                                roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
+                                    .then((ret) => {
+                                        for(let i=ret.length - 1;i>0;i--){
+                                            this.messageList.push(ret[i]);
+                                        }
+                                    })
+                            }
+                            div.addEventListener('scroll', this.handleScroll);
+                        })
+                    }, 500);
+                })
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(distChat.roomId);
             this.existingMsgId = [];
-            if(this.editor == undefined) {
-                this.editor = this.$refs.chatQuillEditor.quill;
-            }
-            var content = this.$store.getters.getDraft(distChat.roomId);
-            this.editor.setContents(content);
-            this.editor.setSelection(this.content.length + 1);
-            this.$store.commit("setCurChatId", distChat.roomId);
+            this.initDraft();
         },
         getTxnIdFromEventId: function(eventId) {
             for(var i=0;i<this.messageList.length;i++) {
@@ -3020,7 +2896,7 @@ export default {
         IsBottom: function(){
             let uldiv = this.getMsgListElement();
             let client = document.getElementById("message-show");
-            console.log("======IsBottom uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight ", uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight)
+            // console.log("======IsBottom uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight ", uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight)
             if(uldiv && client && Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 150)
                 return true;
             return false;
@@ -3033,107 +2909,6 @@ export default {
                     div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' });
                 })
             }
-        },
-
-        messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.hangup'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
-            return false;
-        },
-
-        async getDistShowMessage(msgFileter, num, type)
-        {
-            let msgList = [];
-            while(this._timelineWindow.canPaginate(type)){
-                await this._timelineWindow.paginate(type, 20);
-                let tmpList = this._getEvents();
-                let index = 0;
-                msgList = [];
-                tmpList.forEach(item => {
-                    if(msgFileter(item) && item.event.content){
-                        if(!this.isDeleted(item)){
-                            msgList.push(item);
-                            index++;
-                        } 
-                    }
-                })
-                if(index > num) break;
-            }
-            return msgList;
-        },
-        async getShowMessage(msgFileter, num, type)
-        {
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
-            let msgList = this._getEvents();
-            let dealed = false;
-            while(this._timelineWindow.canPaginate(type)){
-                dealed = true;
-                await this._timelineWindow.paginate(type, 20);
-                let tmpList = this._getEvents();
-                let index = 0;
-                msgList = [];
-
-                for(var i=tmpList.length - 1;i>0;i--){
-                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
-                        msgList.unshift(tmpList[i]);
-                        index++;
-                    }
-                }
-
-                if(index > num) break;
-            }
-
-            if(!dealed) {
-                let tmpList = msgList;
-                msgList = [];
-                for(var i=tmpList.length - 1;i>0;i--){
-                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
-                        msgList.unshift(tmpList[i]);
-                        index++;
-                    }
-                }
-            }
-
-            return msgList;
-        },
-        paginageForwork: function() {
-            let uldiv = this.getMsgListElement();
-            if(!uldiv)
-                return;
-            var canForwardPaginate = this._timelineWindow.canPaginate("f");
-            if(!canForwardPaginate) {
-                this.isRefreshing = false;
-                return;
-            }
-            this.isScroll = true;
-            this.lastScrollTop = uldiv.scrollTop;
-            console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
-            // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-            let curNum = this.messageList.length;
-            this.getDistShowMessage(this.messageFilter, curNum + 10, 'f')
-                .then((ret) => {
-                    if(ret[0] && ret[0].event.room_id != this.curChat.roomId) return;
-                    this.messageList = ret
-                    this.isRefreshing = false;
-                    setTimeout(() => {
-                        this.$nextTick(() => {
-                            // console.log("---------update croll top is ", uldiv.scrollHeight);
-                            uldiv.scrollTop = this.lastScrollTop;
-                            this.isScroll = false;
-                            if(this.messageList.length < 10) {
-                                this.handleScroll(true);
-                            }
-                            // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
-                            // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
-                        })
-                    }, 0)
-                    this.needToBottom = false;
-                })
         },
         handleScroll: function(toBottom=false) {
             let uldiv = this.getMsgListElement();
@@ -3152,7 +2927,7 @@ export default {
             if(uldiv.scrollTop == 0){
                 console.log("to update msg")
                 var curTime = new Date().getTime();
-                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.chat.roomId, "b")) {
+                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.curChat.roomId, "b")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3162,10 +2937,8 @@ export default {
                     this.lastScrollHeight = uldiv.scrollHeight;
                     this.isRefreshing = true;
                     this.lastRefreshTime = new Date().getTime();
-                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
-                    // this.getShowMessage(this.messageFilter, curNum + 10, 'b')
-                    roomTimeLineHandler.shareInstance().showPageUp(this.chat.roomId, 10)
+                    roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
                             
@@ -3195,7 +2968,7 @@ export default {
             else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
                 console.log("=======wo bottom");
                 var curTime = new Date().getTime();
-                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.chat.roomId, "f")) {
+                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.curChat.roomId, "f")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3204,13 +2977,11 @@ export default {
                     this.lastScrollTop = uldiv.scrollTop;
                     console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                     this.lastRefreshTime = new Date().getTime();
-                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
-                    // this.getShowMessage(this.messageFilter, curNum + 10, 'f')
-                    roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 10)
+                    roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
                             for(let i=ret.length - 1;i>0;i--){
-                                this.messageList.unshift(ret[i]);
+                                this.messageList.push(ret[i]);
                             }
                             this.isRefreshing = false;
                             setTimeout(() => {
@@ -3241,9 +3012,6 @@ export default {
         },
         leaveGroup(roomId) {
             this.$emit("leaveGroup", roomId);
-            if(roomId == this.curChat.roomId) {
-
-            }
         },
         updateMsgFile(e, localPath, eventId, needOpen) {
             console.log("updateMsgfile ", localPath, eventId);
@@ -3252,10 +3020,6 @@ export default {
             this.curTotal = 0;
             this.lastPercent = 0.01;
             this.curPercent = 0.01;
-        },
-        updateUserImage(e, args) {
-            console.log("updateUserImage ", args);
-            // this.updateUser = args;
         },
         setFocuse(e) {
             if(this.editor == undefined) {
@@ -3323,11 +3087,6 @@ export default {
                 }
             }
         },
-        onEventDecrypted(e) {
-            this.updateMsgContent = {
-                "id" : e.event.event_id
-            };
-        },
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
             //console.log(strBuffer)
@@ -3369,83 +3128,6 @@ export default {
                     }
                 }
             }
-        },
-        async updateTimelineSet(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-            
-            if (room) {
-                let timelineSet;
-
-                try {
-                    timelineSet = await this.fetchFileEventsServer(room);
-                } catch (error) {
-                    console.error("Failed to get or create file panel filter", error);
-                }
-                return timelineSet;
-            } else {
-                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
-            }
-        },
-        async fetchFileEventsServer(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-
-            const filter = new Filter(client.credentials.userId);
-            filter.setDefinition(
-                {
-                    "room": {
-                        "timeline": {
-                            "types": [
-                                "m.room.message",
-                                'm.call.hangup'
-                            ],
-                        },
-                    },
-                },
-            );
-
-            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
-            filter.filterId = filterId;
-            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
-
-            return timelineSet;
-        },
-        async toGetShowMessage() {
-            // this.timeLineSet = await this.updateTimelineSet(this.curChat);
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            let existingId = [];
-            await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = [];
-            var originalFileListInfo = this._timelineWindow.getEvents();
-
-            for(var i=originalFileListInfo.length - 1;i>0;i--){
-                if(this.messageFilter(originalFileListInfo[i]) && originalFileListInfo[i].event.content){
-                    if(existingId.indexOf(originalFileListInfo[i].event.event_id) < 0) {
-                        fileListInfo.unshift(originalFileListInfo[i]);
-                        existingId.push(originalFileListInfo[i].event.event_id);
-                    }
-                }
-            }
-
-            while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
-                await this._timelineWindow.paginate("b", 20);
-                var fileListInfoTmp = await this._timelineWindow.getEvents();
-                
-                for(var i=fileListInfoTmp.length - 1;i>0;i--){
-                    if(this.messageFilter(fileListInfoTmp[i]) && fileListInfoTmp[i].event.content){
-                        if(existingId.indexOf(fileListInfoTmp[i].event.event_id) < 0) {
-                            fileListInfo.unshift(fileListInfoTmp[i]);
-                            existingId.push(fileListInfoTmp[i].event.event_id);
-                        }
-                    }
-                }
-                
-            }
-            return fileListInfo;
         },
         getMsgListElement: function() {
             if(!this.msgListDivElement) this.msgListDivElement = document.getElementById("message-show-list");
@@ -3537,9 +3219,6 @@ export default {
                                 let div = this.getMsgListElement();
                                 if(div) {
                                     div.scrollTop = div.scrollHeight;
-                                    // if(div.clientHeight < div.offsetHeight) {
-                                    //     this.paginageForwork();
-                                    // }
                                 }
                             })
                         }, 90)
@@ -3748,7 +3427,6 @@ export default {
                 this.msgListDivElement.addEventListener('scroll', this.handleScroll);
                 // console.log("==============ipc on")
                 ipcRenderer.on('SAVED_FILE', this.updateMsgFile);
-                ipcRenderer.on('updateUserImage', this.updateUserImage);
                 ipcRenderer.on('transmitFromSoloDlg', this.transmitFromSoloDlg);
                 ipcRenderer.on('setFocuse', this.setFocuse);
                 ipcRenderer.on('checkClipBoard', this.checkClipboard);

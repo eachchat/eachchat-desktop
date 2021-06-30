@@ -40,60 +40,16 @@ class roomTimeLineHandler {
         else return false;
     }
 
-    async _pageUp(distRoomId, num) {
+    async _pageUp(num) {
         this._lastTimelineNum = this._curChat.timeline.length;
         console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
         await this._timelineWindow.paginate("b", num);
     }
 
-    async _pageDown(distRoomId, num) {
-        this._lastTimelineNum = this._curChat.timeline.length;
+    async _pageDown(num) {
+        this._lastTimelineNum = this._timelineWindow.getEvents().length;
         console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
         await this._timelineWindow.paginate("f", num);
-    }
-
-    canLoadMore(distRoomId, direction) {
-        if(this._isOperateOutDated(distRoomId)) return false;
-        this.initRoomTimelineWindow();
-        return this._timelineWindow.canPaginate(direction);
-    }
-
-    async showPageUp(distRoomId, num) {
-        if(this._isOperateOutDated(distRoomId)) return null;
-        this.initRoomTimelineWindow();
-        let messageList = [];
-        while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('b')) {
-            let newTimeline = [];
-            await this._pageUp(distRoomId, 20);
-            this._timelineWindow.getEvents();
-            for(let i = 0; i < (this._curChat.timeline.length - this._lastTimelineNum); i++){
-                if(this.messageFilter(this._curChat.timeline[i])){
-                    newTimeline.push(this._curChat.timeline[i]);
-                }
-            }
-            messageList = [...newTimeline, ...messageList];
-        }
-        if(this._isTimelineOutDated(messageList)) return null;
-        return messageList;
-    }
-
-    async showPageDown(distRoomId, num) {
-        if(this._isOperateOutDated(distRoomId)) return null;
-        this.initRoomTimelineWindow();
-        let messageList = [];
-        while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('f')) {
-            let newTimeline = [];
-            await this._pageDown(distRoomId, 20);
-            this._timelineWindow.getEvents();
-            for(let i = this._lastTimelineNum; i < this._curChat.timeline.length; i++){
-                if(this.messageFilter(this._curChat.timeline[i])){
-                    newTimeline.unshift(this._curChat.timeline[i]);
-                }
-            }
-            messageList = [...messageList, ...newTimeline];
-        }
-        if(this._isTimelineOutDated(messageList)) return null;
-        return messageList;
     }
 
     messageFilter(event){
@@ -116,7 +72,7 @@ class roomTimeLineHandler {
         this._lastTimelineNum = this._curChat.timeline.length;
     }
 
-    initRoomTimelineWindow() {
+    _initRoomTimelineWindow() {
         if(this._needInitTimelineWindow){
             this._initTimeline();
             this._needInitTimelineWindow = false;
@@ -124,6 +80,62 @@ class roomTimeLineHandler {
         return;
     }
 
+    canLoadMore(distRoomId, direction) {
+        if(this._isOperateOutDated(distRoomId)) return false;
+        this._initRoomTimelineWindow();
+        return this._timelineWindow.canPaginate(direction);
+    }
+
+    async getDistTimeLine(distChat, distEventId) {
+        let distEvent = null;
+        this._curChat = distChat;
+        this._needInitTimelineWindow = true;
+        this._initRoomTimelineWindow();
+        await this._timelineWindow.load(distEventId, 1);
+        distEvent = this._timelineWindow.getEvents();
+        this._lastTimelineNum = 1;
+        return distEvent;
+    }
+
+    async showPageUp(distRoomId, num) {
+        if(this._isOperateOutDated(distRoomId)) return null;
+        this._initRoomTimelineWindow();
+        let messageList = [];
+        while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('b')) {
+            let newTimeline = [];
+            await this._pageUp(20);
+            this._timelineWindow.getEvents();
+            for(let i = 0; i < (this._curChat.timeline.length - this._lastTimelineNum); i++){
+                if(this.messageFilter(this._curChat.timeline[i])){
+                    newTimeline.push(this._curChat.timeline[i]);
+                }
+            }
+            messageList = [...newTimeline, ...messageList];
+        }
+        if(this._isTimelineOutDated(messageList)) return null;
+        return messageList;
+    }
+
+    async showPageDown(distRoomId, num) {
+        if(this._isOperateOutDated(distRoomId)) return null;
+        this._initRoomTimelineWindow();
+        let messageList = [];
+        while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('f')) {
+            let newTimeline = [];
+            await this._pageDown(20);
+            let allEvents = this._timelineWindow.getEvents();
+            console.log("showPageDown this._lastTimelinnum is ", this._lastTimelineNum);
+            for(let i = this._lastTimelineNum; i < allEvents.length; i++){
+                if(this.messageFilter(allEvents[i])){
+                    newTimeline.unshift(allEvents[i]);
+                }
+            }
+            messageList = [...messageList, ...newTimeline];
+            console.log("the messagelist is ", messageList.length);
+        }
+        if(this._isTimelineOutDated(messageList)) return null;
+        return messageList;
+    }
     async getRoomShowTimeline(distChat) {
         this._needInitTimelineWindow = true;
         console.log("getRoomShowTimeline ", distChat);
