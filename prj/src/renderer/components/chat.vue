@@ -115,7 +115,7 @@
             :showGroupInfoTips="showGroupInfoTips"
             :showGroupInfo="groupInfo" 
             :cleanCache="cleanCache" 
-            @showAddMembers="showAddMembers"
+
             @openUserInfoTip="openUserInfoTip" 
             @leaveGroup="leaveGroup" 
             @updateChatGroupStatus="updateChatGroupStatus" 
@@ -783,12 +783,6 @@ export default {
                     "Abstrace": `${text}删除聊天记录`
                 }
                 this.showAlertDlg = true;
-                // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
-                // .catch((error) => {
-                //     console.log("menuDelete ", error);
-                //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
-                //     this.multiToolsClose();
-                // })
             }
         },
         async menuQuote(msg) {
@@ -950,9 +944,7 @@ export default {
             this.createNewChat = false;
             this.chatCreaterDisableUsers = [];
         },
-        showAddMembers: async function(existedMembers){
 
-        },
         compare(property){
             return function(a,b){
                 var value1 = a[property];
@@ -1769,16 +1761,7 @@ export default {
                     }
                     varTmp.push(fileinfo);
                 }
-                if(true) {
-                    this.SendFiles(varTmp);
-                }
-                else {
-                    this.showSendFileDlg = true;
-                    this.sendFileInfos = {
-                        paths: varTmp,
-                        distGroupInfo: this.curChat
-                    }
-                }
+                this.SendFiles(varTmp);
             }
         },
         getDistUidThroughUids: function(uids) {
@@ -1846,8 +1829,6 @@ export default {
             reader.readAsDataURL(showfileObj);
             reader.onload = () => {
                 let type = GetFileType(reader.result);
-                // content.info.mimetype = fileinfo.type;
-                let fileResult = reader.result;
                 let curTimeSeconds = new Date().getTime();
                 var eventTmp = {
                     event: {
@@ -1876,7 +1857,6 @@ export default {
                     eventTmp.event.content.msgtype = "m.file";
                 }
                 this.$store.commit("saveSendingEvents", eventTmp);
-                this.sendingList.push(eventTmp);
                 this.messageList.push(eventTmp);
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -1943,7 +1923,6 @@ export default {
                 message_status: 1,
             };
             this.$store.commit("saveSendingEvents", eventTmp);
-            this.sendingList.push(eventTmp);
             this.messageList.push(eventTmp);
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -2549,7 +2528,6 @@ export default {
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             // this.curChat.resetLiveTimeline();
             this.curChat = distChat;
             roomTimeLineHandler.shareInstance().getDistTimeLine(distChat, eventId)
@@ -2689,7 +2667,6 @@ export default {
                     this.lastScrollHeight = uldiv.scrollHeight;
                     this.isRefreshing = true;
                     this.lastRefreshTime = new Date().getTime();
-                    let curNum = this.messageList.length;
                     roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
@@ -2697,8 +2674,7 @@ export default {
                             for(let i=ret.length - 1;i>0;i--){
                                 this.messageList.unshift(ret[i]);
                             }
-                            
-                            // this.messageList = ret.concat(this.sendingList);
+
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
@@ -2729,7 +2705,6 @@ export default {
                     this.lastScrollTop = uldiv.scrollTop;
                     console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                     this.lastRefreshTime = new Date().getTime();
-                    let curNum = this.messageList.length;
                     roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
                             for(let i=ret.length - 1;i>0;i--){
@@ -2823,16 +2798,7 @@ export default {
             console.log("files is ", files);
             if(files.length == 0)
                 return;
-            if(true) {
-                this.SendFiles(varTmp);
-            }
-            else{
-                this.showSendFileDlg = true;
-                this.sendFileInfos = {
-                    distGroupInfo: this.curChat,
-                    paths: varTmp
-                }
-            }
+            this.SendFiles(varTmp);
         },
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
@@ -2863,16 +2829,12 @@ export default {
                     fileinfo.size = blod.size;
                     fileinfo.name = blod.name;
                     this.path2File[fileinfo.path] = blod;
-                    if(false) {
-                        this.SendFiles([fileinfo]);
-                    }
-                    else {
-                        this.showSendFileDlg = true;
-                        this.sendFileInfos = {
-                            distGroupInfo: this.curChat,
-                            paths: [fileinfo]
-                        }
-                    }
+
+                    this.showSendFileDlg = true;
+                    this.sendFileInfos = {
+                        distGroupInfo: this.curChat,
+                        paths: [fileinfo]
+                    } 
                 }
             }
         },
@@ -2980,7 +2942,6 @@ export default {
             msgListDivElement: undefined,
             newMsgNum: 0,
             haveNewMsg: false,
-            sendingList: [],
             isMute: false,
             transmitNeedAlert: false,
             curOperate: "",
@@ -3199,8 +3160,6 @@ export default {
     computed: {
         messageListShow: {
             get: function() {
-                // var final = this.messageList;//.sort(this.mxEvCompare());
-                // console.log("final msglist is ", final);
                 return this.messageList;
             }
         }
