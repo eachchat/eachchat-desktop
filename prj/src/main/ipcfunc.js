@@ -1,4 +1,4 @@
-import { dialog, shell, app } from 'electron'
+import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, DownloadItem, Notification, globalShortcut} from 'electron'
 import fs from 'fs-extra'
 import {makeFlieNameForConflict} from '../packages/core/Utils.js';
 
