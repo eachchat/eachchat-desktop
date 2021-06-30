@@ -48,10 +48,6 @@
                 <!-- </ul> -->
                 </transition-group>
             </div>
-            <div class="uploadingProc" v-show="showUploadProgress">
-                <label class="uploadingName">{{UploadingName}}</label>
-                <el-progress class="upload-file-progress" :percentage="curPercent" color="#11b067" :show-text="false" :width="70"></el-progress>
-            </div>
             <div class="chat-input" id="chat-input-id" v-show="!multiSelect && !isInvite">
                 <div class="chat-input-operate">
                     <div class="chat-input-tool">
@@ -555,7 +551,7 @@ export default {
             }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
                 size:{width:300,height: 480},
-                        roomInfo: { roomID: this.chat.roomId,
+                        roomInfo: { roomID: this.curChat.roomId,
                                     name: showName,
                                     url:distUrl,
                                     voipType: "voice",
@@ -570,7 +566,7 @@ export default {
             }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
                 size:{width:300,height: 480},
-                        roomInfo: { roomID: this.chat.roomId,
+                        roomInfo: { roomID: this.curChat.roomId,
                                     name: showName,
                                     voipType: "video",
                                     url:distUrl,
@@ -1759,8 +1755,6 @@ export default {
                 for(let i=0;i<fileList.length;i++) {
                     let fileinfo = {};
                     let fileSize = await getFileSizeNum(fileList[i]);
-                    this.curTotal += fileSize;
-                    this.needUpdatefilesNum += 1;
                     fileinfo.path = fileList[i];
                     fileinfo.size = fileSize;
                     fileinfo.name = path.basename(fileList[i])
@@ -1817,24 +1811,6 @@ export default {
                 this.newSendFile(fileinfos[i]);
             }
             this.closeSendFileDlg();
-        },
-        onUploadProgress(ev) {
-            console.log("=========== ",ev);
-            this.sendLength = ev.loaded + this.curProcess;
-            this.contentLength = this.curTotal != 0 ? this.curTotal : ev.total;
-            console.log("=========== contentLength ",this.contentLength);
-            var curPercent = parseInt(this.sendLength*100/Number(this.contentLength));
-            if(curPercent > this.lastPercent) {
-                this.lastPercent = curPercent;
-                this.curPercent = curPercent;
-            }
-            if(this.sendLength >= this.contentLength) {
-                console.log("*** onProgerss hide upload progerss");
-                this.showUploadProgress = false;
-                this.curTotal = 0;
-                this.lastPercent = 0.01;
-                this.curPercent = 0.01;
-            }
         },
         newSendFile: async function(fileinfo) {
             var showfileObj = undefined;
@@ -1912,16 +1888,6 @@ export default {
                 }, 100)
             }
         },
-        readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    resolve(e.target.result);
-                };
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        },
         /**
          * Load a file into a newly created image element.
          *
@@ -1942,226 +1908,12 @@ export default {
                 };
             });
             img.src = objectUrl;
-
-            // // check for hi-dpi PNGs and fudge display resolution as needed.
-            // // this is mainly needed for macOS screencaps
-            // let parsePromise;
-            // if (imageFile.type === "image/png") {
-            //     // in practice macOS happens to order the chunks so they fall in
-            //     // the first 0x1000 bytes (thanks to a massive ICC header).
-            //     // Thus we could slice the file down to only sniff the first 0x1000
-            //     // bytes (but this makes extractPngChunks choke on the corrupt file)
-            //     const headers = imageFile; //.slice(0, 0x1000);
-            //     parsePromise = readFileAsArrayBuffer(headers).then(arrayBuffer => {
-            //         const buffer = new Uint8Array(arrayBuffer);
-            //         const chunks = extractPngChunks(buffer);
-            //         for (const chunk of chunks) {
-            //             if (chunk.name === 'pHYs') {
-            //                 if (chunk.data.byteLength !== PHYS_HIDPI.length) return;
-            //                 return chunk.data.every((val, i) => val === PHYS_HIDPI[i]);
-            //             }
-            //         }
-            //         return false;
-            //     });
-            // }
-
             // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
             const [hidpi] = await Promise.all([imgPromise]);
             const width = hidpi ? (img.width >> 1) : img.width;
             const height = hidpi ? (img.height >> 1) : img.height;
             return {width, height, img};
         },
-        /**
-         * Read the metadata for an image file and create and upload a thumbnail of the image.
-         *
-         * @param {MatrixClient} matrixClient A matrixClient to upload the thumbnail with.
-         * @param {String} roomId The ID of the room the image will be uploaded in.
-         * @param {File} imageFile The image to read and thumbnail.
-         * @return {Promise} A promise that resolves with the attachment info.
-         */
-        infoForImageFile(roomId, imageFile) {
-            let thumbnailType = "image/png";
-            if (imageFile.type === "image/jpeg") {
-                thumbnailType = "image/jpeg";
-            }
-
-            let imageInfo;
-            return this.loadImageElement(imageFile).then((r) => {
-                return this.createThumbnail(r.img, r.width, r.height, thumbnailType);
-            }).then((result) => {
-                imageInfo = result.info;
-                return this.uploadFile(roomId, result.thumbnail);
-            }).then((result) => {
-                imageInfo.thumbnail_url = result.url;
-                imageInfo.thumbnail_file = result.file;
-                return imageInfo;
-            });
-        },
-        /**
-         * Upload the file to the content repository.
-         * If the room is encrypted then encrypt the file before uploading.
-         *
-         * @param {MatrixClient} matrixClient The matrix client to upload the file with.
-         * @param {String} roomId The ID of the room being uploaded to.
-         * @param {File} file The file to upload.
-         * @param {Function?} progressHandler optional callback to be called when a chunk of
-         *    data is uploaded.
-         * @return {Promise} A promise that resolves with an object.
-         *  If the file is unencrypted then the object will have a "url" key.
-         *  If the file is encrypted then the object will have a "file" key.
-         */
-        uploadFile(roomId, file) {
-            let canceled = false;
-            if (global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(roomId)) {
-                // If the room is encrypted then encrypt the file before uploading it.
-                // First read the file into memory.
-                let uploadPromise;
-                let encryptInfo;
-                const prom = readFileAsArrayBuffer(file).then((data) => {
-                    return encrypt.encryptAttachment(data);
-                }).then((encryptResult) => {
-                    // Record the information needed to decrypt the attachment.
-                    encryptInfo = encryptResult.info;
-                    // Pass the encrypted data as a Blob to the uploader.
-                    const blob = new Blob([encryptResult.data]);
-                    uploadPromise = global.mxMatrixClientPeg.matrixClient.uploadContent(blob, {
-                        progressHandler: this.onUploadProgress,
-                        includeFilename: false,
-                    });
-                    return uploadPromise;
-                }).then((url) => {
-                    // If the attachment is encrypted then bundle the URL along
-                    // with the information needed to decrypt the attachment and
-                    // add it under a file key.
-                    encryptInfo.url = url;
-                    if (file.type) {
-                        encryptInfo.mimetype = file.type;
-                    }
-                    return {"file": encryptInfo};
-                });
-            } else {
-                const basePromise = global.mxMatrixClientPeg.matrixClient.uploadContent(file, {
-                    progressHandler: this.onUploadProgress,
-                });
-                const promise1 = basePromise.then((url) => {
-                    // If the attachment isn't encrypted then include the URL directly.
-                    return {"url": url};
-                });
-                return promise1;
-            }
-        },
-        createThumbnail(element, inputWidth, inputHeight, mimeType) {
-            return new Promise((resolve) => {
-                let targetWidth = inputWidth;
-                let targetHeight = inputHeight;
-                if (targetHeight > MAX_HEIGHT) {
-                    targetWidth = Math.floor(targetWidth * (MAX_HEIGHT / targetHeight));
-                    targetHeight = MAX_HEIGHT;
-                }
-                if (targetWidth > MAX_WIDTH) {
-                    targetHeight = Math.floor(targetHeight * (MAX_WIDTH / targetWidth));
-                    targetWidth = MAX_WIDTH;
-                }
-
-                const canvas = document.createElement("canvas");
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-                canvas.getContext("2d").drawImage(element, 0, 0, targetWidth, targetHeight);
-                canvas.toBlob((thumbnail) => {
-                    resolve({
-                        info: {
-                            thumbnail_info: {
-                                w: targetWidth,
-                                h: targetHeight,
-                                mimetype: thumbnail.type,
-                                size: thumbnail.size,
-                            },
-                            w: inputWidth,
-                            h: inputHeight,
-                        },
-                        thumbnail: thumbnail,
-                    });
-                }, mimeType);
-            });
-        },
-        SendImage: function(fileinfo, fileResult, stream){
-                var img = new Image();
-                img.src = fileResult;
-                var encryptInfo;
-                var uploadPromise;
-                this.showUploadProgress = true;
-                this.UploadingName = fileinfo.name;
-                //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
-                //let tt0 = Buffer.from(tt1, "base64");
-                img.onload = ()=>{
-                    var roomID = this.curChat.roomId;
-                    let filename = fileinfo.name;
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
-                        var prom = this.readFileAsArrayBuffer(fileinfo).then((data) => {
-                            return encrypt.encryptAttachment(data);
-                        }).then((encryptResult) => {
-                            encryptInfo = encryptResult.info;
-                            var blob = new Blob([encryptResult.data]);
-                            global.mxMatrixClientPeg.matrixClient.uploadContent(
-                                    blob,
-                                    {includeFilename: false,
-                                    progressHandler: this.onUploadProgress}
-                                ).then((url)=>{
-                                    encryptInfo.url = url;
-                                    encryptInfo.mimetype = fileinfo.type;
-                                    var content = {
-                                        msgtype: 'm.image',
-                                        body: filename,
-                                        file: encryptInfo,
-                                        url: url,
-                                        info:{
-                                            size: fileinfo.size,
-                                            w: img.width,
-                                            h: img.height,
-                                            mimetype: fileinfo.type,
-                                            thumbnail_url: encryptInfo.url,
-                                            thumbnail_file: encryptInfo,
-                                        }
-                                    };
-                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                                    this.showUploadProgress = false;
-                                    return uploadPromise;
-                                });
-                        })
-                    }
-                    else {
-                        global.mxMatrixClientPeg.matrixClient.uploadContent({
-                            stream: stream,
-                            name: filename,
-                            progressHandler: this.onUploadProgress
-                        }).then((url)=>{
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            var content = {
-                                msgtype: 'm.image',
-                                body: filename,
-                                url: url,
-                                info:{
-                                    size: fileinfo.size,
-                                    w: img.width,
-                                    h: img.height,
-                                    mimetype: fileinfo.type,
-                                }
-                            };
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                        });
-                    }
-                }
-        },
-
         SendText: function(sendBody, varcontent){
             const quoteImgMsg = this.getQuoteImgMsg()
             if (quoteImgMsg) {
@@ -3017,9 +2769,6 @@ export default {
             console.log("updateMsgfile ", localPath, eventId);
             var myPackage = [localPath, eventId, needOpen];
             this.updateMsg = myPackage;
-            this.curTotal = 0;
-            this.lastPercent = 0.01;
-            this.curPercent = 0.01;
         },
         setFocuse(e) {
             if(this.editor == undefined) {
@@ -3058,8 +2807,6 @@ export default {
                 fileinfo.path = files[i].path;
                 fileinfo.size = files[i].size;
                 fileinfo.name = files[i].name;
-                this.curTotal += fileinfo.size;
-                this.needUpdatefilesNum += 1;
                 
                 var limitSize = 50 * 1024 * 1024;
                 if(global.mxMatrixClientPeg.mediaConfig != null) {
@@ -3178,28 +2925,27 @@ export default {
             if(!this.editor) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
-            var content = this.$store.getters.getDraft(this.chat.roomId);
+            var content = this.$store.getters.getDraft(this.curChat.roomId);
             this.editor.setContents(content);
             this.editor.setSelection(this.content.length + 1);
         },
         initData: function() {
-            if(global.mxMatrixClientPeg.DMCheck(this.chat)) {
+            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                 this.isDm = true;
             }
             else{
                 this.isDm = false;
             }
-            this.needInitTimelineWindow = true;
             this.newMsgNum = 0;
             this.inviterInfo = undefined;
             this.isInvite = false;
             this.initSearchKey = '';
             this.haveNewMsg = false;
             this.isJumpPage = false;
-            this.curGroupId = this.chat.roomId;
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.chat.roomId);
-            this.chatIconUrl = global.mxMatrixClientPeg.getRoomAvatar(this.chat);
-            this.dmUserId = global.mxMatrixClientPeg.getDMMemberId(this.chat);
+            this.curGroupId = this.curChat.roomId;
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
+            this.chatIconUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
+            this.dmUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
@@ -3208,7 +2954,7 @@ export default {
         },
         initMessage: function() {
             this.messageList = [];
-            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
+            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.curChat)
                 .then((messageList) => {
                     console.log("==========", messageList);
                     if(!messageList) return;
@@ -3228,7 +2974,6 @@ export default {
     },
     data() {
         return {
-            needInitTimelineWindow: true,
             dmUserId: undefined,
             groupIconElement: undefined,
             groupContentNumElement: undefined,
@@ -3255,14 +3000,6 @@ export default {
                 }
             },
             isScroll: false,
-            UploadingName: '',
-            showUploadProgress: false,
-            curPercent: 0.01,
-            lastPercent: 0.01,
-            curTotal: 0,
-            curProcess: 1,
-            needUpdatefilesNum: 0,
-            curUpdateFilesNum: 0,
             toSelect: false,
             ulElement: undefined,
             curSelectedIndex: 0,
@@ -3925,7 +3662,7 @@ export default {
     }
 
     .msg-list-enter-active, .msg-list-leave-active {
-        transition: all .1s;
+        transition: all .05s;
     }
 
     .msg-list-enter, .msg-list-leave-to {
@@ -4545,35 +4282,6 @@ export default {
     .el-dialog-content {
         height: 300px;
         width: 600px;
-        overflow: hidden;
-    }
-
-    .uploadingProc{
-        display: block;
-        width: 100%;
-        float: right;
-        height: 18px;
-    }
-
-    .upload-file-progress {
-        display: inline-block;
-        width: 90%;
-        float: left;
-        margin-top: 6px;
-        margin-bottom: 6px;
-    }
-
-    .uploadingName {
-        display: inline-block;
-        width: 10%;
-        font-size: 12px;
-        height: 18px;
-        line-height: 18px;
-        font-family: 'PingFangSC-Regular';
-        float: left;
-        color: rgba(221, 221, 221, 1);
-        white-space: nowrap;
-        text-overflow: ellipsis;
         overflow: hidden;
     }
 
