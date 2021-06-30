@@ -4222,8 +4222,10 @@ export default {
                 return;
             }
             
+            if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) || !this.newMsg._txnId) {
+                this.messageList.push(this.newMsg);
+            }
             let toBottom = false;
-            this.messageList.unshift(this.newMsg);
 
             if(this.IsBottom()) {
                 console.log("======IsBottom========")
