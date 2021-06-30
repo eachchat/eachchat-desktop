@@ -4122,28 +4122,7 @@ export default {
             get: function() {
                 // var final = this.messageList;//.sort(this.mxEvCompare());
                 // console.log("final msglist is ", final);
-                // return this.messageList;
-                
-                let finalTimeline = [];
-                if(!this.chat.roomId) return finalTimeline;
-                
-                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-                
-                for(let i = 0; i < this.chat.timeline.length; i++){
-                    let exitEventIndex = this.chat.timeline[i]._txnId ? sendingTxIds.indexOf(this.chat.timeline[i]._txnId) : -1;
-                    if(exitEventIndex >= 0) {
-                        this.$store.commit('removeSendingEvents', this.chat.timeline[i]);
-                    }
-                    if(this.messageFilter(this.chat.timeline[i])){
-                        finalTimeline.push(this.chat.timeline[i]);
-                    }
-                }
-                let sendingList = this.$store.getters.getSendingEvents(this.chat.roomId);
-                for(let i=sendingList.length - 1; i > 0; i--){
-                    finalTimeline.unshift(sendingList[i]);
-                }
-
-                return finalTimeline;
+                return this.messageList;
             }
         }
     },
