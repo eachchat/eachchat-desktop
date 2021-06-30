@@ -217,6 +217,7 @@ import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../.
 import { models } from '../../packages/data/models.js';
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
+import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
@@ -3452,7 +3453,7 @@ export default {
             if(uldiv.scrollTop == 0){
                 console.log("to update msg")
                 var curTime = new Date().getTime();
-                if(!this.canLoadMore("b")) {
+                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.chat.roomId, "b")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3464,8 +3465,16 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
-                    this.pageUp(10)
+                    // this.getShowMessage(this.messageFilter, curNum + 10, 'b')
+                    roomTimeLineHandler.shareInstance().showPageUp(this.chat.roomId, 10)
                         .then((ret) => {
+                            console.log("++++++++++ ", ret);
+                            
+                            for(let i=ret.length - 1;i>0;i--){
+                                this.messageList.unshift(ret[i]);
+                            }
+                            
+                            // this.messageList = ret.concat(this.sendingList);
                             setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
@@ -3487,7 +3496,7 @@ export default {
             else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
                 console.log("=======wo bottom");
                 var curTime = new Date().getTime();
-                if(!this.canLoadMore("f")) {
+                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.chat.roomId, "f")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3498,8 +3507,12 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
                     let curNum = this.messageList.length;
-                    this.pageDown(10)
+                    // this.getShowMessage(this.messageFilter, curNum + 10, 'f')
+                    roomTimeLineHandler.shareInstance().showPageDown(this.chat.roomId, 10)
                         .then((ret) => {
+                            for(let i=ret.length - 1;i>0;i--){
+                                this.messageList.unshift(ret[i]);
+                            }
                             this.isRefreshing = false;
                             setTimeout(() => {
                                 this.$nextTick(() => {
@@ -3763,58 +3776,6 @@ export default {
             }
             return fileListInfo;
         },
-        initMessage: function() {
-            if(!this.curChat) return;
-            if(this.$store.getters.getCurChatId() != this.curChat.roomId) return;
-            // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
-            if(this.curChat.getMyMembership() == "invite") {
-                this.isRefreshing = false;
-                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.curChat);
-                this.isInvite = true;
-            }
-            else {
-                this._loadTimeline(undefined, undefined, undefined, this.chat, this.chat.timeline.length)
-                if(this.messageList.length > 10) {
-                    let div = this.getMsgListElement();
-                    if(div) {
-                        div.addEventListener('scroll', this.handleScroll);
-                    }
-                }
-                console.log("*** initMessage 。。。。 ");
-                this.toGetShowMessage()
-                    .then((ret) => {
-                        if(ret[0] && ret[0].event.room_id != this.curChat.roomId) {
-                            return;
-                        }
-                        this.isRefreshing = false;
-
-                        this.messageList = ret.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                        
-                        this.$nextTick(() => {
-                            this.needToBottom = true;
-
-                            let div = this.getMsgListElement();
-                            if(div) {
-                                div.scrollTop = div.scrollHeight + 52;
-                                div.addEventListener('scroll', this.handleScroll);
-                            }
-                            
-                            if(div && (div.clientHeight < div.offsetHeight)) {
-                                this.handleScroll(true);
-                            }
-                            
-                        })
-                    })
-            }
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-            this.existingMsgId = [];
-            if(this.editor == undefined) {
-                this.editor = this.$refs.chatQuillEditor.quill;
-            }
-            var content = this.$store.getters.getDraft(this.curChat.roomId);
-            this.editor.setContents(content);
-            this.editor.setSelection(this.content.length + 1);
-        },
         getMsgListElement: function() {
             if(!this.msgListDivElement) this.msgListDivElement = document.getElementById("message-show-list");
             return this.msgListDivElement;
@@ -3892,6 +3853,28 @@ export default {
             this.needToBottom = false;
             this.existingMsgId = [];
         },
+        initMessage: function() {
+            this.messageList = [];
+            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.chat)
+                .then((messageList) => {
+                    console.log("==========", messageList);
+                    if(!messageList) return;
+                    for(let i=messageList.length - 1;i>0;i--){
+                        this.messageList.unshift(messageList[i]);
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                let div = this.getMsgListElement();
+                                if(div) {
+                                    div.scrollTop = div.scrollHeight;
+                                    // if(div.clientHeight < div.offsetHeight) {
+                                    //     this.paginageForwork();
+                                    // }
+                                }
+                            })
+                        }, 90)
+                    }
+                })
+        }
     },
     data() {
         return {
@@ -4182,9 +4165,9 @@ export default {
                     let div = document.getElementById("message-show-list");
                     if(div) {
                         div.scrollTop = div.scrollHeight;
-                        setTimeout(() => {
-                            this.initMessage();
-                        }, 500)
+                        // setTimeout(() => {
+                        //     this.initMessage();
+                        // }, 500)
                     }
                 })
             }, 90)
@@ -4204,15 +4187,10 @@ export default {
                 this.showHistoryMsgList();
             }
             else {
+                this.initDraft();
                 this.initData();
                 this.initPage();
                 this.initMessage();
-                if(this.editor == undefined) {
-                    this.editor = this.$refs.chatQuillEditor.quill;
-                }
-                var content = this.$store.getters.getDraft(this.curChat.roomId);
-                this.editor.setContents(content);
-                this.editor.setSelection(this.content.length + 1);
             }
         },
         toBottom: function() {
