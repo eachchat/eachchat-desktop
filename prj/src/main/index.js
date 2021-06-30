@@ -2,7 +2,6 @@ import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, Dow
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
-import {makeFlieNameForConflict} from '../packages/core/Utils.js';
 import {createChildWindow, ChildWindow} from './childwindow.js'
 import {callingState, ipcMainFunc} from "./ipcfunc.js"
 
@@ -546,25 +545,6 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
   }, 500);
 });
 
-function downloadExist(distTemp) {
-  try{
-    var state = fs.statSync(distTemp);
-    if(state && state.atime) {
-      var curTimeMSeconds = new Date().getTime();
-      var fileATimeMSeconds = state.atime.getTime();
-      if(curTimeMSeconds - fileATimeMSeconds < 1000 * 5) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-  }
-  catch(error) {
-    return false;
-  }
-}
-
 function showMain() {
   mainWindow.show();
 
@@ -578,7 +558,6 @@ function clearFlashIconTimer() {
   }
 }
 
-const downloadingList = [];
 
 ipcMain.on("updateContact", function(event, args){
   event.sender.send("updateContact")
@@ -617,11 +596,11 @@ ipcMain.on("intallUpgradePackage", function(event, distPath){
     console.log(distPath)
     shell.openPath(distPath);
   }
-  else//(process.platform == 'linux')
+  else{
     shell.showItemInFolder(distPath);
-  
-  clickQuit = true;
+  }
   app.quit();
+  clickQuit = true;
 })
 
 ipcMain.on("toUpgradePackage", function(event, arg) {
