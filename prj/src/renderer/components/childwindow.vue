@@ -2,16 +2,14 @@
     <div>
         <favouritedetail v-show = "bFavouriteDetail" :collectionInfo = "collectionInfo"></favouritedetail>
         <reportRelationContent v-show = 'bReportRelationContent' :userInfo = "userInfo"></reportRelationContent>
-        <VoIPVideo ref = "voipVideoRef" v-show = "bVideoChat" :roomInfo = "roomInfo"></VoIPVideo>
+        <TransmitMsgListDlg v-show='bTransmitMsgListDlg' :transMsgInfo="transMsgInfo"></TransmitMsgListDlg>
     </div>
 </template>
 
 <script>
 import favouritedetail from "./favourite-detail";
 import reportRelationContent from "./reportRelationContent";
-import VoIPVideo from "./videochat"
-import {mxVoIP} from "../../packages/data/mxVoIP.js"
-
+import TransmitMsgListDlg from './transmitTogetherContent.vue';
 
 
 const ipcRenderer = require('electron').ipcRenderer
@@ -20,7 +18,7 @@ export default {
    components: {
         favouritedetail,
         reportRelationContent,
-        VoIPVideo
+        TransmitMsgListDlg
     },
     data(){
         return {
@@ -28,9 +26,8 @@ export default {
             collectionInfo: {},
             bReportRelationContent: false,
             userInfo: {},
-            bVideoChat: false,
-            roomInfo: {},
-            voipInfo: {},
+            bTransmitMsgListDlg: false,
+            transMsgInfo: [],
         }
     },
 
@@ -45,37 +42,32 @@ export default {
                 this.showRelationShip();
                 this.userInfo = args.args
             }
-            else if(args.type === "videoChatWindow"){
-                this.showVideoChat();
-                this.roomInfo = args.args;
+            else if(args.type === "TransmitMsgList"){
+                this.showTransmitMsgLisg();
+                this.transMsgInfo = args.args.list;
             }
         },
 
         showFavouriteDetail(){
             this.bFavouriteDetail = true;
             this.bReportRelationContent = false;
-            this.bVideoChat = false;
+            this.bTransmitMsgListDlg = false;
         },
 
         showRelationShip(){
             this.bReportRelationContent = true;
             this.bFavouriteDetail = false;
-            this.bVideoChat = false;
+            this.bTransmitMsgListDlg = false;
         },
 
-        showVideoChat(){
-            this.bVideoChat = true;
-            this.bReportRelationContent = false;
+        showTransmitMsgLisg() {
+            this.bTransmitMsgListDlg = true;
             this.bFavouriteDetail = false;
-        },
+            this.bReportRelationContent = false;
+        }
     },
 
     mounted(){
-        this.voipChat = new mxVoIP();
-        global.viopChat = this.voipChat;
-        this.voipChat.setVideoChat(this.$refs.voipVideoRef);
-        this.voipChat.createMatrix();
-        
         console.log("childwindow mounted")
         ipcRenderer.on("childwindowArgs", this.onChildWindow)
     },

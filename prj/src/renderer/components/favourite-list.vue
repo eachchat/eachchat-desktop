@@ -139,9 +139,6 @@
             <AlertDlg :AlertContnts="alertContents" v-show="showAlertDlg" @closeAlertDlg="CloseAlertDlg" @clearCache="DeleteFavourite"/>
         </el-main>
         <el-container >
-            <!-- <chatCreaterDlg v-show="showChatCreaterDlg" @closeChatCreaterDlg="closeChatCreaterDlg" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
-
-            </chatCreaterDlg> -->
             <transmitDlg  v-show="showTransmitDlg" @updateChatList="updateChatList" @closeTransmitDlg="closeTransmitDlg" :collectionInfo="transmitCollectionInfo" :transmitCollection="true" :key="transmitKey">
             </transmitDlg>
         </el-container>
@@ -156,7 +153,6 @@ import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sli
 import { bool } from '../../packages/core/types';
 import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
-import chatCreaterDlg from './chatCreaterDlg.vue';
 import {Group, Department, UserInfo, Message} from '../../packages/data/sqliteutil.js';
 import favouriteDetail from './favourite-detail.vue'
 import { ComponentUtil } from '../script/component-util.js';
@@ -193,7 +189,6 @@ export default {
     },
     components: {
         transmitDlg,
-        chatCreaterDlg,
         favouriteDetail,
         AlertDlg
     },
@@ -690,7 +685,7 @@ export default {
 
         },
 
-        UpdateFileLocalPath: async function(e, finalName, eventId){
+        UpdateFileLocalPath: async function(e, finalName, eventId, needOpen){
             if(this.favouriteType !== 'file')
                 return;
             this.favourites.map(file => {

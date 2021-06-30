@@ -240,7 +240,7 @@ const ComponentUtil = {
             str += nHour;
             str += ":"
         }
-        if(nMinute > 10){
+        if(nMinute >= 10){
             str += nMinute;
         }
         else{
@@ -248,7 +248,7 @@ const ComponentUtil = {
             str += nMinute;
         }
         str += ":"
-        if(nSec > 10){
+        if(nSec >= 10){
             str += nSec
         }
         else{
@@ -265,6 +265,9 @@ const ComponentUtil = {
         let newArrayLen = newArray.length;
         let len = Math.min(oldArrayLen, newArrayLen);
  
+        if(oldVersion === newVersion){
+            return false;
+        }
         for(let index = 0; index < len; index++){
             if(parseInt(oldArray[index]) > parseInt(newArray[index])){
                 return false;

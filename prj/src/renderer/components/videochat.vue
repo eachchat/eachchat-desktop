@@ -1,6 +1,6 @@
 <template>
     <div>
-        <video :class = "GetLargeWindowStyle()" id = "large-window"></video>
+        <video class = "large-window" id = "large-window"></video>
         <video class = "small-window" id = "small-window" v-show = "bSmallWindow"></video>
         <audio id="messageAudio">
             <source src="../../../static/message.ogg" type="audio/ogg" />
@@ -29,8 +29,7 @@
         </div>
         
         <audio id="remoteAudio"></audio>
-        
-        <div class = "chat-time" v-show = "state == 'connected'">{{getChatTime()}}</div>
+        <div :class = "GetChatTimeStyle()" v-show = "state == 'connected'">{{getChatTime()}}</div>
         <div>
             <img class = "top-stick" v-if = "bTop" src = "../../../static/Img/VoIP/top.svg" @click = "unTopStick">
             <img class = "top-stick" v-else src = "../../../static/Img/VoIP/untop.svg" @click="topStick"> 
@@ -40,13 +39,13 @@
         <div :class = "GetUserNameStyle()" v-show="bShowStateText">{{useName}}</div>
         <div :class = "GetStateTextStyle()" v-show="bShowStateText">{{stateText}}</div>
         <div v-if = "bComming">
-            <div class = "comming-hangup-icon" @click="afterCallState"></div>
+            <div class = "comming-hangup-icon" @click="hangup"></div>
             <div class = "comming-answer-icon" @click="answerState"></div>
         </div>
         <div v-else>
             <div v-if = "isMute" :class = "GetMuteIconStyle()" @click="muteVoice"></div>
             <div v-else :class = "GetUnMuteIconStyle()" @click="unMuteVoice"></div>
-            <div :class = "GetHangupIconStyle()" @click="afterCallState"></div>
+            <div :class = "GetHangupIconStyle()" @click="hangup"></div>
             <div :class = "GetVoiceIconStyle()" @click="voiceClick"  @mouseover="showVoiceInput1" @mouseleave="hideMouseInput1">
                 <img id = "voice-icon-id" src="../../../static/Img/VoIP/voice.svg" v-if = "this.nVoice !== '0'">
                 <img src = "../../../static/Img/VoIP/slience.svg" v-else>
@@ -62,6 +61,7 @@
 <script>
 import {ipcRenderer} from 'electron'
 import {ComponentUtil} from '../script/component-util.js';
+import {pause} from "../../packages/data/mxVoIP.js"
 
 export default {
     data(){
@@ -79,8 +79,8 @@ export default {
             nTime: 0,
             state: "",
             bTop: false,
-            bShowVoice1: true,
-            bShowVoice2: true
+            bShowVoice1: false,
+            bShowVoice2: false
 
         }
     },
@@ -95,12 +95,14 @@ export default {
         roomInfo(){
             this.bTop = false;
             this.stateText = "";
+            this.state = "";
             this.nTime = 0;
             if(this.roomInfo.direction === "from"){
                 if(this.roomInfo.action && this.roomInfo.action == "show") {
                     this.beforeAnswerState();
                 }
                 else if(this.roomInfo.action && this.roomInfo.action == "answer") {
+                    pause("ringAudio");
                     this.answerState();
                 }
                 else if(this.roomInfo.action && this.roomInfo.action == "hangup") {
@@ -169,7 +171,9 @@ export default {
                 this.hideStateText();
             }
             else{
-                this.showStateText("已接通");
+                this.bShowStateText = true;
+                this.stateText = "已接通";
+                clearInterval(this.intervalTime);
             }
             
             this.state = "connected"
@@ -178,8 +182,11 @@ export default {
             }, 1000)
         },
 
+        hangup(){
+            if(global.viopChat) global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000);
+        },
+
         afterCallState(){
-            global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000);
             ipcRenderer.send("hideVideoChat");
             this.hideStateText();
             clearInterval(this.chatTime);
@@ -293,13 +300,6 @@ export default {
             this.isMute = true;
         },
 
-        GetLargeWindowStyle(){
-            if(this.roomInfo.voipType == "video"){
-                return "video-large-window";
-            }
-            return "audio-large-window";
-        },
-
         GetUserImgStyle(){
             if(this.roomInfo.voipType === "video"){
                 return "video-user-img";
@@ -375,15 +375,22 @@ export default {
                 return "videoMeterDiv";
             }
             return "audioMeterDiv";
+        },
+
+        GetChatTimeStyle(){
+            if(this.roomInfo.voipType === "video"){
+                return "video-chat-time";
+            }
+            return "audio-chat-time";
         }
     },
     created(){
-        this.roomInfo.voipType = "video"
+        
     },
 
     mounted(){
         console.log("videochat mounted")
-        ipcRenderer.on("closeChildRenderWindowBrowser", this.closeWindow)
+        ipcRenderer.on("closeVideoChatWindowBrowser", this.closeWindow)
     }
 }
 </script>
@@ -393,20 +400,10 @@ export default {
     display: none;
 }
 
-.audio-large-window{
+.large-window{
     z-index: 0;
-    width: 300px;
-    height: 480px;
-    position: absolute;
-    background: #4A4C5B;
-    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);
-    border-radius: 4px;
-}
-
-.video-large-window{
-    z-index: 0;
-    width: 640px;
-    height: 320px;
+    width: 100%;
+    height: 100%;
     position: absolute;
     background: #4A4C5B;
     box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.17);
@@ -626,7 +623,7 @@ export default {
 .video-voice-text{
     z-index: 1;
     position: absolute;
-    left: 310px;
+    left: 394px;
     top: 296px;
     width: 20px;
     display: block;
@@ -641,7 +638,7 @@ export default {
 .video-hangup-text{
     z-index: 1;
     position: absolute;
-    left: 394px;
+    left: 310px;
     top: 296px;
     width: 20px;
     display: block;
@@ -806,10 +803,24 @@ export default {
     background-image: url("../../../static/Img/VoIP/answer.svg"); 
 }
 
-.chat-time{
+.audio-chat-time{
     position: absolute;
     z-index: 1;
     left: 136px;
+    top: 10px;
+    width: 28px;
+    height: 18px;
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 18px;
+}
+
+.video-chat-time{
+    position: absolute;
+    z-index: 1;
+    left: 300px;
     top: 10px;
     width: 28px;
     height: 18px;

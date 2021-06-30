@@ -51,14 +51,12 @@
 </template>
 
 <script>
-import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, sliceReturnsOfString, getFileSizeByNumber} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import * as fs from 'fs-extra'
+import {getIconPath, getFileSizeByNumber} from '../../packages/core/Utils.js'
+import {environment} from '../../packages/data/index.js'
 import * as path from 'path'
 import {ipcRenderer} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
-import { Group } from '../../packages/data/sqliteutil'
-import eventSearch, {searchPagination} from '../../packages/data/Searching.js';
+import eventSearch from '../../packages/data/Searching.js';
 import {ComponentUtil} from '../script/component-util'
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
@@ -213,9 +211,6 @@ export default {
             return mxMembers.length;
         },
         getAppBaseData:async function() {
-            // Init services
-            // Set accessToken in services
-            // console.log("global is ", global.mxMatrixClientPeg)
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
             console.log("*** this.$store.getters.getCurChatId() ", this.$store.getters.getCurChatId());
             if(this.$store.getters.getCurChatId() == undefined) {

@@ -3,14 +3,20 @@ import {ThirdPartyWindowBuilder} from "./thirdpartybuilder.js"
 import {FavouriteDetailWindowBuilder} from "./favouritedetailbuilder.js"
 import {ReleationShipWindowBuilder} from "./relationshipbuilder.js"
 import {VideoChatWindowBuilder} from "./videochatbuilder.js"
+import { TransmitMsgWindowBuilder } from "./transmitmsglist.js"
+import {callingState} from "./ipcfunc.js"
+
 class ChildWindow{
     constructor(){
-
+      this.thirdpartyBrowser = null;
+      this.childrenderBrowser = null;
+      this.voipBrwoser = null;
     }
 
     createBrowser(iconPath){
         return new BrowserWindow({     
             resizable: true,
+            fullscreenable: false,
             webPreferences: {
                 webSecurity:false,
                 nodeIntegration:true,
@@ -21,18 +27,47 @@ class ChildWindow{
             icon: iconPath,
         });
     }
+
+    CreateThirdPartyBrowser(iconPath){
+      if(!this.thirdpartyBrowser){
+        this.thirdpartyBrowser = this.createBrowser(iconPath);
+      }
+      return this.thirdpartyBrowser;
+    }
+
+
+    CreateChildRenderBrowser(iconPath){
+      if(!this.childrenderBrowser){
+        this.childrenderBrowser = this.createBrowser(iconPath);
+        const childwindowURL = process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/childwindow`
+        : `file://${__dirname}/index.html#childwindow`;
+        this.childrenderBrowser.loadURL(childwindowURL);
+      }
+      return this.childrenderBrowser;
+    }
+
+    CreateVoipBrowser(iconPath){
+      if(!this.voipBrwoser){
+        this.voipBrwoser = this.createBrowser(iconPath);
+        const voipwindowURL = process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/voipwindow`
+        : `file://${__dirname}/index.html#voipwindow`;
+        this.voipBrwoser.loadURL(voipwindowURL);
+      }
+      return this.voipBrwoser;
+    }
+    
 }
 
 function createChildWindow(mainwindowArgs){
-    console.log("createChildWindow", mainwindowArgs);
-
     let mainWindow = mainwindowArgs.mainWindow;
     let isLogin = mainwindowArgs.isLogin;
     let thirdpartyWindowBrowser = mainwindowArgs.thirdpartyBrowser;
     let childRenderWindowBrowser = mainwindowArgs.childBrowser;
+    let voipRenderWindowBrowser = mainwindowArgs.voipBrowser;
     let ipcArg = mainwindowArgs.ipcArg;
     let type = ipcArg.type;
-    let clickQuit = mainwindowArgs.clickQuit;
 
     console.log("createChildWindow-------------", ipcArg)
     switch(type){
@@ -62,8 +97,16 @@ function createChildWindow(mainwindowArgs){
       }
 
       case "videoChatWindow":{
-        let VideoChatWindow = new VideoChatWindowBuilder(childRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
+        if(callingState.calling()) return;
+        let VideoChatWindow = new VideoChatWindowBuilder(voipRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
         VideoChatWindow.build();
+        break;
+      }
+
+      case "TransmitMsgList": {
+        let TransmitMsgWindow = new TransmitMsgWindowBuilder(childRenderWindowBrowser, mainWindow);
+        TransmitMsgWindow.setArgs(ipcArg);
+        TransmitMsgWindow.build();
         break;
       }
       

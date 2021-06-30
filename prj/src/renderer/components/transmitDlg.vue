@@ -35,12 +35,6 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="NewChatView" v-show="!showSearchView && false">
-                        <img ondragstart="return false" class="icon-chat-more" src="../../../static/Img/Favorite/Util/createNewChat-24px@2x.png" @click="createNewChatButtonClicked()">
-                        <div class="createNewChatInfo" @click="createNewChatButtonClicked()">
-                        <p class="createNewChatTitle">创建新聊天</p>
-                        </div>
-                    </div>
                     <div class="RecentChatHeader" v-show="!showSearchView">
                         最近聊天
                     </div>
@@ -77,37 +71,22 @@
                     </div>
                 </el-main>
             </el-container>
-            <chatCreaterContent ref="chatCreaterContent" v-if="showCreateNewChat" :rootDepartments="rootDepartments" :disableUsers="chatCreaterDisableUsers"></chatCreaterContent>
             <div class="TransmitFotter" v-show="!showCreateNewChat">
                 <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
                 <button class="TransmitConfirmButton" @click="Transmit()" :disabled="selectedGroups.length==0">确定</button>
-            </div>
-            <div class="TransmitFotter" v-show="showCreateNewChat">
-                <button class="TransmitCancleButton" @click="closeDialog()">取消</button>
-                <button class="TransmitConfirmButton" @click="createGroupAndTransmit()">确定</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-//import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import {APITransaction} from '../../packages/data/transaction.js'
-import * as fs from 'fs-extra'
-import {ipcRenderer, remote} from 'electron'
-import { object } from '../../packages/core/types'
-import confservice from '../../packages/data/conf_service';
-import { strMsgContentToJson, sliceReturnsOfString, generalGuid, FileUtil, makeFlieNameForConflict } from '../../packages/core/Utils.js'
-import * as path from 'path'
-import chatCreaterContent from './chatCreaterContent.vue';
-import {UserInfo, Department, Group, Collection} from '../../packages/data/sqliteutil.js';
-import conf_service from '../../packages/data/conf_service'
+import {ipcRenderer} from 'electron'
+import {FileUtil} from '../../packages/core/Utils.js'
 import {ComponentUtil} from '../script/component-util.js';
 export default {
     name: 'TransmitDlg',
     components:{
-        chatCreaterContent,
+        
     },
     props: {
         transmitMergeInfo: {
@@ -398,16 +377,6 @@ export default {
                 this.updageSelectedChatNameAndImg();
             });
         },
-        createNewChatButtonClicked:async function() {
-            
-            var self = await services.common.GetSelfUserModel();
-            this.chatCreaterDisableUsers.push(self.id);
-            var root = await Department.GetRoot();
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            var temp = rootDepartmentModels;
-            this.rootDepartments =  temp.sort(this.compare("show_order"));
-            this.showCreateNewChat = true;
-        },
         compare(property){
             return function(a,b){
                 var value1 = a[property];
@@ -426,20 +395,7 @@ export default {
             }
             return index;
         },
-        // selectedGroupImageId(id) {
-        //     return "selected" + id;
-        // },
-        // UpdateTransmit: function() {
-        //     if(this.TransmitContent.length == 0){
-        //         alert("公告内容不能为空");
-        //         return;
-        //     }
-        //     services.common.UpdateGroupTransmit(this.groupId, this.TransmitContent)
-        //         .then((ret) => {
-        //             console.log("ret ", ret)
-        //             this.$emit("closeTransmitDlg", this.TransmitContent);
-        //         })
-        // },
+
         getGroupAvatarContent:async function(group, key='') {
             if(!group) return;
             var groupAvatarElement = document.getElementById(key + group.roomId);
@@ -485,7 +441,6 @@ export default {
         Transmit:async function() {
             // get createNewChat Users
             if(this.showCreateNewChat){
-                console.log(this.$refs.chatCreaterContent.getSelectedUsers());
                 this.$emit("closeTransmitDlg", "");
                 this.$toastMessage({message:'转发成功', time:1500, type:'success'});
                 return;
@@ -526,141 +481,7 @@ export default {
                 this.$toastMessage({message:'转发成功', time:1500, type:'success'});
             }
         },
-        createGroupAndTransmit: async function() {
-            console.log(this.$refs.chatCreaterContent.getSelectedUsers());
-            var selectedUsers = this.$refs.chatCreaterContent.getSelectedUsers();
-            var selfUser = await services.common.GetSelfUserModel();
-            var groupUserIds = [];
-            var groupUserName = []
-            for(var i=0;i<selectedUsers.length;i++) {
-                groupUserIds.push(selectedUsers[i].user_id)
-                if(i < 4) {
-                    groupUserName.push(selectedUsers[i].user_display_name)
-                }
-            }
-            // console.log("group groupUserName ids is ", groupUserName)
-            var groupName = '';
-            if(groupUserName.length > 1) {
-                groupName = groupUserName.join(",");
-            }
-            else if(groupUserName.length == 4) {
-                groupName = groupUserName.join(",");
-                groupName = groupName + "...";
-            }
-            else {
-                groupName = groupUserName[0];
-            }
-            // console.log("group user ids is ", groupUserIds)
-            // console.log("group groupName ids is ", groupName)
-            if(selectedUsers.length == 0) {
-                alert("未选择用户")
-            }
-            else if(selectedUsers.length == 1) {
-                var groupItem = {};
-                var selectedId = selectedUsers[0];
-                var chatUserInfo = await UserInfo.GetUserInfo(selectedId.id);
-                console.log("userInfos is ", chatUserInfo);
-                var chatAvater = chatUserInfo.avatar_t_url;
-                var chatName = chatUserInfo.user_display_name;
-                var groupCheck = await Group.SearchChatByNameKey(chatName);
-                console.log("groupCheck is ", groupCheck)
-                groupUserIds.push(selfUser.id);
-                var contain_user_ids = groupUserIds.join(",");
-                if(groupCheck.contain_user_ids == undefined) {
-                    groupItem["contain_user_ids"] = contain_user_ids;
-                    groupItem["group_avarar"] = chatAvater;
-                    groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 102;
-                    groupItem["last_message_time"] = 0;
-                    groupItem["message_content"] = null;
-                    groupItem["message_content_type"] = 101;
-                    groupItem["message_from_id"] = selfUser.id;
-                    groupItem["message_id"] = '';
-                    groupItem["owner"] = null;
-                    groupItem["sequence_id"] = 0;
-                    groupItem["status"] = "00000000";
-                    groupItem["un_read_count"] = 0;
-                    groupItem["updatetime"] = new Date().getTime();
-                    groupItem["user_id"] = selectedUsers[0].user_id;
-                }
-                else {
-                    groupItem = groupCheck;
-                }
-
-                this.$emit('getCreateGroupInfo', groupItem);
-
-                this.selectedGroups = [groupItem];
-                if(this.transmitCollection){
-                    var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                    this.$emit("closeTransmitDlg", "");
-                    if(suc == false) {
-                        this.$message('转发失败');
-                    }
-                    else {
-                        this.$message('转发成功');
-                    }
-                    return;
-                }
-                var newmsgret = await this.sendMsg(this.selectedGroups, this.transmitMessages);
-                console.log('newmsgret ', newmsgret);
-                this.$emit("closeTransmitDlg", "");
-                this.$message('转发成功');
-            }
-            else {
-                groupUserIds.push(selfUser.id);
-                services.common.CreateGroup(groupName, groupUserIds)
-                    .then((ret) => {
-                        if(ret == undefined) {
-                            console.log("!!!!!!!!!!!1 ")
-                            // ToDo exception notice.
-                            return;
-                        }
-                        ret.message_content = null;
-                        
-                        var groupItem = {};
-                        groupItem["contain_user_ids"] = ret.contain_user_ids;
-                        groupItem["group_id"] = ret.group_id;
-                        groupItem["group_avarar"] = ret.group_avarar;
-                        groupItem["group_name"] = ret.group_name;
-                        groupItem["group_type"] = ret.group_type;
-                        groupItem["last_message_time"] = ret.last_message_time;
-                        groupItem["message_content"] = null;
-                        groupItem["message_content_type"] = ret.message_content_type;
-                        groupItem["message_from_id"] = ret.message_from_id;
-                        groupItem["message_id"] = ret.message_id;
-                        groupItem["owner"] = ret.owner;
-                        groupItem["sequence_id"] = ret.sequence_id;
-                        groupItem["status"] = ret.status;
-                        groupItem["un_read_count"] = ret.un_read_count;
-                        groupItem["updatetime"] = ret.updatetime;
-                        groupItem["user_id"] = '';
-                
-                        // console.log("services.CreateGroup ret is ", groupItem);
-                        this.$emit('getCreateGroupInfo', groupItem);
-                        setTimeout(async () => {
-                            this.selectedGroups = [groupItem];
-                            if(this.transmitCollection){
-                                var suc = await this.sendSingleCollectionMsg(this.selectedGroups, this.collectionInfo);
-                                this.$emit("closeTransmitDlg", "");
-                                if(suc == false) {
-                                    this.$message('转发失败');
-                                }
-                                else {
-                                    this.$message('转发成功');
-                                }
-                                return;
-                            }
-                            await this.sendMsg(this.selectedGroups, this.transmitMessages);
-                            // for(var i=0;i<this.groupList.length;i++) {
-                            //     this.groupList[i].checkState = false;
-                            // }
-                            // this.selectedChat = [];
-                            this.$emit("closeTransmitDlg", "");
-                            this.$message('转发成功');
-                        }, 500)
-                    })
-            }
-        },
+        
         sendMsg: async function(distGroups, msgs) {
             if(this.transmitTogether) {
                 await this.sendTogetherMsg(distGroups, msgs);
@@ -868,7 +689,7 @@ export default {
             };
             msgs.forEach((msg) => {
                 let curContent = msg.getContent();
-                if(curContent.msgtype == "m.audio") {
+                if(curContent.msgtype == "m.audio" || msg.event.type.indexOf("m.call") >= 0) {
                     return;
                 }
                 if(msg.event.content.info != undefined) {
@@ -891,79 +712,8 @@ export default {
             })
             return content;
         },
-        getMsgContent: async function(msg) {
-            if(this.msg === null) {
-                return '';
-            }
-            var messageContent = '';
-            let chatGroupMsgType = msg.message_type;
-            var chatGroupMsgContent = strMsgContentToJson(msg.message_content);
-
-            var nameTemp = "";
-            var userInfos = await services.common.GetDistUserinfo(msg.message_from_id);
-            // var userInfos = await UserInfo.GetUserInfo(this.curChat.uid);
-            if(userInfos.length == 1) {
-                var distUserInfo = userInfos[0];
-                if(distUserInfo != undefined){
-                    nameTemp = distUserInfo.user_display_name;
-                }
-            }
-
-            console.log("chatGroupMsgContent is ", nameTemp)
-            // console.log("this. msg is ", this.msg)
-
-            if(chatGroupMsgType === 101 || chatGroupMsgType ==0)
-            {
-                messageContent = nameTemp + ":" + chatGroupMsgContent.text;
-                console.log("aboutUserName ",nameTemp);
-                console.log("getMsgContent ",messageContent);
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 102)
-            {
-                messageContent = nameTemp + ":" + "[图片]:" + chatGroupMsgContent.fileName;
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 103)
-            {
-                messageContent = nameTemp + ":" + "[文件}:" + chatGroupMsgContent.fileName;   
-                return messageContent;
-            }
-            else if(chatGroupMsgType === 106)
-            {
-                return messageContent = chatGroupMsgContent.title + ":" + "的聊天记录";
-            }
-            else {
-                return messageContent = "不支持的消息类型，请升级客户端。"
-            }
-        },
-        getDistUidThroughUids: async function(uids) {
-            if(this.curUserInfo == undefined) {
-                this.curUserInfo = await services.common.GetSelfUserModel();
-            }
-            if(uids.length > 2) {
-                return "";
-            }
-            else if(uids.length == 1) {
-                return uids[0];
-            }
-            else {
-                if(uids[0] == this.curUserInfo.id) {
-                    return uids[1];
-                }
-                else {
-                    return uids[0];
-                }
-            }
-        },
     },
     created() {
-            //this.curUserInfo = await services.common.GetSelfUserModel();
-            //console.log("this.curuser info is ", this.curUserInfo);
-            // var showPosition = this.calcImgPosition();
-            // console.log(showPosition);
-            // this.dlgPosition.left = showPosition.left.toString() + "px";
-            // this.dlgPosition.top = showPosition.top.toString() + "px";
     },
     mounted: function() {
         ipcRenderer.on('updateGroupImg', this.updateGroupImg);

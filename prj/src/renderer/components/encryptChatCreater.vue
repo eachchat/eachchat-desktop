@@ -139,10 +139,7 @@
 </template>
 
 <script>
-//import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
 import {Department, UserInfo} from '../../packages/data/sqliteutil.js'
-//import {APITransaction} from '../../packages/data/transaction.js'
 import * as fs from 'fs-extra'
 import {ipcRenderer} from 'electron'
 import { object } from '../../packages/core/types'
@@ -268,7 +265,7 @@ export default {
             }
             if(this.createNewChat) {
                 if(this.curUserInfo == undefined) {
-                    this.curUserInfo = await services.common.GetSelfUserModel();
+                    
                 }
                 var groupUserIds = [];
                 console.log("this.selectedUsers = ", this.selectedUsers);
@@ -303,7 +300,7 @@ export default {
                 else if(this.selectedUsers.length == 1) {
                     var groupItem = {};
                     var selectedId = this.selectedUsers[0];
-                    var userInfos = await services.common.GetDistUserinfo(selectedId.user_id);
+                    var userInfos = "";
                     console.log("userInfos is ", userInfos);
                     var chatUserInfo = userInfos[0];
                     var chatAvater = chatUserInfo.avatar_t_url;
@@ -356,6 +353,7 @@ export default {
                     this.$emit("closeChatCreaterDlg", "");
                 }
                 else {
+                    /*
                     services.common.CreateGroup(groupName, groupUserIds)
                         .then((ret) => {
                             if(ret == undefined) {
@@ -387,12 +385,13 @@ export default {
                             this.$emit('getCreateGroupInfo', groupItem);
                             this.$emit("closeChatCreaterDlg", "");
                         })
+                    */
                 }
             }
             else if(!this.createNewChat && this.addMemberGroupType == 102) {
                 
                 if(this.curUserInfo == undefined) {
-                    this.curUserInfo = await services.common.GetSelfUserModel();
+                    //this.curUserInfo = await services.common.GetSelfUserModel();
                 }
                 var groupUserIds = [];
                 groupUserIds.push(this.curUserInfo.id);
@@ -431,6 +430,7 @@ export default {
                     alert("选一个呗")
                 }
                 else {
+                    /*
                     services.common.CreateGroup(groupName, groupUserIds)
                         .then((ret) => {
                             if(ret == undefined) {
@@ -462,6 +462,7 @@ export default {
                             this.$emit('getCreateGroupInfo', groupItem);
                             this.$emit("closeChatCreaterDlg", "");
                         })
+                        */
                 }
             }
             else {
@@ -470,9 +471,7 @@ export default {
                 for(var i=0;i<this.selectedUsers.length;i++) {
                     addUids.push(this.selectedUsers[i].user_id)
                 }
-                var ret = await services.common.AddGroupUsers(this.addMemberGroupId, addUids);
                 this.$emit("closeChatCreaterDlg", "");
-                console.log("AddGroupUsers ret is ", ret);
             }
         },
         departmentBreadCrumbsClicked:async function(department, index) {
@@ -730,52 +729,9 @@ export default {
         },
 
         getUserImg: async function (userInfo, key=''){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
-            if(userInfo.user_id == undefined || userInfo == null) {
-                return "";
-            }
-            var userId = userInfo.user_id;
-            var userAvatarUrl = userInfo.avatar_t_url;
-            var localPath = confservice.getUserThumbHeadLocalPath(userId);
-            let userIconElement = document.getElementById(key + userInfo.user_id);
-            if(!userIconElement){
-                return;
-            }
-            if(fs.existsSync(localPath)){
-                var showfu = new FileUtil(localPath);
-                let showfileObj = showfu.GetUploadfileobj();
-                let reader = new FileReader();
-                reader.readAsDataURL(showfileObj);
-                reader.onloadend = () => {
-                    userIconElement.setAttribute("src", reader.result);
-                }
-            }else{
-                services.common.downloadUserTAvatar(userInfo.avatar_t_url, userInfo.user_id);
-            }
+            
         },
-        // getUserAvatarContent:async function(group) {
-        //     var targetDir = confservice.getUserThumbHeadPath();
-        //     var targetPath = path.join(targetDir, group.group_id + '.png');
-        //     var groupAvatarElement = document.getElementById(group.group_id);
-        //     if(groupAvatarElement == null) {
-        //         return;
-        //     }
-        //     if(fs.existsSync(targetPath)) {
-        //         var showfu = new FileUtil(targetPath);
-        //         let showfileObj = showfu.GetUploadfileobj();
-        //         let reader = new FileReader();
-        //         reader.readAsDataURL(showfileObj);
-        //         reader.onloadend = () => {
-        //             groupAvatarElement.setAttribute("src", reader.result);
-        //         }
-        //     }
-        //     else{
-        //         console.log("download group avatar", group);
-        //         await services.common.downloadGroupAvatar(group.group_avarar, group.group_id);
-        //         //await this.getGroupAvatarContent(group);
-        //     }
-
-        // },
+        
         calcImgPosition: function() {
 
             // console.log("remote.b")

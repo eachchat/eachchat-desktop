@@ -31,14 +31,13 @@
 </template>
 
 <script>
-import {strMsgContentToJson, FileUtil, getIconPath, Appendzero, JsonMsgContentToString, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
+import {FileUtil, getIconPath, Appendzero, JsonMsgContentToString, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
+import {environment} from '../../packages/data/index.js'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import {ipcRenderer} from 'electron'
 import confservice from '../../packages/data/conf_service.js'
 import {shell} from 'electron'
-import { Group } from '../../packages/data/sqliteutil.js'
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import { Message } from '../../packages/data/sqliteutil.js'
@@ -472,7 +471,6 @@ export default {
             this.showResultInfo(this.GroupInfo);
         },
         getAppBaseData:async function() {
-            // Set accessToken in services
             console.log("global is ", global.mxMatrixClientPeg)
             this.GroupInfo = global.mxMatrixClientPeg.matrixClient.getRoom(this.groupId);
             console.log("the init user id is ,", this.GroupInfo)

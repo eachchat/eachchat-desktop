@@ -19,8 +19,6 @@
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
-                <!-- <div class="chat-tool-invite-div" @click.stop="createAnother"></div>  -->
-                <!-- @click="showAddMembersPrepare()" -->
                 <div class="chat-tool-call" @click="voiceCall()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
@@ -44,7 +42,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
+                            <imessage :ref = "item.event.event_id"  :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="!isDm" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
@@ -76,7 +74,6 @@
                     <div class="voice-chat" @click="creatVoiceChat()" v-show="!isSecret && isDm">
                     </div>
                 </div>
-                <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
                 <div class="text-input" @keydown="keyHandle($event)" @keyup="keyUpHandle($event)">
                     <quillEditor
                         id="chatQuillEditorId"
@@ -126,16 +123,12 @@
             @openUserInfoTip="openUserInfoTip" 
             @leaveGroup="leaveGroup" 
             @updateChatGroupStatus="updateChatGroupStatus" 
-            @updateChatGroupNotice="updateChatGroupNotice" 
-            @showOwnerTransferDlg="showOwnerTransferDlg"
             @openSetting="mxRoomSetting"
             @openChatInfoDlg="mxChatInfoDlgSetting"
             @openChatTopicDlg="mxChatTopicDlgSetting"
             @closeGroupInfo="closeGroupInfo"
         >
         </groupInfoTip> <!--todo html-->
-        <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
-        <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @clickAtMember="clickAtMember" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
         <userInfoContent 
             :userInfo="userInfo" 
@@ -178,32 +171,20 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
-import confservice from '../../packages/data/conf_service'
-// import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
-
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
-import userInfoTip from './userinfo-tip.vue'
 import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
-import chatGroupCreater from './chatgroup-creater'
-import transmit from './transmit.vue'
-import noticeEditDlg from './noticeEditDlg.vue'
-import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
-import chatCreaterDlg from './chatCreaterDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import mxChatTopicDlg from './mxChatTopicDlg'
-import {EventTimeline} from "matrix-js-sdk";
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
@@ -214,7 +195,6 @@ import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
-import { models } from '../../packages/data/models.js';
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
@@ -300,15 +280,9 @@ export default {
         quillEditor,
         imessage,
         Faces,
-        userInfoTip,
         groupInfoTip,
-        chatGroupCreater,
-        transmit,
-        noticeEditDlg,
-        ownerTransferDlg,
         chatMemberDlg,
         transmitDlg,
-        chatCreaterDlg,
         userInfoContent,
         SendFileDlg,
         mxSettingDialog,
@@ -396,35 +370,7 @@ export default {
         mxSelectMember() {
 
         },
-        createAnother() {
-            console.log('this.curChat', this.curChat)
-            const client = window.mxMatrixClientPeg.matrixClient;
-            const mDirectEvent = client.getAccountData('m.direct');
-            let dmRoomMap = {};
-            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-            let currentRoom = this.curChat;
-            let dmRoomIdArr = [];
-            const roomId = currentRoom.roomId;
-            const userId = client.getUserId();
-            Object.keys(dmRoomMap).forEach(k=>{
-                let arr = dmRoomMap[k];
-                arr.forEach(a=>dmRoomIdArr.push(a))
-            })
-            if (dmRoomIdArr.includes(roomId)) {
-                this.isDm = true;
-                console.log('这是一个单聊', currentRoom);
-                Object.keys(currentRoom.currentState.members).forEach(id => {
-                    if (id != userId) {
-                        let dmMember = currentRoom.currentState.members[id];
-                        console.log( 'dmMember', dmMember)
-                        console.log( 'dmMember.user', dmMember.user)
-                        if (!dmMember.user) dmMember.user = {};
-                        dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
-                        this.dmMember = dmMember;
-                    }
-                })
-            } else {this.isDm = false;}
-        },
+        
         showImportE2EKey() {
             this.$emit("showImportE2EKey");
         },
@@ -654,9 +600,6 @@ export default {
                                     url:distUrl,
                                     action: "call"}});
         },
-        handleDialogClose() {
-            this.$refs.chatGroupCreater.initData();
-        },
         canRedact: function(curEvent) {
             const cli = global.mxMatrixClientPeg.matrixClient;
 
@@ -876,22 +819,47 @@ export default {
                 // })
             }
         },
-        menuQuote(msg) {
+        async menuQuote(msg) {
+            this.editor.setSelection(this.editor.selection.savedRange.index)
+            var dom = document.getElementById('quote-img')
+            const exist = !!dom
+            if (!exist) {
+                dom = document.createElement('div')
+            }
+            dom.setAttribute('class', 'quote-content')
+            dom.setAttribute('id', 'quote-text')
+            dom.setAttribute('data-roomid', this.curChat.roomId)
+            dom.setAttribute('contenteditable', false)
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             var msgContent = msg.getContent();
             var text = msgContent.body;
-            var sender = msg.sender.name;
-            var quoteText = '「' + sender + ':' + text + '」' + "<br>- - - - - - - - - - - - - - -";
-            this.content = quoteText + this.content;
-            console.log("this.curontent is ", this.content);
-            this.editor.setContents(this.content);
-            this.$nextTick(() => {
-                this.editor.insertText(this.content.length, '\n');
-                this.editor.setSelection(this.content.length + 1);
-            })
+            dom.innerHTML=`
+                <div class="quote-content-text" >${userName} :${text}</div>
+                <img class="quote-img-delete" id="quote-img-delete" src="${deleteIcon}" />
+            `
+            if (!exist) {
+                this.editor.insertText(this.editor.selection.savedRange.index,' ')
+                this.editor.insertEmbed(this.editor.selection.savedRange.index, 'span', dom)
+                this.editor.insertText(this.editor.selection.savedRange.index + 1,' ')
+                this.editor.setSelection(this.editor.selection.savedRange.index - 1)
+            }
+            const deleteBtn = document.getElementById('quote-img-delete')
+            const handler = () => {
+                if (dom && dom.parentNode){
+                    dom.parentNode.removeChild(dom)
+                }
+            }
+            deleteBtn.addEventListener('click', handler, true) 
         },
 
         getQuoteImgMsg(){
             const dom = document.getElementById('quote-img')
+            return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
+        },
+
+        getQuoteTextMsg(){
+            const dom = document.getElementById('quote-text')
             return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
         },
 
@@ -961,7 +929,7 @@ export default {
             this.curOperate = "multTrans";
             if(this.transmitNeedAlert) {
                 this.alertContnets = {
-                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Details": "你选择的消息中包含语音或音视频不支持转发，是否继续？",
                     "Abstrace": "提示"
                 }
                 this.showAlertDlg = true;
@@ -1004,58 +972,14 @@ export default {
                 this.transmitTogether = false;
             }
         },
-        showAddMembersPrepare: async function() {
-            // var memeberList = this.curChat.contain_user_ids.split(",");
-            // this.showAddMembers(memeberList);
-            ////////////////////////////////////////////////////
-            var self = await services.common.GetSelfUserModel();
-            console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(self.id);
-            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            if(this.curChat.contain_user_ids.length != 0) {
-                var contain_user_ids = this.curChat.contain_user_ids.split(",");
-                for(var i=0;i<contain_user_ids.length;i++) {
-                    if(this.chatCreaterDisableUsers.indexOf(contain_user_ids[i]) == -1) {
-                        this.chatCreaterDisableUsers.push(contain_user_ids[i]);
-                    }
-                }
-            }
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = rootDepartmentModels;
-            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            this.createNewChat = false;
-            this.addMemberGroupType = this.curChat.group_type;
-            this.chatCreaterKey ++;
-            this.showChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "添加成员";
-        },
+        
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
             this.createNewChat = false;
             this.chatCreaterDisableUsers = [];
         },
         showAddMembers: async function(existedMembers){
-            // this.chatCreaterDisableUsers = existedMembers;
-            // var self = await services.common.GetSelfUserModel();
-            // console.log("self is ", self);
-            // this.chatCreaterDisableUsers.push(self.id);
-            // console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            // var root = await Department.GetRoot();
-            // console.log("root is ", root);
-            // var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            // console.log("rootDepartmentModels is ", rootDepartmentModels);
-            // var temp = rootDepartmentModels;
-            // this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            // this.chatCreaterKey ++;
-            // this.createNewChat = false;
-            // this.addMemberGroupType = this.curChat.group_type;
-            // this.showChatCreaterDlg = true;
-            // this.chatCreaterDialogTitle = "添加成员";
+
         },
         compare(property){
             return function(a,b){
@@ -1064,16 +988,7 @@ export default {
                 return value1 - value2;
             }
         },
-        AddNewMembers: async function() {
-            console.log("add member s ", this.usersSelected);
-            var addUids = [];
-            for(var i=0;i<this.usersSelected.length;i++) {
-                addUids.push(this.usersSelected[i].id)
-            }
-            var ret = await services.common.AddGroupUsers(this.curChat.group_id, addUids);
-            console.log("AddGroupUsers ret is ", ret);
-            this.dialogVisible = false;
-        },
+
         async menuFav(msg) {
             console.log("fav msg is ", msg);
             console.log("cointent is ", strMsgContentToJson(msg.message_content));
@@ -1170,22 +1085,16 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            var chatGroupMsgContent = msg.getContent();
-            getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
-                .then((blob) => {
-                    let reader = new FileReader();
-                    reader.onload = function() {
-                        if(reader.readyState == 2) {
-                            let a = document.createElement('a');
-                            a.href = window.URL.createObjectURL(blob);
-                            a.download = chatGroupMsgContent.body;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                        }
-                    }
-                    reader.readAsArrayBuffer(blob);
-                })
+            let paths = ipcRenderer.sendSync("get_save_filepath");
+            let folders = paths.filePaths;
+            if(folders.length == 0) return;
+            let folder = folders[0];
+            console.log(folder)
+            let msgElements = this.$refs[msg.event.event_id];
+            if(msgElements.length === 0) return;
+            let msgElement = msgElements[0];
+            var chatGroupMsgContent = msg.event.content ? msg.event.content : msg.getContent();
+            msgElement.SaveFile(chatGroupMsgContent, path.join(folder, chatGroupMsgContent.body), msg.event.event_id, false);
         },
 
         cleanSelected() {
@@ -1217,7 +1126,7 @@ export default {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
-                if(this.MsgIsVoice(k)) {
+                if(this.MsgIsVoice(k) || this.MsgIsVoipCall(k)) {
                     this.transmitNeedAlert = true;
                 }
                 if(this.MsgIsTransmit(k)) {
@@ -1251,6 +1160,10 @@ export default {
             else{
                 return false;
             }
+        },
+        MsgIsVoipCall: function(msg) {
+            if(msg.event.type.indexOf("m.call") >= 0) return true;
+            else return false;
         },
         MsgIsVoice: function(msg) {
             let chatGroupMsgType = msg.event.content.msgtype == undefined ? msg.getContent().msgtype : msg.event.content.msgtype;
@@ -1697,33 +1610,7 @@ export default {
             return timelineSet;
         },
         async toGetShowImage(distRoom) {
-            var curTimeLineSetRoomId = this.imgTimeLineSet ? this.imgTimeLineSet.room.roomId : undefined;
-            if(distRoom.roomId == curTimeLineSetRoomId) {
-                var fileListInfo = this._imgTimelineWindow.getEvents();
-                var thresholdNum = fileListInfo.length;
-                while(fileListInfo.length == thresholdNum && this._imgTimelineWindow.canPaginate('b')) {
-                    await this._imgTimelineWindow.paginate("b", 20);
-                    fileListInfo = await this._imgTimelineWindow.getEvents();
-                }
-                return fileListInfo;
-            }
-            else {
-                this.imgTimeLineSet = await this.updateImgTimelineSet(distRoom);
-                console.log("*** imgTimeLineSet ", this.imgTimeLineSet);
-                // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
-                this._imgTimelineWindow = new Matrix.TimelineWindow(
-                    global.mxMatrixClientPeg.matrixClient, 
-                    this.imgTimeLineSet,
-                    {windowLimit:Number.MAX_VALUE},
-                )
-                await this._imgTimelineWindow.load(undefined, 20);
-                var fileListInfo = this._imgTimelineWindow.getEvents();
-                while(fileListInfo.length == 0 && this._imgTimelineWindow.canPaginate('b')) {
-                    await this._imgTimelineWindow.paginate("b", 20);
-                    fileListInfo = await this._imgTimelineWindow.getEvents();
-                }
-                return fileListInfo;
-            }
+            return distRoom.timeline;
         },
         async getFileExist(id) {
             let msgs = await Message.FindMessageByMesssageID(id);
@@ -1785,8 +1672,8 @@ export default {
             if(!distImageInfo.imageUrl) {
                 let event = distEvent.event;
                 let localPath = await this.getFileExist(event.event_id);
-                let chatGroupMsgContent = distEvent.getContent();
-
+                let chatGroupMsgContent = event.content;
+                
                 let maxSize = 390;
                 var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
     
@@ -1890,50 +1777,6 @@ export default {
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
-        handleFiles: function() {
-            // Select Same File Failed.
-            var fileList = this.fileInput.files;
-            console.log(fileList)
-            if(fileList === null || fileList.length === 0) {
-                alert("请选择一个文件/文件夹。");
-            }
-            else {
-                for(var i=0;i<fileList.length;i++) {
-                    var range = this.editor.getSelection();
-                    var curIndex = range==null ? 0 : range.index;
-                    var reader = new FileReader();
-                    var curPath = fileList[i].path;
-                    var fileType = fileList[i].type;
-                    var fileSize = fileList[i].size;
-                    var fileName = path.basename(fileList[i]);//getFileNameInPath(fileList[i].path)
-                    if(fileType.split("/")[0] == "image"){
-                        // Image
-                        reader.readAsDataURL(fileList[i]);
-                        reader.onloadend = () => {
-                            var img = new Image();
-                            img.src = reader.result;
-                            img.onload = function(){
-                                let srcHeight = img.height;
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
-                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                            }
-                        }
-                    }
-                    else {
-                        // File
-                        var fileExt = fileTypeFromMIME(fileType);
-                        var iconPath = getIconPath(fileExt);
-                        var showfu = new FileUtil(iconPath);
-                        let showfileObj = showfu.GetUploadfileobj();
-                        reader.readAsDataURL(showfileObj);
-                        reader.onloadend = () => {
-                            this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: fileSize, style:"vertical-align:middle;"})
-                            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                        }
-                    }
-                }
-            }
-        },
         cleanEditor: function() {
             this.editor.container.getElementsByClassName("ql-editor")[0].innerHTML = "";
         },
@@ -1957,9 +1800,6 @@ export default {
                 this.ipcInited = true;
                 ipcRenderer.on('selectedItem', this.nHandleFiles);
             }
-        },
-        insertImg: function() {
-            // console.log("============== this is ", this);
         },
         nHandleFiles: async function(e, paths) {
             // Select Same File Failed.
@@ -2038,20 +1878,9 @@ export default {
         },
         SendFiles: function(fileinfos) {
             for(let i=0;i<fileinfos.length;i++) {
-                // this.sendFile(fileinfos[i]);
                 this.newSendFile(fileinfos[i]);
             }
             this.closeSendFileDlg();
-        },
-        myArrayBuffer(theFile) {
-            // this: File or Blob
-            return new Promise((resolve) => {
-                let fr = new FileReader();
-                fr.onload = () => {
-                    resolve(fr.result);
-                };
-                fr.readAsArrayBuffer(theFile);
-            })
         },
         onUploadProgress(ev) {
             console.log("=========== ",ev);
@@ -2080,6 +1909,15 @@ export default {
                 var showfu = new FileUtil(fileinfo.path);
                 showfileObj = showfu.GetUploadfileobj();
             }
+            
+            let r = null;
+            try{
+                r = await this.loadImageElement(showfileObj);
+            }
+            catch(e) {
+                console.log("******** ", e);
+            }
+
             const content = {
                 body: fileinfo.name || 'Attachment',
                 info: {
@@ -2087,6 +1925,10 @@ export default {
                 },
                 msgtype: "", // set later
             };
+            if(r && r.width && r.height) {
+                content.info.w = r.width;
+                content.info.h = r.height;
+            }
             // extend(content.info, showfileObj);
             var reader = new FileReader();
             reader.readAsDataURL(showfileObj);
@@ -2132,153 +1974,6 @@ export default {
                         }
                     })
                 }, 100)
-            }
-        },
-        sendFile: async function(fileinfo) {
-            console.log("fileinfo is ", fileinfo);
-            const content = {
-                body: fileinfo.name || 'Attachment',
-                info: {
-                    size: fileinfo.size,
-                },
-                msgtype: "", // set later
-            };
-            var showfileObj = undefined;
-            var stream = "";
-            var encryptInfo;
-            var uploadPromise;
-            if(!fs.existsSync(fileinfo.path)) {
-                showfileObj = this.path2File[fileinfo.path];
-                var arrayBuf = await this.myArrayBuffer(showfileObj);
-                stream = Buffer.from(arrayBuf);
-            }
-            else {
-                var showfu = new FileUtil(fileinfo.path);
-                showfileObj = showfu.GetUploadfileobj();
-                stream = showfu.ReadfileSync(fileinfo.path);
-            }
-            var reader = new FileReader();
-            reader.readAsDataURL(showfileObj);
-
-            reader.onload = () => {
-                let type = GetFileType(reader.result);
-                // content.info.mimetype = fileinfo.type;
-                let fileResult = reader.result;
-                this.showUploadProgress = true;
-                this.UploadingName = fileinfo.name;
-                let filename = fileinfo.name;
-                var roomID = this.curChat.roomId;
-                if(type == 'm.image'){
-                    content.msgtype = 'm.image';
-                    // this.SendImage(showfileObj, fileResult, stream)
-                    this.infoForImageFile(this.curChat.roomId, showfileObj).then((imageInfo) => {
-                        extend(content.info, imageInfo);
-                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                        })
-                    }, (e) => {
-                        console.log("**** getInfoForImageFile Exception ", e);
-                    })
-                }
-                else{
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
-                        var prom = this.readFileAsArrayBuffer(showfileObj).then((data) => {
-                            return encrypt.encryptAttachment(data);
-                        }).then((encryptResult) => {
-                            encryptInfo = encryptResult.info;
-                            var blob = new Blob([encryptResult.data]);
-                            global.mxMatrixClientPeg.matrixClient.uploadContent(
-                                    blob,
-                                    {includeFilename: false,
-                                    progressHandler: this.onUploadProgress}
-                                ).then((url)=>{
-                                    encryptInfo.url = url;
-                                    encryptInfo.mimetype = fileinfo.type;
-                                    var content = {
-                                        msgtype: 'm.file',
-                                        body: filename,
-                                        file: encryptInfo,
-                                        url: url,
-                                        info:{
-                                            size: fileinfo.size,
-                                            mimetype: fileinfo.type
-                                        }
-                                    };
-                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                                    this.showUploadProgress = false;
-                                });
-                        })
-                    }
-                    else {
-                        let filename = fileinfo.name;
-                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                        // global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
-                        //     name: filename,
-                        //     progressHandler: this.onUploadProgress
-                        // }).then((ret)=>{
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            content.msgtype = 'm.file';
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            console.log("*** name is ", filename);
-                            console.log("*** path.extname(filename) is ", path.extname(filename));
-                            content.info.mimetype = fileMIMEFromType(path.extname(filename).split('.')[1]);
-                            console.log("***fileMIMEFromType(path.extname(filename) is ", fileMIMEFromType(path.extname(filename).split('.')[1]));
-                            console.log("***content is ", content);
-                            // var content = {
-                            //     msgtype: 'm.file',
-                            //     body: filename,
-                            //     url: url,
-                            //     info:{
-                            //         size: fileinfo.size,
-                            //         mimetype: fileinfo.type
-                            //     }
-                            // };
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content).then(async (ret) => {
-                                console.log("*** ret is ", ret);
-                                console.log("*** filePath is ", fileinfo.path);
-                                if(fs.existsSync(fileinfo.path)) {
-                                    console.log("*** filePath is exist");
-                                    let msgs = await Message.FindMessageByMesssageID(ret.event_id);
-                                    if(msgs.length != 0){
-                                        msgs[0].file_local_path = fileinfo.path;
-                                        msgs[0].save();
-                                    }
-                                    else{
-                                        let msgValue = {
-                                            message_id: ret.event_id,
-                                            file_local_path: fileinfo.path
-                                        }
-                                        let model = await new(await models.Message)(msgValue);
-                                        model.save();
-                                    }
-                                }
-                            })
-                        });
-                    }
-                }
-                
             }
         },
         readFileAsArrayBuffer(file) {
@@ -2536,6 +2231,12 @@ export default {
             if (quoteImgMsg) {
                 sendBody.quote_event = quoteImgMsg
             }
+
+            const quatoTextMsg = this.getQuoteTextMsg()
+            if(quatoTextMsg){
+                sendBody.quote_event = quatoTextMsg
+            }
+
             this.cleanEditor();
             let curTimeSeconds = new Date().getTime();
             var eventTmp = {
@@ -2578,11 +2279,7 @@ export default {
                 alert("不能发送空白信息。")
                 return;
             }
-            // console.log("varcontent is ", varcontent);
-            var uid = this.curChat.user_id;
-            var gorupId = this.curChat.group_id == null ? '' : this.curChat.group_id;
             let sendText = '';
-            let exsitAt = false;
             let sendBody = {
                 msgtype: "m.text",
                 body: sendText
@@ -2590,14 +2287,12 @@ export default {
             for(var i=0;i<varcontent.ops.length;i++){
                 // console.log("i is ", i);
                 let curMsgItem = varcontent.ops[i].insert;
-                let curTimeSeconds = new Date().getTime();
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    if (curMsgItem.span.id !== 'quote-img') {    
+                    if (curMsgItem.span.id !== 'quote-img' && curMsgItem.span.id !== 'quote-text') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
-                        var filePath = msgInfo.path;
                         var fileType = msgInfo.type;
                         if(fileType == "at") {
                             sendText += ("@" + msgInfo.atName + " ");
@@ -3422,6 +3117,7 @@ export default {
             let curNum = this.messageList.length;
             this.getDistShowMessage(this.messageFilter, curNum + 10, 'f')
                 .then((ret) => {
+                    if(ret[0] && ret[0].event.room_id != this.curChat.roomId) return;
                     this.messageList = ret
                     this.isRefreshing = false;
                     setTimeout(() => {
@@ -3450,6 +3146,9 @@ export default {
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
         
+            if(this.IsBottom()) {
+                this.haveNewMsg = false;
+            }
             if(uldiv.scrollTop == 0){
                 console.log("to update msg")
                 var curTime = new Date().getTime();
@@ -3546,38 +3245,10 @@ export default {
 
             }
         },
-        updateChatGroupNotice(groupId, originalNotice, isOwner) {
-            // console.log("==========")
-            this.noticeDialogVisible = true;
-            this.groupNoticeInfo = {};
-            this.groupNoticeInfo.originalNotice = originalNotice;
-            this.groupNoticeInfo.groupId = groupId;
-            this.groupNoticeInfo.isOwner = isOwner;
-        },
-        closeNoticeDlg(content) {
-            if(content.length == 0) {
-                this.noticeDialogVisible = false;
-                this.groupNoticeInfo = {};
-            }
-            else {
-                this.noticeDialogVisible = false;
-            }
-        },
-        showOwnerTransferDlg() {
-            this.ownerTransferDialogVisible = true;
-            this.ownerTransferchat = this.curChat;
-        },
-        closeOwnerTransferDlg() {
-            this.ownerTransferDialogVisible = false;
-            this.ownerTransferchat = {};
-        },
-        updateMsgFile(e, localPath, eventId) {
+        updateMsgFile(e, localPath, eventId, needOpen) {
             console.log("updateMsgfile ", localPath, eventId);
-            var myPackage = [localPath, eventId];
+            var myPackage = [localPath, eventId, needOpen];
             this.updateMsg = myPackage;
-            if(!eventId && path.extname(localPath) != ".mp3") {
-                shell.openPath(localPath);
-            }
             this.curTotal = 0;
             this.lastPercent = 0.01;
             this.curPercent = 0.01;
@@ -3955,7 +3626,6 @@ export default {
             messageListElement: null,
             checkClassName: ["emojiDiv", "emoji", "chat-msg-content-mine-linkify", "chat-msg-content-others-linkify", "linkify", "msg-info-user-img-with-name", "file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
-            groupNoticeInfo: {},
             updateUser: 1,
             updateMsg: {},
             menu: null,
@@ -3963,8 +3633,6 @@ export default {
             playingMsgId: '',
             multiSelect: false,
             dialogVisible: false,
-            noticeDialogVisible: false,
-            ownerTransferDialogVisible: false,
             chatMemberDlgVisible: false,
             chatMemberSearchKey: null,
             canCheckChatMemberSearch: false,
@@ -4025,6 +3693,20 @@ export default {
                                 handler: function (range) {
                                     return false;
                                 }
+                            },
+                            indent: {
+                                key: 9,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return true;
+                                }
+                            },
+                            'list autofill': {
+                                key: 32,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -4076,7 +3758,6 @@ export default {
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
-                this.fileInput = document.getElementById("fileInput");
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
                 const editorEle = this.editor.container.getElementsByClassName("ql-editor")[0]
@@ -4154,6 +3835,9 @@ export default {
             this.curChat = this.chat;
             console.log("***1 chat")
             console.log("chat ============", this.chat);
+            if(!global.mxMatrixClientPeg.mediaConfig) {
+                global.mxMatrixClientPeg.ensureMediaConfigFetched();
+            }
             this.initDraft();
             this.initData();
             this.initPage();
@@ -4221,6 +3905,7 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
+            if(this.newMsg.event.room_id != this.curChat.roomId) return;
             
             if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) || !this.newMsg._txnId) {
                 this.messageList.push(this.newMsg);

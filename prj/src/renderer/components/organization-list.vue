@@ -54,7 +54,6 @@
 import {Department, UserInfo, sqliteutil} from '../../packages/data/sqliteutil.js'; 
 import yidrawer from './yi-drawer';
 import userInfoContent from './user-info';
-import userInfoTip from './userinfo-tip';
 import '../style/contact-list'
 import { ComponentUtil } from '../script/component-util.js'
 import { get } from 'lodash'
@@ -64,7 +63,6 @@ export default {
     components: {
         yidrawer,
         userInfoContent,
-        userInfoTip,
     },
     data () {
         return {
@@ -225,6 +223,10 @@ export default {
             if(e.target.className.indexOf('userInfo') == -1 && e.target.id != 'user-info-save'){
                 that.showUserInfoTips = false;
             }
+        });
+
+        document.addEventListener('contextmenu',(e) => {
+            this.showUserInfoTips = false;
         });
     }
 }

@@ -2,8 +2,9 @@ import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, Dow
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
-import {makeFlieNameForConflict, ClearDB} from '../packages/core/Utils.js';
+import {makeFlieNameForConflict} from '../packages/core/Utils.js';
 import {createChildWindow, ChildWindow} from './childwindow.js'
+import {callingState, ipcFileFunc} from "./ipcfunc.js"
 
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
@@ -23,7 +24,6 @@ let voipNoticeInfo = {}
 let noticeHeight
 let noticeWindowKeepShow = false
 let assistWindow
-let soloPage = null
 let appIcon = null;
 let flashIconTimer = null;
 let iconPath 
@@ -35,6 +35,7 @@ var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 let isLogin = false;
 let toHide = false;
+
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   emptyIconPath = "../../static/Img/Main/logo-empty.ico";
@@ -158,19 +159,17 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 const ipcMain = require('electron').ipcMain;
+let childwindowFactory = new ChildWindow();
 
 ipcMain.on('showMainPageWindow', function(event, arg) {
   if(!mainWindow) return;
-  isLogin = true;
   mainWindow.hide();
   mainWindow.setResizable(true);
   mainWindow.setMinimumSize(720, 600);
-  mainWindow.setSize(960, 600);
-  mainWindow.center();
-  // mainWindow.webContents.on('did-finish-load', function(){
-  // mainWindow.maximize();
-  mainWindow.show();
-  // });
+  mainWindow.setSize(960, 600, true);
+  CreateChildWindows();
+  isLogin = true;
+  
   openDevToolsInDevelopment(mainWindow);
   appIcon = new Tray(iconPath);
 
@@ -192,6 +191,11 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
       }
     }
   });
+  
+  setTimeout(() => {
+    mainWindow.center();
+    mainWindow.show();
+  }, 1000)
 
   let contextMenu = Menu.buildFromTemplate([
     {
@@ -216,8 +220,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
         
         mainWindow = null;
         noticeWindow = null;
-        assistWindow = null;
-        soloPage = null;        
+        assistWindow = null;    
         app.quit();
       }
     }
@@ -310,13 +313,13 @@ function calcTrayNoticePosition() {
     let showX = screenSize.width - trayBounds.x + trayBounds.width/2 > 130 ? (trayBounds.x + trayBounds.width/2 - 130) : screenSize.width - 20 - 240 ;
     let showY = screenSize.height - noticeHeight;
     console.log("final show posision ", showX, " y ", showY)
-    noticeWindow.setPosition(showX, showY)
+    noticeWindow.setPosition(parseInt(showX), parseInt(showY))
   }
   else {
     let showX = screenSize.width - 240 ;
     let showY = noticeHeight;
     console.log("final show posision ", showX, " y ", showY)
-    noticeWindow.setPosition(showX, showY)
+    noticeWindow.setPosition(parseInt(showX), parseInt(showY))
   }
 }
 
@@ -348,6 +351,7 @@ ipcMain.on("updateVoIPTrayNotice", function(event, arg) {
   if(Object.keys(arg).length == 0) {
       noticeHeight = 52 + 20 + Object.keys(noticeInfo).length * 52;
       noticeWindow.hide();
+      noticeWindow.webContents.send("updateVoIPTrayNotice", arg);
       return;
   } 
   else {
@@ -483,99 +487,11 @@ ipcMain.on('showTransTmpWindow', function(event, msgListInfo, path) {
   ? `http://localhost:9080/#/` + path
   : `file://${__dirname}/index.html#` + path;
   tmp.loadURL(sonPageWinURL);
-  //openDevToolsInDevelopment(soloPage);
   tmp.webContents.on('did-finish-load', function() {
     tmp.webContents.send("msgListInfo", msgListInfo.list);
   });
   tmp.show();
 });
-
-ipcMain.on('showAnotherWindow', function(event, msgListInfo, path) {
-  console.log("========== msgListInfo ", msgListInfo);
-  var title = "";
-  var width = 615;
-  var height = 508;
-  if(process.platform == "darwin") {
-    height = 470;
-    width = 600;
-  }
-  if(path == "historyMsgList") {
-    title = "聊天记录";
-  }
-  else if(path == "fileList") {
-    title = "文件列表";
-  }
-  else if(path == "searchMessageList") {
-    title = "聊天记录";
-  }
-  else if(path == "searchFilesList") {
-    title = "文件列表";
-  }
-  else if(path == "TransmitMsgList") {
-    title = msgListInfo.title;
-  }
-  if(!soloPage) {
-    soloPage = new BrowserWindow({
-      height: height,
-      //useContentSize: true,
-      resizable: false,
-      width:width,
-      webPreferences: {
-        webSecurity:false,
-        nodeIntegration:true,
-        enableRemoteModule: true
-      },
-      frame:true,
-      title:title
-    })
-    const sonPageWinURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/#/` + path
-    : `file://${__dirname}/index.html#` + path;
-    soloPage.loadURL(sonPageWinURL);
-    //openDevToolsInDevelopment(soloPage);
-    soloPage.webContents.on('did-finish-load', function() {
-      soloPage.webContents.send("msgListInfo", msgListInfo.list);
-    });
-    soloPage.show();
-    soloPage.on('close', (event) => {
-      if(clickQuit){
-        app.quit();
-        return;
-      }
-      event.preventDefault();
-      soloPage.hide();
-    })
-  }
-  else {
-    soloPage.setTitle(title);
-    soloPage.webContents.send("msgListInfo", msgListInfo.list);
-    soloPage.show();
-  }
-});
-
-ipcMain.on('searchAddedMembers', function(event, selectedGroupIds) {
-  if(!soloPage) return;
-  soloPage.webContents.send("searchAddedMembers", selectedGroupIds);
-  soloPage.focus();
-})
-
-ipcMain.on('searchAddedSenders', function(event, selectedSenderIds) {
-  if(!soloPage) return;
-  soloPage.webContents.send("searchAddedSenders", selectedSenderIds);
-  soloPage.focus();
-})
-
-ipcMain.on('SearchAddSender', function(event, selectedSenderIds) {
-  if(!mainWindow) return;
-  mainWindow.webContents.send("SearchAddSenders", selectedSenderIds);
-  mainWindow.focus();
-})
-
-ipcMain.on("SearchAddGroup", function(event, selectedGroupIds) {
-  if(!mainWindow) return;
-  mainWindow.webContents.send("SearchAddGroup", selectedGroupIds);
-  mainWindow.focus();
-})
 
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
   if(!mainWindow) return;
@@ -588,14 +504,6 @@ ipcMain.on("favourite-update-chatlist", function(event, newMsgInfo) {
   if(!mainWindow) return;
   mainWindow.webContents.send("transmitFromFavDlg", newMsgInfo);
 })
-
-ipcMain.on('AnotherClose', function(event, arg) {
-  soloPage.close();
-});
-
-ipcMain.on('AnotherMin', function(event, arg) {
-  soloPage.minimize();
-});
 
 ipcMain.on('imageViewerFav', function(event, toFavEvent) {
   if(!mainWindow) return;
@@ -799,33 +707,12 @@ ipcMain.on('open-download-recoveryKey-dialog', function(event) {
   })
 });
 
-ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen) {
-  // var path = args[0];
-  // var buffer = args[1];
-  // var eventId = args[2];
-  // var needOpen = args[3];
-  var path = path;
-  var buffer = buffer;
-  var eventId = eventId;
-  var needOpen = needOpen;
-  console.log("args is ", buffer);
-  var distPath = path + '_tmp';
-  fs.outputFile(distPath, buffer, async err => {
-    if(err) {
-      console.log("ERROR ", err.message)
-      event.sender.send("ERROR", err.message, eventId);
-    }
-    else {
-      var finalName = await makeFlieNameForConflict(path);
-      console.log("get final name ", finalName)
-      fs.renameSync(distPath, finalName);
-      if(needOpen) {
-          shell.openExternal(finalName);
-      }
-      event.sender.send("SAVED_FILE", finalName, eventId);
-    }
-  })
-})
+ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen){
+  ipcFileFunc.SaveFile(event, path, buffer, eventId, needOpen);
+});
+ipcMain.on("get_save_filepath", function(event){
+  ipcFileFunc.GetSaveFilepath(mainWindow, event);
+});
 
 function downloadFile(event, arg) {
   return function f() {
@@ -1423,7 +1310,7 @@ function createWindow () {
     }
   }
   else if(process.platform == 'win32') {
-    if(mainWindow && mainWindow.isFocused()) {
+    if(mainWindow && mainWindow.isFocused() && isLogin) {
       globalShortcut.register('Escape', () => {
         mainWindow.hide();
       })
@@ -1464,6 +1351,7 @@ function createWindow () {
       width: 240,
       frame: false,
       resizable: true,
+      fullscreenable: false,
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
@@ -1475,6 +1363,9 @@ function createWindow () {
     })
     noticeWindow.setSkipTaskbar(true);
     noticeWindow.loadURL(trayNoticeURL);
+    if(process.platform == "darwin") {
+      noticeWindow.setParentWindow(mainWindow);
+    }
     noticeWindow.on('close', (event) => {
       if(clickQuit){
         app.quit();
@@ -1489,42 +1380,17 @@ function createWindow () {
     height = 470;
     width = 600;
   }
+}
 
-  soloPage = new BrowserWindow({
-    height: height,
-    //useContentSize: true,
-    resizable: false,
-    width:width,
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    show: false,
-    frame:true
-  })
-  const sonPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/TransmitMsgList`
-  : `file://${__dirname}/index.html#TransmitMsgList`;
-  soloPage.loadURL(sonPageWinURL);
-  soloPage.on('close', (event) => {
-    if(clickQuit){
-      app.quit();
-      return;
-    }
-    event.preventDefault();
-    soloPage.hide();
-  })
-  let childwindowFactory = new ChildWindow();
-  let thirdpartyWindowBrowser = childwindowFactory.createBrowser(iconPath);
-  let childRenderWindowBrowser = childwindowFactory.createBrowser(iconPath);
+function CreateChildWindows(){
+  console.log("CreateChildWindows function")
+  let thirdpartyWindowBrowser = childwindowFactory.CreateThirdPartyBrowser(iconPath);
+  let childRenderWindowBrowser = childwindowFactory.CreateChildRenderBrowser(iconPath);
+  let voipWindowBrowser = childwindowFactory.CreateVoipBrowser(iconPath);
 
-  const childwindowURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/childwindow`
-  : `file://${__dirname}/index.html#childwindow`;
-  childRenderWindowBrowser.loadURL(childwindowURL);
-  //childRenderWindowBrowser.show();
-  //childRenderWindowBrowser.webContents.openDevTools();
+  ipcMain.on("CallingState", (event, args) => {
+    callingState.setCallingState(args);
+  })
 
   ipcMain.on("createChildWindow", function(event, args){
     let mainwindowArgs = {};
@@ -1533,6 +1399,7 @@ function createWindow () {
     mainwindowArgs.isLogin = isLogin;
     mainwindowArgs.thirdpartyBrowser = thirdpartyWindowBrowser;
     mainwindowArgs.childBrowser = childRenderWindowBrowser;
+    mainwindowArgs.voipBrowser = voipWindowBrowser;
     mainwindowArgs.ipcArg = args;
     mainwindowArgs.clickQuit = clickQuit;
     createChildWindow(mainwindowArgs);
@@ -1540,7 +1407,6 @@ function createWindow () {
 
   childRenderWindowBrowser.on('close', (event) => {
     console.log("childRenderWindowBrowser", clickQuit)
-    childRenderWindowBrowser.webContents.send("closeChildRenderWindowBrowser");
     if(clickQuit){
       app.quit();
       return;
@@ -1560,14 +1426,23 @@ function createWindow () {
     thirdpartyWindowBrowser.hide();
     mainWindow.show();
   })
+
+  voipWindowBrowser.on('close', (event) => {
+    voipWindowBrowser.webContents.send("closeVideoChatWindowBrowser");
+    console.log("voipWindowBrowser", clickQuit)
+    if(clickQuit){
+      app.quit();
+      return;
+    }
+    event.preventDefault();
+    voipWindowBrowser.hide();
+    mainWindow.show();
+  })
 }
 
 ipcMain.on("openDevTools", function(event) {
   if(mainWindow != null && !mainWindow.isDestroyed()) {
     mainWindow.webContents.openDevTools();
-  }
-  if(soloPage != null && !soloPage.isDestroyed()) {
-    soloPage.webContents.openDevTools();
   }
 })
 
@@ -1726,15 +1601,15 @@ app.on('browser-window-focus', () => {
         }
       })
   }
-  else if(process.platform == 'win32') {
-    // globalShortcut.register('Escape', () => {
-    //   if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
-    //     assistWindow.hide();
-    //   }
-    //   else {
-    //     mainWindow.hide();
-    //   }
-    // })
+  else if(process.platform == 'win32' && isLogin) {
+    globalShortcut.register('Escape', () => {
+      if(assistWindow && assistWindow.isVisible() && assistWindow.isFocused()) {
+        assistWindow.hide();
+      }
+      else {
+        mainWindow.hide();
+      }
+    })
   }
 })
 

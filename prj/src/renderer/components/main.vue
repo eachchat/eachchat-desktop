@@ -23,6 +23,7 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
                 <span class="tooltiptext">{{getToolTipContent(index)}}</span>
+                <div v-show = "bshowNewversionDot" class = "newversiondot"></div>
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
@@ -30,7 +31,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading">
@@ -102,7 +103,10 @@ export default {
     },
     data () {
         return {
+            lastSyncTime: 0,
+            bshowNewversionDot: false,
             toUpdateTrayNotice: 0,
+            toUpdateRooms: 0,
             setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
@@ -117,7 +121,7 @@ export default {
             displayName: '',
             userInfo: undefined,
             isOwn: true,
-            userInfoTipKey: 1,   //用户信息弹窗强制更新
+            userInfoTipKey: 1,
             pagePosition:{},
             userType: "mainUserInfo",
             unReadCount: 0,
@@ -474,6 +478,7 @@ export default {
                 var sVerName = newVersion.verName;
                 let sProductName = sUrl.split("/").pop();
                 if(needUpdate) {
+                    this.bshowNewversionDot = true;
                     let dbVersion = await Config.GetNewVersion();
                     if(dbVersion && dbVersion.new_version === sVerCode){
                         return;
@@ -507,6 +512,11 @@ export default {
                 ipcRenderer.send("showLoginPageWindow");
                 return;
             }
+        },
+        updateRooms() {
+            setTimeout(() => {
+                this.toUpdateRooms += 1;
+            }, 1000)
         },
         async _doBootstrapUIAuth(makeRequest) {
             let response = null;
@@ -560,6 +570,11 @@ export default {
                 catch(e) {
                     console.log(e.message);
                 }
+            }
+        },
+        checkSync: function() {
+            if(this.lastSyncTime != 0 && new Date().getTime() - this.lastSyncTime > 40 * 1000) {
+                global.mxMatrixClientPeg.matrixClient.retryImmediately();
             }
         },
     },
@@ -676,6 +691,13 @@ export default {
               this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;
+            case "ERROR":
+                break;
+            case "CATCHUP":
+                break;
+            case "SYNCING":
+                this.lastSyncTime = new Date().getTime();
+                if(prevState == "CATCHUP") this.updateRooms();
             default:
               break;
           }
@@ -699,6 +721,7 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             // console.log("e.target.classname is ", e.target.className)
+            // _this.checkSync();
             if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     // console.log("============")
@@ -716,7 +739,7 @@ export default {
             }
         });
 
-        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
+        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId, needOpen)=>{
             let msgs = await Message.FindMessageByMesssageID(eventId);
             if(msgs.length != 0){
                 msgs[0].file_local_path = finalName;
@@ -1212,6 +1235,16 @@ export default {
         z-index: 1;
     }
 
+    .newversiondot{
+        width: 8px;
+        height: 8px;
+        background: #CE514F;
+        position: relative;
+        border-radius: 50%;
+        left:20px;
+        bottom: 30px;
+    }
+
     .NavSetUp:hover .tooltiptext {
         visibility: visible;
     }
@@ -1252,8 +1285,8 @@ export default {
 
     .loadingDiv {
         padding: 0px;
-        width: calc(100% - 70px);
-        height: 100%;
+        width: 890px;
+        height: 600px;
         vertical-align: top;
         margin: 0px;
         overflow-y:hidden;

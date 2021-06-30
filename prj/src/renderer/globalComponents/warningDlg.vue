@@ -7,10 +7,10 @@
                     <div class="titleText">退出群聊</div>
                 </div>
                 <!-- <img class="close" @click.stop="close" src="../../../static/Img/Main/xincaca.png"> -->
-                <div class="desc">是否退出群聊？</div>
+                <div class="desc">{{content}}</div>
                 <div class="submit-field">
                     <div class="button buttonConfirm" @click.stop="confirm">确定</div>
-                    <div class="button buttonCancel" @click.stop="cancel">取消</div>
+                    <div class="button buttonCancel" @click.stop="cancel" v-show="cancelBtn">取消</div>
                 </div>
             </div>
         </div>
@@ -90,7 +90,6 @@ export default {
         background-color: #fff;
         border-radius: 4px;
         width: 400px;
-        height: 160px;
         z-index: 9998;
         .inner-wrap {
             height: 100%;
@@ -115,7 +114,8 @@ export default {
                 }
             }
             .desc {
-                height: 20px;
+                // height: 20px;
+                width: 65%;
                 font-size: 14px;
                 font-family: PingFangSC-Regular, PingFang SC;
                 font-weight: 400;
@@ -158,7 +158,8 @@ export default {
                 display: flex;
                 align-items: center;
                 flex-direction: row-reverse;
-                margin-top: 20px;
+                margin-top: 10px;
+                margin-bottom: 20px;
                 .button {
                     box-sizing: border-box;
                     width: 100px;

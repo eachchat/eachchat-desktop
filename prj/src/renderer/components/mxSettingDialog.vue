@@ -102,11 +102,6 @@
 </template>
 
 <script>
-import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import {APITransaction} from '../../packages/data/transaction.js'
-import * as fs from 'fs-extra'
-import {ipcRenderer, remote} from 'electron'
 import encryWarn from './encryptionWarning.vue'
 export default {
     name: 'mxSettingDialog',

@@ -33,7 +33,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
@@ -57,11 +57,17 @@
                     </div>
                 </div>
                 <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <div class="quote-content" v-if="hasQuote()">
+                <div class="quote-content" v-if="hasImgQuote()">
                     <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
                     </div>
                 </div>
+                <div class="quote-content" v-if="hasTextQuote()">
+                    <div class="quote-content-text">
+                    {{quoteName}} : {{quoteText}}
+                    </div>
+                </div>
+                
             </div>
             <div class="msg-info-others" v-else>
                 <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
@@ -93,7 +99,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
@@ -105,9 +111,12 @@
                     </div>
                     <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
                 </div>
-                <div class="quote-content" v-if="hasQuote()">
+                <div class="quote-content" v-if="hasImgQuote()">
                     <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
+                </div>
+                <div class="quote-content" v-if="hasTextQuote()">
+                    <div class="quote-content-text">{{quoteName}} : {{quoteText}}</div>
                 </div>
             </div>
         </div>
@@ -119,20 +128,16 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
+import { remote } from 'electron'
 import BenzAMRRecorder from 'benz-amr-recorder'
-import axios from "axios";
-
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services} from '../../packages/data/index.js'
 import confservice from '../../packages/data/conf_service.js'
-import {downloadGroupAvatar, generalGuid, Appendzero, fileMIMEFromType, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
-import { UserInfo, Message } from '../../packages/data/sqliteutil.js'
+import {fileMIMEFromType, FileUtil, getIconPath, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
+import { Message } from '../../packages/data/sqliteutil.js'
 import {ComponentUtil} from '../script/component-util.js'
 import { models } from '../../packages/data/models.js';
 import linkify from './linkify'
 import emoji from './emoji'
-import { getImgUrlByEvent } from '../../utils/commonFuncs'
-import {faceUtils} from '../../packages/core/Utils.js'
+import { getImgUrlByEvent, getTextByEvent } from '../../utils/commonFuncs'
 import VoIP from './VoIP'
 
 const MAX_WIDTH = 800;
@@ -154,12 +159,34 @@ export default {
     computed: {
         quoteUrl (){
             return getImgUrlByEvent(this.msg.event.content.quote_event)
+        },
+
+        quoteText(){
+            let text = getTextByEvent(this.msg.event.content.quote_event);;
+            return text;
         }
     },
     methods: {
-        hasQuote: function() {
+        hasQuote: function(){
             return  !!this.msg.event.content.quote_event
         },
+
+        hasImgQuote: function() {
+            let imgEvent = this.msg.event.content.quote_event;
+            if(imgEvent && imgEvent.content && imgEvent.content.msgtype === "m.image"){
+                return true;
+            }
+            return false;
+        },
+
+        hasTextQuote: function(){
+            let textEvent = this.msg.event.content.quote_event;
+            if(textEvent && textEvent.content && textEvent.content.msgtype === "m.text"){
+                return true;
+            }
+            return false;
+        },
+
         getMsgStateClass: function() {
             if(this.msg.event.content.msgtype != "m.text") {
                 return "fileMsgState";
@@ -172,37 +199,13 @@ export default {
             return this.msg._txnId ? this.msg._txnId : this.msg.event.event_id;
         },
         sendAgain: function() {
-            function checkPendingEvent(room, txnId) {
-                return Promise.all(room.getPendingEvents().filter(function(ev) {
-                    console.log("getPendingEvents is ", ev);
-                    return (ev._txnId && ev._txnId == txnId) && ev.status == "not_sent";
-                }))
-            }
-
             console.log("===sendAgain event is ", this.msg.event)
             var roomID = this.msg.event.room_id;
-            let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID);
-            this.msg.message_status = 1;
-            checkPendingEvent(theRoom, this.msg._txnId).then((pendingEvents) => {
-                console.log("get pending event is ", pendingEvents);
-                if(pendingEvents && pendingEvents.length > 0) {
-                    pendingEvents.map((pendingEvent) => {
-                        global.mxMatrixClientPeg.matrixClient.resendEvent(pendingEvent, theRoom).then((res) => {
-                            this.msg.message_status = 0;
-                        }, (err) => {
-                            this.msg.message_status = 2;
-                        })
-                    })
-                }
-                else {
-                    if(this.msg.event.content.msgtype != "m.text") {
-                        this.sendFile();
-                    }
-                    else {
-                        this.sendText();
-                    }
-                }
-            })
+            let theRoom = global.mxMatrixClientPeg.matrixClient.getRoom(roomID)
+            let pendingEvents = theRoom.getPendingEvents();
+            for(let event of pendingEvents){
+                global.mxMatrixClientPeg.matrixClient.resendEvent(event, theRoom);
+            }
         },
         transmitMsgId: function() {
             return "message-transmit-" + this.msg.event.event_id;
@@ -249,6 +252,11 @@ export default {
         },
         getUserIconSrc: function() {
             var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            if(this.msg.event.type == "m.call.hangup") {
+                if(this.msg.event.content.caller_id) {
+                    userId = this.msg.event.content.caller_id;
+                }
+            }
             var avater = this.$store.getters.getAvater(userId);
             if(avater.length == 0) {
                 return "../../../static/Img/User/user-40px@2x.png";
@@ -323,6 +331,28 @@ export default {
                 event:this.msg.event.content.quote_event
             });
         },
+
+        SaveFile(content, path, event_id, needOpen){
+                getFileBlob(content.info, this.matrixClient.mxcUrlToHttp(content.url), this.ProCallback)
+                .then((blob) => {
+                    let reader = new FileReader();
+                    reader.onload = function() {
+                        if(reader.readyState == 2) {
+                            var buffer = new Buffer(reader.result);
+                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
+                            ipcRenderer.send("save_file", path, buffer, event_id, needOpen);
+                        }
+                    }
+                    reader.readAsArrayBuffer(blob);
+                })
+
+            this.downloadingInterval = setInterval(() => {
+                this.showProgress = true;
+                this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
+                    // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
+            }, 200);
+        },
+
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
             let msgType = this.msg.msgtype;
@@ -361,33 +391,16 @@ export default {
                         return;
                     }
                     console.log("========= file ");
+                    if(this.isDownloading) {
+                        return;
+                    }
                     var distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                     var existLocalFile = await this.getFileExist();
                     this.checkingTmpPath = finalPath + "_tmp";
                     if(!fs.existsSync(existLocalFile)) {
-                        if(this.isDownloading) {
-                            return;
-                        }
                         this.isDownloading = true;
-                        getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
-                            .then((blob) => {
-                                let reader = new FileReader();
-                                reader.onload = function() {
-                                    if(reader.readyState == 2) {
-                                        var buffer = new Buffer(reader.result);
-                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
-                                        ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
-                                    }
-                                }
-                                reader.readAsArrayBuffer(blob);
-                            })
-
-                        this.downloadingInterval = setInterval(() => {
-                            this.showProgress = true;
-                            this.curPercent = parseInt(this.receivedLength*100/Number(this.contentLength))
-                                // console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
-                        }, 200);
+                        this.SaveFile(chatGroupMsgContent, finalPath, event.event_id, true);
                     }
                     else {
                         shell.openPath(existLocalFile);
@@ -484,7 +497,15 @@ export default {
                         title: this.transmitMsgTitle,
                         list: showMsgList
                     };
-                    ipcRenderer.send("showAnotherWindow", showMsgInfo, "TransmitMsgList");
+                    let width = 615;
+                    let height = 508;
+                    if(remote.process.platform == "darwin") {
+                        height = 470;
+                        width = 600;
+                    }
+                    ipcRenderer.send("createChildWindow", {type: "TransmitMsgList",
+                    size:{width:width,height: height},
+                    transMsgInfo: showMsgInfo})
                 }
             }
         },
@@ -649,14 +670,29 @@ export default {
                 return this.getFileIconThroughExt(ext);
             }
         },
-        downLoadImg: async function(iconPath) {
+        isFileSizeSame: function(size, localPath) {
+            let showfu = new FileUtil(localPath);
+            let showfileObj = showfu.GetUploadfileobj();
+
+            if(size != showfileObj.size) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        },
+        downLoadImg: async function(iconUrl) {
             const existLocalFile = await this.getFileExist();
-            if(fs.existsSync(existLocalFile)) return;
+            if(fs.existsSync(existLocalFile)) {
+                if(this.isFileSizeSame(this.msg.event.content.info && this.msg.event.content.info.size, existLocalFile)) {
+                    return;
+                }
+            }
             const chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             const event = this.msg.event;
             const distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
             const finalPath = path.join(distPath, chatGroupMsgContent.body);
-            getFileBlob(chatGroupMsgContent.info, iconPath)
+            getFileBlob(chatGroupMsgContent.info, iconUrl)
                 .then((blob) => {
                     let reader = new FileReader();
                     reader.onload = function() {
@@ -696,7 +732,7 @@ export default {
                 distUrl = this.msg.event.content.url;
             }
             if(!distUrl.startsWith('blob:')) {
-                let iconPath = this.matrixClient.mxcUrlToHttp(distUrl);
+                let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
                 this.downLoadImg(iconPath);
                 this.updateMsgImg();
                 return iconPath;
@@ -917,7 +953,7 @@ export default {
         },
         isShowThumbnail: function(){
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
-            if(chatGroupMsgContent.info && Math.max(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h) > 400 && chatGroupMsgContent.info.thumbnail_info && chatGroupMsgContent.info.thumbnail_url && chatGroupMsgContent.info.thumbnail_info.w && chatGroupMsgContent.info.thumbnail_info.h) {
+            if(chatGroupMsgContent.info && Math.min(chatGroupMsgContent.info.w, chatGroupMsgContent.info.h) > 400 && chatGroupMsgContent.info.thumbnail_info && chatGroupMsgContent.info.thumbnail_url && chatGroupMsgContent.info.thumbnail_info.w && chatGroupMsgContent.info.thumbnail_info.h) {
                 return true;
             }
             else {
@@ -1172,9 +1208,10 @@ export default {
             else if(chatGroupMsgType === "m.call.hangup") {
                 console.log("add new invite msg content ", this.msg.event.content)
                 this.callId = this.msg.event.content.call_id;
-                if(this.msg.event.content.isVideo) {
+                if(this.msg.event.content.isVideo != null) {
                     this.isVideo = this.msg.event.content.isVideo == true ? 1 : 0;
                     this.duration = this.msg.event.content.duration;
+                    this.hangUpReason = this.msg.event.content.reason;
                 }
                 this.generalVoipInfo();
             }
@@ -1231,11 +1268,31 @@ export default {
             }
         },
         MsgIsMine:function() {
-            if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
-                return true;
+            if(this.msg.event.type == "m.call.hangup") {
+                if(this.msg.event.content.caller_id) {
+                    if(this.msg.event.content.caller_id === this.$store.state.userId) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
             }
             else {
-                return false;
+                if((this.msg.sender ? this.msg.sender.userId : this.msg.event.sender) === this.$store.state.userId) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
         },
         MsgBelongUserImg: async function () {
@@ -1252,6 +1309,11 @@ export default {
             // var fromUserInfo = await UserInfo.GetUserInfo(this.msg.message_from_id);
 
             var userId = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
+            if(this.msg.event.type == "m.call.hangup") {
+                if(this.msg.event.content.caller_id) {
+                    userId = this.msg.event.content.caller_id;
+                }
+            }
             var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(userId);
             if(this.$store.getters.getShowName(userId) != fromUserName) {
                 this.$store.commit("setShowName", [userId, fromUserName]);
@@ -1505,6 +1567,9 @@ export default {
                             this.$store.commit("removeSendingEvents", this.msg);
                             this.msg.message_status = 0;
                             this.showState = false;
+
+                            let iconUrl = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
+                            this.downLoadImg(iconUrl);
                         }).catch((error) => {
                             console.log("error is ", error.errcode);
                             this.msg.message_status = 2;
@@ -1568,6 +1633,7 @@ export default {
             callId: '',
             VoipInfo: {},
             duration: -1,
+            hangUpReason: "",
             isDownloading: false,
             playingAudioId: '',
             decrypting: false,
@@ -1689,13 +1755,17 @@ export default {
             }, 500)
             var id = this.updateMsg[1];
             var localPath = this.updateMsg[0];
+            var needOpen = this.updateMsg[2];
 
             if(id != this.msg.event.event_id) {
+                if(!id && localPath.extname(localPath) != ".mp3") {
+                    shell.openPath(localPath);
+                }
                 return;
             }
 
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
-            if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file')
+            if(chatGroupMsgContent && chatGroupMsgContent.msgtype == 'm.file' && needOpen)
             {
                 shell.openPath(localPath);
             }
@@ -1798,7 +1868,7 @@ export default {
         width: 70%;
         float: left;
         display: block;
-        margin-left: 8px;
+        margin-left: 16px;
     }
 
     .my-file-progress {
@@ -2353,6 +2423,7 @@ export default {
 
     .msg-image {
         height: 400px;
+        border: 1px solid #dddddd;
     }
 
     .chat-msg-content-mine-file {
@@ -2489,6 +2560,14 @@ export default {
         .quote-content-img{
             width: 40px;
             height: 40px;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .quote-content-text{
+            font-size: 13px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #666666;
             background-repeat: no-repeat;
             background-size: cover;
         }

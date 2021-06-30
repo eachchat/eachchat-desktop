@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import Matrix from 'matrix-js-sdk';
 import {ComponentUtil} from '../../renderer/script/component-util.js';
+import log from 'electron-log';
 
 
 const audioPromises = {};
@@ -50,9 +51,10 @@ function pause(audioId) {
 
 
 function _setCallState(call, roomId, status) {
-    console.log(
-        `Call state in ${roomId} changed to ${status} (${call ? call.call_state : "-"})`,
-    );
+    // console.log(
+    //     `Call state in ${roomId} changed to ${status} (${call ? call.call_state : "-"})`,
+    // );
+    console.log("======= add call ", roomId);
     global.mxMatrixClientPeg.addCall(roomId, call);
 
     if (status === "ringing") {
@@ -66,30 +68,62 @@ function _setCallState(call, roomId, status) {
     }
 }
 
+async function updateTrayNotice() {
+    let calls = global.mxMatrixClientPeg.getCall();
+    let trayNoticeInfo = {};
+
+    console.log("===== calls is ", calls);
+    for(var k in calls) {
+        let checkCall = calls[k];
+        console.log("updateTrayNotice ", checkCall);
+        if(checkCall && checkCall.state && checkCall.state == "ringing") {
+            let noticeType = "voice";
+            if(checkCall && checkCall.type == "video") {
+                noticeType = "video";
+            }
+    
+            let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(checkCall.roomId);
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+            
+            let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+            let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            if(!distUrl || (distUrl && distUrl == '')) {
+                distUrl = "./static/Img/User/user-40px@2x.png";
+            }
+            let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+    
+            let trayNoticeObj = {
+                unreadCount: 0,
+                imgUrl: distUrl,
+                chatName: showName,
+                roomId: checkRoom.roomId,
+                notictType: noticeType,
+                callStat: checkCall.state
+            }   
+            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+        }
+    }
+    ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
+}
+
 function _setVideoCallListeners(call, videoCall) {
     call.on("error", function(err) {
-        if(call.type === "video"){
-            console.error("Call error:", err);
-        }  
-        else{
-            videoCall.voiceCallErrorCallback(err);
-        }
+        console.error("Call error:", err);
+        log.info("Call error:", err)
     });
     call.on("hangup", function() {
-        if(call.type === "video"){
-            _setCallState(undefined, call.roomId, "ended");
-            videoCall.afterCallState();
-        }
-        else{
-            console.log("call is ", call);
-            // console.log("====to hangup and call state is ", call.call_state);
-            videoCall.afterCallState();
-        }
+        console.log("======= hangup ", updateTrayNotice);
+        log.info("======= hangup callid:", call.roomId)
+        updateTrayNotice();
+        videoCall.afterCallState();
+        _setCallState(undefined, call.roomId, "ended");
+        ipcRenderer.send("CallingState", 'free');
     });
     // map web rtc states to dummy UI state
     // ringing|ringback|connected|ended|busy|stop_ringback|stop_ringing
     call.on("state", function(newState, oldState) {
-        console.log(newState, oldState)
+        console.log("=========== callId is ", call.roomId, " newstate is ", newState, " oldstate is ", oldState)
+        log.info("=========== callId is ", call.roomId, " newstate is ", newState, " oldstate is ", oldState)
         if (newState === "ringing") {
             _setCallState(call, call.roomId, "ringing");
             pause("ringbackAudio");
@@ -102,7 +136,7 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(undefined, call.roomId, "ended");
             pause("ringbackAudio");
             play("callendAudio");
-            
+            ipcRenderer.send("CallingState", 'free');
         } else if (newState === "ended" && oldState === "invite_sent" &&
                 (call.hangupParty === "remote" ||
                 (call.hangupParty === "local" && call.hangupReason === "invite_timeout")
@@ -118,9 +152,12 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(call, call.roomId, "stop_ringing");
             pause("ringbackAudio");
         } else if (newState === "connected") {
+            ipcRenderer.send("CallingState", 'busy');
             _setCallState(call, call.roomId, "connected");
             videoCall.connectedState(call.type);
             pause("ringbackAudio");
+            console.log("================connected ", updateTrayNotice);
+            updateTrayNotice();
         }else {
             console.log("Final undeal state");
         }
@@ -173,13 +210,12 @@ class mxVoIP{
 
     onMatrixSync(){
         global.mxMatrixClientPeg.matrixClient.on("sync", (state, prevState, data) => {
-            console.log("state ", state);
-            console.log("prevState ", prevState);
-            console.log("data ", data);
           switch(state){
             case "PREPARED":
                 global.mxMatrixClientPeg.matrixClient.setGlobalErrorOnUnknownDevices(false);
-                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", this.handleComingVoip);
+                global.mxMatrixClientPeg.matrixClient.on("Call.incoming", (call) => {
+                    this.handleComingVoip(call);
+                });
               break;
             default:
               break;
@@ -187,27 +223,35 @@ class mxVoIP{
         })
     }
 
-    async handleComingVoip(call) {
-        console.log("coming call call is ", call);
-        console.log("coming call call state is ", call.state);
-        let isCalling = false;
-        let exitCalls = global.mxMatrixClientPeg.getCall();
-        for(let i = 0; i < exitCalls.length; i++) {
-            let checkCall = exitCalls[i];
-            if(checkCall.state == "ended") {
-                global.mxMatrixClientPeg.removeCall(checkCall.roomId);
-            }
-            else {
-                isCalling = true;
+    callingCall(){
+        let calls = global.mxMatrixClientPeg.getCall();
+        for(var k in calls) {
+            let checkCall = calls[k];
+            if(checkCall && checkCall.state && checkCall.state != "ended") {
+                return checkCall;
             }
         }
-        if(isCalling) {
-            // I am busy now.
-            call.hangup(call.roomId);
+    }
+
+    async handleComingVoip(call) {
+        console.log("=======inconing call ", call);
+        let checkCall = this.callingCall();
+        if(call && checkCall && checkCall.callId == call.callId) {
             return;
         }
+        
+        let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
+        const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+        
+        call.setCallerId(distUserId);
 
-        if(call.state == "ended") return;
+        if(checkCall) {
+            // I am busy now.
+            console.log("to hangup call room id ", call.roomId);
+            call.hangup("user_busy");
+            console.log("hanguped ", call.roomId);
+            return;
+        }
         
         global.mxMatrixClientPeg.addCall(call.roomId, call);
         let noticeType = "voice";
@@ -215,62 +259,35 @@ class mxVoIP{
             noticeType = "video";
         }
 
-        let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
-        const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
-        
         let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
         let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
         if(!distUrl || (distUrl && distUrl == '')) {
             distUrl = "./static/Img/User/user-40px@2x.png";
         }
         let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-
-        if(noticeType === 'video'){
-            _setVideoCallListeners(call, global.viopChat.videochat);
-            let trayNoticeObj = {
-                unreadCount:0,
-                imgUrl: distUrl,
-                chatName: showName,
-                roomId: checkRoom.roomId,
-                notictType: noticeType
-            }   
-            let trayNoticeInfo = {};
-            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-            console.log("====ru show notice ");
-            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
-        }
-        else{
-            _setVideoCallListeners(call, global.viopChat.videochat);
-            let trayNoticeObj = {
-                unreadCount:0,
-                imgUrl: distUrl,
-                chatName: showName,
-                roomId: checkRoom.roomId,
-                notictType: noticeType
-            }   
-            let trayNoticeInfo = {};
-            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-            console.log("====ru show notice ");
-            ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
-        }
+        _setVideoCallListeners(call, global.viopChat.videochat);
+        _setCallState(call, call.roomId, "ringing");
+        let trayNoticeObj = {
+            unreadCount:0,
+            imgUrl: distUrl,
+            chatName: showName,
+            roomId: checkRoom.roomId,
+            notictType: noticeType
+        }  
+        let trayNoticeInfo = {};
+        trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+        console.log("====ru show notice ");
+        ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
     }
 
     hangUp(room_id, time) {
-        try{
-            if (global.mxMatrixClientPeg.getCall(room_id)) {
-                console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
-                global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
-                global.mxMatrixClientPeg.getCall(room_id).hangup();
-                
-                console.log("====to hangup and call state is ", global.mxMatrixClientPeg.getCall(room_id).call_state);
-            }
+        if (room_id && global.mxMatrixClientPeg.getCall(room_id)) {
+            console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
+            global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
+            global.mxMatrixClientPeg.getCall(room_id).hangup();
+            global.mxMatrixClientPeg.removeCall(room_id);
         }
-        catch(e) {
-            console.log("to hang up err ", e);
-        }
-        global.mxMatrixClientPeg.removeCall(room_id);
-        ipcRenderer.emit("close");
-        this.updateTrayNotice();
+        updateTrayNotice();
     }
 
     muteVoice(room_id){
@@ -294,10 +311,12 @@ class mxVoIP{
             return;
         }
         const call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, room_id);
+        call.setCallerId(global.mxMatrixClientPeg.matrixClient.getUserId());
         console.log("====to create call is ", call);
         console.log("====to create call state is ", call.state);
         global.mxMatrixClientPeg.addCall(room_id, call);
         _setVideoCallListeners(call, global.viopChat.videochat);
+        ipcRenderer.send("CallingState", 'busy');
         call.placeVoiceCall();
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
@@ -311,10 +330,12 @@ class mxVoIP{
         let bSupportVoip = global.mxMatrixClientPeg.matrixClient.supportsVoip();
         console.log("support voip", bSupportVoip)
         let call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, roomInfo.roomID);
+        call.setCallerId(global.mxMatrixClientPeg.matrixClient.getUserId());
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
         _setVideoCallListeners(call, videochat);
+        ipcRenderer.send("CallingState", 'busy');
         call.placeVideoCall();
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
@@ -323,66 +344,33 @@ class mxVoIP{
 
     answerVideoChat(room_id, videochat){
         let call = global.mxMatrixClientPeg.getCall(room_id);
-        call.answer();
         let largeWindow = document.getElementById("large-window");
         let smallWindow = document.getElementById("small-window");
         let remoteAudio = document.getElementById("remoteAudio");
         call.setLocalVideoElement(smallWindow);
         call.setRemoteVideoElement(largeWindow);
         call.setRemoteAudioElement(remoteAudio);
-        this.updateTrayNotice();
-    }
-
-    async updateTrayNotice() {
-        let calls = global.mxMatrixClientPeg.getCall();
-        let trayNoticeInfo = {};
-        for(let i = 0; i < calls.length; i++) {
-            let checkCall = calls[i];
-            if(checkCall.state == "ringing") {
-                let noticeType = "voice";
-                if(checkCall && checkCall.type == "video") {
-                    noticeType = "video";
-                }
-        
-                let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(checkCall.roomId);
-                const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
-                
-                let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
-                let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-                if(!distUrl || (distUrl && distUrl == '')) {
-                    distUrl = "./static/Img/User/user-40px@2x.png";
-                }
-                let showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-        
-                let trayNoticeObj = {
-                    unreadCount: 0,
-                    imgUrl: distUrl,
-                    chatName: showName,
-                    roomId: checkRoom.roomId,
-                    notictType: noticeType
-                }   
-                trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
-            }
-        }
-        ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
+        call.answer();
+        updateTrayNotice();
     }
 
     answerVoiceChat(room_id) {
         let call = global.mxMatrixClientPeg.getCall(room_id);
         if(call) {
-            call.answer();
             let largeWindow = document.getElementById("large-window");
             let smallWindow = document.getElementById("small-window");
             let remoteAudio = document.getElementById("remoteAudio");
             call.setLocalVideoElement(smallWindow);
             call.setRemoteVideoElement(largeWindow);
             call.setRemoteAudioElement(remoteAudio);
-            this.updateTrayNotice();
+            call.answer();
+            updateTrayNotice();
         }
     }
 
 }
 
 export{
-    mxVoIP
+    mxVoIP,
+    pause
 }

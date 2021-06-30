@@ -395,7 +395,6 @@ export default {
         },
 
         getUserImg: async function (userInfo, type){
-            //console.log("userinfo-tip getuserimg this.userInfo ", this.userInfo);
             if(userInfo == null || userInfo.matrix_id == undefined) {
                 return "";
             }
@@ -522,6 +521,7 @@ export default {
                 this.bOrganizeShow = true;
                 this.bContactRoomShow = false;
                 this.bInviteRoomShow = false;
+                global.services.common.UpdateUserinfo();
             }
             else if(department.display_name == this.contactMenuName){
                 this.bOrganizeShow = false;

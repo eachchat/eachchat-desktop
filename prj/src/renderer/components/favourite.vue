@@ -68,7 +68,6 @@
     </el-container>
 </template>
 <script>
-import listHeader from './listheader';
 import favouriteList from './favourite-list'
 import winHeaderBar from './win-header-login.vue';
 import {ipcRenderer} from 'electron'
@@ -141,7 +140,6 @@ export default {
         }
     },
     components: {
-        listHeader,
         favouriteList,
         winHeaderBar,
         eSearch

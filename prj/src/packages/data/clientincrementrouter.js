@@ -1,12 +1,6 @@
 import { models } from './models.js'
 import { servicemodels } from './servicemodels.js'
-import { sqliteutil, Group, UserInfo, Department } from './sqliteutil.js'
-import * as fs from 'fs-extra'
-//import { services } from '../../packages/data'
-import {downloadGroupAvatar, FileUtil} from '../../packages/core/Utils.js'
-import confservice from './conf_service.js'
-import {services} from './index.js';
-import * as path from 'path'
+import { UserInfo, Department } from './sqliteutil.js'
 class BaseIncrement{
     constructor(type, item, service){
         this.type = type;
