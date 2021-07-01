@@ -305,6 +305,7 @@ import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
 import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
+import { checkIsEmptyRoom } from "../../packages/data/Rooms";
 export default {
   components: {
     ChatPage,
@@ -2944,26 +2945,12 @@ export default {
         return "chat-groupList-name-" + groupId;
       }
     },
-    checkIsEmptyRoom(chatGroupItem) {
-      let checkMxMember = [];
-      for(let key in chatGroupItem.currentState.members) {
-          // let isAdmin = xie1.currentState.members[key].powerLevel == 100;
-          let o = chatGroupItem.currentState.members[key];
-          if (o.membership != 'leave') checkMxMember.push(o);
-      }
-      if(checkMxMember.length == 1) {
-          var distMember = checkMxMember[0];
-          if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-              return true;
-          }
-      }
-      if(checkMxMember.length == 0) {
-        return true;
-      }
-    },
     getShowGroupName(chatGroupItem) {
       if(chatGroupItem.name.startsWith("Empty room")) {
-        if(this.checkIsEmptyRoom(chatGroupItem)) {
+        if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+          this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        }
+        if(checkIsEmptyRoom(chatGroupItem, this.selfUserId)) {
           return "空聊天室";
         }
       }

@@ -42,7 +42,7 @@
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :ref = "item.event.event_id"  :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="!isDm" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
+                            <imessage :ref = "item.event.event_id"  :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="!isDm" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
@@ -194,6 +194,7 @@ import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../.
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
+import { checkIsEmptyRoom } from "../../packages/data/Rooms";
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
@@ -299,25 +300,9 @@ export default {
             this.SetToBottom();
             this.haveNewMsg = false;
         },
-        checkIsEmptyRoom() {
-            let checkMxMember = [];
-            for(let key in this.curChat.currentState.members) {
-                let o = this.curChat.currentState.members[key];
-                if (o.membership != 'leave') checkMxMember.push(o);
-            }
-            if(checkMxMember.length == 1) {
-                var distMember = checkMxMember[0];
-                if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-                    return true;
-                }
-            }
-            if(checkMxMember.length == 0) {
-                return true;
-            }
-        },
         getShowGroupName() {
             if(this.curChat && this.curChat.name && this.curChat.name.startsWith("Empty room")) {
-                if(this.checkIsEmptyRoom(this.curChat)) {
+                if(checkIsEmptyRoom(this.curChat, this.userID)) {
                     return "空聊天室";
                 }
             }
@@ -1712,17 +1697,6 @@ export default {
         cleanEditor: function() {
             this.editor.container.getElementsByClassName("ql-editor")[0].innerHTML = "";
         },
-        insertPic: function() {
-            // File
-            if(this.canSelecteFile) {
-                this.canSelecteFile = false;
-                ipcRenderer.send('open-image-dialog', 'openFile');
-            }
-            if(!this.ipcPicInited){
-                this.ipcPicInited = true;
-                ipcRenderer.on('selectedImageItem', this.nHandleFiles);
-            }
-        },
         insertFiles: function() {
             if(this.canSelecteFile) {
                 this.canSelecteFile = false;
@@ -1781,38 +1755,13 @@ export default {
                 }
             }
         },
-        getDistUidThroughUids: function(uids) {
-            if(uids.length > 2) {
-                return "";
-            }
-            else if(uids.length == 1) {
-                return uids[0];
-            }
-            else {
-                if(uids[0] == this.curUserInfo.id) {
-                    return uids[1];
-                }
-                else {
-                    return uids[0];
-                }
-            }
-        },
-        sendAgain: async function(retryMsg) {
-            var sendBody = retryMsg.event.content.body;
-            try{
-                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, retryMsg._txnId)
-            }
-            catch(error) {
-                console.log("error is ", error);
-            }
-        },
         SendFiles: function(fileinfos) {
             for(let i=0;i<fileinfos.length;i++) {
-                this.newSendFile(fileinfos[i]);
+                this.pushFileMsg(fileinfos[i]);
             }
             this.closeSendFileDlg();
         },
-        newSendFile: async function(fileinfo) {
+        pushFileMsg: async function(fileinfo) {
             var showfileObj = undefined;
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
@@ -2388,55 +2337,6 @@ export default {
         msgCheckBoxId: function(curMsg) {
             return "message-checkbox-" + curMsg.event.event_id;
         },
-        msgCanNotCheck(curMsg) {
-            var content = curMsg.getContent();
-            if(content.msgtype == "m.audio") {
-                return true;
-            }
-            return false;
-        },
-        msgSelectOrNotClassName: function(curMsg) {
-            //class="msgContent"
-            var hasSelected = false;
-            for(let i=0;i<this.selectedMsgs.length;i++) {
-                if(this.selectedMsgs[i].curMsg.event.event_id == curMsg.event.event_id) {
-                    this.selectedMsgs.splice(i, 1);
-                    hasSelected = true;
-                    break;
-                }
-            }
-            if(hasSelected) {
-                return "msgContentActive";
-            }
-            else {
-                return "msgContent";
-            }
-        },
-        groupIsInFavourite(groupInfo) {
-            if(groupInfo.status == 0) {
-                return false;
-            }
-            else {
-                if(groupInfo.status.substr(4, 1) == "1") {
-                    return true;
-                }
-                return false;
-            }
-        },
-        groupIsTop(groupInfo) {
-            // console.log("groupInfo.status ", groupInfo.status)
-            // console.log("groupInfo.status.substring(6, 1) = ", groupInfo.status.substr(6, 1))
-            // console.log("groupInfo.status.substring(6, 1) == 1 ", groupInfo.status.substr(6, 1) == 1)
-            if(groupInfo.status == 0) {
-                return false;
-            }
-            else {
-                if(groupInfo.status.substr(6, 1) == "1") {
-                    return true;
-                }
-                return false;
-            }
-        },
         More: async function() {
             console.log('check chat', this.curChat);
             this.groupInfo = {};
@@ -2464,9 +2364,7 @@ export default {
                 if (members[key].powerLevel === 100) ownerId = key;
             }
             console.log("this.curChat ", this.curChat);
-            // console.log("this.isTop ", this.groupIsTop(this.curChat))
             // console.log("this.isSlience ", this.groupIsSlience(this.curChat))
-            // console.log("this.isFav ", this.groupIsInFavourite(this.curChat))
             idsList = Object.keys(this.curChat.currentState.members);
             console.log('isOwner!!!!!!', isOwner);
             const topicEvent = this.curChat.currentState.getStateEvents("m.room.topic", "");
@@ -2509,9 +2407,9 @@ export default {
                 "groupId": this.curChat.roomId, //this.curChat.group_id,
                 "isGroup": true, //isGroup,
                 "isOwner": isOwner,
-                "isTop": false, //this.groupIsTop(this.curChat),
+                "isTop": false,
                 "isSlience": false, //this.groupIsSlience(this.curChat),
-                "isFav": false, //this.groupIsInFavourite(this.curChat),
+                "isFav": false,
                 "ownerId": ownerId, //this.curChat.owner,
                 "groupType": 100, //this.curChat.group_type,
                 "isSecret": false, // (this.curChat.group_type == 102 && this.curChat.key_id != undefined && this.curChat.key_id.length != 0)
@@ -2529,14 +2427,6 @@ export default {
             this.showGroupInfoTips = true; //todo tips
             this.cleanCache = false;
             console.log("more more more ", this.groupInfo)
-        },
-        compareMsg: function(){
-            return function(a, b)
-            {
-                var value1 = a.sequence_id;
-                var value2 = b.sequence_id;
-                return value2 - value1;
-            }
         },
         jumpToEvent: function(eventId, distChat) {
             let div = this.getMsgListElement();
