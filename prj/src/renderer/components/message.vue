@@ -1552,10 +1552,8 @@ export default {
         },
         sendFile: async function() {
             var showfileObj = this.msg.fileObj;
-
             var roomID = this.msg.event.room_id;
             if(this.msg.event.content.msgtype == 'm.image'){
-                // this.SendImage(showfileObj, fileResult, stream)
                 this.infoForImageFile(roomID, showfileObj).then((imageInfo) => {
                     extend(this.msg.event.content.info, imageInfo);
                     this.uploadFile(this.msg.event.room_id, showfileObj, this.onUploadProgress).then((ret) => {
@@ -1799,26 +1797,6 @@ export default {
         },
         updateUser: function() {
             this.MsgBelongUserImg();
-            return;
-            var state = this.updateUser[0];
-            var stateInfo = this.updateUser[1];
-            var id = this.updateUser[2];
-            var localPath = this.updateUser[3];
-
-            if(id == this.msg.message_from_id) {
-                var userIconElementId = this.getUserIconId();
-                var userIconElement = document.getElementById(userIconElementId);
-                if(fs.existsSync(localPath)){
-                    var showfu = new FileUtil(localPath);
-                    let showfileObj = showfu.GetUploadfileobj();
-                    let reader = new FileReader();
-                    reader.readAsDataURL(showfileObj);
-                    reader.onloadend = () => {
-                        userIconElement.setAttribute("src", reader.result);
-                    }
-                    return;
-                }
-            }
         },
         updateMsgStatus: function() {
             // console.log("updateMsgstatus ", this.updateMsgStatus);

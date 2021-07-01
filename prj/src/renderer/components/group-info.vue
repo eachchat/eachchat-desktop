@@ -135,7 +135,7 @@
                     src="../../../static/Img/Chat/add-20px@2x.png" 
                     @click="mxAddMember"
                     v-if="showGroupInfo.userLevel >= showGroupInfo.totalLevels.canInvite"
-                > <!--@click="showAddMembers"-->
+                >
             </div>
         </div>
         <!-- <div :class="groupListViewClassName()" v-if="isGroup && !isDm"> -->
@@ -947,9 +947,7 @@ export default {
             // console.log("emit openUserInfoTip ", tipInfos);
             this.$emit("openUserInfoTip", tipInfos);
         },
-        showAddMembers: function() {
-            this.$emit("showAddMembers", this.memberList);
-        },
+
         inputChanget: function(event) {
             console.log(this.newGroupName)
             if(this.newGroupName.length > 25) {

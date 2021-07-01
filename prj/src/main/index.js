@@ -2,9 +2,8 @@ import { app, nativeTheme, BrowserWindow, Tray, Menu, dialog, shell, screen, Dow
 import axios from "axios"
 import fs from 'fs-extra'
 import * as path from 'path'
-import {makeFlieNameForConflict} from '../packages/core/Utils.js';
 import {createChildWindow, ChildWindow} from './childwindow.js'
-import {callingState, ipcFileFunc} from "./ipcfunc.js"
+import {callingState, ipcMainFunc} from "./ipcfunc.js"
 
 app.allowRendererProcessReuse = false;
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
@@ -121,8 +120,6 @@ function setImgToFlashIcon() {
     console.log("setImgOfFlashIcon Exception and details is ", e);
   }
 }
-
-let resizableValue = false;
 
 const Bobolink = require('bobolink');
 const queue = new Bobolink({
@@ -295,16 +292,8 @@ ipcMain.on('showLoginBindView', function(){
   showMain();
 })
 
-ipcMain.on('checkClick', function(event, action, ids) {
-  if(!mainWindow) return;
-  mainWindow.show();
-  mainWindow.focus();
-  if(action == "JumpToDistChat") {
-    mainWindow.webContents.send('jumpToChat', ids[0]);
-  }
-  else if(action == "ClearAll"){
-    mainWindow.webContents.send('clearAll', ids);
-  }
+ipcMain.on('checkClick', function(event, action, ids){
+  ipcMainFunc.checkClick(event, action, ids, mainWindow);
 })
 
 function calcTrayNoticePosition() {
@@ -440,57 +429,11 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
 });
 
 ipcMain.on('setAutoRun', function(event, isAutoRun) {
-  app.setLoginItemSettings({
-    openAtLogin: isAutoRun,
-    openAsHidden: isAutoRun,
-  })
+  ipcMainFunc.setAutoRun(event, isAutoRun);
 });
 
 ipcMain.on('showTransTmpWindow', function(event, msgListInfo, path) {
-  var title = "";
-  var tmp = undefined;
-  var width = 615;
-  var height = 508;
-  if(process.platform == "darwin") {
-    height = 470;
-    width = 600;
-  }
-  if(path == "historyMsgList") {
-    title = "聊天记录";
-  }
-  else if(path == "fileList") {
-    title = "文件列表";
-  }
-  else if(path == "searchMessageList") {
-    title = "聊天记录";
-  }
-  else if(path == "searchFilesList") {
-    title = "文件列表";
-  }
-  else if(path == "TransmitMsgList") {
-    title = msgListInfo.title;
-  }
-  tmp = new BrowserWindow({
-    height: height,
-    //useContentSize: true,
-    resizable: false,
-    width:width,
-    webPreferences: {
-      webSecurity:false,
-      nodeIntegration:true,
-      enableRemoteModule: true
-    },
-    frame:true,
-    title:title
-  })
-  const sonPageWinURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/#/` + path
-  : `file://${__dirname}/index.html#` + path;
-  tmp.loadURL(sonPageWinURL);
-  tmp.webContents.on('did-finish-load', function() {
-    tmp.webContents.send("msgListInfo", msgListInfo.list);
-  });
-  tmp.show();
+  ipcMainFunc.showTransTmpWindow(event, msgListInfo, path);
 });
 
 ipcMain.on("transmitFromSoloDlg", function(event, transmitInfoStr) {
@@ -600,48 +543,7 @@ ipcMain.on("flashIcon", (event, title, contnet) => {
       setImgToNormalIcon();
     }
   }, 500);
-
-  // if(!mainWindow.isFocused()) {
-  //   if(notification != null) {
-  //     notification.close();
-  //   }
-  //   notification = new Notification({
-  //     title: title,
-  //     body: contnet,
-  //     icon: path.join(__dirname, notificationIco),
-  //     sound: path.join(__dirname, soundPath)
-  //   })
-  //   notification.show();
-  //   setTimeout(() => {
-  //     notification.close();
-  //   }, 4000)
-  //   notification.on("click", () => {
-  //     clearFlashIconTimer();
-  //     setImgToNormalIcon();
-  //     mainWindow.show();
-  //   })
-  // }
-
 });
-
-function downloadExist(distTemp) {
-  try{
-    var state = fs.statSync(distTemp);
-    if(state && state.atime) {
-      var curTimeMSeconds = new Date().getTime();
-      var fileATimeMSeconds = state.atime.getTime();
-      if(curTimeMSeconds - fileATimeMSeconds < 1000 * 5) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    }
-  }
-  catch(error) {
-    return false;
-  }
-}
 
 function showMain() {
   mainWindow.show();
@@ -656,146 +558,29 @@ function clearFlashIconTimer() {
   }
 }
 
-const downloadingList = [];
 
 ipcMain.on("updateContact", function(event, args){
   event.sender.send("updateContact")
 })
 
-ipcMain.on("export_key", function(event, args) {
-  console.log("========================= ", args);
-  var theKey = args[0];
-  var thePath = args[1];
-  var distpath = thePath;
-  // const blob = new Blob([theKey], {
-  //     type: 'text/plain;charset=us-ascii',
-  // });
-  var buffer = theKey;
-  console.log("args is ", buffer);
-  var distPathTmp = distpath + '_tmp';
-  fs.writeFile(distPathTmp, buffer, async err => {
-    if(err) {
-      console.log("ERROR ", err.message)
-      event.sender.send("ERROR", err.message);
-    }
-    else {
-      var finalName = await makeFlieNameForConflict(distpath);
-      console.log("get final name ", finalName)
-      fs.renameSync(distPathTmp, finalName);
-      event.sender.send("exportSuc");
-    }
-  })
+ipcMain.on("export_key", function(event, args){
+  ipcMainFunc.exportKey(event, args);
 })
 
 ipcMain.on('open-export-dialog', function(event) {
-  dialog.showOpenDialog(mainWindow,{
-    title: "导出到",
-    properties: ["openDirectory"]
-  }).then(files => {
-    console.log("======files is ", files)
-    event.sender.send('exportPath', files);
-  })
+  ipcMainFunc.openExportDialog(event, mainWindow);
 });
 
 ipcMain.on('open-download-recoveryKey-dialog', function(event) {
-  dialog.showOpenDialog(mainWindow,{
-    title: "导出到",
-    properties: ["openDirectory"]
-  }).then(files => {
-    console.log("======files is ", files)
-    event.sender.send('downloadRecoveryKeyPath', files);
-  })
+  ipcMainFunc.openDownloadRecoveryKeyDialog(event, mainWindow);
 });
 
 ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen){
-  ipcFileFunc.SaveFile(event, path, buffer, eventId, needOpen);
+  ipcMainFunc.SaveFile(event, path, buffer, eventId, needOpen);
 });
 ipcMain.on("get_save_filepath", function(event){
-  ipcFileFunc.GetSaveFilepath(mainWindow, event);
+  ipcMainFunc.GetSaveFilepath(mainWindow, event);
 });
-
-function downloadFile(event, arg) {
-  return function f() {
-    return new Promise(resolve => {
-      // console.log("args is ", arg);
-      var timelineID = arg[0];
-      var token = arg[1];
-      var hostname = arg[2];
-      var port = arg[3];
-      var distPath = arg[4];
-      var distTemp = distPath + "_tmp";
-      var needOpen = arg[5]; 
-      var originalPath = arg[6];
-      var fileSize = arg[7];
-      var fileUrl = arg[8];
-      var baseURL = hostname;
-
-      if(downloadExist(distTemp)) {
-        console.log("distTemp is downloading ", distTemp);
-        return;
-      }
-    
-      if (typeof port == "number") {
-        port = port;
-      }
-    
-      var sender = axios.create({
-        baseURL: baseURL + ":" + String(port)
-      });
-    
-      var path = "/api/services/file/v1/dfs/download/" + String(timelineID);
-      var headers = {
-        Authorization: "Bearer " + token,
-        "File-Size": fileSize,
-      };
-      if(fileUrl.length != 0) {
-        headers["Encryption-File"] = fileUrl;
-      }
-      var appendix = {
-        timeout: 1000 * 60 * 2,
-        responseType: "stream"
-      };
-    
-      var config = Object.assign({
-        headers: headers,
-      }, appendix);
-    
-      sender.get(path, config)
-        .then(function (ret) {
-          // console.log("sender get is ", ret);
-          ret.data.pipe(fs.createWriteStream(distTemp))
-          .on('finish', async function() {
-            // console.log("finished ")
-            try{
-              // if(fs.existsSync(distPath)) {
-              //   // fs.unlinkSync(distPath);
-              //   resolve(arg);
-              // }
-              var finalName = await makeFlieNameForConflict(originalPath);
-              // console.log("get final name ", finalName)
-              fs.renameSync(distTemp, finalName);
-              if(needOpen) {
-                shell.openExternal(finalName);
-              }
-              // console.log("finalName is ", finalName);
-              // let a = (new Date()).getTime();
-              // console.log(countTmp + "~" + (a - timeTmp) + "： downloadFile distPath is ", distPath);
-              // timeTmp = a;
-              // countTmp += 1;
-              event.sender.send('updateMsgFile', [true, '', timelineID, finalName]);
-              resolve(true);
-            }
-            catch(e) {
-              console.log("rename file failed and details is ", e);
-            }
-          });
-        })
-        // .catch(function(ret){
-        //   console.log("9999999999 downloadfile exception is ", ret);
-        // })
-    })
-  }
-}
 
 let updateVersion = false;
 let updateCancel = false;
@@ -811,11 +596,11 @@ ipcMain.on("intallUpgradePackage", function(event, distPath){
     console.log(distPath)
     shell.openPath(distPath);
   }
-  else//(process.platform == 'linux')
+  else{
     shell.showItemInFolder(distPath);
-  
-  clickQuit = true;
+  }
   app.quit();
+  clickQuit = true;
 })
 
 ipcMain.on("toUpgradePackage", function(event, arg) {
@@ -896,224 +681,6 @@ ipcMain.on("toUpgradePackage", function(event, arg) {
     console.log("iiiiiiiiiiiiii ", err)
   }
 })
-
-ipcMain.on("download-file", function(event, arg) {
-  // [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath]
-  // console.log("get download file and put queue ", arg);
-  queue.put(downloadFile(event, arg));
-});
-
-function downloadAvarar(event, arg) {
-  return function f() {
-    return new Promise(resolve => {
-      // console.log("args is ", arg);
-      var baseURL = arg[0];
-      var groupId = arg[1];
-      // console.log("downloadingList is ", downloadingList);
-      var token = arg[2];
-      var distPath = arg[3];
-      var distTemp = distPath + "_tmp";
-      // console.log("distPath is ", distPath);
-      if(downloadExist(distTemp)) {
-        console.log("distTemp is downloading ", distTemp);
-        return;
-      }
-    
-      if(downloadingList.indexOf(baseURL) != -1){
-        return;
-      }
-      downloadingList.push(baseURL);
-      var headers={Authorization:"Bearer " + token};
-      var appendix = {
-              timeout: 35000,
-              responseType: "stream"
-          };
-      var config = Object.assign({
-        headers: headers,
-      }, appendix);
-      axios.get(baseURL,config)
-        .then(function (ret) {
-          ret.data.pipe(fs.createWriteStream(distTemp)
-            .on('finish', function() {
-              try {
-                if(fs.existsSync(distPath)) {
-                  // fs.unlinkSync(distPath);
-                  resolve(true);
-                }
-                fs.renameSync(distTemp, distPath);
-                var index = downloadingList.indexOf(baseURL);
-                downloadingList.splice(index, 1);
-                // let a = (new Date()).getTime();
-                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadAvarar distPath is ", distPath);
-                // timeTmp = a;
-                // countTmp += 1;
-                event.sender.send('updateGroupImg', [true, '', groupId, distPath]);
-                resolve(true);
-              }
-              catch(e) {
-                console.log("rename file failed and details is ", e);
-              }
-            }));
-        });
-    }).then(ret => {
-      console.log("====ret is ", ret);
-    });
-  };
-}
-
-function downloadImage(event, arg) {
-  return function f() {
-    return new Promise(resolve => {
-      console.log("download-image arg is ", arg);
-      var timelineID = arg[0];
-      var token = arg[1];
-      var hostname = arg[2];
-      var port = arg[3];
-      var distPath = arg[4];
-      var distTemp = distPath + "_tmp";
-      var thumbType = arg[5];
-      var needOpen = arg[6];
-      var secretUrl = arg[7];
-      var baseURL = hostname;
-
-      if(downloadExist(distTemp)) {
-        console.log("distTemp is downloading ", distTemp);
-        return;
-      }
-    
-      if (typeof port == "number") {
-        port = port;
-      }
-    
-      var sender = axios.create({
-        baseURL: baseURL + ":" + String(port)
-      });
-    
-      var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
-      var headers = {
-        Authorization: "Bearer " + token
-      };
-      if(secretUrl.length != 0) {
-        headers["Encryption-File"] = secretUrl;
-      }
-      var appendix = {
-        timeout: 35000,
-        responseType: "stream"
-      };
-    
-      var config = Object.assign({
-        headers: headers,
-      }, appendix);
-    
-      sender.get(path, config)
-        .then(function (ret) {
-          // console.log("sender get is ", ret);
-          ret.data.pipe(fs.createWriteStream(distTemp)
-            .on('finish', function() {
-              try{
-                if(fs.existsSync(distPath)) {
-                  // fs.unlinkSync(distPath);
-                  resolve(true);
-                }
-                fs.renameSync(distTemp, distPath);
-                // let a = (new Date()).getTime();
-                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadImage distPath is ", distPath);
-                // timeTmp = a;
-                // countTmp += 1;
-                event.sender.send('updateMsgFile', [true, '', timelineID, distPath, needOpen]);
-                resolve(true);
-              }
-              catch(e) {
-                console.log("rename file failed and details is ", e);
-              }
-            }));
-        });
-    }).then(ret => {
-      console.log("====ret is ", ret);
-    });
-  };
-}
-
-ipcMain.on("download-image", function(event, arg) {
-  //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
-  // console.log("download-image arg is ", arg);
-  queue.put(downloadImage(event, arg));
-});
-
-function downloadMsgOImage(event, arg) {
-  return function f() {
-    return new Promise(resolve => {
-      var timelineID = arg[0];
-      var token = arg[1];
-      var hostname = arg[2];
-      var port = arg[3];
-      var distPath = arg[4];
-      var distTemp = distPath + "_tmp";
-      var thumbType = arg[5];
-      var needOpen = arg[6];
-      var baseURL = hostname;
-    
-      if(downloadExist(distTemp)) {
-        console.log("distTemp is downloading ", distTemp);
-        return;
-      }
-    
-      if (typeof port == "number") {
-        port = port;
-      }
-    
-      var sender = axios.create({
-        baseURL: baseURL + ":" + String(port)
-      });
-    
-      var path = "/api/services/file/v1/dfs/thumbnail/" + String(thumbType) + "/" + String(timelineID);
-      var headers = {
-        Authorization: "Bearer " + token
-      };
-      var appendix = {
-        timeout: 35000,
-        responseType: "stream"
-      };
-    
-      var config = Object.assign({
-        headers: headers,
-      }, appendix);
-    
-      // console.log("updateShowImage distpath get is ", distPath);
-      sender.get(path, config)
-        .then(function (ret) {
-          // console.log("sender get is ", ret);
-          ret.data.pipe(fs.createWriteStream(distTemp)
-            .on('finish', function() {
-              try{
-                if(fs.existsSync(distPath)) {
-                  // fs.unlinkSync(distPath);
-                  resolve(true);
-                }
-                fs.renameSync(distTemp, distPath);
-                // let a = (new Date()).getTime();
-                // console.log(countTmp + "~" + (a - timeTmp) + "： downloadMsgOImage distPath is ", distPath);
-                // timeTmp = a;
-                // countTmp += 1;
-                event.sender.send('updateShowImage', [true, '', timelineID, distPath, needOpen]);
-                resolve(true);
-              }
-              catch(e) {
-                console.log("rename file failed and details is ", e);
-              }
-            }));
-        });
-    }).then(ret => {
-      console.log("====ret is ", ret);
-    });
-  };
-}
-
-ipcMain.on("download-mgs-oimage", function(event, arg) {
-  // console.log("=============================")
-  //  [timelineId, this.data.login.access_token, this.config.hostname, this.config.apiPort, targetPath, thumbnailType])
-  queue.put(downloadMsgOImage(event, arg));
-});
 
 ipcMain.on('open-directory-dialog', function(event, arg) {
   dialog.showOpenDialog(mainWindow,{
@@ -1244,13 +811,6 @@ ipcMain.on('login-win-max', function(event, arg) {
   }
 });
 function createWindow () {
-  /**
-   * Initial window options
-   */
-  if (process.env.NODE_ENV === "development") {
-    resizableValue = true;
-  }
-
   screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   Menu.setApplicationMenu(null)
