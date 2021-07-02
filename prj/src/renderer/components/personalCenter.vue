@@ -12,12 +12,6 @@
                 </span>
                 <p class="personalCenter-userId" id="personalCenter-userId-id"></p>
             </div>
-            <!-- <div>        
-                <div class = "modifyIconDiv" >
-                    <img class = 'modifyIcon' src = "../../../static/Img/personalCenter/toModifyInof-20px.png" alt="" @click="personalDetailClicked()">
-                </div>
-            </div> -->
-              
         </div>
         <!-- <div class="personalCenter-state">
             <img ondragstart="return false" class="personalCenter-stateImg" id="personalCenter-stateImg-id" src="../../../static/Img/personalCenter/online-20px@2x.png"> 
@@ -120,10 +114,7 @@ export default {
             this.showImageCropper = true;
             this.selectImageSource = fileList.filePaths[0];       
         },
-        personalDetailClicked(){
-            this.$emit("showPersonalInfoHanlder", true)
-        },
-
+        
         statueImg(statue) {
             if(statue.state == "online") {
                 return "/static/Img/personalCenter/online-20px@2x.png"

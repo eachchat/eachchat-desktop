@@ -40,7 +40,7 @@
                 <div class="loadingText">正在加载数据</div>
             </div>
         </div>
-        <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
+        <personalCenter v-if="showPersonalCenter"></personalCenter>
         <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" :showUpgradeAlertDlg = "showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo"/>
         <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="toChangePassword" :haveBG="true"/>
@@ -160,7 +160,6 @@ export default {
     
             showPersonalCenter:false,
             showPersonalInfo: false,
-            personalCenterKey: 0,
             loadingInterval: undefined,
             loadingElement: undefined,
             curRotate: 0,
@@ -217,23 +216,7 @@ export default {
             this.closeAlertDlg();
             this.showChangePassword = true;
         },
-        showPersonalInfoHanlder: async function(value){
-            if(value){
-                this.personalCenterKey ++;
-                const userId = window.localStorage.getItem("mx_user_id");
 
-                let userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                if(userInfo){
-                    this.showPersonalCenter = true;
-                    this.showPersonalInfo = true;
-                    this.userInfo = userInfo;
-                    this.userInfo.displayName = this.displayName;
-                }
-                else{
-                    alert("数据库没有找到用户信息")
-                }
-            }
-        },
         getUnReadCount(unReadCount) {
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "..." : unReadCount;
@@ -456,7 +439,6 @@ export default {
             this.showPersonalInfo = false;
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             this.displayName = profileInfo.displayname;
-            this.personalCenterKey ++;
         },
         startCheckUpgrade: async function() {
             var newVersion = await global.services.common.GetNewVersion();
