@@ -2181,15 +2181,7 @@ const common = {
     }
     let entry = response.data.obj.entry;
     let mqtt = response.data.obj.mqtt;
-    let channel = response.data.obj.channel;
-    let defaultIdentity = response.data.obj.defaultIdentity;
-    let favorite = response.data.obj.favorite;
-    let identities = response.data.obj.identities;
-    let im = response.data.obj.im;
     let matrix = response.data.obj.matrix;
-    let notification = response.data.obj.notification;
-    let org = response.data.obj.org;
-    let team = response.data.obj.team;
     if(entry.tls == true)
       entry.tls = 1
     else
@@ -2470,11 +2462,12 @@ const common = {
     let sequenceID = 0;
     let contactModel;
     let existModel = null;
+    log.info("GetAllContact")
     while(1){
       result = await this.api.IncrementContact(this.data.login.access_token, updateTime, sequenceID);
-      log.info("GetAllContact", result)
       if (!result.ok || !result.success) {
         await Contact.DeleteAllContact();
+        log.info("GetAllContact", result)
         return result;
       }
       for(let item of result.data.results){
@@ -2526,6 +2519,7 @@ const common = {
       contactInfo.title == title)
       return true;
     
+    console.log("UpdateContact");
     let result = await this.api.UpdateContact(this.data.login.access_token,
                                               matrixID,
                                               contactInfo.contact_id,
@@ -2535,8 +2529,9 @@ const common = {
                                               telephone,
                                               company,
                                               title);
-    log.info("UpdateContact", result);
+    
     if (!result.ok || !result.success) {
+      log.info("UpdateContact", result);
       return false;
     }
     await Contact.UpdateContact(matrixID,
@@ -2563,8 +2558,8 @@ const common = {
 
   async deleteRoomFromContact(roomID){
     let result = await this.api.deleteRoomFromContact(this.data.login.access_token, roomID);
-    log.info("deleteRoomFromContact", result);
     if (!result.ok || !result.success) {
+      log.info("deleteRoomFromContact", result);
       return false;
     }
     console.log(roomID)
@@ -2582,8 +2577,9 @@ const common = {
                                                               updateTime, 
                                                               perPage, 
                                                               sequenceID);
-      log.info("getAllContactRooms", result);
+      
       if (!result.ok || !result.success) {
+        log.info("getAllContactRooms", result);
         return false;
       }
       bNext = result.data.hasNext;
@@ -2605,8 +2601,8 @@ const common = {
                                                 updateTime, 
                                                 perPage, 
                                                 sequenceID);
-    log.info("updateRoomFromContact", result);
     if (!result.ok || !result.success) {
+      log.info("updateRoomFromContact", result);
       return false;
     }
     for(let item of result.data.results){
