@@ -31,6 +31,7 @@ class _MatrixClientPeg{
         this.mediaConfig = null;
         this.callList = {};
         this.roomTimeLineHandler = null;
+        this.timelineHandler = null;
     }
 
     addCall(roomId, call) {
