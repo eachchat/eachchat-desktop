@@ -90,7 +90,7 @@ describe('Application launch', function () {
     let orgID = '#organizationInput';
     let orgInput = await this.app.client.$(orgID);
     if(!await orgInput.isExisting()) return false;
-    await orgInput.setValue("HTTP测试租户");    
+    await orgInput.setValue("亿洽staging");    
         
     let confirBtnClass = '.organizationConfirm';
     let corfireBtn = await this.app.client.$(confirBtnClass);        
@@ -100,12 +100,12 @@ describe('Application launch', function () {
     
     let usernameInputID = "#accountInputId";
     let usernameInput = await this.app.client.$(usernameInputID);
-    await usernameInput.setValue("chengfang.ai")
+    await usernameInput.setValue("eachchatdesktop")
 
     let userpwdInputID = "#passwordInputId";
     let userpwdInput = await this.app.client.$(userpwdInputID);
     if(!await userpwdInput.isExisting()) return false;
-    await userpwdInput.setValue("Dev1234!@#$QWER")
+    await userpwdInput.setValue("eachchatdesktop")
 
     let confirBtnID = "#loginButton";
     let confireBtn = await this.app.client.$(confirBtnID);
@@ -125,10 +125,10 @@ describe('Application launch', function () {
     let els = await menuitem.$$('li');
     let orgitem = els[1];
 
-    await sleep(20000);
+    await sleep(2000);
     orgitem.click();
   })
-
+/*
   it("search department", async function(){
     let searchInputClass = ".echat-search-input";
     let searchInputItem = await app.client.$(searchInputClass);
@@ -264,17 +264,36 @@ describe('Application launch', function () {
     await sleep(1000);
   })
 
+  
+*/
+  async function SetContactElementValue(classValue, textValue){
+    let elm = await app.client.$(classValue)
+    let father = await elm.parentElement();
+    let findElm = await(await father.$(".ContactInput")).$("input");
+    await findElm.setValue(textValue);
+  }
+/*
+  it("add contact", async function(){
+    await (await app.client.$(".chat-tool-invite-div")).click();
+    await (await app.client.$(".newContactDiv")).click();
+    await SetContactElementValue(".ContactLabelID", "@chengfang:workly.ai");
+    await SetContactElementValue(".ContactLabel", "程方workly.ai");
+    await (await app.client.$(".SaveButton")).click();
+  })
+
   it("delete contact", async function(){
     let searchViewElm = await app.client.$(".departmentsdiv");
     assert.isTrue(await searchViewElm.isExisting());
     let contacts = await searchViewElm.$$(".contact");
     assert(contacts.length != 0, 'contact list is empty');
     await contacts[0].click({ button: 'right' });
-    let elm1 = await searchViewElm.$('');
-    elm1.moveTo({
-      xOffset: 5,
-      yOffset:5
-  })
+    //let elm1 = await app.client.$("");
+    //console.log(elm1)
+    await contacts[0].moveTo({
+      xOffset: 15,
+      yOffset: 15
+    })
 
   })
+  */
 })

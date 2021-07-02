@@ -88,7 +88,7 @@ describe('Application launch', function () {
     let orgID = '#organizationInput';
     let orgInput = await this.app.client.$(orgID);
     if(!await orgInput.isExisting()) return false;
-    await orgInput.setValue("HTTP测试租户");    
+    await orgInput.setValue("亿洽staging");    
         
     let confirBtnClass = '.organizationConfirm';
     let corfireBtn = await this.app.client.$(confirBtnClass);        
