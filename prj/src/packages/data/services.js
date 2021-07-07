@@ -14,7 +14,7 @@ import axios from "axios";
 import {Base64} from "js-base64";
 import {environment} from "./environment.js";
 import {globalConfig} from "../core/config.js"
-import {SqliteEncrypt, AESEncrypt} from "../core/encrypt.js"
+//import {SqliteEncrypt, AESEncrypt} from "../core/encrypt.js"
 import log from 'electron-log';
 
 const mqtt = require('mqtt')
@@ -49,7 +49,7 @@ const commonData = {
   aesSecret : [],
   maxSecretGroupUpdateTime: 0,
   maxSecretMsgSequenceID: 0,
-  aseEncryption:  new AESEncrypt(),
+  //aseEncryption:  new AESEncrypt(),
   orgValue: "",
   accessToken: ''
 
