@@ -2165,7 +2165,6 @@ const common = {
           'tenantName': domain
         }
       );
-      log.info("newGmsConfiguration", response)
       if (response.status != 200 
         || response.data == undefined
         || response.data.obj == undefined) {
@@ -2206,7 +2205,7 @@ const common = {
       var entryHostPort = entryObj[1];
       var entryHostTls = entryObj[2];
     }
-    console.log("======= ", entryObj);
+
     this.config.hostname = entryHost;
     localStorage.setItem("hostname", this.config.hostname);
 
