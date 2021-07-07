@@ -18,7 +18,7 @@ const callingState = {
 }
 
 const ipcFileFunc = {
-    SaveFile(event, path, buffer, eventId, needOpen) {
+    SaveFile(event, path, buffer, eventId, needOpen, pipName) {
         // var path = args[0];
         // var buffer = args[1];
         // var eventId = args[2];
@@ -27,6 +27,7 @@ const ipcFileFunc = {
         var buffer = buffer;
         var eventId = eventId;
         var needOpen = needOpen;
+        var pipName = pipName;
         console.log("args is ", buffer);
         var distPath = path + '_tmp';
         fs.outputFile(distPath, buffer, async err => {
@@ -42,7 +43,13 @@ const ipcFileFunc = {
             if(needOpen) {
                 shell.openExternal(finalName);
             }
-            event.sender.send("SAVED_FILE", finalName, eventId, needOpen);
+            console.log("pip name is ", pipName);
+            if(pipName) {
+              event.sender.send(pipName, finalName, eventId, needOpen);
+            }
+            else {
+              event.sender.send("SAVED_FILE", finalName, eventId, needOpen);
+            }
           }
         })
       },

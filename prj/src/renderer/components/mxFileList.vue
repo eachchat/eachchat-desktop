@@ -20,6 +20,7 @@
                     <div class="MxfileInfoDiv">
                         <label class="MxfileInfoNameLabel" v-html="fileNameHeightLight(item)"></label>
                         <label class="MxfileInfoDetailLabel" :id="getFileLabelId(item)"></label>
+                        <progress class="file-progress" :id="getFileProcessId(item)" value="0" max="100" v-show="false"></progress> 
                     </div>
                 </li>
             </ul>
@@ -98,6 +99,17 @@ export default {
                 return msgs[0].file_local_path;
             return '';
         },
+        ProCallback: function(receivedLength, contentLength, collectionId) {
+            var distElement = document.getElementById(collectionId);
+            distElement.value = parseInt(receivedLength*100/Number(contentLength));
+            console.log("**** valud ", distElement.value);
+            if(distElement.value == 100) {
+                distElement.style.display = "none";
+            }
+        },
+        updateMsgFile: function(e, localPath, eventId, needOpen) {
+            if(needOpen && fs.existsSync(localPath)) shell.openPath(localPath);
+        },
         openFile: async function(curItem) {
             console.log("*** ")
             var chatGroupMsgContent = curItem.event.content ? curItem.event.content : curItem.getContent();
@@ -107,7 +119,9 @@ export default {
                 var existLocalFile = await this.getFileExist(curItem);
                 
                 if(!fs.existsSync(existLocalFile)) {
-                    getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
+                    var distElement = document.getElementById(this.getFileProcessId(curItem));
+                    distElement.style.display = "block";
+                    getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback, this.getFileProcessId(curItem))
                         .then((blob) => {
                             let reader = new FileReader();
                             reader.onload = function() {
@@ -115,7 +129,7 @@ export default {
                                     var buffer = new Buffer(reader.result);
                                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                                     // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
-                                    ipcRenderer.send("save_file", finalPath, buffer, event.event_id, true);
+                                    ipcRenderer.send("save_file", finalPath, buffer, curItem.event.event_id, true, "filelist_open");
                                 }
                             }
                             reader.readAsArrayBuffer(blob);
@@ -455,6 +469,9 @@ export default {
         getFileIconId: function(curItem) {
             return "MxfileListItem-" + curItem.event.event_id;
         },
+        getFileProcessId: function(curItem) {
+            return "MxfileListItemProcess-" + curItem.event.event_id;
+        },
         getFileLabelId: function(curItem) {
             return "MxfileLabel-" + curItem.event.event_id;
         },
@@ -676,7 +693,7 @@ export default {
         }
     },
     mounted: function() {
-        // ipcRenderer.on('updateMsgFile', this.updateMsgFile);
+        ipcRenderer.on('filelist_open', this.updateMsgFile);
         ipcRenderer.on("distGroupInfo", (event, groupId) => {
             this.toInit();
             this.groupId = groupId;
@@ -1004,4 +1021,12 @@ export default {
         cursor: pointer;
     }
 
+    .file-progress{
+        width: 200px;
+        height: 2px;
+        background: #D2D7DE;
+        border-radius: 1px;
+        vertical-align: top;
+        margin-top: 0px;
+    }
 </style>
