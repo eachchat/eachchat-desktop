@@ -3134,12 +3134,6 @@ export default {
                 this.initSearchKey = this.searchKeyFromList;
                 this.showHistoryMsgList();
             }
-            else {
-                this.initDraft();
-                this.initData();
-                this.initPage();
-                this.initMessage();
-            }
         },
         toBottom: function() {
             console.log("***** this.toBottom is ", this.curChat)

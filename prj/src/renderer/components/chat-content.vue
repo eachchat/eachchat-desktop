@@ -3469,6 +3469,8 @@ export default {
 
         console.log("*** ", searchKey, " *** ", index);
         this.curChat = chatGroup;
+        this.searchChat = chatGroup;
+        this.searchKeyFromList = "";
         
         ipcRenderer.send("stopFlash");
 
