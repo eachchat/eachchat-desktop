@@ -4,9 +4,12 @@ import * as services from "../../../src/packages/data/services.js"
 describe('ServiceTest', function () {
   it("gmsConfigurationTestCase", async function(){
     let ret = await services.common.newGmsConfiguration("亿洽staging", "https://gms.each.chat");
-    console.log(ret)
     assert.isNotNaN(ret);
     assert.isNotFalse(ret);
+
+    ret = await services.common.newGmsConfiguration("亿洽staging1", "https://gms.each.chat");
+    assert.isNotNaN(ret);
+    assert.isFalse(ret);
   })
   return;
   it("LoginTestCase", async function(){
@@ -22,7 +25,7 @@ describe('ServiceTest', function () {
     expect(loginResult).to.equal(true);
     this.selfUser = await services.common.GetSelfUserModel();
   })
-
+  return;
   it("UpdateMessagesTestCase", async function(){
     return;
     let response = await services.common.UpdateMessages();
