@@ -2145,7 +2145,8 @@ export default {
         else return true;
       }
       let toGet = async () => {
-        for(let i=0;i<this.showGroupList.length;i++) {
+        for(let i = 0; i < this.showGroupList.length; i++) {
+          console.log("index , total", i, this.showGroupList.length)
           let item = this.showGroupList[i];
           if(isOtherDomain(item.roomId)) continue;
           var distTimeLineInfo = await this.GetLastShowMessage(item);
@@ -3274,7 +3275,6 @@ export default {
               return [timeLineTmp, distTimeItem];
             }
           }
-          continue;
         }
       }
 
@@ -3286,35 +3286,35 @@ export default {
       )
       await _timelineWindow.load(undefined, 20);
       var originalFileListInfo = _timelineWindow.getEvents();
-      originalFileListInfo.forEach((item) => {
+      for(let item of originalFileListInfo){
         if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
             if(!item.isRedacted()) {
               distItem = item;
-              return;
+              break;
             }
         }
-      })
+      }
       let fileListInfoTmp = [];
       while(_timelineWindow.canPaginate('b') && distItem == undefined) {
           await _timelineWindow.paginate("b", 20);
           fileListInfoTmp = await _timelineWindow.getEvents();
-          fileListInfoTmp.forEach((item) => {
+          for(let item of fileListInfoTmp){
             if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
               if(!item.isRedacted()) {
                 distItem = item;
-                return[undefined, undefined];
+                break;
               }
             }
-          })
+          }
       }
 
       if(distItem == undefined) {
-        fileListInfoTmp.forEach((item) => {
+        for(let item of fileListInfoTmp){
           if(item.getType() == 'm.room.create') {
               distTimeItem = item;
-              return;
+              break;
           }
-        })
+        }
       }
 
       return [distItem, distTimeItem]
