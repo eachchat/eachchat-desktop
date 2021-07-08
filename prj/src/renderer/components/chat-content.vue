@@ -2156,15 +2156,12 @@ export default {
         if(curDomainKey == idDomainKey) return false;
         else return true;
       }
-      let toGet = async () => {
-        for(let i = 0; i < this.showGroupList.length; i++) {
-          console.log("index , total", i, this.showGroupList.length)
-          let item = this.showGroupList[i];
+
+      for(let item of this.showGroupList) {
           if(isOtherDomain(item.roomId)) continue;
-          await this.GetLastShowMessage(item);
-        }
+          await this.GetLastShowMessage(item);     
       }
-      await toGet();
+
       this.bGetLastShowMessage = true;
       if(this.dbDataFinished){
         this.showGroupIconName()
