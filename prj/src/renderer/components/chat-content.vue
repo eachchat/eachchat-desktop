@@ -523,7 +523,6 @@ export default {
         console.log('-----created removedRoomIds-----', removedRoomIds)
         removedRoomIds = [...removedRoomIds];
         let sg = [...this.showGroupList];
-        console.log('kankanSg----', sg)
         sg.forEach(s => {
           if (removedRoomIds.indexOf(sg.roomId) >= 0) {
             s.localRemoved = true
@@ -2171,7 +2170,6 @@ export default {
           curTimes += 1;
           let matrix_id = allUid[i];
           let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
-          console.log("=======userInfo ", userInfo);
           if(userInfo && userInfo.user_display_name.length != 0)
           {
             continue;
@@ -3643,7 +3641,6 @@ export default {
       this.unreadCount = 0;
     }
 
-    ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
