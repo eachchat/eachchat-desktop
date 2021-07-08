@@ -348,9 +348,23 @@ export default {
     toUpdateRooms: {
       type: Number,
       default: 0
+    },
+
+    dbDataFinished:{
+      type: Boolean,
+      default: false
     }
   },
   watch: {
+    dbDataFinished(){
+      console.log(this.dbDataFinished);
+      if(this.bGetLastShowMessage){
+        this.showGroupIconName()
+        this.sortGroup();
+        this.$emit('toDataOk');  
+      }
+    },
+
     toUpdateRooms: function() {
         this.showGroupList.length = 0;
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
@@ -792,7 +806,8 @@ export default {
       oldElementGroupDiv: null,
       unreadIndex: -1,
       hasUnreadItems: [],
-      removedRoomIds: []
+      removedRoomIds: [],
+      bGetLastShowMessage: false
     };
   },
   methods: {
@@ -2132,10 +2147,7 @@ export default {
       }
       let curIdSpliterInfo = this.selfUserId.split(":");
       let curDomainKey = curIdSpliterInfo.pop();
-      let allUid = [];
-      let checkingInterval = null;
-      let maxTimes = 60;
-      let curTimes = 0;
+
       let isOtherDomain = matrix_id => {
         let idSplitInfo = matrix_id.split(":");
         let idDomainKey = idSplitInfo.pop();
@@ -2149,56 +2161,18 @@ export default {
           console.log("index , total", i, this.showGroupList.length)
           let item = this.showGroupList[i];
           if(isOtherDomain(item.roomId)) continue;
-          var distTimeLineInfo = await this.GetLastShowMessage(item);
-          var distTimeLine = distTimeLineInfo[0];
-          if(distTimeLine == undefined) continue;
-
-          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-          if(sender.userId) {
-            sender = sender.userId;
-          }
-          if(allUid.indexOf(sender) < 0) {
-            allUid.push(sender);
-          }
+          await this.GetLastShowMessage(item);
         }
-      }
-      let toCheck = async () => {
-        let loadingFinished = true;
-        for(let i=0;i<allUid.length;i++) {
-          if(curTimes > maxTimes) {
-            break;
-          }
-          curTimes += 1;
-          let matrix_id = allUid[i];
-          let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
-          if(userInfo && userInfo.user_display_name.length != 0)
-          {
-            continue;
-          }
-          if(isOtherDomain(matrix_id)) {
-            continue;
-          }
-          console.log("========matrix_id is ", matrix_id);
-          loadingFinished = false;
-          break;
-        }
-        return loadingFinished;
       }
       await toGet();
-      checkingInterval = setInterval(() => {
-        toCheck().then((ret) => {
-          console.log("=========tucheck ret is ", ret);
-          if(ret) {
-            clearInterval(checkingInterval);
-            this.showGroupIconName()
-              .then((ret) => {
-                  this.sortGroup();
-                  this.$emit('toDataOk');
-                })
-          }
-        })
-      }, 500)
+      this.bGetLastShowMessage = true;
+      if(this.dbDataFinished){
+        this.showGroupIconName()
+        this.sortGroup();
+        this.$emit('toDataOk');  
+      }
     },
+
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){

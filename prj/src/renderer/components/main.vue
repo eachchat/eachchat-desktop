@@ -8,7 +8,7 @@
             <el-menu
                 class="nav-menu">
                 <el-menu-item 
-                    :disabled = 'navEnable || dataIsLoading || dbDataNotFinished'
+                    :disabled = 'navEnable || dataIsLoading'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
@@ -31,7 +31,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk" :dbDataFinished = "dbDataFinished"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading">
@@ -113,7 +113,7 @@ export default {
             toSaveDraft: 0,
             navEnable: true,
             dataIsLoading: true,
-            dbDataNotFinished: true, 
+            dbDataFinished: false, 
             scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
@@ -623,7 +623,7 @@ export default {
         await global.services.common.login();
         this.startCheckUpgrade();
         global.services.common.InitDbData().then(ret => {
-            this.dbDataNotFinished = false;
+            this.dbDataFinished = true;
         });
         
         var host = window.localStorage.getItem("mx_hs_url");
