@@ -608,6 +608,7 @@ export default {
             if(!gmsRet){
                 backToLogin();
             }
+            global.services.common.setGmsConfiguration(gmsRet);
             var host = window.localStorage.getItem("mx_hs_url");
             if(host == null) {
                 backToLogin();

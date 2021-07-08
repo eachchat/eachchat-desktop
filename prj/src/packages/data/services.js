@@ -314,77 +314,6 @@ const common = {
     }
     //this.initmqtt();
     return;
-
-
-    let userid = result.data.obj.id;
-
-    
-    var retmodels = await servicemodels.LoginModel(result)
-    let login = retmodels[0];
-    let selfuser = retmodels[1];
-    selfuser.entry_host = this.config.hostname;
-    selfuser.entry_port = this.config.apiPort;
-    selfuser.entry_tls = this.config.hostTls;
-    selfuser.mqtt_host = this.config.mqttHost;
-    selfuser.mqtt_port = this.config.mqttPort;
-    selfuser.mqtt_tls = this.config.mqttTls;
-    //selfuser.message_sound:     undefined,
-    //selfuser.message_notice:    undefined,
-    //selfuser.auto_update:       undefined
-
-    var foundUsers = await(await models.User).find({
-      id: selfuser.id
-    });
-
-    if (foundUsers instanceof Array
-      && foundUsers.length > 0) {
-      var foundUser = foundUsers[0];
-      let msg_max_sequenceid = foundUser.msg_max_sequenceid;
-      let user_max_updatetime = foundUser.user_max_updatetime;
-      let group_max_updatetime = foundUser.group_max_updatetime;
-      let department_max_updatetime = foundUser.department_max_updatetime;
-      let message_sound = foundUser.message_sound;
-      let message_notice = foundUser.message_notice;
-      let auto_update = foundUser.auto_update;
-
-      foundUser.values = selfuser.values;
-      foundUser.msg_max_sequenceid = msg_max_sequenceid;
-      foundUser.user_max_updatetime = user_max_updatetime;
-      foundUser.group_max_updatetime = group_max_updatetime;
-      foundUser.department_max_updatetime = department_max_updatetime;
-      foundUser.message_sound = message_sound;
-      foundUser.message_notice = message_notice;
-      foundUser.auto_update = auto_update;
-
-      foundUser.save();
-      this.data.selfuser = foundUser;
-      console.log('Your profile has been update!');
-    } else {
-      selfuser.save();
-      this.data.selfuser = selfuser;
-      console.log('New account login ok!');
-    }
-
-    await (await models.Login).truncate()
-    let foundlogin = await(await models.Login).find({
-      user_id: selfuser.id
-    })
-
-    if(foundlogin.length == 0){
-      login.user_id = selfuser.id;
-      login.save();  
-      this.data.login = login;
-    }
-    else{
-      var currentlogin = foundlogin[0]
-      currentlogin.access_token = login.access_token
-      currentlogin.refresh_token = login.refresh_token
-      currentlogin.save();
-      this.data.login = currentlogin;
-    }
-    confservice.init(selfuser.id)
-    //await this.GetAesSecret();
-    return true;
   },
 
   InitConfServer(userID){
@@ -1929,65 +1858,7 @@ const common = {
     return [IHost, IHostPort, IHostTls];
   },
 
-  /*
-    {
-      "m.homeserver": {
-        "base_url": "https://matrix.each.chat/"
-      },
-      "m.identity_server": {
-        "base_url": "http://matrix.each.chat:8090"
-      },
-      "m.appserver": {
-        "base_url": "http://139.198.18.180:8888/"
-      },
-      "m.mqttserver": {
-        "base_url": "tcp://139.198.18.180:1883/"
-      }
-    }
-  */
-  setGmsConfiguration(IServerInfo) {
-    let IHostInfo = IServerInfo['m.identity_server'];
-    let AHostInfo = IServerInfo['m.appserver'];
-    let mqttInfo = IServerInfo['m.mqttserver'];
-
-    let IHostBaseUrl = IHostInfo['base_url'];
-    let AHostBaseUrl = AHostInfo['base_url'];
-    let mqttBaseUrl = mqttInfo['base_url'];
-
-    let IHostTls = 1;
-    let IHost = "";
-    let IHostPort = 443;
-    let AHostTls = 1;
-    let AHost = "";
-    let AHostPort = 443;
-    let mqttTls = 1;
-    let mqtt = "";
-    let mqttPort = 443;
-
-    var Iobj = this.getHostPortTls(IHostBaseUrl);
-    IHost = Iobj[0];
-    IHostPort = Iobj[1];
-    IHostTls = Iobj[2];
-    var Aobj  = this.getHostPortTls(AHostBaseUrl);
-    AHost = Aobj[0];
-    AHostPort = Aobj[1];
-    AHostTls = Aobj[2];
-
-    mqtt = mqttBaseUrl;
-
-    this.config.hostname = AHost;
-    localStorage.setItem("hostname", this.config.hostname);
-
-    this.config.apiPort = AHostPort;
-    localStorage.setItem("apiPort", this.config.apiPort);
-
-    this.config.hostTls = AHostTls;
-    localStorage.setItem("hostTls", this.config.hostTls);
-
-    this.config.mqttHost = mqtt;
-    localStorage.setItem("mqttHost", this.config.mqttHost);
-  },
-
+  
   async searchAllChat(search_key, limit) {
     var filterBody = {
       field: "body",
@@ -2191,113 +2062,61 @@ const common = {
     else
       mqtt.tls = 0;
 
+    let configObj = {};
+    let entryHost = "";
+    let entryHostPort = "";
+    let entryHostTls = "";
     if(entry.host) {
       var finalUrl = this.getUrlFromHostPortTls(entry);
       log.info("appserver url ", finalUrl)
-      localStorage.setItem("app_server", finalUrl);
-      var entryHost = entry.host;
-      var entryHostPort = entry.port;
-      var entryHostTls = entry.tls;
+      configObj.app_server = finalUrl;
+      entryHost = entry.host;
+      entryHostPort = entry.port;
+      entryHostTls = entry.tls;
     }
     else {
       var entryObj = this.getHostPortTls(entry);
-      var entryHost = entryObj[0];
-      var entryHostPort = entryObj[1];
-      var entryHostTls = entryObj[2];
+      entryHost = entryObj[0];
+      entryHostPort = entryObj[1];
+      entryHostTls = entryObj[2];
     }
 
     this.config.hostname = entryHost;
-    localStorage.setItem("hostname", this.config.hostname);
+    configObj.hostname = entryHost;
 
     this.config.apiPort = entryHostPort;
-    localStorage.setItem("apiPort", this.config.apiPort);
-
+    configObj.apiPort = entryHostPort;
+    
     this.config.hostTls = entryHostTls;
-    localStorage.setItem("hostTls", this.config.hostTls);
+    configObj.hostTls = entryHostTls;
 
     this.config.mqttHost = mqtt.host;
-    localStorage.setItem("mqttHost", this.config.mqttHost);
+    configObj.mqttHost = mqtt.host;
 
     this.config.mqttPort = mqtt.port;
-    localStorage.setItem("mqttPort", this.config.mqttPort);
+    configObj.mqttPort = mqtt.port;
 
     this.config.mqttTls = mqtt.tls;
-    localStorage.setItem("mqttTls", this.config.mqttTls);
-    
-    // localStorage.setItem("defaultIdentity", defaultIdentity.identityType);
-    localStorage.setItem("mx_hs_url", matrix.homeServer);
-    localStorage.setItem("gms_host", host);
-    // localStorage.setItem("mx_is_url", matrix.identityServer);
+    configObj.mqttTls = mqtt.tls;
+    configObj.mx_hs_url = matrix.homeServer;
+    configObj.gms_host = host;
 
-    return response.data.obj;
+    return configObj;
   },
 
-  async gmsConfiguration(domainBase64, host=''){
-    // let value = Base64.encode("139.198.15.253", true);
-    // this.data.orgValue = value;
-    // this.config.hostname = "139.198.18.180";
-    // this.config.apiPort = 8888;
-    // this.config.hostTls = 0;
-    // this.config.mqttHost = "139.198.18.180";
-    // this.config.mqttPort = 1883;
-    // this.config.mqttTls = 1;
-    // return true;
-    
-    if(host.endsWith("/")) {
-      host = host.substring(0, host.length-1)
+  setGmsConfiguration(configObj) {
+    if(configObj === {}){
+      return;
     }
-    let value = Base64.encode(domainBase64, true);
-    this.data.orgValue = value;
-    let response;
-    if(globalConfig.gmsEnv == "develop")
-      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
-      // response = await axios.get(host + "/" + value);
-    else if(globalConfig.gmsEnv == "preRelease")
-      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
-      // response = await axios.get(host + "/" + value);
-    else
-      response = await axios.get("https://chat.yunify.com/gms/v1/configuration/" + value);
-      console.log("the url is ", host + "/gms/v1/configuration/" + value);
-      // response = await axios.get(host + "/" + value);
-    log.info("gmsConfiguration", response)
-
-    if (response.status != 200 
-      || response.data == undefined
-      || response.data.obj == undefined) {
-      return false;
-    }
-    
-    let entry = response.data.obj.entry;
-    let mqtt = response.data.obj.mqtt;
-    if(entry.tls == true)
-      entry.tls = 1
-    else
-      entry.tls = 0;
-    
-    if(mqtt.tls == true)
-      mqtt.tls = 1;
-    else
-      mqtt.tls = 0;
-
-    this.config.hostname = entry.host;
-    localStorage.setItem("hostname", this.config.hostname);
-
-    this.config.apiPort = entry.port;
-    localStorage.setItem("apiPort", this.config.apiPort);
-
-    this.config.hostTls = entry.tls;
-    localStorage.setItem("hostTls", this.config.hostTls);
-
-    this.config.mqttHost = mqtt.host;
-    localStorage.setItem("mqttHost", this.config.mqttHost);
-
-    this.config.mqttPort = mqtt.port;
-    localStorage.setItem("mqttPort", this.config.mqttPort);
-
-    this.config.mqttTls = mqtt.tls;
-    localStorage.setItem("mqttTls", this.config.mqttTls);
-
-    return response.data.obj;
+    localStorage.setItem("app_server", configObj.app_server);
+    localStorage.setItem("hostname", configObj.hostname);
+    localStorage.setItem("apiPort", configObj.apiPort);
+    localStorage.setItem("hostTls", configObj.hostTls);
+    localStorage.setItem("mqttHost", configObj.mqttHost);
+    localStorage.setItem("mqttPort", configObj.mqttPort);
+    localStorage.setItem("mqttTls", configObj.mqttTls);
+    localStorage.setItem("mx_hs_url", configObj.mx_hs_url);
+    localStorage.setItem("gms_host", configObj.gms_host);
   },
 
   async gmsGetUser(key){

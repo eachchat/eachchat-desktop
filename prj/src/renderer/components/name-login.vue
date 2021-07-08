@@ -721,6 +721,7 @@ export default {
                 this.organizationButtonDisabled = false;
                 return false;
             }
+            global.services.common.setGmsConfiguration(gmsRet);
             var host = window.localStorage.getItem("mx_hs_url");
             if(host == null) {
                 return false;
@@ -776,40 +777,11 @@ export default {
                     if(window.localStorage.getItem("Domain") == null) {
                         return false;
                     }
-                    else {
-                        return true;
-                    }
-                    // var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
-                    // console.log('appServerInfo is ', appServerInfo);
-                    // if(appServerInfo.status != 200) {
-                    //     this.loginState = this.$t("invalidServerAddress");
-                    //     return false;
-                    // }
-                    // if(appServerInfo.data['m.gms'] != undefined) {
-                    //     var gmsHost = appServerInfo.data['m.gms']['base_url'];
-                    //     var gmsValue = appServerInfo.data['m.gms']['tid'];
-                    //     var gmsRet = await global.services.common.gmsConfiguration(gmsValue, gmsHost);
-                    //     if(!gmsRet){
-                    //         this.loginState = "未找到该组织";
-                    //         this.organizationButtonDisabled = false;
-                    //         return false;
-                    //     }
-                    //     else {
-                    //         this.organizationButtonDisabled = false;
-                    //         return true;
-                    //     }
-                    // }
-                    // else if(appServerInfo.data['m.appserver'] != undefined){
-                    //     global.services.common.setGmsConfiguration(appServerInfo.data);
-                    //     return true;
-                    // }
+                    return true;
                 }
-                
-                // this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
                 return false;
             },(err) => {
-                // this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
                 return false;
             })
@@ -1920,15 +1892,6 @@ export default {
                         this.showLoginView = true;
                         return;
                     }
-                    
-                    // var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
-                    // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-                    // var result = await services.common.gmsConfiguration(address, host);
-                    // if(!result){
-                    //     this.loginState = "未找到该组织";
-                    //     this.organizationButtonDisabled = false;
-                    //     return;
-                    // }
                     
                     if(ret.language) {
                         this.$i18n.locale = ret.language;

@@ -180,14 +180,14 @@ class mxVoIP{
             }
             
             var gmsRet = await global.services.common.newGmsConfiguration(domain, gmshost);
+            global.services.common.setGmsConfiguration(gmsRet);
             var host = window.localStorage.getItem("mx_hs_url");
             if(host == null) {
                 backToLogin();
             }
             await global.mxMatrixClientPeg.getAppServerInfo(host);;
             var appserver = window.localStorage.getItem("app_server");
-            var loginSettingRet = await global.services.common.getLoginConfig(appserver);
-
+            await global.services.common.getLoginConfig(appserver);
         }
         
         var domain = window.localStorage.getItem("Domain");
