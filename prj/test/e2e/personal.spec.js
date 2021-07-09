@@ -1,9 +1,9 @@
-const Application = re1uire('spectron').Application
-const assert = re1uire('chai').assert
-const expect = re1uire('chai').expect
-const electronPath = re1uire('electron') // Re1uire Electron from the binaries included in node_modules.
-const path = re1uire('path')
-//const CLoginUtil = re1uire('./login')
+const Application = require('spectron').Application
+const assert = require('chai').assert
+const expect = require('chai').expect
+const electronPath = require('electron') // Require Electron from the binaries included in node_modules.
+const path = require('path')
+//const CLoginUtil = require('./login')
 
 let exePath = undefined;
 if(process.platform == "win32") exePath = path.join(__dirname, '..//..//build//win-unpacked//EachChat.exe');
@@ -39,6 +39,12 @@ async function login(app, orgname, username, pwd){
   return true;
 }
 
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+let app;
+
 describe('Application launch', function () {
   this.timeout(50000)
   before(function () {
@@ -64,23 +70,19 @@ describe('Application launch', function () {
       // and the package.json located 1 level above.
       args: [path.join(__dirname, '..')]
     })
+    app = this.app;
     return this.app.start()
   })
 
+  afterEach(async function(){
+    await sleep(1000);
+  })
+
   after(function () {
-    if (this.app && this.app.isRunning()) {
-      //return this.app.stop()
+    if (app && app.isRunning()) {
+      //return app.stop()
     }
   })
-
-  it('shows an initial window', function () {
-    return this.app.client.getWindowCount().then(function (count) {
-      assert.e1ual(count, 3)
-      // Please note that getWindowCount() will return 2 if `dev tools` are opened.
-      // assert.e1ual(count, 2)
-    })
-  })
-
   
   it('login window testcase', async function () {
     let windowCount = await this.app.client.getWindowCount();
@@ -98,12 +100,12 @@ describe('Application launch', function () {
     
     let usernameInputID = "#accountInputId";
     let usernameInput = await this.app.client.$(usernameInputID);
-    await usernameInput.setValue("chengfang.ai")
+    await usernameInput.setValue("eachchatdesktop")
 
     let userpwdInputID = "#passwordInputId";
     let userpwdInput = await this.app.client.$(userpwdInputID);
     if(!await userpwdInput.isExisting()) return false;
-    await userpwdInput.setValue("Dev1234!@#$1WER")
+    await userpwdInput.setValue("eachchatdesktop")
 
     let confirBtnID = "#loginButton";
     let confireBtn = await this.app.client.$(confirBtnID);
@@ -116,15 +118,31 @@ describe('Application launch', function () {
     assert.isTrue(await userHead.isExisting());
   })
 
-  it("to favourite", async function(){
-    let elMenuItemsClass = ".nav-menu";
-    let menuitem = await this.app.client.$(elMenuItemsClass);
-    console.log(await menuitem.getAttribute('class'))
-    
-    let els = await menuitem.$$('li');
-    let orgitem = els[2];
-    setTimeout(() => {
-      orgitem.click()
-    }, 5000);
+  it("get main window user img", async function(){
+    let userHeadID = "#userHead";
+    let userHead = await this.app.client.$(userHeadID);
+    let mainImgSrc = await userHead.getProperty("src");    
+    await userHead.click();
+    let userIconElement = await this.app.client.$('.personalCenter-icon');
+    let personalImgSrc = await userIconElement.getProperty("src");
+    expect(mainImgSrc).equal(personalImgSrc)
+  })
+
+  it("get user name", async function(){
+    let userHeadID = "#userHead";
+    let userHead = await this.app.client.$(userHeadID);   
+    await userHead.click();
+    let usernameElement = await this.app.client.$('#personalCenter-name-id');
+    let userName = await usernameElement.getValue();
+    expect(userName).equal("eachchatdesktop")
+  })
+
+  it("get user organise name", async function(){
+    let userHeadID = "#userHead";
+    let userHead = await this.app.client.$(userHeadID);   
+    await userHead.click();
+    let userOrgElement = await this.app.client.$('#personalCenter-userId-id');
+    let orgName = await userOrgElement.getText();
+    expect(orgName).equal("北京爱工作科技有限公司")
   })
 })

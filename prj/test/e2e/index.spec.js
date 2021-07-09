@@ -1,1 +1,1 @@
-require('./organise.spec')
+require('./personal.spec')
