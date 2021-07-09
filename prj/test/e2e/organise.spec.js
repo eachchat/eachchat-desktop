@@ -6,9 +6,9 @@ const path = require('path')
 //const CLoginUtil = require('./login')
 
 let exePath = undefined;
-if(process.platform == "win32") exePath = path.join(__dirname, '..//build//win-unpacked//EachChat.exe');
-else if(process.platform == "linux") exePath = path.join(__dirname, '..//build//linux-unpacked//EachChat')
-else exePath = path.join(__dirname, '..//build//mac//Eachchat.app//Contents//MacOS//Eachchat')
+if(process.platform == "win32") exePath = path.join(__dirname, '..//..//build//win-unpacked//EachChat.exe');
+else if(process.platform == "linux") exePath = path.join(__dirname, '..//..//build//linux-unpacked//EachChat')
+else exePath = path.join(__dirname, '..//..//build//mac//Eachchat.app//Contents//MacOS//Eachchat')
 
 async function login(app, orgname, username, pwd){
   let windowCount = await this.app.client.getWindowCount();
