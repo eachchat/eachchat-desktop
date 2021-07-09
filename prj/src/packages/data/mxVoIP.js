@@ -5,6 +5,7 @@ import log from 'electron-log';
 
 
 const audioPromises = {};
+let connectingTimer = undefined;
 
 function play(audioId) {
     // TODO: Attach an invisible element for this instead
@@ -152,12 +153,18 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(call, call.roomId, "stop_ringing");
             pause("ringbackAudio");
         } else if (newState === "connected") {
+            if(connectingTimer) clearTimeout(connectingTimer);
             ipcRenderer.send("CallingState", 'busy');
             _setCallState(call, call.roomId, "connected");
             videoCall.connectedState(call.type);
             pause("ringbackAudio");
             console.log("================connected ", updateTrayNotice);
             updateTrayNotice();
+        } else if (newState === "connecting") {
+            connectingTimer = setTimeout(() => {
+                call.hangup("user_busy");
+                updateTrayNotice();
+            }, 30 * 1000);
         }else {
             console.log("Final undeal state");
         }
