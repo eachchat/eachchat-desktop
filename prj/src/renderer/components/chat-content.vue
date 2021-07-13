@@ -105,26 +105,6 @@
             <!-- </transition-group> -->
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
-            <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople && false">
-              <div class="search-list-content-label">联系人</div>
-              <div class="search-list-content-content">
-                <ul class="search-list-content-list">
-                  <li class="search-item"
-                      v-for="searchPeopleItem in searchPeopleItems"
-                      @click="showPeopleInfo($event, searchPeopleItem)"
-                      >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemPeopleImgElementId(searchPeopleItem.matrix_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name" :id="getSearchItemPeopleNameElementId(searchPeopleItem.matrix_id)">{{searchPeopleItem.user_display_name}}</p>
-                      <p class="search-item-position">{{searchPeopleItem.user_title}}</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
-            </div>
             <div class="search-list-chat-message" id="search-list-chat-message-id" v-show="showSearchAllDMChat">
               <div class="search-list-chat-label">联系人</div>
               <div class="search-list-chat-content">
@@ -218,28 +198,6 @@
                       </div>
                   </li>
                 </ul>
-              </div>
-            </div>
-            <div class="search-list-content-file" id="search-list-content-file-id" v-show="showSearchFile && false">
-              <div class="search-list-content-label">文件</div>
-              <div class="search-list-content-content">
-                <ul class="search-list-content-list">
-                  <li class="search-item"
-                      v-for="searchFileItem in searchFileItems"
-                      @click="showFileInfo(searchFileItem)"
-                      >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchFileItem.timelineId)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name">{{searchFileItem.content.fileName}}</p>
-                      <p class="search-item-position" :id="getFileNameItemElementId(searchFileItem.timelineId)">{{searchFileItem.position}}</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="search-list-content-more-div" v-show="showsearchAllFile">
-                <div class="search-list-content-more-label" @click="showAllSearchFiles">查看全部 >></div>
               </div>
             </div>
           </div>

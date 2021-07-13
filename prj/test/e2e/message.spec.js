@@ -73,7 +73,6 @@ describe('Application launch', function () {
     });
   });
 
-  
   it('login window testcase', async function () {
     let windowCount = await this.app.client.getWindowCount();
     await this.app.client.windowByIndex(windowCount - 1);
@@ -618,4 +617,75 @@ describe('Application launch', function () {
     assert.equal(favoureteChatCheckResult, true);
   });
 
+  it("chat search", async function() {
+    let searchInput = await this.app.client.$('.echat-search-input');
+    await searchInput.setValue("测");
+    let searchResultDiv = await this.app.client.$('.search-list-content');
+    let searchResultShowCheckFunc = async function(arg) {
+      let searchResultDiv = arg[0];
+      
+      let searchContactStyleDisplay = await searchResultDiv.getCSSProperty('display');
+      console.log("searchResultShowCheckFunc styleDisplay1 ", searchContactStyleDisplay);
+      if(searchContactStyleDisplay.value == "block") {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+    
+    let searchResultShowResult = await waitingCheck(10000, searchResultShowCheckFunc, "chat search show result ", searchResultDiv);
+    assert.equal(searchResultShowResult, true);
+
+    let searchContactList = await this.app.client.$('.search-list-chat-list');
+    let searchChatList = await this.app.client.$('.search-list-chat-list');
+    let searchChatContentList = await this.app.client.$('.search-list-content-list');
+    let searchResultCheckFunc = async function(arg) {
+      let searchContactList = arg[0];
+      let searchChatList = arg[1];
+      let searchChatContentList = arg[2];
+      
+      let searchContacts = await searchContactList.$$('li');
+      console.log("searchResultCheckFunc searchContacts.length ", searchContacts.length);
+      if(searchContacts.length == 0) {
+        return false;
+      }
+
+      let searchChats = await searchChatList.$$('li');
+      console.log("searchResultCheckFunc searchChats ", searchChats.length);
+      if(searchChats.length == 0) {
+        return false;
+      }
+
+      let searchChatContents = await searchChatContentList.$$('li');
+      console.log("searchResultCheckFunc searchChatContents ", searchChatContents.length);
+      if(searchChatContents.length == 0) {
+        return false;
+      }
+
+      return true;
+    }
+    let searchResultCheckResult = await waitingCheck(10000, searchResultCheckFunc, "chat search result ", searchContactList, searchChatList, searchChatContentList);
+    assert.equal(searchResultCheckResult, true);
+
+    console.log("clear chat search");
+    
+    let clearSearchBtn = await this.app.client.$('.echat-delete-ico');
+    clearSearchBtn.click();
+    let clearSearchResultShowCheckFunc = async function(arg) {
+      let searchResultDiv = arg[0];
+      
+      let searchContactStyleDisplay = await searchResultDiv.getCSSProperty('display');
+      console.log("searchResultShowCheckFunc styleDisplay1 ", searchContactStyleDisplay);
+      if(searchContactStyleDisplay.value == "block") {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+    
+    let clearSearchResultShowResult = await waitingCheck(10000, clearSearchResultShowCheckFunc, "clear chat search show result ", searchResultDiv);
+    assert.equal(clearSearchResultShowResult, true);
+  })
 })

@@ -191,7 +191,7 @@ import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
-import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
+import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard, checkIsTesting } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
 import { checkIsEmptyRoom } from "../../packages/data/Rooms";
