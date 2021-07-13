@@ -21,9 +21,14 @@ let contextMenu = (menuInfos) => {
     instance.distItem = menuInfos.distItem;
     calcPosition(menuInfos.position.clientX, menuInfos.position.clientY);
     instance.show = true;
+    document.addEventListener("click", (e) => {
+      instance.show = false;
+    });
 };
 
 contextMenu.close = () => {
+  instance.menuItemList = [];
+  instance.distItem = null;
 };
 
 contextMenu.install = (Vue) => {

@@ -295,7 +295,7 @@ import {changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
-import { UpdateUserAvater } from '../../utils/commonFuncs.js'
+import { UpdateUserAvater, checkIsTesting } from '../../utils/commonFuncs.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
@@ -1855,6 +1855,66 @@ export default {
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
+        if(checkIsTesting()) {
+          let unread = groupItem.getUnreadNotificationCount();
+
+          let menuObj = {
+            distItem: groupItem,
+            menuList: [
+            ],
+            position: {
+              clientX: e.clientX,
+              clientY: e.clientY
+            }
+          }
+          
+          if(unread != 0) {
+            let readerState = {
+              name: "标记已读",
+              func: this.SetRoomReader
+            }
+            menuObj.menuList.push(readerState);
+          }
+          
+          if(this.groupIsInFavourite(groupItem)) {
+            let favouriteMenu = {
+              name: "取消置顶",
+              func: this.unFavouriteIt
+            }
+            menuObj.menuList.push(favouriteMenu);
+          }
+          else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
+            let favouriteMenu = {
+              name: "置顶聊天",
+              func: this.favouriteIt
+            }
+            menuObj.menuList.push(favouriteMenu);
+          }
+          
+          if(this.groupIsInLowPriority(groupItem)){
+            let lowPriorityMenu = {
+              name: "取消置底",
+              func: this.DelRoomLowpriority
+            }
+            menuObj.menuList.push(lowPriorityMenu);
+          }
+          else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+            let lowPriorityMenu = {
+              name: "置底聊天",
+              func: this.SetRoomLowpriority
+            }
+            menuObj.menuList.push(lowPriorityMenu);
+          }
+
+          let deleteMenu = {
+            name: "删除",
+            func: this.removeGroup
+          }
+          menuObj.menuList.push(deleteMenu);
+
+          this.$contextMenu(menuObj);
+          return;
+        }
 
         this.menu = new Menu();
         let unread = groupItem.getUnreadNotificationCount();
@@ -3612,6 +3672,7 @@ export default {
       this.unreadCount = 0;
     }
 
+    // ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
