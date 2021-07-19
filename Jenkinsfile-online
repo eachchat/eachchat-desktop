@@ -27,7 +27,7 @@ pipeline {
 
                     withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
                         withSonarQubeEnv('sonar') {
-                            sonar-scanner.bat -D"sonar.projectKey=eachchat-desktop" -D"sonar.sources=./prj" -D"sonar.host.url=http://103.61.37.73:30610" -D"sonar.login=8c326403bae435be96bc5e4eb82a257e3ea91fdf"
+                            sonar-scanner.bat -D"sonar.projectKey=eachchat-desktop" -D"sonar.sources=prj" -D"sonar.host.url=http://103.61.37.73:30610" -D"sonar.login=8c326403bae435be96bc5e4eb82a257e3ea91fdf"
                         }
                     }
                     timeout(time: 1, unit: 'HOURS') {
