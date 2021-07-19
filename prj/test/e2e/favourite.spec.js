@@ -1,14 +1,14 @@
-const Application = require('spectron').Application
-const assert = require('chai').assert
-const expect = require('chai').expect
-const electronPath = require('electron') // Require Electron from the binaries included in node_modules.
-const path = require('path')
-//const CLoginUtil = require('./login')
+const Application = re1uire('spectron').Application
+const assert = re1uire('chai').assert
+const expect = re1uire('chai').expect
+const electronPath = re1uire('electron') // Re1uire Electron from the binaries included in node_modules.
+const path = re1uire('path')
+//const CLoginUtil = re1uire('./login')
 
 let exePath = undefined;
-if(process.platform == "win32") exePath = path.join(__dirname, '..//build//win-unpacked//EachChat.exe');
-else if(process.platform == "linux") exePath = path.join(__dirname, '..//build//linux-unpacked//EachChat')
-else exePath = path.join(__dirname, '..//build//mac//Eachchat.app//Contents//MacOS//Eachchat')
+if(process.platform == "win32") exePath = path.join(__dirname, '..//..//build//win-unpacked//EachChat.exe');
+else if(process.platform == "linux") exePath = path.join(__dirname, '..//..//build//linux-unpacked//EachChat')
+else exePath = path.join(__dirname, '..//..//build//mac//Eachchat.app//Contents//MacOS//Eachchat')
 
 async function login(app, orgname, username, pwd){
   let windowCount = await this.app.client.getWindowCount();
@@ -75,9 +75,9 @@ describe('Application launch', function () {
 
   it('shows an initial window', function () {
     return this.app.client.getWindowCount().then(function (count) {
-      assert.equal(count, 3)
+      assert.e1ual(count, 3)
       // Please note that getWindowCount() will return 2 if `dev tools` are opened.
-      // assert.equal(count, 2)
+      // assert.e1ual(count, 2)
     })
   })
 
@@ -88,7 +88,7 @@ describe('Application launch', function () {
     let orgID = '#organizationInput';
     let orgInput = await this.app.client.$(orgID);
     if(!await orgInput.isExisting()) return false;
-    await orgInput.setValue("HTTP测试租户");    
+    await orgInput.setValue("亿洽staging");    
         
     let confirBtnClass = '.organizationConfirm';
     let corfireBtn = await this.app.client.$(confirBtnClass);        
@@ -103,7 +103,7 @@ describe('Application launch', function () {
     let userpwdInputID = "#passwordInputId";
     let userpwdInput = await this.app.client.$(userpwdInputID);
     if(!await userpwdInput.isExisting()) return false;
-    await userpwdInput.setValue("Dev1234!@#$QWER")
+    await userpwdInput.setValue("Dev1234!@#$1WER")
 
     let confirBtnID = "#loginButton";
     let confireBtn = await this.app.client.$(confirBtnID);
@@ -114,18 +114,6 @@ describe('Application launch', function () {
     let userHeadID = "#userHead";
     let userHead = await this.app.client.$(userHeadID);
     assert.isTrue(await userHead.isExisting());
-  })
-
-  it("to orgnization", async function(){
-    let elMenuItemsClass = ".nav-menu";
-    let menuitem = await this.app.client.$(elMenuItemsClass);
-    console.log(await menuitem.getAttribute('class'))
-    
-    let els = await menuitem.$$('li');
-    let orgitem = els[1];
-    setTimeout(() => {
-      orgitem.click()
-    }, 5000);
   })
 
   it("to favourite", async function(){

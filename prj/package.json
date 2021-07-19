@@ -21,7 +21,8 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "",
-    "test": "mocha test/index.spec.js "
+    "test": "mocha test/e2e/index.spec.js ",
+    "itest": "mocha test/api"
   },
   "build": {
     "productName": "EachChat",

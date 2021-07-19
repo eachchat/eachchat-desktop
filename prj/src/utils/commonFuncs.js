@@ -80,3 +80,10 @@ export function UpdateUserAvater(ev){
       }
   }
 }
+
+export function checkIsTesting() {
+    let checkDom = document.getElementById('chat-send');
+    console.log("check is testing dom is ", checkDom.style)
+    if(checkDom && checkDom.style.display == "none") return false;
+    else return true;
+}

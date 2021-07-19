@@ -16,11 +16,13 @@ import i18n from '../i18n/';
 import warningDlg from './globalComponents/warningDlg.js';
 import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
+import contextMenu from '../plugins/ContextMenu'
 Vue.use(Viewer)
 Vue.use(VueCropper)
 Vue.use(toastMessage)
 Vue.use(ElementUI)
 Vue.use(VueVirtualScroller)
+Vue.use(contextMenu)
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false

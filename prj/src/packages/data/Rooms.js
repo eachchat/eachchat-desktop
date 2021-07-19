@@ -190,3 +190,26 @@ function guessDMRoomTargetId(room, myUserId) {
     if (oldestUser === undefined) return myUserId;
     return oldestUser.userId;
 }
+
+/**
+ * check whether the room is an empty room whose name is Empty Room
+ * which is caused for the others member of the room have left 
+ * @param {Object} room 
+ * @returns Boolean
+ */
+ export function checkIsEmptyRoom(room, myUserId) {
+    let checkMxMember = [];
+    for(let key in room.currentState.members) {
+        let o = room.currentState.members[key];
+        if (o.membership != 'leave') checkMxMember.push(o);
+    }
+    if(checkMxMember.length == 1) {
+        var distMember = checkMxMember[0];
+        if((distMember.userId ? distMember.userId : distMember.user.userId) == myUserId) {
+            return true;
+        }
+    }
+    if(checkMxMember.length == 0) {
+        return true;
+    }
+}

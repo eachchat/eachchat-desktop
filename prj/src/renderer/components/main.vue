@@ -8,7 +8,7 @@
             <el-menu
                 class="nav-menu">
                 <el-menu-item 
-                    :disabled = 'navEnable || dataIsLoading || dbDataNotFinished'
+                    :disabled = 'navEnable || dataIsLoading'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
@@ -31,7 +31,7 @@
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk" :dbDataFinished = "dbDataFinished"/>
             </keep-alive>
         </el-main>
         <div class="loadingDiv" v-show="navEnable || dataIsLoading">
@@ -40,7 +40,7 @@
                 <div class="loadingText">正在加载数据</div>
             </div>
         </div>
-        <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
+        <personalCenter v-if="showPersonalCenter"></personalCenter>
         <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" :showUpgradeAlertDlg = "showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo"/>
         <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="toChangePassword" :haveBG="true"/>
@@ -113,7 +113,7 @@ export default {
             toSaveDraft: 0,
             navEnable: true,
             dataIsLoading: true,
-            dbDataNotFinished: true, 
+            dbDataFinished: false, 
             scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
@@ -160,7 +160,6 @@ export default {
     
             showPersonalCenter:false,
             showPersonalInfo: false,
-            personalCenterKey: 0,
             loadingInterval: undefined,
             loadingElement: undefined,
             curRotate: 0,
@@ -217,23 +216,7 @@ export default {
             this.closeAlertDlg();
             this.showChangePassword = true;
         },
-        showPersonalInfoHanlder: async function(value){
-            if(value){
-                this.personalCenterKey ++;
-                const userId = window.localStorage.getItem("mx_user_id");
 
-                let userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                if(userInfo){
-                    this.showPersonalCenter = true;
-                    this.showPersonalInfo = true;
-                    this.userInfo = userInfo;
-                    this.userInfo.displayName = this.displayName;
-                }
-                else{
-                    alert("数据库没有找到用户信息")
-                }
-            }
-        },
         getUnReadCount(unReadCount) {
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "..." : unReadCount;
@@ -456,7 +439,6 @@ export default {
             this.showPersonalInfo = false;
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             this.displayName = profileInfo.displayname;
-            this.personalCenterKey ++;
         },
         startCheckUpgrade: async function() {
             var newVersion = await global.services.common.GetNewVersion();
@@ -626,6 +608,7 @@ export default {
             if(!gmsRet){
                 backToLogin();
             }
+            global.services.common.setGmsConfiguration(gmsRet);
             var host = window.localStorage.getItem("mx_hs_url");
             if(host == null) {
                 backToLogin();
@@ -640,7 +623,7 @@ export default {
         await global.services.common.login();
         this.startCheckUpgrade();
         global.services.common.InitDbData().then(ret => {
-            this.dbDataNotFinished = false;
+            this.dbDataFinished = true;
         });
         
         var host = window.localStorage.getItem("mx_hs_url");

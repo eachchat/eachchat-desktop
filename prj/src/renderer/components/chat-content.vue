@@ -105,26 +105,6 @@
             <!-- </transition-group> -->
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
-            <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople && false">
-              <div class="search-list-content-label">联系人</div>
-              <div class="search-list-content-content">
-                <ul class="search-list-content-list">
-                  <li class="search-item"
-                      v-for="searchPeopleItem in searchPeopleItems"
-                      @click="showPeopleInfo($event, searchPeopleItem)"
-                      >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemPeopleImgElementId(searchPeopleItem.matrix_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name" :id="getSearchItemPeopleNameElementId(searchPeopleItem.matrix_id)">{{searchPeopleItem.user_display_name}}</p>
-                      <p class="search-item-position">{{searchPeopleItem.user_title}}</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
-            </div>
             <div class="search-list-chat-message" id="search-list-chat-message-id" v-show="showSearchAllDMChat">
               <div class="search-list-chat-label">联系人</div>
               <div class="search-list-chat-content">
@@ -220,28 +200,6 @@
                 </ul>
               </div>
             </div>
-            <div class="search-list-content-file" id="search-list-content-file-id" v-show="showSearchFile && false">
-              <div class="search-list-content-label">文件</div>
-              <div class="search-list-content-content">
-                <ul class="search-list-content-list">
-                  <li class="search-item"
-                      v-for="searchFileItem in searchFileItems"
-                      @click="showFileInfo(searchFileItem)"
-                      >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchFileItem.timelineId)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name">{{searchFileItem.content.fileName}}</p>
-                      <p class="search-item-position" :id="getFileNameItemElementId(searchFileItem.timelineId)">{{searchFileItem.position}}</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="search-list-content-more-div" v-show="showsearchAllFile">
-                <div class="search-list-content-more-label" @click="showAllSearchFiles">查看全部 >></div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="chat-empty-middle" id="chat-empty-middle-id" v-show="isEmpty">
@@ -295,7 +253,7 @@ import {changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
-import { UpdateUserAvater } from '../../utils/commonFuncs.js'
+import { UpdateUserAvater, checkIsTesting } from '../../utils/commonFuncs.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
@@ -305,6 +263,7 @@ import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
 import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
+import { checkIsEmptyRoom } from "../../packages/data/Rooms";
 export default {
   components: {
     ChatPage,
@@ -347,9 +306,23 @@ export default {
     toUpdateRooms: {
       type: Number,
       default: 0
+    },
+
+    dbDataFinished:{
+      type: Boolean,
+      default: false
     }
   },
   watch: {
+    dbDataFinished(){
+      console.log(this.dbDataFinished);
+      if(this.bGetLastShowMessage){
+        this.showGroupIconName()
+        this.sortGroup();
+        this.$emit('toDataOk');  
+      }
+    },
+
     toUpdateRooms: function() {
         this.showGroupList.length = 0;
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
@@ -522,7 +495,6 @@ export default {
         console.log('-----created removedRoomIds-----', removedRoomIds)
         removedRoomIds = [...removedRoomIds];
         let sg = [...this.showGroupList];
-        console.log('kankanSg----', sg)
         sg.forEach(s => {
           if (removedRoomIds.indexOf(sg.roomId) >= 0) {
             s.localRemoved = true
@@ -792,7 +764,8 @@ export default {
       oldElementGroupDiv: null,
       unreadIndex: -1,
       hasUnreadItems: [],
-      removedRoomIds: []
+      removedRoomIds: [],
+      bGetLastShowMessage: false
     };
   },
   methods: {
@@ -1840,6 +1813,66 @@ export default {
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
+        if(checkIsTesting()) {
+          let unread = groupItem.getUnreadNotificationCount();
+
+          let menuObj = {
+            distItem: groupItem,
+            menuList: [
+            ],
+            position: {
+              clientX: e.clientX,
+              clientY: e.clientY
+            }
+          }
+          
+          if(unread != 0) {
+            let readerState = {
+              name: "标记已读",
+              func: this.SetRoomReader
+            }
+            menuObj.menuList.push(readerState);
+          }
+          
+          if(this.groupIsInFavourite(groupItem)) {
+            let favouriteMenu = {
+              name: "取消置顶",
+              func: this.unFavouriteIt
+            }
+            menuObj.menuList.push(favouriteMenu);
+          }
+          else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
+            let favouriteMenu = {
+              name: "置顶聊天",
+              func: this.favouriteIt
+            }
+            menuObj.menuList.push(favouriteMenu);
+          }
+          
+          if(this.groupIsInLowPriority(groupItem)){
+            let lowPriorityMenu = {
+              name: "取消置底",
+              func: this.DelRoomLowpriority
+            }
+            menuObj.menuList.push(lowPriorityMenu);
+          }
+          else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+            let lowPriorityMenu = {
+              name: "置底聊天",
+              func: this.SetRoomLowpriority
+            }
+            menuObj.menuList.push(lowPriorityMenu);
+          }
+
+          let deleteMenu = {
+            name: "删除",
+            func: this.removeGroup
+          }
+          menuObj.menuList.push(deleteMenu);
+
+          this.$contextMenu(menuObj);
+          return;
+        }
 
         this.menu = new Menu();
         let unread = groupItem.getUnreadNotificationCount();
@@ -2132,10 +2165,7 @@ export default {
       }
       let curIdSpliterInfo = this.selfUserId.split(":");
       let curDomainKey = curIdSpliterInfo.pop();
-      let allUid = [];
-      let checkingInterval = null;
-      let maxTimes = 60;
-      let curTimes = 0;
+
       let isOtherDomain = matrix_id => {
         let idSplitInfo = matrix_id.split(":");
         let idDomainKey = idSplitInfo.pop();
@@ -2144,61 +2174,20 @@ export default {
         if(curDomainKey == idDomainKey) return false;
         else return true;
       }
-      let toGet = async () => {
-        for(let i=0;i<this.showGroupList.length;i++) {
-          let item = this.showGroupList[i];
-          if(isOtherDomain(item.roomId)) continue;
-          var distTimeLineInfo = await this.GetLastShowMessage(item);
-          var distTimeLine = distTimeLineInfo[0];
-          if(distTimeLine == undefined) continue;
 
-          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-          if(sender.userId) {
-            sender = sender.userId;
-          }
-          if(allUid.indexOf(sender) < 0) {
-            allUid.push(sender);
-          }
-        }
+      for(let item of this.showGroupList) {
+          if(isOtherDomain(item.roomId)) continue;
+          await this.GetLastShowMessage(item);     
       }
-      let toCheck = async () => {
-        let loadingFinished = true;
-        for(let i=0;i<allUid.length;i++) {
-          if(curTimes > maxTimes) {
-            break;
-          }
-          curTimes += 1;
-          let matrix_id = allUid[i];
-          let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
-          console.log("=======userInfo ", userInfo);
-          if(userInfo && userInfo.user_display_name.length != 0)
-          {
-            continue;
-          }
-          if(isOtherDomain(matrix_id)) {
-            continue;
-          }
-          console.log("========matrix_id is ", matrix_id);
-          loadingFinished = false;
-          break;
-        }
-        return loadingFinished;
+
+      this.bGetLastShowMessage = true;
+      if(this.dbDataFinished){
+        this.showGroupIconName()
+        this.sortGroup();
+        this.$emit('toDataOk');  
       }
-      await toGet();
-      checkingInterval = setInterval(() => {
-        toCheck().then((ret) => {
-          console.log("=========tucheck ret is ", ret);
-          if(ret) {
-            clearInterval(checkingInterval);
-            this.showGroupIconName()
-              .then((ret) => {
-                  this.sortGroup();
-                  this.$emit('toDataOk');
-                })
-          }
-        })
-      }, 500)
     },
+
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
@@ -2944,26 +2933,12 @@ export default {
         return "chat-groupList-name-" + groupId;
       }
     },
-    checkIsEmptyRoom(chatGroupItem) {
-      let checkMxMember = [];
-      for(let key in chatGroupItem.currentState.members) {
-          // let isAdmin = xie1.currentState.members[key].powerLevel == 100;
-          let o = chatGroupItem.currentState.members[key];
-          if (o.membership != 'leave') checkMxMember.push(o);
-      }
-      if(checkMxMember.length == 1) {
-          var distMember = checkMxMember[0];
-          if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-              return true;
-          }
-      }
-      if(checkMxMember.length == 0) {
-        return true;
-      }
-    },
     getShowGroupName(chatGroupItem) {
       if(chatGroupItem.name.startsWith("Empty room")) {
-        if(this.checkIsEmptyRoom(chatGroupItem)) {
+        if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+          this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        }
+        if(checkIsEmptyRoom(chatGroupItem, this.selfUserId)) {
           return "空聊天室";
         }
       }
@@ -3289,7 +3264,6 @@ export default {
               return [timeLineTmp, distTimeItem];
             }
           }
-          continue;
         }
       }
 
@@ -3301,35 +3275,35 @@ export default {
       )
       await _timelineWindow.load(undefined, 20);
       var originalFileListInfo = _timelineWindow.getEvents();
-      originalFileListInfo.forEach((item) => {
+      for(let item of originalFileListInfo){
         if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
             if(!item.isRedacted()) {
               distItem = item;
-              return;
+              break;
             }
         }
-      })
+      }
       let fileListInfoTmp = [];
       while(_timelineWindow.canPaginate('b') && distItem == undefined) {
           await _timelineWindow.paginate("b", 20);
           fileListInfoTmp = await _timelineWindow.getEvents();
-          fileListInfoTmp.forEach((item) => {
+          for(let item of fileListInfoTmp){
             if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
               if(!item.isRedacted()) {
                 distItem = item;
-                return[undefined, undefined];
+                break;
               }
             }
-          })
+          }
       }
 
       if(distItem == undefined) {
-        fileListInfoTmp.forEach((item) => {
+        for(let item of fileListInfoTmp){
           if(item.getType() == 'm.room.create') {
               distTimeItem = item;
-              return;
+              break;
           }
-        })
+        }
       }
 
       return [distItem, distTimeItem]
@@ -3450,7 +3424,6 @@ export default {
         this.showGroupIconName();
       }
       else {
-        this.searchKeyFromList = "";
         /*
         let groupItemElementID = this.ChatGroupId(chatGroup);
         let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
@@ -3484,7 +3457,8 @@ export default {
         console.log("*** ", searchKey, " *** ", index);
         this.curChat = chatGroup;
         this.searchChat = chatGroup;
-
+        this.searchKeyFromList = "";
+        
         ipcRenderer.send("stopFlash");
 
         this.curindex = index;
@@ -3656,7 +3630,7 @@ export default {
       this.unreadCount = 0;
     }
 
-    ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
+    // ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
