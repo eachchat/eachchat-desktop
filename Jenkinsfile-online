@@ -12,7 +12,7 @@ pipeline {
         REGISTRY = 'docker.io'
         DOCKERHUB_NAMESPACE = 'docker_username'
         GITHUB_ACCOUNT = 'eachchat'
-        APP_NAME = 'desktoptest'
+        APP_NAME = 'eachchat-desktop'
         SONAR_CREDENTIAL_ID = 'sonar-token'
     }
 
