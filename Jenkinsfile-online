@@ -17,7 +17,7 @@ pipeline {
     }
 
     stages{
-            stage('window build'){
+            stage('ubuntu build'){
                 agent {
                     label 'eachchat-desktop-ubuntu'
                 }
