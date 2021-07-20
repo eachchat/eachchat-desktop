@@ -38,9 +38,10 @@ pipeline {
                         waitForQualityGate abortPipeline: true
                     }
 
-                    bat '''
+                    sh '''
                     cd ./prj
                     yarn run build
+                    yarn test
                     '''
                 }
                 
