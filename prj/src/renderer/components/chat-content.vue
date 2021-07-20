@@ -2042,7 +2042,13 @@ export default {
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
-        var distTimeLineInfo = await this.GetLastShowMessage(item);
+        let distTimeLineInfo = [];
+        try{
+          distTimeLineInfo = await this.GetLastShowMessage(item);
+        }
+        catch(e) {
+          console.log("updateGroupContent GetLastShowMessage exception of ", item, " and exception is ", e);
+        }
         var distTimeLine = distTimeLineInfo[0];
         var distTimeTimeLine = distTimeLineInfo[1];
         if(distTimeLine == undefined) {
@@ -2177,7 +2183,12 @@ export default {
 
       for(let item of this.showGroupList) {
           if(isOtherDomain(item.roomId)) continue;
-          await this.GetLastShowMessage(item);     
+          try{
+            await this.GetLastShowMessage(item);
+          }
+          catch(e) {
+            console.log("getNeededUid GetLastShowMessage exception of ", item, " and exception is ", e);
+          }
       }
 
       this.bGetLastShowMessage = true;
