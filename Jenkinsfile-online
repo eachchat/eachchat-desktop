@@ -19,7 +19,7 @@ pipeline {
     stages{
             stage('window build'){
                 agent {
-                    label 'eachchat-desktop-win10'
+                    label 'eachchat-desktop-ubuntu'
                 }
                 
                 steps {
@@ -27,7 +27,11 @@ pipeline {
 
                     withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
                         withSonarQubeEnv('sonar') {
-                            bat "sonar-scanner.bat -Dsonar.projectKey=eachchat-desktop -Dsonar.sources=./prj -Dsonar.host.url=http://103.61.37.73:30610 -Dsonar.login=8c326403bae435be96bc5e4eb82a257e3ea91fdf"
+                            sh 'sonar-scanner \
+                            -Dsonar.projectKey=eachchat-desktop \
+                            -Dsonar.sources=prj \
+                            -Dsonar.host.url=http://103.61.37.73:30610 \
+                            -Dsonar.login=8c326403bae435be96bc5e4eb82a257e3ea91fdf'
                         }
                     }
                     timeout(time: 1, unit: 'HOURS') {
