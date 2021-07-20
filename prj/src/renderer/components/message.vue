@@ -28,11 +28,7 @@
                             <p class="file-size" v-show="false">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
-                    <div class="chat-msg-content-mine-transmit" :id="transmitMsgId()"
-                        v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
-                        <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
-                    </div>
+                    <Transmit class="chat-msg-content-mine-transmit" v-else-if="MsgIsTransmit()" :Timeline="Timeline"></Transmit>
                     <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
@@ -94,11 +90,7 @@
                             <p class="file-size">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
-                    <div class="chat-msg-content-other-transmit" :id="transmitMsgId()"
-                        v-on:click="ShowFile()" v-else-if="MsgIsTransmit()">
-                        <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
-                        <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
-                    </div>
+                    <Transmit class="chat-msg-content-other-transmit" v-else-if="MsgIsTransmit()" :Timeline="Timeline"></Transmit>
                     <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
@@ -128,7 +120,6 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import {shell} from 'electron'
 import {ipcRenderer} from 'electron'
-import { remote } from 'electron'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import confservice from '../../packages/data/conf_service.js'
 import {fileMIMEFromType, FileUtil, getIconPath, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, decryptFile, getFileBlob} from '../../packages/core/Utils.js'
@@ -139,6 +130,7 @@ import linkify from './linkify'
 import emoji from './emoji'
 import { getImgUrlByEvent, getTextByEvent } from '../../utils/commonFuncs'
 import VoIP from './VoIP'
+import Transmit from './Transmit.vue'
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 600;
@@ -153,7 +145,8 @@ export default {
     components: {
         linkify,
         emoji,
-        VoIP
+        VoIP,
+        Transmit,
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     computed: {
@@ -206,9 +199,6 @@ export default {
             for(let event of pendingEvents){
                 global.mxMatrixClientPeg.matrixClient.resendEvent(event, theRoom);
             }
-        },
-        transmitMsgId: function() {
-            return "message-transmit-" + this.msg.event.event_id;
         },
         getMessageTemplateId: function() {
             return "message-template-" + this.msg.event.event_id;
@@ -489,112 +479,7 @@ export default {
                     // }
                     this.$emit('showImageOfMessage', this.msg);
                 }
-                else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
-                    var MsgList = chatGroupMsgContent.events;
-                    let showMsgList = await this.mergeDetails(MsgList);
-                    console.log("=====to show showMsgList ", showMsgList);
-                    let showMsgInfo = {
-                        title: this.transmitMsgTitle,
-                        list: showMsgList
-                    };
-                    let width = 615;
-                    let height = 508;
-                    if(remote.process.platform == "darwin") {
-                        height = 470;
-                        width = 600;
-                    }
-                    ipcRenderer.send("createChildWindow", {type: "TransmitMsgList",
-                    size:{width:width,height: height},
-                    transMsgInfo: showMsgInfo})
-                }
             }
-        },
-        mergeDetails: async function(Events) {
-            let getDetails = [];
-            for(let i = 0; i < Events.length; i++) {
-                let curEvent = Events[i];
-                let chatGroupMsgType = curEvent.type;
-                let chatGroupMsgContent = curEvent.content;
-                let curInfo = {};
-
-                var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender);
-                var userUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
-
-                if(chatGroupMsgType == "m.room.message") {
-                    if(chatGroupMsgContent.msgtype == "m.image") {
-                        let maxSize = 390;
-                        let info = {
-                            w: maxSize,
-                            h: maxSize
-                        };
-                        if(chatGroupMsgContent.info)
-                            info = chatGroupMsgContent.info
-                        if(!info.h)
-                            info.h = maxSize;
-                        if(!info.w)
-                            info.w = maxSize;
-
-                        curInfo = {
-                            msgtype: "m.image",
-                            url: global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url),
-                            event_id: curEvent.event_id,
-                            info: info,
-                            body: chatGroupMsgContent.body,
-                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
-                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
-                            senderUrl: userUrl,
-                            origin_server_ts: curEvent.origin_server_ts
-                        }
-                    }
-                    else if(chatGroupMsgContent.msgtype == "m.text") {
-                        curInfo = {
-                            msgtype: "m.text",
-                            event_id: curEvent.event_id,
-                            body: chatGroupMsgContent.body,
-                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
-                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
-                            senderUrl: userUrl,
-                            origin_server_ts: curEvent.origin_server_ts
-                        }
-                    }
-                    else if(chatGroupMsgContent.msgtype == "m.file") {
-                        let msgs = await Message.FindMessageByMesssageID(curEvent.event_id);
-                        let exitPath = "";
-                        console.log(msgs)
-                        if(msgs.length != 0 && msgs[0].file_local_path != "")
-                            exitPath = msgs[0].file_local_path;
-                        curInfo = {
-                            exitPath: exitPath,
-                            msgtype: "m.file",
-                            url: global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url),
-                            event_id: curEvent.event_id,
-                            info: chatGroupMsgContent.info,
-                            body: chatGroupMsgContent.body,
-                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
-                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
-                            senderUrl: userUrl,
-                            origin_server_ts: curEvent.origin_server_ts
-                        }
-                    }
-                    else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
-                        let mergeEvents = chatGroupMsgContent.events;
-                        let showMergeEvents = await this.mergeDetails(mergeEvents);
-                        curInfo = {
-                            msgtype: "each.chat.merge",
-                            event_id: curEvent.event_id,
-                            events: showMergeEvents,
-                            from_room_display_name: chatGroupMsgContent.from_room_display_name,
-                            body: chatGroupMsgContent.body,
-                            sender: (curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender,
-                            senderName: await ComponentUtil.GetDisplayNameByMatrixID((curEvent.sender && curEvent.sender.userId) ? curEvent.sender.userId : curEvent.sender),
-                            senderUrl: userUrl,
-                            origin_server_ts: curEvent.origin_server_ts
-                        }
-                    }
-                }
-                getDetails.push(curInfo);
-            }
-            return getDetails;
         },
         voicePlayingImg:function() {
             if (this.flashingInterval) {
@@ -1055,46 +940,6 @@ export default {
                 return style;
             }
         },
-        getTransmitContent: async function(events) {
-            let contents = "";
-            for(let i=0;i<events.length;i++) {
-                let chatGroupMsgType = events[i].type;
-                var chatGroupMsgContent = events[i].content ? events[i].content : events[i].getContent();
-                var fromUserName = await ComponentUtil.GetDisplayNameByMatrixID(((events[i].sender && events[i].sender.userId) ? events[i].sender.userId : events[i].sender));
-                if(chatGroupMsgType === "m.room.message")
-                {
-                    if(chatGroupMsgContent.msgtype == 'm.file'){
-                        let content = fromUserName + ":[文件]";
-                        contents = contents + content + "\n";
-                    }
-                    else if(chatGroupMsgContent.msgtype == 'm.text'){
-                        let noReturn = chatGroupMsgContent.body.replace(/\n/g, "").replace(/\r\n/g, "");
-                        let content = noReturn.length >= 16 ? fromUserName + ":" + noReturn.substring(0, 16) + "..." : fromUserName + ":" + noReturn;
-                        contents = contents + content + "\n";
-                    }
-                    else if(chatGroupMsgContent.msgtype == 'm.image'){
-                        let content = fromUserName + ":[图片]";
-                        contents = contents + content + "\n";
-                    }
-                    else if(chatGroupMsgContent.msgtype == 'm.audio'){
-                        let content = fromUserName + ":[语音]";
-                        contents = contents + content + "\n";
-                    }
-                    else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
-                        let content = fromUserName + ":[聊天记录]";
-                        contents = contents + content + "\n";
-                    }
-                    else {
-                        let content = fromUserName + ":[无法识别的消息类型]";
-                        contents = contents + content + "\n";
-                    }
-                }
-                if(i == 3) {
-                    break;
-                }
-            }
-            return contents;
-        },
         MsgContent: async function(is_mine=false) {
             if(this.msg === null) {
                 return '';
@@ -1172,34 +1017,7 @@ export default {
                     // fileMsgImgElement.setAttribute("height", 12);
                 }
                 else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
-                    let events = chatGroupMsgContent.events;
-                    let distElement = document.getElementById(this.transmitMsgId());
-                    if(events.length >= 4) {
-                        distElement.style.height = "97px";
-                    }
-                    else if(events.length == 3) {
-                        distElement.style.height = "85px";
-                    }
-                    else if(events.length == 2) {
-                        distElement.style.height = "73px";
-                    }
-                    else if(events.length == 1) {
-                        distElement.style.height = "61px";
-                    }
-                    let fromRoomid = chatGroupMsgContent.from_room_id;
-                    let fromRoomDisplayName = chatGroupMsgContent.from_room_display_name;
-                    let fromUserId1 = chatGroupMsgContent.from_matrix_ids ? chatGroupMsgContent.from_matrix_ids[0] : undefined;
-                    let fromUserId2 = chatGroupMsgContent.from_matrix_ids ? chatGroupMsgContent.from_matrix_ids[1] : undefined;
-                    let fromRoom = global.mxMatrixClientPeg.matrixClient.getRoom(fromRoomid);
-                    if(fromRoom && global.mxMatrixClientPeg.DMCheck(fromRoom) && fromUserId1 && fromUserId2) {
-                        let fromUserName1 = await ComponentUtil.GetDisplayNameByMatrixID(fromUserId1);
-                        let fromUserName2 = await ComponentUtil.GetDisplayNameByMatrixID(fromUserId2);
-                        this.transmitMsgTitle = fromUserName1 + "与" + fromUserName2 + "的聊天记录";
-                    }
-                    else {
-                        this.transmitMsgTitle = "群聊的聊天记录";//fromRoomDisplayName;
-                    }
-                    this.transmitMsgContent = await this.getTransmitContent(events);
+                    this.Timeline = this.msg;
                 }
                 else {
                     this.messageContent = "无法识别的消息类型";
@@ -1629,6 +1447,7 @@ export default {
     },
     data() {
         return {
+            Timeline: null,
             isVideo: -1,
             callId: '',
             VoipInfo: {},
