@@ -567,6 +567,23 @@ export default {
         async rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             console.log("*** e.target.className ", e.target.className);
+            
+            let element = document.getElementById(msgItem.event.event_id || msgItem.event.origin_server_ts);
+            let textElement;
+            if(element){
+                textElement = element.children[0];
+            }
+            let selectedObj = window.getSelection();
+            let selectedTxt = selectedObj.toString();
+
+            if (selectedTxt.length === 0 && textElement) {
+                let selection = window.getSelection();
+                let range = document.createRange();
+                range.selectNodeContents(textElement);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
             var showRedact = this.canRedact(msgItem);
             var senderId = msgItem.sender.userId ? msgItem.sender.userId : msgItem.event.sender;
             var showName = await ComponentUtil.GetDisplayNameByMatrixID(senderId);
