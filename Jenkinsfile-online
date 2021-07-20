@@ -27,7 +27,7 @@ pipeline {
 
                     withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
                         withSonarQubeEnv('sonar') {
-                            sh 'sonar-scanner \
+                            sh '/home/ubuntu/Desktop/sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner \
                             -Dsonar.projectKey=eachchat-desktop \
                             -Dsonar.sources=prj \
                             -Dsonar.host.url=http://103.61.37.73:30610 \
