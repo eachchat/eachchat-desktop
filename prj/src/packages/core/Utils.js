@@ -1139,6 +1139,14 @@ const faceUtils = {
     }
 }
 
+function EmojiTextToHtml(text){
+    let codedText = text.replace(new RegExp(emojiUnicodeRanges.join('|'), 'g'), function(emoji){
+        let path = faceUtils.getFaceImg(emoji);
+        return `<img style="vertical-align: middle; width: 20px" src = ${path}></img>`;
+      });
+    return codedText;
+}
+
 function insertStr(source, start, newStr) {
     return source.slice(0, start) + newStr + source.slice(start);
 }
@@ -1404,6 +1412,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, utf16toEntities, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob, emojiUnicodeRanges};
+export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, utf16toEntities, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob, emojiUnicodeRanges, EmojiTextToHtml};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
