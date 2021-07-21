@@ -1716,6 +1716,28 @@ export default {
         }
     },
     watch: {
+        msg: async function() {
+            setTimeout(() => {
+                // console.log("show state");
+                this.showState = true;
+                this.updateStatus = !this.updateStatus;
+            }, 500)
+            var userIconElementId = this.getUserIconId();
+            if(this.userIconElement == undefined) {
+                this.userIconElement = document.getElementById(userIconElementId);
+            }
+            this.MsgBelongUserImg();
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    if(this.MsgIsMine()) {
+                        this.MsgContent(true);
+                    }
+                    else {
+                        this.MsgContent(false);
+                    }
+                }, 0)
+            })
+        },
         playingMsgId: function() {
             if(this.amr != null && this.playingMsgId != this.msg.event.event_id) {
                 console.log("this.playingMsgId is ", this.playingMsgId);

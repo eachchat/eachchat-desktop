@@ -2434,7 +2434,8 @@ export default {
                             if(uldiv.clientHeight >= uldiv.scrollHeight) {
                                 roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                                     .then((ret) => {
-                                        for(let i=ret.length - 1;i>0;i--){
+                                        console.log("ret is ", ret);
+                                        for(let i = ret.length - 1; i >= 0 ; i--){
                                             this.messageList.push(ret[i]);
                                         }
 
@@ -2455,9 +2456,6 @@ export default {
         },
         checkScrollBar: function() {
             let uldiv = this.getMsgListElement();
-
-            uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
-            
             uldiv.removeEventListener('scroll', this.handleScroll);
             console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
             if(uldiv.clientHeight >= uldiv.scrollHeight) {
@@ -2473,8 +2471,6 @@ export default {
                                 
                                 uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
                                 this.isRefreshing = false;
-                                
-                                this.checkScrollBar();
                             })
                         }, 0);
                     })
@@ -2632,7 +2628,7 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
-                            for(let i=ret.length - 1;i>0;i--){
+                            for(let i = ret.length - 1; i >= 0 ; i--){
                                 this.messageList.push(ret[i]);
                             }
                             this.isRefreshing = false;
