@@ -29,9 +29,9 @@
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
-                    <li class="msg-loading" v-bind:key="123">
-                        <i class="el-icon-loading" v-show="isRefreshing"></i>
-                    </li>
+                    <div class="msg-loading" v-bind:key="123">
+                        <i class="el-icon-loading" v-show="true"></i>
+                    </div>
                     <li v-for="(item, index) in messageListShow"
                         :class="ChatLeftOrRightClassName(item)"
                         @contextmenu="rightClick($event, item)"
@@ -2429,13 +2429,20 @@ export default {
                         this.$nextTick(() => {
                             this.scrollToDistMsg(eventId);
                             let uldiv = this.getMsgListElement();
-                            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.offsetHeight)
-                            if(uldiv.clientHeight < uldiv.offsetHeight) {
+                            this.lastScrollHeight = uldiv.scrollHeight;
+                            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
+                            if(uldiv.clientHeight >= uldiv.scrollHeight) {
                                 roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                                     .then((ret) => {
                                         for(let i=ret.length - 1;i>0;i--){
                                             this.messageList.push(ret[i]);
                                         }
+
+                                        setTimeout(() => {
+                                            this.$nextTick(() => {
+                                                this.checkScrollBar();
+                                            })
+                                        }, 0);
                                     })
                             }
                             div.addEventListener('scroll', this.handleScroll);
@@ -2445,6 +2452,34 @@ export default {
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(distChat.roomId);
             this.existingMsgId = [];
             this.initDraft();
+        },
+        checkScrollBar: function() {
+            let uldiv = this.getMsgListElement();
+
+            uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+            
+            uldiv.removeEventListener('scroll', this.handleScroll);
+            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
+            if(uldiv.clientHeight >= uldiv.scrollHeight) {
+                roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
+                    .then((ret) => {
+                        for(let i=ret.length - 1;i>0;i--){
+                            this.messageList.unshift(ret[i]);
+                        }
+
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                console.log("---------update croll top is ", uldiv.scrollHeight);
+                                
+                                uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                this.isRefreshing = false;
+                                
+                                this.checkScrollBar();
+                            })
+                        }, 0);
+                    })
+            }
+            uldiv.addEventListener('scroll', this.handleScroll);
         },
         getTxnIdFromEventId: function(eventId) {
             for(var i=0;i<this.messageList.length;i++) {
@@ -2565,12 +2600,12 @@ export default {
                                 this.messageList.unshift(ret[i]);
                             }
 
-                            setTimeout(() => {
+                            // setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
                                     console.log("*** toBottom is ", toBottom)
                                     if(toBottom === true) {
-                                        uldiv.scrollTop = uldiv.scrollHeight + 52;
+                                        uldiv.scrollTop = uldiv.scrollHeight;
                                         this.isRefreshing = false;
                                     }
                                     else {
@@ -2579,7 +2614,7 @@ export default {
                                     }
                                     this.isScroll = false;
                                 })
-                            }, 0);
+                            // }, 0);
                         })
                     }
             }
@@ -3514,6 +3549,7 @@ export default {
     }
 
     .msg-loading {
+        height: 34px;
         width: 100%;
         margin: 5px 0 5px 0;
         text-align: center;
