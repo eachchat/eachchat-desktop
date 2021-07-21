@@ -91,7 +91,7 @@ export default {
             console.log('>>>>>room', room);
             let serverName = room.room_id.split(':')[1];
             let opts = {viaServers:[serverName]}
-            client.joinRoom(room.room_id, opts).then(obj => {
+            client.joinRoom(room.canonical_alias || room.room_id, opts).then(obj => {
                 console.log('--加入成功--', obj) //obj.roomId
                 publicRooms = publicRooms.map(p => {
                     if (p.room_id == obj.roomId) {
