@@ -1,10 +1,10 @@
 <template>
     <div class="emojiDiv">
       <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" >
-        <span v-if = "ind % 2 && item !== '。' && hasFaceImg(item)" >
-          <img :style="{fontSize: 1, paddingLeft: '1px', paddingRight: '1px', 'vertical-align': 'middle'}" :src = "getFaceImg(item)"></img>
+        <span class="emoji" v-if = "ind % 2 && item !== '。' && hasFaceImg(item)" >
+          <img class="emoji" :style="{fontSize: 1, paddingLeft: '1px', paddingRight: '1px', 'vertical-align': 'middle'}" :src = "getFaceImg(item)"></img>
         </span>
-        <span v-else>{{item}}</span>
+        <span class="emoji" v-else>{{item}}</span>
       </span>
       
     </div>
@@ -12,7 +12,7 @@
 
 <script>
 import {environment} from '../../packages/data/index.js'
-import {utf16toEntities, faceUtils, emojiUnicodeRanges} from '../../packages/core/Utils.js'
+import {faceUtils, emojiUnicodeRanges} from '../../packages/core/Utils.js'
 
 export default {
     name: 'emoji',
