@@ -1013,86 +1013,129 @@ function deleteall(path) {
 	}
 };
 
+var emojiUnicodeRanges = [
+    '\ud83c[\udf00-\udfff]', 
+    '\ud83d[\udc00-\ude4f]', 
+    '\ud83d[\ude80-\udeff]',
+    '\ud83d[\udc00-\udec5]',
+    '\ud83c[\udd70-\udf4e]',
+    '\ud83d[\udc00-\udec5]|\ud83c[\udd70-\udf4e]', 
+    '\ud83c[\udf00-\udfff]|\ud83d[\udc00-\ude4f]', 
+    '\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|[\u2000-\u2fff]',
+    '(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])',
+    /([\u{1F300}-\u{1F5FF}][\u{2000}-\u{206F}][\u{2700}-\u{27BF}]|([\u{1F900}-\u{1F9FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F600}-\u{1F64F}])[\u{2000}-\u{206F}][\u{2600}-\u{26FF}]|[\u{1F300}-\u{1F5FF}]|[\u{1F100}-\u{1F1FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F200}-\u{1F2FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F000}-\u{1F02F}]|[\u{FE00}-\u{FE0F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{0000}-\u{007F}][\u{20D0}-\u{20FF}]|[\u{0000}-\u{007F}][\u{FE00}-\u{FE0F}][\u{20D0}-\u{20FF}])$/u,
+    /[\u{2100}-\u{214F}]|[\u{2000}-\u{206F}]|[\u{2460}-\u{24FF}]|[\u{0080}-\u{00FF}]|[\u{2700}-\u{27BF}]|[\u{2600}-\u{26FF}]|[\u{2B00}-\u{2BFF}]|[\u{2300}-\u{23FF}]|[\u{25A0}-\u{25FF}]|[\u{3000}-\u{303F}]|[\u{3200}-\u{32FF}]|[\u{2900}-\u{297F}]|[\u{2190}-\u{21FF}]/u
+    ];
+
+
 const faceUtils = {
     alt: [
-        '&#128516;',//0
-      '&#128515;',//1
-      '&#128517;',//2
-      '&#128578;',//3
-      '&#128541;',//4
-      '&#128540;',//5
-      '&#128514;',//6
-      '&#129396;',//7
-      '&#128563;',//8
-      '&#128544;',//9
-      '&#128562;',//10
-      '&#129303;',//11
-      '&#128538;',//12
-      '&#128557;',//13
-      '&#128532;',//14
-      '&#128517;',//15
-      '&#128564;',//16
-      '&#129322;',//17
-      '&#128551;',//18
-      '&#128567;',//19
-      '&#128548;',//20
-      '&#129323;',//21
-      '&#129395;',//22
-      '&#129402;',//23
-      '&#128123;',//24
-      '&#128554;',//25
-      '&#128525;',//26
-      '&#128522;',//27
-      '&#128526;',//28
-      '&#128530;',//29
-      '&#128577;',//30
-      '&#129296;',//31
-      '&#128545;',//32
-      '&#129324;',//33
-      '&#128520;',//34
-      '&#128580;',//35
-      '&#128561;',//36
-      '&#128531;',//37
-      '&#128536;',//38
-      '&#129321;',//39
-      '&#129327;',//40
-      '&#128519;',//41
-    //   '&#129398;',//42
-      '&#127769;',//43
-      '&#127774;',//44
-      //'&#9889;',//45
-      '&#128565;',//46
-      '&#128269;',//47
-      '&#128163;',//48
-      '&#127867;',//49
-      '&#128079;',//50
-      '&#128074;',//51
-      '&#128170;',//52
-      '&#129309;',//53
-      '&#128591;',//54
-      '&#128076;',//55
-      '&#128078;',//56
-      '&#128077;',//57
-      //'&#9996;',//58
-      '&#128071;',//59
-      '&#128072;',//60
-      '&#128073;',//61
-      '&#128070;',//62
-      //'&#9757;',//63
-      //'&#9994;',//64 
-      '&#128068;',//65
-      '&#128138;',//66
-      '&#128169;',//67
-      //'&#9917;',//68
-      '&#128345;',//70
+        '0x1F600',
+        '0x1F601',
+        '0x1F602',
+        '0x1F603',
+        '0x1F604',
+        '0x1F605',
+        '0x1F606',
+        '0x1F607',
+        '0x1F608',
+        '0x1F609',
+        '0x1F60A',
+        '0x1F60B',
+        '0x1F60C',
+        '0x1F60D',
+        '0x1F60E',
+        '0x1F60F',
+        '0x1F610',
+        '0x1F611',
+        '0x1F612',
+        '0x1F613',
+        '0x1F614',
+        '0x1F615',
+        '0x1F616',
+        '0x1F617',
+        '0x1F618',
+        '0x1F619',
+        '0x1F61A',
+        '0x1F61B',
+        '0x1F61C',
+        '0x1F61D',
+        '0x1F61E',
+        '0x1F61F',
+        '0x1F620',
+        '0x1F621',
+        '0x1F622',
+        '0x1F623',
+        '0x1F624',
+        '0x1F625',
+        '0x1F626',
+        '0x1F627',
+        '0x1F628',
+        '0x1F629',
+        '0x1F62A',
+        '0x1F62B',
+        '0x1F62C',
+        '0x1F62D',
+        '0x1F62E',
+        '0x1F62F',
+        '0x1F630',
+        '0x1F631',
+        '0x1F632',
+        '0x1F633',
+        '0x1F634',
+        '0x1F635',
+        '0x1F636',
+        '0x1F637',
+        '0x1F47B',
+        '0x1F480',
+        '0x1F383',
+        '0x1F4A9',
     ],
-    faces: function() {
-      let self = this;
-      let arr = {};
-      for (let i = 0; i < self.alt.length; i++) {
-        arr[self.alt[i]] = './static/Img/Chat/face/' + i + '.png';
-      }
-      return arr;
+    codePointFaces: [],
+    codePointFacesMap: new Map(),
+    faceFolder: './static/Img/Chat/face/',
+    extName: ".png",
+
+    GetPointFaces(){
+        if(this.codePointFaces.length != 0){
+            return this.codePointFaces;
+        }
+        this.alt.forEach(item => {
+            this.codePointFaces.push(String.fromCodePoint(item));
+        })
+        return this.codePointFaces;
+    },
+
+    GetPointFaceMap(){
+        if(this.codePointFacesMap.size !== 0){
+            return this.codePointFacesMap;
+        }
+        this.alt.forEach(item => {
+            this.codePointFacesMap.set(String.fromCodePoint(item), this.faceFolder + item.slice(2) + this.extName);
+        })
+        return this.codePointFacesMap;
+    },
+
+    hasFaceCode(facecode){
+        let index = this.codePointFaces.indexOf(facecode);
+        if(index == -1) 
+            return false
+        return true;
+    },
+
+    getFaceImg(facecode){
+        return this.codePointFacesMap.get(facecode);
+    },
+
+    getFaceCode(faceImg, compare = (a, b) => a === b){
+        let keyIterator = this.codePointFacesMap.keys();
+        let key;
+        while(!keyIterator.done){
+            key = keyIterator.next().value;
+            if(this.codePointFacesMap.get(key) == faceImg){
+                return key;
+            }
+        }
     }
 }
 
@@ -1116,6 +1159,22 @@ function uncodeUtf16(str){
     });
     return result;
  }
+
+ function utf16toEntities(str) { 
+    var patt=/[\ud800-\udbff][\udc00-\udfff]/g;
+    str = str.replace(patt, function(char){ 
+        var H, L, code; 
+        if (char.length===2) { 
+            H = char.charCodeAt(0); 
+            L = char.charCodeAt(1); 
+            code = (H - 0xD800) * 0x400 + 0x10000 + L - 0xDC00;
+            return "&#" + code + ";"; 
+        } else { 
+            return char; 
+        } 
+    }); 
+    return str; 
+}
 
 function getIconPath(ext) {
     if(ext.startsWith(".")) {
@@ -1345,6 +1404,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob};
+export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, utf16toEntities, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob, emojiUnicodeRanges};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

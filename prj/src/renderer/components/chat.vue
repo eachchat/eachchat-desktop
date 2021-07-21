@@ -170,32 +170,29 @@ import * as Quill from 'quill'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
 import Faces from './faces.vue';
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
+import {getFileSizeNum, generalGuid, FileUtil, uncodeUtf16, strMsgContentToJson, sliceReturnsOfString, GetFileType, faceUtils} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
-import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
+import { Message, UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import mxChatTopicDlg from './mxChatTopicDlg'
-import {Filter} from 'matrix-js-sdk';
-import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
-import encrypt from 'browser-encrypt-attachment';
 import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
-import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
+import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard, checkIsTesting } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
 import { checkIsEmptyRoom } from "../../packages/data/Rooms";
-const {Menu, MenuItem, nativeImage} = remote;
+const {Menu, MenuItem} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
 var canNewLine = false;
@@ -1699,7 +1696,9 @@ export default {
         insertFace: function(item) {
             var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
             getProperty(this.editor, 'selection.savedRange.index', 0) 
-            this.editor.insertText(curIndex, uncodeUtf16(item));
+
+            let faceImg = faceUtils.getFaceImg(item);
+            this.editor.insertEmbed(curIndex, 'image', faceImg);
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
@@ -1932,6 +1931,11 @@ export default {
                             sendBody.format = "org.matrix.custom.html";
                         }
                     }
+                }
+                else if(curMsgItem.hasOwnProperty("image")){
+                    let faceImg = curMsgItem.image;
+                    let facecode = faceUtils.getFaceCode(faceImg);
+                    sendText += facecode;
                 }
                 else{
                     curMsgItem = sliceReturnsOfString(curMsgItem);
