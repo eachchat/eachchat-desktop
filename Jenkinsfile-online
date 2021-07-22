@@ -31,7 +31,7 @@ pipeline {
                             -Dsonar.projectKey=eachchat-desktop \
                             -Dsonar.sources=prj \
                             -Dsonar.host.url=http://192.168.14.25:30244 \
-                            -Dsonar.login=$sonar-token'
+                            -Dsonar.login="$sonar-token"'
                         }
                     }
                     timeout(time: 1, unit: 'HOURS') {
