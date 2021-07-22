@@ -25,19 +25,6 @@ pipeline {
                 steps {
                     checkout(scm)
 
-                    withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
-                        withSonarQubeEnv('sonar') {
-                            sh '/Users/jenkins/Desktop/sonar-scanner-4.6.2.2472-macosx/bin/sonar-scanner \
-                            -Dsonar.projectKey=eachchat-desktop \
-                            -Dsonar.sources=prj/src \
-                            -Dsonar.host.url=http://192.168.14.25:30244 \
-                            -Dsonar.login=4ddb6efe86abf3c99c37138da50cf23616baec6c'
-                        }
-                    }
-                    timeout(time: 1, unit: 'HOURS') {
-                        waitForQualityGate abortPipeline: true
-                    }
-
                     sh '''
                     cd ./prj
                     yarn run build
