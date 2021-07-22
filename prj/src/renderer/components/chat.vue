@@ -2843,14 +2843,6 @@ export default {
                     if(!messageList) return;
                     for(let i=messageList.length - 1;i>0;i--){
                         this.messageList.unshift(messageList[i]);
-                        setTimeout(() => {
-                            this.$nextTick(() => {
-                                let div = this.getMsgListElement();
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight;
-                                }
-                            })
-                        }, 90)
                     }
                 })
         }
