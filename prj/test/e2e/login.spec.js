@@ -69,7 +69,7 @@ describe('Application launch', function () {
 
   after(function () {
     if (this.app && this.app.isRunning()) {
-      //return this.app.stop()
+      return this.app.stop()
     }
   })
 
@@ -98,12 +98,12 @@ describe('Application launch', function () {
     
     let usernameInputID = "#accountInputId";
     let usernameInput = await this.app.client.$(usernameInputID);
-    await usernameInput.setValue("chengfang.ai")
+    await usernameInput.setValue("eachchatdesktop")
 
     let userpwdInputID = "#passwordInputId";
     let userpwdInput = await this.app.client.$(userpwdInputID);
     if(!await userpwdInput.isExisting()) return false;
-    await userpwdInput.setValue("Dev1234!@#$QWER")
+    await userpwdInput.setValue("eachchatdesktop")
 
     let confirBtnID = "#loginButton";
     let confireBtn = await this.app.client.$(confirBtnID);

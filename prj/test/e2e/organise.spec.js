@@ -128,7 +128,7 @@ describe('Application launch', function () {
     await sleep(2000);
     orgitem.click();
   })
-/*
+
   it("search department", async function(){
     let searchInputClass = ".echat-search-input";
     let searchInputItem = await app.client.$(searchInputClass);
@@ -265,14 +265,13 @@ describe('Application launch', function () {
   })
 
   
-*/
+/*
   async function SetContactElementValue(classValue, textValue){
     let elm = await app.client.$(classValue)
     let father = await elm.parentElement();
     let findElm = await(await father.$(".ContactInput")).$("input");
     await findElm.setValue(textValue);
   }
-/*
   it("add contact", async function(){
     await (await app.client.$(".chat-tool-invite-div")).click();
     await (await app.client.$(".newContactDiv")).click();
