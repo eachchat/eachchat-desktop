@@ -80,7 +80,7 @@ describe('Application launch', function () {
 
   after(function () {
     if (app && app.isRunning()) {
-      //return app.stop()
+      return app.stop()
     }
   })
   
