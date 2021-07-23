@@ -33,7 +33,6 @@ pipeline {
 
                     bat '''
                     cd ./prj
-                    yarn run build
                     yarn test
                     '''
                 }
