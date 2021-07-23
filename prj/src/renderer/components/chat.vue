@@ -32,13 +32,13 @@
                     <div class="msg-loading" v-bind:key="123">
                         <i class="el-icon-loading" v-show="true"></i>
                     </div>
-                    <li v-for="(item, index) in messageListShow"
+                    <li v-for="(item, index) in messageList"
                         :class="ChatLeftOrRightClassName(item)"
                         @contextmenu="rightClick($event, item)"
                         v-bind:key="ChatMessageId(item)"
                         v-show="!isDeleted(item)"
                         :id="chatMsgDivId(item._txnId ? item._txnId : item.event.event_id)">
-                        <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
+                        <div class="msg-info-time" v-show="showTimeOrNot(item, messageList[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
@@ -1805,7 +1805,7 @@ export default {
                 else{
                     eventTmp.event.content.msgtype = "m.file";
                 }
-                this.$store.commit("saveSendingEvents", eventTmp);
+                this.$store.commit("saveSendingEvents", Object.assign({}, eventTmp));
                 this.messageList.push(eventTmp);
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -1871,7 +1871,7 @@ export default {
                 _txnId: curTimeSeconds,
                 message_status: 1,
             };
-            this.$store.commit("saveSendingEvents", eventTmp);
+            this.$store.commit("saveSendingEvents", Object.assign({}, eventTmp));
             this.messageList.push(eventTmp);
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -2844,6 +2844,12 @@ export default {
                     for(let i=messageList.length - 1;i>0;i--){
                         this.messageList.unshift(messageList[i]);
                     }
+
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.checkScrollBar();
+                        })
+                    }, 100);
                 })
         }
     },
@@ -3071,11 +3077,6 @@ export default {
         this.services = global.services.common;
     },
     computed: {
-        messageListShow: {
-            get: function() {
-                return this.messageList;
-            }
-        }
     },
     props: {
         chat: {
@@ -3187,10 +3188,30 @@ export default {
                 return;
             }
             if(this.newMsg.event.room_id != this.curChat.roomId) return;
+            roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 1);
             
             if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) || !this.newMsg._txnId) {
                 this.messageList.push(this.newMsg);
             }
+            else {
+                this.messageList = [];
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.curChat.roomId);
+                
+                for(let i = 0; i < this.curChat.timeline.length; i++){
+                    let exitEventIndex = this.curChat.timeline[i]._txnId ? sendingTxIds.indexOf(this.curChat.timeline[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', this.curChat.timeline[i]);
+                    }
+                    if(roomTimeLineHandler.shareInstance().messageFilter(this.curChat.timeline[i])){
+                        this.messageList.push(this.curChat.timeline[i]);
+                    }
+                }
+                let sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=sendingList.length - 1; i > 0; i--){
+                    this.messageList.unshift(sendingList[i]);
+                }
+            }
+
             let toBottom = false;
 
             if(this.IsBottom()) {
