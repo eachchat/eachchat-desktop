@@ -23,14 +23,6 @@ pipeline {
                 }
                 
                 steps {
-                    checkout(scm)
-
-                    withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
-                        withSonarQubeEnv('sonar') {
-                            bat 'sonar-scanner.bat -D"sonar.projectKey=eachchat-desktop" -D"sonar.sources=prj/src" -D"sonar.host.url=http://192.168.14.25:30244" -D"sonar.login=4ddb6efe86abf3c99c37138da50cf23616baec6c"'
-                        }
-                    }
-
                     bat '''
                     cd ./prj
                     yarn test
