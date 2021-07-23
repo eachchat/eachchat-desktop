@@ -23,6 +23,8 @@ pipeline {
                 }
                 
                 steps {
+                    checkout(scm)
+
                     bat '''
                     cd ./prj
                     yarn test
