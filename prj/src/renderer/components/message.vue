@@ -33,7 +33,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" :operate_id="operate_id" :caller_id="caller_id" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
@@ -99,7 +99,7 @@
                         <div class="transmit-title" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgTitle}}</div>
                         <div class="transmit-content" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle">{{transmitMsgContent}}</div>
                     </div>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" :operate_id="operate_id" :caller_id="caller_id" v-else-if="MsgIsVoipCall()"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
                         <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
@@ -1212,6 +1212,8 @@ export default {
                     this.isVideo = this.msg.event.content.isVideo == true ? 1 : 0;
                     this.duration = this.msg.event.content.duration;
                     this.hangUpReason = this.msg.event.content.reason;
+                    this.caller_id = this.msg.event.content.caller_id;
+                    this.operate_id = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
                 }
                 this.generalVoipInfo();
             }

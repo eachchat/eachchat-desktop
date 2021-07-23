@@ -287,11 +287,17 @@ class mxVoIP{
         ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
     }
 
-    hangUp(room_id, time) {
+    hangUp(room_id, time, reason) {
         if (room_id && global.mxMatrixClientPeg.getCall(room_id)) {
             console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
             global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
-            global.mxMatrixClientPeg.getCall(room_id).hangup();
+            if(reason) {
+                global.mxMatrixClientPeg.getCall(room_id).hangup(reason);
+            }
+            else {
+                global.mxMatrixClientPeg.getCall(room_id).hangup();
+            }
+            
             global.mxMatrixClientPeg.removeCall(room_id);
         }
         updateTrayNotice();
