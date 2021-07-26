@@ -44,6 +44,14 @@ export default {
         hangUpReason: {
             type: String,
             default: ""
+        },
+        operate_id: {
+            type: String,
+            default: ""
+        },
+        caller_id: {
+            type: String,
+            default: ""
         }
     },
     data () {
@@ -115,7 +123,15 @@ export default {
                                 this.voipTimeLabel = this.isMine == 1 ? "对方忙线中" : "忙线未接听";
                             }
                             else if(this.hangUpReason == "user_hangup"){
-                                this.voipTimeLabel = this.isMine == 1 ? "已取消" : "对方已取消";
+                                if(this.isMine) {
+                                    if(this.operate_id != this.caller_id) this.voipTimeLabel = "对方已取消";
+                                    else this.voipTimeLabel = "已取消";
+                                }
+                                else {
+                                    console.log("this.operate is ", this.operate_id, " this.call is ", this.caller_id)
+                                    if(this.operate_id != this.caller_id) this.voipTimeLabel = "已取消";
+                                    else this.voipTimeLabel = "对方已取消";
+                                }
                             }
                             else {
                                 this.voipTimeLabel = this.isMine == 1 ? "对方无应答" : "对方已取消";

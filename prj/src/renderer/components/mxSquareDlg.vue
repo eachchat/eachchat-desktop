@@ -33,9 +33,9 @@
                         <div class="room-xie4" v-else>
                             <div class="room-join" @click.stop="checkRoom(item)">查看</div>
                         </div> -->
-                        <div class="room-join" @click.stop="joinRoom(item)" v-if="!item.joined">
+                        <div class="room-join" id="squareJoinBtn" @click.stop="joinRoom(item)" v-if="!item.joined">
                             <!-- <img src="../../../static/Img/Main/baicaca.png" class="baicaca"/> -->
-                            <span>加入</span>
+                            <span>{{joinBtnLabel}}</span>
                         </div>
                         <div class="room-join" @click.stop="checkRoom(item)" v-else>查看</div>
                     </div>
@@ -71,7 +71,8 @@ export default {
             publicRooms: [],
             loading: false,
             bShowDelIco: false,
-            fetching: false
+            fetching: false,
+            joinBtnLabel: "加入",
         }
     },
     timer: null,
@@ -91,17 +92,37 @@ export default {
             console.log('>>>>>room', room);
             let serverName = room.room_id.split(':')[1];
             let opts = {viaServers:[serverName]}
-            client.joinRoom(room.room_id, opts).then(obj => {
-                console.log('--加入成功--', obj) //obj.roomId
-                publicRooms = publicRooms.map(p => {
-                    if (p.room_id == obj.roomId) {
-                        p.joined = true;
+            let distDom = document.getElementById("squareJoinBtn");
+            try{
+                if(distDom) {
+                    distDom.disabled = true;
+                    distDom.style.backgroundColor = "rgba(167, 224, 196, 1)";
+                }
+                this.joinBtnLabel = "加入中...";
+                client.joinRoom(room.canonical_alias || room.room_id, opts).then(obj => {
+                    if(distDom) {
+                        distDom.disabled = false;
+                        distDom.style.backgroundColor = "#24B36B";
                     }
-                    return p;
+                    this.joinBtnLabel = "加入";
+                    console.log('--加入成功--', obj) //obj.roomId
+                    publicRooms = publicRooms.map(p => {
+                        if (p.room_id == obj.roomId) {
+                            p.joined = true;
+                        }
+                        return p;
+                    })
+                    this.publicRooms = [...publicRooms];
+                    this.close('close');
                 })
-                this.publicRooms = [...publicRooms];
-                this.close('close');
-            })
+            }
+            catch(e) {
+                if(distDom) {
+                    distDom.disabled = false;
+                    distDom.style.backgroundColor = "#24B36B";
+                }
+                this.joinBtnLabel = "加入"
+            }
         },
         getMoreRooms: async function(obj, cover) {
             console.log('--obj--', obj);

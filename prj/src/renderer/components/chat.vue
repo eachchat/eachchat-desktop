@@ -29,16 +29,16 @@
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
-                    <li class="msg-loading" v-bind:key="123">
-                        <i class="el-icon-loading" v-show="isRefreshing"></i>
-                    </li>
-                    <li v-for="(item, index) in messageListShow"
+                    <div class="msg-loading" v-bind:key="123">
+                        <i class="el-icon-loading" v-show="true"></i>
+                    </div>
+                    <li v-for="(item, index) in messageList"
                         :class="ChatLeftOrRightClassName(item)"
                         @contextmenu="rightClick($event, item)"
                         v-bind:key="ChatMessageId(item)"
                         v-show="!isDeleted(item)"
                         :id="chatMsgDivId(item._txnId ? item._txnId : item.event.event_id)">
-                        <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
+                        <div class="msg-info-time" v-show="showTimeOrNot(item, messageList[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
@@ -1821,7 +1821,7 @@ export default {
                 else{
                     eventTmp.event.content.msgtype = "m.file";
                 }
-                this.$store.commit("saveSendingEvents", eventTmp);
+                this.$store.commit("saveSendingEvents", Object.assign({}, eventTmp));
                 this.messageList.push(eventTmp);
                 setTimeout(() => {
                     this.$nextTick(() => {
@@ -1887,7 +1887,7 @@ export default {
                 _txnId: curTimeSeconds,
                 message_status: 1,
             };
-            this.$store.commit("saveSendingEvents", eventTmp);
+            this.$store.commit("saveSendingEvents", Object.assign({}, eventTmp));
             this.messageList.push(eventTmp);
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -2450,13 +2450,21 @@ export default {
                         this.$nextTick(() => {
                             this.scrollToDistMsg(eventId);
                             let uldiv = this.getMsgListElement();
-                            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.offsetHeight)
-                            if(uldiv.clientHeight < uldiv.offsetHeight) {
+                            this.lastScrollHeight = uldiv.scrollHeight;
+                            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
+                            if(uldiv.clientHeight >= uldiv.scrollHeight) {
                                 roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                                     .then((ret) => {
-                                        for(let i=ret.length - 1;i>0;i--){
+                                        console.log("ret is ", ret);
+                                        for(let i = ret.length - 1; i >= 0 ; i--){
                                             this.messageList.push(ret[i]);
                                         }
+
+                                        setTimeout(() => {
+                                            this.$nextTick(() => {
+                                                this.checkScrollBar();
+                                            })
+                                        }, 0);
                                     })
                             }
                             div.addEventListener('scroll', this.handleScroll);
@@ -2466,6 +2474,29 @@ export default {
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(distChat.roomId);
             this.existingMsgId = [];
             this.initDraft();
+        },
+        checkScrollBar: function() {
+            let uldiv = this.getMsgListElement();
+            uldiv.removeEventListener('scroll', this.handleScroll);
+            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
+            if(uldiv.clientHeight >= uldiv.scrollHeight) {
+                roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
+                    .then((ret) => {
+                        for(let i=ret.length - 1;i>0;i--){
+                            this.messageList.unshift(ret[i]);
+                        }
+
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                console.log("---------update croll top is ", uldiv.scrollHeight);
+                                
+                                uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                this.isRefreshing = false;
+                            })
+                        }, 0);
+                    })
+            }
+            uldiv.addEventListener('scroll', this.handleScroll);
         },
         getTxnIdFromEventId: function(eventId) {
             for(var i=0;i<this.messageList.length;i++) {
@@ -2586,12 +2617,12 @@ export default {
                                 this.messageList.unshift(ret[i]);
                             }
 
-                            setTimeout(() => {
+                            // setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
                                     console.log("*** toBottom is ", toBottom)
                                     if(toBottom === true) {
-                                        uldiv.scrollTop = uldiv.scrollHeight + 52;
+                                        uldiv.scrollTop = uldiv.scrollHeight;
                                         this.isRefreshing = false;
                                     }
                                     else {
@@ -2600,7 +2631,7 @@ export default {
                                     }
                                     this.isScroll = false;
                                 })
-                            }, 0);
+                            // }, 0);
                         })
                     }
             }
@@ -2618,7 +2649,7 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
-                            for(let i=ret.length - 1;i>0;i--){
+                            for(let i = ret.length - 1; i >= 0 ; i--){
                                 this.messageList.push(ret[i]);
                             }
                             this.isRefreshing = false;
@@ -2833,15 +2864,13 @@ export default {
                     if(!messageList) return;
                     for(let i=messageList.length - 1;i>0;i--){
                         this.messageList.unshift(messageList[i]);
-                        setTimeout(() => {
-                            this.$nextTick(() => {
-                                let div = this.getMsgListElement();
-                                if(div) {
-                                    div.scrollTop = div.scrollHeight;
-                                }
-                            })
-                        }, 90)
                     }
+
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.checkScrollBar();
+                        })
+                    }, 100);
                 })
         }
     },
@@ -3069,11 +3098,6 @@ export default {
         this.services = global.services.common;
     },
     computed: {
-        messageListShow: {
-            get: function() {
-                return this.messageList;
-            }
-        }
     },
     props: {
         chat: {
@@ -3185,10 +3209,30 @@ export default {
                 return;
             }
             if(this.newMsg.event.room_id != this.curChat.roomId) return;
+            roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 1);
             
             if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) || !this.newMsg._txnId) {
                 this.messageList.push(this.newMsg);
             }
+            else {
+                this.messageList = [];
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.curChat.roomId);
+                
+                for(let i = 0; i < this.curChat.timeline.length; i++){
+                    let exitEventIndex = this.curChat.timeline[i]._txnId ? sendingTxIds.indexOf(this.curChat.timeline[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', this.curChat.timeline[i]);
+                    }
+                    if(roomTimeLineHandler.shareInstance().messageFilter(this.curChat.timeline[i])){
+                        this.messageList.push(this.curChat.timeline[i]);
+                    }
+                }
+                let sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=sendingList.length - 1; i > 0; i--){
+                    this.messageList.unshift(sendingList[i]);
+                }
+            }
+
             let toBottom = false;
 
             if(this.IsBottom()) {
@@ -3535,6 +3579,7 @@ export default {
     }
 
     .msg-loading {
+        height: 34px;
         width: 100%;
         margin: 5px 0 5px 0;
         text-align: center;

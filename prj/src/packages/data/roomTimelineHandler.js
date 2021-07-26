@@ -41,7 +41,7 @@ class roomTimeLineHandler {
     }
 
     async _pageUp(num) {
-        this._lastTimelineNum = this._curChat.timeline.length;
+        this._lastTimelineNum = this._timelineWindow.getEvents().length;
         console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
         await this._timelineWindow.paginate("b", num);
     }
@@ -105,7 +105,7 @@ class roomTimeLineHandler {
             let newTimeline = [];
             await this._pageUp(20);
             this._timelineWindow.getEvents();
-            for(let i = 0; i < (this._curChat.timeline.length - this._lastTimelineNum); i++){
+            for(let i = 0; i < (this._timelineWindow.getEvents().length - this._lastTimelineNum); i++){
                 if(this.messageFilter(this._curChat.timeline[i])){
                     newTimeline.push(this._curChat.timeline[i]);
                 }

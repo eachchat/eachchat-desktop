@@ -1,12 +1,12 @@
 <template>
-    <div class="imageViewerPage">
+    <div class="imageViewerPage" @mousewheel="zoomimg($event)">
         <div class="imageWindowHeader">
             <macImageWinHeadbar class="macWindowHeader" :isNormal="isNormal" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
         <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
             <i class="el-icon-loading" v-show="isLoading"></i>
-            <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
+            <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" v-show="this.curImage.imageUrl != undefined">
         </div>
         <div class="viewerToolBox">
             <div class="viewerToolbar" v-show="!isPersonalImg">
@@ -582,7 +582,8 @@ export default {
             }
         });
         window.addEventListener('keydown', this.keyHandle);
-        document.onmousemove = this.mouseMove;
+        let imgDom = document.getElementById("imageViewerStageId");
+        imgDom.onmousemove = this.mouseMove;
     },
 }
 </script>
