@@ -146,6 +146,8 @@ export default {
             }
         },
         Close: function() {
+            let imgDom = document.getElementById("imageViewerStageId");
+            imgDom.onmousemove = undefined;
             this.curUrl = "";
             this.curImage = {};
             ipcRenderer.send("image-win-close");
@@ -453,6 +455,10 @@ export default {
     mounted: function() {
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on("timelines", (event, imageInfos, distImageInfo, screenSize) => {
+            let imgDom = document.getElementById("imageViewerStageId");
+            if(!imgDom.onmousemove) {
+                imgDom.onmousemove = this.mouseMove;
+            }
             this.stageElement = document.getElementById("imageViewerStageId");
             this.stageElement.setAttribute("src", "");
             console.log("*** screenSize ", screenSize);
@@ -582,8 +588,6 @@ export default {
             }
         });
         window.addEventListener('keydown', this.keyHandle);
-        let imgDom = document.getElementById("imageViewerStageId");
-        imgDom.onmousemove = this.mouseMove;
     },
 }
 </script>
