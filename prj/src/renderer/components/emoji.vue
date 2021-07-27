@@ -29,10 +29,12 @@ export default {
     },
     methods: {
       hasFaceImg(item){
+        faceUtils.GetPointFaces();
         return faceUtils.hasFaceCode(item);
       },
 
       getFaceImg(item){
+        faceUtils.GetPointFaceMap();
         return faceUtils.getFaceImg(item);
       },
 

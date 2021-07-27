@@ -2101,7 +2101,7 @@ export default {
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
                 let text = chatGroupMsgContent.body;
-                distContentElement.innerHTML = EmojiTextToHtml(text);
+                distContentElement.innerHTML = EmojiTextToHtml(text, 20);
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;

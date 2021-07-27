@@ -9,7 +9,7 @@
         </div>
         <div class="detailContent">
             <div class="messageContent" v-if="showMessageContent">
-                <p class="messageText" v-html="msgContentShowPhoneAndHightLight(collectionInfo.collection_content.body)">{{ collectionInfo.collection_content.body }}</p>
+                <emoji class="messageText" :text="collectionInfo.collection_content.body"></emoji>
             </div>
             <div class="imageContent" v-if="!showMessageContent">
                 <img ondragstart="return false" class="image" :id="collectionInfo.collection_id" src="../../../static/Img/Chat/loading.gif">
@@ -19,6 +19,7 @@
 </template>>
 <script>
 import { ComponentUtil } from '../script/component-util'
+import emoji from './emoji'
 
 export default {
     name:'favouriteDetail',
@@ -27,6 +28,9 @@ export default {
             type: Object,
             default: {}
         }
+    },
+    components: {
+        emoji
     },
 
     watch:{
@@ -83,11 +87,7 @@ export default {
         },
         formatTimeFilter(secondsTime) {
             return ComponentUtil.formatTimeFilter(secondsTime);
-        },
-
-        msgContentShowPhoneAndHightLight: function(curMsg){
-            return ComponentUtil.msgContentShowPhoneAndHightLight(curMsg, 'rgba(91, 106, 145, 1)');
-        },
+        }
     },
     mounted:function() {
     },

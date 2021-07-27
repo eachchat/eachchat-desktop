@@ -13,7 +13,10 @@
                             <li class="message"
                                 v-for="(message, index) in favourites" 
                                 :key="index">
-                                <p class="message-text" @click="messageListClicked(message)" v-html = 'msgContentShowPhoneAndHightLight(message.collection_content.body)'>{{ message.collection_content.body }}</p>
+                                <p class="message-text" @click="messageListClicked(message)" >
+                                    <emoji :text="message.collection_content.body"></emoji>
+                                </p>
+                
                                 <p class="message-sender">{{ message.user_name }}</p>
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
@@ -78,7 +81,9 @@
                             <li class="message"
                                 v-for="(message, index) in searchResults.message" 
                                 :key="index">
-                                <p class="message-text" v-html="msgContentHightLight(message.collection_content.body)" @click="messageListClicked(message)">{{ message.collection_content.body }}</p>
+                                <p class="message-text" v-html="msgContentHightLight(message.collection_content.body)" @click="messageListClicked(message)" >
+                                    <emoji :text="message.collection_content.body"></emoji>
+                                </p>
                                 <p class="message-sender" v-html="msgContentHightLight(message.user_name)">{{ message.user_name }}</p>
                                 <p class="message-time" align="right">{{ formatTimeFilter(message.timestamp) }}</p>
                                 <div class="favourite-action">
@@ -147,16 +152,17 @@
 </template>
 <script>
 import * as path from 'path'
-import * as fs from 'fs-extra'
 import {shell, ipcRenderer} from 'electron'
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
-import { bool } from '../../packages/core/types';
+import { getIconPath, strMsgContentToJson, getFileSizeByNumber, getFileBlob} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js';
 import transmitDlg from './transmitDlg.vue';
-import {Group, Department, UserInfo, Message} from '../../packages/data/sqliteutil.js';
+import {Group, Message} from '../../packages/data/sqliteutil.js';
 import favouriteDetail from './favourite-detail.vue'
 import { ComponentUtil } from '../script/component-util.js';
 import AlertDlg from './alert-dlg.vue'
+import emoji from './emoji'
+import {EmojiTextToHtml} from '../../packages/core/Utils.js'
+
 
 export default {
     name: 'favourite-list',
@@ -190,7 +196,8 @@ export default {
     components: {
         transmitDlg,
         favouriteDetail,
-        AlertDlg
+        AlertDlg,
+        emoji
     },
     computed: {
         showMessageList: function() {
@@ -562,15 +569,18 @@ export default {
             if(this.searchKey.length == 0) {
                 return showContent
             }
+            let content;
             if(showContent.indexOf(this.searchKey) != -1) {
                 let splitValue = showContent.split(this.searchKey);
                 let newInnerHtml = splitValue.join('<span style="color:rgba(36, 179, 107, 1);">' + this.searchKey + "</span>");
-                return newInnerHtml;
+                content = newInnerHtml;
             }else{
                 let splitValue = showContent.split('');
                 let newInnerHtml = splitValue.join('<span style="color:red;">' + '' + "</span>");
-                return newInnerHtml;
+                content = newInnerHtml;
             }
+            let newContent = EmojiTextToHtml(content);
+            return newContent;
         },
         async getObjectFromServerCollectionModel(collectionModels) {
             var favourites = [];
