@@ -158,7 +158,7 @@
                         <img 
                             src="../../../static/Img/Main/sandian.png" 
                             class="memberItemOptionsImg"
-                            v-if="currentUser.powerLevel > item.powerLevel && item.membership === 'join'"
+                            v-if="currentUser.powerLevel && (currentUser.powerLevel > item.powerLevel) && (item.membership === 'join')"
                         >
                         <div class="memberItemOptions" v-show="item.choosen" :class="{'memberItemOptionsUp':up, 'memberItemOptionsDown':!up}">
                             <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
@@ -219,11 +219,10 @@
     </div>
 </template>
 <script>
-import * as fs from 'fs-extra'
 import {FileUtil} from '../../packages/core/Utils.js'
 import {remote} from 'electron'
 import imageCropper from './imageCropper.vue'
-import { UserInfo, Contact, ContactRoom, Department} from '../../packages/data/sqliteutil.js'
+import { UserInfo, Contact, ContactRoom} from '../../packages/data/sqliteutil.js'
 import AlertDlg from './alert-dlg.vue'
 import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
@@ -473,9 +472,6 @@ export default {
             const userId = item.userId;
             client.kick(roomId, userId, undefined).then(()=>{
                 console.log("Kick success");
-                // let mxMembers = this.mxMembers;
-                // mxMembers.splice(idx, 1);
-                // this.mxMembers = [...mxMembers];
             }).catch(()=>{alert('kick failed')})
         },
         _applyPowerChange(roomId, target, powerLevel, powerLevelEvent, idx) {
@@ -641,7 +637,16 @@ export default {
             const cli = window.mxMatrixClientPeg.matrixClient;
             const xie1 = cli.getRoom(roomId);
             await xie1.loadMembersIfNeeded();
-            const mxMembers = [];
+            if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
+            
+            this.mxMembers = [];
+            let invited = [];
+            invited.unshift({dvd:true, name:'邀请中', userId:'yaoqingzhong', dspName:'邀请中'});
+
+            let joined = [];
+            joined.push({dvd:true, name:'成员', userId:'chengyuan', dspName:'成员'});
+
+            let index = 0;
             for(let key in xie1.currentState.members) {
                 // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
                 let o = xie1.currentState.members[key];
@@ -650,36 +655,33 @@ export default {
                 const contactInfo = await Contact.GetContactInfo(o.userId);
                 const depInfo = await UserInfo.GetUserInfoByMatrixID(o.userId);
                 let userDomain = ComponentUtil.GetDomanName(o.userId);
-                let company = '';
                 let title = '';
                 if(userDomain == this.myDomain) {
                     let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
                     title = user_title;
                     title = title ? title : ((depInfo && depInfo.user_title) || '');
                 } else {
-                    let company = (contactInfo && contactInfo.company) ? contactInfo.company + '  ' : '';
                     let user_title = (contactInfo && contactInfo.title) ? contactInfo.title : '';
                     title = user_title;
                     title = title ? title : ((depInfo && depInfo.user_title) || '');
                 }
                 o.title = title ? title : o.userId;
                 let obj = {...o, choosen:false}
-                if (obj.membership != 'leave') mxMembers.push(obj);
+                if (obj.membership != 'leave'){
+                    if(obj.membership === 'join'){
+                        joined.push(obj);
+                    }
+                    else if(obj.membership === 'invite'){
+                        invited.push(obj);
+                    }
+                }
+                if(++index % 100 === 0){
+                    this.mxMembers = [...invited, ...joined];
+                }
             }
-            // console.log('check xie1', xie1);
-            // console.log('member', xie1.currentState.members);
-            // console.log('mxMembers', mxMembers);
-            if (xie1.currentState.members[userId]) this.currentUser = xie1.currentState.members[userId];
-            // console.log('----mxMembers[userId]----', userId)
-            let joined = mxMembers.filter(m => {
-                return m.membership === 'join';
-            })
-            let invited = mxMembers.filter(m => {
-                return m.membership === 'invite';
-            })
-            if (joined.length) joined.unshift({dvd:true, name:'成员', userId:'chengyuan', dspName:'成员'});
-            if (invited.length) invited.unshift({dvd:true, name:'邀请中', userId:'yaoqingzhong', dspName:'邀请中'});
             this.mxMembers = [...invited, ...joined];
+
+            
         },
         mxMuteChange: function(mxMute) {
             console.log('---mxMuteChange---', this.mxMute);

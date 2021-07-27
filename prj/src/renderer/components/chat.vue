@@ -2340,7 +2340,6 @@ export default {
         More: async function() {
             console.log('check chat', this.curChat);
             this.groupInfo = {};
-            var isGroup = this.curChat.group_type == 101 ? true : false;
             var idsList = []
             // try{
             //     idsList = this.curChat.contain_user_ids.split(",");
@@ -2358,9 +2357,6 @@ export default {
             const isOwner = members[myUserId].powerLevel === 100; //owner`s powerLevel is 100?
             let ownerId;
             for(let key in members) {
-                console.log('1111', key);
-                console.log('2222', members);
-                console.log('3333', members[key]);
                 if (members[key].powerLevel === 100) ownerId = key;
             }
             console.log("this.curChat ", this.curChat);
