@@ -2101,7 +2101,7 @@ export default {
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
                 let text = chatGroupMsgContent.body;
-                distContentElement.innerHTML = EmojiTextToHtml(text, 20);
+                distContentElement.innerHTML = EmojiTextToHtml(text, 18);
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
@@ -4537,6 +4537,7 @@ export default {
     margin-bottom: 9px;
     white-space: nowrap;
     text-overflow: ellipsis;
+    height: 18px;
   }
 
   .group-content-invite {
