@@ -17,6 +17,44 @@ pipeline {
     }
 
     stages{
+        stage('window build'){
+            agent {
+                label 'eachchat-desktop-win10'
+            }
+            
+            steps {
+                checkout(scm)
+
+                withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('sonar') {
+                        bat 'sonar-scanner.bat -D"sonar.projectKey=eachchat-desktop" -D"sonar.sources=prj/src" -D"sonar.host.url=http://103.61.37.213:32129" -D"sonar.login=b3f63bdb13aaeb8338fe3d4c992f04f240b4f47d"'
+                    }
+                }
+
+                bat '''
+                cd ./prj
+                yarn run build
+                '''
+
+                bat '''
+                cd ./prj
+                yarn test
+                '''
+            }
+            
+            post {
+                failure {
+                    mail to: 'chengfang@workly.ai',
+                    subject: "Window Failed Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "${env.BUILD_URL}"
+                }
+                success {
+                    mail to: 'chengfang@workly.ai',
+                    subject: 'Window Successed Pipeline: ${currentBuild.fullDisplayName}',
+                    body: "${env.BUILD_URL}"
+                }
+            }              
+        }
         stage('mac build'){
             agent {
                 label 'eachchat-desktop-mac'
