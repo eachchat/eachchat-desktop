@@ -1631,6 +1631,7 @@ export default {
     },
     data() {
         return {
+            operate_id: null,
             caller_id: null,
             isVideo: -1,
             callId: '',
