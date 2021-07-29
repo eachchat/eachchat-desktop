@@ -1440,6 +1440,7 @@ export default {
     },
     data() {
         return {
+            caller_id: null,
             Timeline: null,
             isVideo: -1,
             callId: '',
