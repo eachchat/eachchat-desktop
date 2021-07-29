@@ -44,12 +44,12 @@ pipeline {
             
             post {
                 failure {
-                    mail to: 'chengfang@workly.ai' 'wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
                     subject: "Window Failed Pipeline: ${currentBuild.fullDisplayName}",
                     body: "${env.BUILD_URL}"
                 }
                 success {
-                    mail to: 'chengfang@workly.ai' 'wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
                     subject: 'Window Successed Pipeline: ${currentBuild.fullDisplayName}',
                     body: "${env.BUILD_URL}"
                 }
@@ -72,12 +72,12 @@ pipeline {
             
             post {
                 failure {
-                    mail to: 'chengfang@workly.ai' 'wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
                     subject: "mac Failed Pipeline: ${currentBuild.fullDisplayName}",
                     body: "${env.BUILD_URL}"
                 }
                 success {
-                    mail to: 'chengfang@workly.ai' 'wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
                     subject: 'mac Successed Pipeline: ${currentBuild.fullDisplayName}',
                     body: "${env.BUILD_URL}"
                 }
@@ -99,12 +99,12 @@ pipeline {
             
             post {
                 failure {
-                    mail to: 'chengfang@workly.ai' 'wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
                     subject: "ubuntu Failed Pipeline: ${currentBuild.fullDisplayName}",
                     body: "${env.BUILD_URL}"
                 }
                 success {
-                    mail to: 'chengfang@workly.ai' 'wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
                     subject: 'ubuntu Successed Pipeline: ${currentBuild.fullDisplayName}',
                     body: "${env.BUILD_URL}"
                 }
