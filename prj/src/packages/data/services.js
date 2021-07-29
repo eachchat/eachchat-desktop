@@ -316,6 +316,25 @@ const common = {
     return;
   },
 
+  async loginWithoutLocalstorage(config){
+    this.api = null;
+    this.config.hostname = config.hostname;
+    this.config.apiPort = config.apiPort;
+    this.config.hostTls = config.hostTls;
+    this.config.mqttHost = config.mqttHost;
+    this.config.mqttPort = config.mqttPort;
+    this.config.mqttTls = config.mqttTls;
+
+
+    this.initServiceApi();
+    let userID = config.mx_user_id;
+    this.accessToken = config.mx_access_token;
+    this.data.login = {
+      matrix_id: userID,
+      access_token: this.accessToken
+    }
+  },
+
   InitConfServer(userID){
     confservice.init(userID)
   },
@@ -1415,20 +1434,21 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    let item;
-    let model;
- 
-    item = result.data.obj;
-    model = await servicemodels.CollectionModel(item);
-    let findmodel = await Collection.FindItemByCollectionID(eventID)
-    if(findmodel == undefined){
-      model.save();
+    if(process.env.BABEL_ENV !== 'test'){
+      let item;
+      let model;
+   
+      item = result.data.obj;
+      model = await servicemodels.CollectionModel(item);
+      let findmodel = await Collection.FindItemByCollectionID(eventID)
+      if(findmodel == undefined){
+        model.save();
+      }
+      else{
+        findmodel.values = model.values;
+        findmodel.save();
+      }
     }
-    else{
-      findmodel.values = model.values;
-      findmodel.save();
-    }
-
     return true;
   },
 
@@ -1470,7 +1490,10 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    await sqliteutil.DeleteItemFromCollectionByCollectionIdID(arrayIds)
+    if(process.env.BABEL_ENV !== "test"){
+      await sqliteutil.DeleteItemFromCollectionByCollectionIdID(arrayIds)
+    }
+    return true;
   },
 
   async DeleteCollectionGroup(gorupID){
@@ -2268,9 +2291,11 @@ const common = {
       return false;
     }
     let item = result.data.obj;
-    let contactModelValue = await servicemodels.ContactModel(item);
-    await contactModelValue.save();
-    ipcRenderer.send("updateContact")
+    if(process.env.BABEL_ENV !== 'test'){
+      let contactModelValue = await servicemodels.ContactModel(item);
+      await contactModelValue.save();
+      ipcRenderer.send("updateContact")
+    }
     return true;
   },
 
@@ -2315,7 +2340,9 @@ const common = {
     if (!result.ok || !result.success) {
       return false;
     }
-    await Contact.DeleteContact(matrixID);
+    if(process.env.BABEL_ENV !== "test"){
+      await Contact.DeleteContact(matrixID);
+    }
     return true;
   },
 
