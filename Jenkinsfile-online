@@ -49,7 +49,7 @@ pipeline {
                     body: "${env.BUILD_URL}"
                 }
                 success {
-                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
                     subject: 'Window Successed Pipeline: ${currentBuild.fullDisplayName}',
                     body: "${env.BUILD_URL}"
                 }
