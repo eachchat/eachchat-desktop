@@ -3,7 +3,7 @@
         <el-header height="56px" class="organization-header">
             <p class="organization-header-title">{{ $t("organizeMenuName") }}</p>
         </el-header>
-        <el-main style="overflow: hidden">
+        <el-main style="overflow: hidden; user-select: none;">
             <el-container class="bottom-container" id="organization-main-container">
                 <div class="organization-colunm" v-for="(orgItem, orgIndex) in organizationList">
                     <div class="organization-view-one">
