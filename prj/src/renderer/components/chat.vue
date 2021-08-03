@@ -3764,6 +3764,7 @@ export default {
         color: rgba(187, 187, 187, 1);
         margin: 5px 10px 5px 10px;
         font-weight:400;
+        user-select:none;
     }
 
     .chat-notice {
@@ -4047,6 +4048,7 @@ export default {
 
     .chat-input-tool {
         display: inline-block;
+        user-select:none;
         background: rgba(241, 241, 241, 1);
         width: calc(100%-50px);
         height: 40px;
