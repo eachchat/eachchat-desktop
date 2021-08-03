@@ -1664,12 +1664,14 @@ export default {
     }
 
     .msg-info-mine {
+        user-select:none;
         width: 70%;
         float: right;
         display: block;
     }
 
     .msg-info-others {
+        user-select:none;
         width: 70%;
         float: left;
         display: block;
@@ -1725,7 +1727,6 @@ export default {
         height: 32px;
         border-radius: 50%;
         margin-top: 4px;
-        -webkit-user-select:none;
         object-fit:cover;
     }
 
@@ -1737,7 +1738,6 @@ export default {
         border-radius: 50%;
         cursor: pointer;
         margin-top: 4px;
-        -webkit-user-select:none;
         object-fit:cover;
     }
 
@@ -1875,6 +1875,7 @@ export default {
     }
 
     .chat-msg-content-others-txt{
+        user-select: text;
         float: left;
         background-color: rgba(255, 255, 255, 0);
         max-width: 100%;
@@ -1893,6 +1894,7 @@ export default {
     }
 
     .chat-msg-content-others-txt:hover{
+        user-select: text;
         float: left;
         background-color: rgba(255, 255, 255, 0);
         max-width: 100%;
@@ -2065,6 +2067,7 @@ export default {
     }
 
     .chat-msg-content-mine-txt-div {
+        user-select: text;
         float:right;
         background-color: rgba(82, 172, 68, 1);
         max-width: calc(100% - 60px);
@@ -2080,6 +2083,7 @@ export default {
     }
 
     .chat-msg-content-mine-txt-div:hover{
+        user-select: text;
         float:right;
         background-color: rgba(82, 172, 68, 1);
         max-width: calc(100% - 60px);
