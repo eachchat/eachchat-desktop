@@ -303,7 +303,6 @@ export default {
                         reader.onload = function() {
                             if(reader.readyState == 2) {
                                 var buffer = new Buffer(reader.result);
-                                // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                                 ipcRenderer.send("save_file", finalPath, buffer, msg.event_id, true);
                             }
                         }

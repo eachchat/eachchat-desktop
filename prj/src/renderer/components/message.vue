@@ -329,7 +329,6 @@ export default {
                     reader.onload = function() {
                         if(reader.readyState == 2) {
                             var buffer = new Buffer(reader.result);
-                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                             ipcRenderer.send("save_file", path, buffer, event_id, needOpen);
                         }
                     }
@@ -345,11 +344,6 @@ export default {
 
         ShowFile: async function() {
             console.log("open image proxy ", this.msg)
-            let msgType = this.msg.msgtype;
-            // let msgContent = strMsgContentToJson(this.msg.message_content);
-            // var targetDir = confservice.getFilePath();
-            // var targetFileName = this.msg.message_id.toString() + "." + msgContent.ext;
-            // var targetPath = path.join(targetDir, targetFileName);
             let event = this.msg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
@@ -410,7 +404,6 @@ export default {
                                 reader.onload = function() {
                                     if(reader.readyState == 2) {
                                         var buffer = new Buffer(reader.result);
-                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                                         ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
                                     }
                                 }
@@ -583,7 +576,6 @@ export default {
                     reader.onload = function() {
                         if(reader.readyState == 2) {
                             var buffer = new Buffer(reader.result);
-                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                             ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
                         }
                     }
@@ -1004,7 +996,6 @@ export default {
                                 reader.onload = function() {
                                     if(reader.readyState == 2) {
                                         var buffer = new Buffer(reader.result);
-                                        // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                                         ipcRenderer.send("save_file", finalPath, buffer, event.event_id, false);
                                     }
                                 }

@@ -417,7 +417,6 @@ export default {
                         if(reader.readyState == 2) {
                             var buffer = new Buffer(reader.result);
                             var finalPath = path.join(distPath, chatGroupMsgContent.body);
-                            // ipcRenderer.send("save_file", path.join(distPath, content.body), buffer);
                             ipcRenderer.send("save_file", finalPath, buffer, msgKey, false);
                         }
                     }
