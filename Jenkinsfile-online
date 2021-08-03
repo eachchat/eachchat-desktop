@@ -44,9 +44,9 @@ pipeline {
             
             post {
                 failure {
-                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
                     subject: "Window Failed Pipeline: ${currentBuild.fullDisplayName}",
-                    body: "${env.BUILD_URL}"
+                    body: "Something is wrong with ${env.BUILD_URL}"
                 }
                 success {
                     mail to: 'chengfang@workly.ai wangxin@workly.ai',
@@ -72,12 +72,12 @@ pipeline {
             
             post {
                 failure {
-                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
                     subject: "mac Failed Pipeline: ${currentBuild.fullDisplayName}",
-                    body: "${env.BUILD_URL}"
+                    body: "Something is wrong with ${env.BUILD_URL}"
                 }
                 success {
-                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
                     subject: 'mac Successed Pipeline: ${currentBuild.fullDisplayName}',
                     body: "${env.BUILD_URL}"
                 }
@@ -99,12 +99,12 @@ pipeline {
             
             post {
                 failure {
-                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
                     subject: "ubuntu Failed Pipeline: ${currentBuild.fullDisplayName}",
-                    body: "${env.BUILD_URL}"
+                    body: "Something is wrong with ${env.BUILD_URL}"
                 }
                 success {
-                    mail to: 'chengfang@workly.ai wangxin@worklyl.ai',
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
                     subject: 'ubuntu Successed Pipeline: ${currentBuild.fullDisplayName}',
                     body: "${env.BUILD_URL}"
                 }
