@@ -19,27 +19,27 @@ describe('login test', function () {
     assert.isTrue(await userHead.isExisting());
   })
 
-  it("to orgnization", async function(){
-    let elMenuItemsClass = ".nav-menu";
-    let menuitem = await this.app.client.$(elMenuItemsClass);
-    console.log(await menuitem.getAttribute('class'))
+  // it("to orgnization", async function(){
+  //   let elMenuItemsClass = ".nav-menu";
+  //   let menuitem = await this.app.client.$(elMenuItemsClass);
+  //   console.log(await menuitem.getAttribute('class'))
     
-    let els = await menuitem.$$('li');
-    let orgitem = els[1];
-    setTimeout(() => {
-      orgitem.click()
-    }, 5000);
-  })
+  //   let els = await menuitem.$$('li');
+  //   let orgitem = els[1];
+  //   setTimeout(() => {
+  //     orgitem.click()
+  //   }, 5000);
+  // })
 
-  it("to favourite", async function(){
-    let elMenuItemsClass = ".nav-menu";
-    let menuitem = await this.app.client.$(elMenuItemsClass);
-    console.log(await menuitem.getAttribute('class'))
+  // it("to favourite", async function(){
+  //   let elMenuItemsClass = ".nav-menu";
+  //   let menuitem = await this.app.client.$(elMenuItemsClass);
+  //   console.log(await menuitem.getAttribute('class'))
     
-    let els = await menuitem.$$('li');
-    let orgitem = els[2];
-    setTimeout(() => {
-      orgitem.click()
-    }, 5000);
-  })
+  //   let els = await menuitem.$$('li');
+  //   let orgitem = els[2];
+  //   setTimeout(() => {
+  //     orgitem.click()
+  //   }, 5000);
+  // })
 })
