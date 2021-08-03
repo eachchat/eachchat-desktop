@@ -49,6 +49,7 @@ export default {
         box-shadow: 0px 0px 12px 0px rgba(103, 103, 103, 0.14);
         border-radius: 4px;
         border: 1px solid rgba(103, 103, 103, 0.14);
+        z-index: 4;
     }
 
     ul {

@@ -590,6 +590,177 @@ export default {
             if(this.multiSelect) {
                 return;
             }
+            
+            if(checkIsTesting()) {
+                let menuObj = {
+                    distItem: msgItem,
+                    menuList: [
+                        ],
+                    position: {
+                        clientX: e.clientX,
+                        clientY: e.clientY
+                    }
+                }
+                
+                if(e.target.className == "msg-info-user-img-with-name") {
+                    if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
+                        return;
+                    }
+                    let aiteMenu = {
+                        name: "@" + showName,
+                        func: this.atSomeOne
+                    }
+                    menuObj.menuList.push(aiteMenu);
+                }
+                else {
+                    var content = msgItem.getContent();
+                    if(content.msgtype == 'm.text') {
+                        let copyMenu = {
+                            name: "复制",
+                            func: this.menuCopy
+                        }
+                        menuObj.menuList.push(copyMenu);
+
+                        if(!this.isSecret) {
+                            let transmitMenu = {
+                                name: "转发",
+                                func: this.transMit
+                            }
+                            menuObj.menuList.push(transmitMenu);
+                            
+                            let favouriteMenu = {
+                                name: "收藏",
+                                func: this.menuFav
+                            }
+                            menuObj.menuList.push(favouriteMenu);
+                        }
+                        if(showRedact) {
+                            console.log('查看当前信息', msgItem);
+                            let text = '删除';
+                            let timeLimit = 2 * 60 * 1000;
+                            const myUserId = this.curChat.myUserId;
+                            const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                            const members = this.curChat.currentState.members;
+                            const userLevel = members[myUserId].powerLevel;
+                            let redact = 50;
+                            if (currentState) {
+                                let levelObj = currentState.getContent();
+                                redact = levelObj.redact || redact;
+                            }
+                            console.log('redact Number>>>>>', redact)
+                            console.log('userLevel Number>>>>', userLevel)
+                            if (msgItem.event.sender === myUserId) {
+                                if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            } else if (userLevel >= redact) {
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            }
+                        }
+                        if(!this.isSecret) {
+                            let multiSelectMenu = {
+                                name: "多选",
+                                func: this.msgMultiSelect
+                            }
+                            menuObj.menuList.push(multiSelectMenu);
+                        }
+                        
+                        let quoteMenu = {
+                            name: "引用",
+                            func: this.menuQuote
+                        }
+                        menuObj.menuList.push(quoteMenu);
+                    }
+                    else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
+                        if(!this.isSecret) {
+                            let transmitMenu = {
+                                name: "转发",
+                                func: this.transMit
+                            }
+                            menuObj.menuList.push(transmitMenu);
+                        }
+                        if(!this.isSecret) {
+                            let favouriteMenu = {
+                                name: "收藏",
+                                func: this.menuFav
+                            }
+                            menuObj.menuList.push(favouriteMenu);
+                        }
+                        if(showRedact) {
+                            let deleteMenu = {
+                                name: "删除",
+                                func: this.menuDelete
+                            }
+                            menuObj.menuList.push(deleteMenu);
+                        }
+                        if(!this.isSecret) {
+                            let multiSelectMenu = {
+                                name: "多选",
+                                func: this.msgMultiSelect
+                            }
+                            menuObj.menuList.push(multiSelectMenu);
+                        }
+                        let saveToMenu = {
+                            name: "另存为",
+                            func: this.downloadFile
+                        }
+                        menuObj.menuList.push(saveToMenu);
+                        if (content.msgtype == "m.image"){
+                            let quoteMenu = {
+                                name: "引用",
+                                func: this.menuQuote
+                            }
+                            menuObj.menuList.push(quoteMenu);
+                            
+                            let copyMenu = {
+                                name: "复制",
+                                func: this.menuCopy
+                            }
+                            menuObj.menuList.push(copyMenu);
+                        }
+                    }
+                    else if(content.msgtype == "m.audio") {
+                        if(showRedact) {
+                            let deleteMenu = {
+                                name: "删除",
+                                func: this.menuDelete
+                            }
+                            menuObj.menuList.push(deleteMenu);
+                        }
+                    }
+                    else if(content.msgtype == "each.chat.merge") {
+                        let transmitMenu = {
+                            name: "转发",
+                            func: this.transMit
+                        }
+                        menuObj.menuList.push(transmitMenu);
+                        if(showRedact) {
+                            let deleteMenu = {
+                                name: "删除",
+                                func: this.menuDelete
+                            }
+                            menuObj.menuList.push(deleteMenu);
+                        }
+                        if(!this.isSecret) {
+                            let multiSelectMenu = {
+                                name: "多选",
+                                func: this.msgMultiSelect
+                            }
+                            menuObj.menuList.push(multiSelectMenu);
+                        }
+                    }
+                }
+                this.$contextMenu(menuObj);
+                return;
+            }
+
             if(e.target.className == "msg-info-user-img-with-name") {
                 if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
@@ -722,7 +893,7 @@ export default {
                         this.menu.append(new MenuItem({
                             label: "复制",
                             click: () => {
-                               copyImgToClipboard(getImgUrlByEvent(msgItem.event))
+                            copyImgToClipboard(getImgUrlByEvent(msgItem.event))
                             }
                         }));
                     }
