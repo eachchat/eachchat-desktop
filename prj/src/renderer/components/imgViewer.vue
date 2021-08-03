@@ -85,7 +85,7 @@ export default {
             if(!this.isPersonalImg) {
                 this.imgtop = 0;
                 this.imgleft = 0;
-                if(this.curMultiple < 5) {
+                if(this.curMultiple < 10) {
                     this.curMultiple += 0.1;
                 }
                 let style = "";
@@ -431,6 +431,10 @@ export default {
         setHeaderState(ev, state) {
             this.isNormal = state;
         },
+        imgWindowIsBlur(e) {
+            console.log("The imgage window is blur");
+            window.blur();
+        }
     },
     data() {
         return {
@@ -588,6 +592,7 @@ export default {
             }
         });
         window.addEventListener('keydown', this.keyHandle);
+        window.addEventListener('blur', this.imgWindowIsBlur);
         window.blur();
     },
 }
