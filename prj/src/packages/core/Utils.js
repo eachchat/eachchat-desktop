@@ -1142,7 +1142,10 @@ const faceUtils = {
 function EmojiTextToHtml(text, imgWidth = 24){
     let codedText = text.replace(new RegExp(emojiUnicodeRanges.join('|'), 'g'), function(emoji){
         let path = faceUtils.getFaceImg(emoji);
-        return `<img style="vertical-align: middle; width: ${imgWidth}px" src = ${path}></img>`;
+        if(path){
+            return `<img style="vertical-align: middle; width: ${imgWidth}px" src = ${path}></img>`;
+        }
+        return emoji;
       });
     return codedText;
 }

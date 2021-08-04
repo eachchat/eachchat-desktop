@@ -397,9 +397,6 @@ export default {
 </script>
 
 <style>
-::-webkit-scrollbar {
-    display: none;
-}
 
 .large-window{
     z-index: 0;
