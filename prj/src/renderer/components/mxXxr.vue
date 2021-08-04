@@ -40,68 +40,7 @@
                                 @click.stop="changeLayerByCrumb(ele)"
                             >{{idx === crumbs.length-1 ? ele.name : ele.name + ' /'}}</span>
                         </div>
-                        <!-- <div class="totalListXieItem" v-if="crumbs.length > 1">
-                            <img
-                                v-if="totalChoosen"
-                                style="height:20px; width:20px; margin-right:8px;"
-                                src="../../../static/Img/Main/lg.png"
-                                @click.stop="quanxuan(false)"
-                            >
-                            <img
-                                v-else
-                                style="height:20px; width:20px; margin-right:8px;"
-                                src="../../../static/Img/Main/ljh.png"
-                                @click.stop="quanxuan(true)"
-                            >
-                            <div class="itemF">全选</div>
-                            <div 
-                                class="youjiantouField"
-                            >
-                                {{'已选'+tn+'人'}}
-                            </div>
-                        </div> -->
-                        <!-- <div 
-                            v-for="(ele, idx) in totalList" 
-                            :key="ele.id"
-                            class="totalListXieItem"
-                        >
-                            <img 
-                                v-if="crumbs.length === 1" 
-                                style="height:32px; width:32px; margin-right:4px;" 
-                                src="../../../static/Img/Main/xinzuzhi.png"
-                            >
-                            <img
-                                v-else-if="ele.choosen"
-                                style="height:20px; width:20px; margin-right:8px;"
-                                src="../../../static/Img/Main/lg.png"
-                                @click.stop="caonima1(ele, false)"
-                            >
-                            <img
-                                v-else
-                                style="height:20px; width:20px; margin-right:8px;"
-                                src="../../../static/Img/Main/tmk.png"
-                                @click.stop="caonima1(ele, true)"
-                            >
-                            <div v-if="crumbs.length === 1" class="itemF" @click.stop="caonima2(ele)">{{ele.name}}</div>
-                            <div v-else-if="ele.type === 'dep'" class="itemF" @click.stop="caonima1(ele, !ele.choosen)">{{ele.name}}</div>
-                            <div v-else @click.stop="caonima1(ele, !ele.choosen)" style="display:flex; align-items:center; user-select:none;">
-                                <img class="shun1" :src="ele.avatar">
-                                <div class="shun2">
-                                    <div class="shun3">{{ele.name}}</div>
-                                    <div class="shun4">{{ele.id}}</div>
-                                </div>
-                            </div>
-                            <div 
-                                class="youjiantouField"
-                                @click.stop="caonima2(ele)"
-                                v-if="ele.type === 'dep'"
-                            >
-                                <img 
-                                    src="../../../static/Img/Main/yjt.png" 
-                                    style="height:20px; width:20px;"
-                                >
-                            </div>
-                        </div> -->
+                        
                         <div class="totalListXieItem" v-if="isSearch ? crumbs.length >= 1 : crumbs.length > 1 ">
                             <img
                                 style="height:20px; width:20px; margin-right:8px;"
@@ -1008,61 +947,7 @@ export default {
             //     return null;
             // });
         },
-        async changeLayerByCrumb(obj) {
-            console.log('caonimao', this.crumbs)
-            const client = window.mxMatrixClientPeg.matrixClient;
-            let department_id = obj.department_id;
-            if (department_id === this.crumbs[0].department_id) {
-                const rootDep = await Department.GetRoot();
-                const dvd = {dvd:true, txt:'联系人'};
-                const contactUsers = await Contact.GetAllContact(this.selfId);
-                contactUsers.forEach(c => {
-                    c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                })
-                rootDep.type = 'dep';
-                rootDep.display_name = '组织';
-                let totalArray = [rootDep, dvd, ...contactUsers];
-                totalArray.forEach(t => t.choosen = false);
-                this.totalList = [...totalArray];
-                this.crumbs[0].choosen = true;
-                this.crumbs = [this.crumbs[0]];
-            } else {
-                this.changeLayer(obj);
-            }
-        },
-        async changeLayer(obj) {
-            const client = window.mxMatrixClientPeg.matrixClient;
-            let department_id = obj.department_id;
-            let crumbs = this.crumbs;
-            const len = crumbs.length;
-            let mxTree = this.mxTree; 
-            let newCrumbs = [];
-            for(let i=0; i<len; i++) {
-                newCrumbs.push(crumbs[i]);
-                if (crumbs[i].department_id === department_id) {
-                    break;
-                }
-                if (i === len-1) {
-                    let layer = {name:obj.display_name, department_id:obj.department_id}
-                    newCrumbs.push(layer);
-                }
-            }
-            newCrumbs[newCrumbs.length-1].choosen = true;
-            console.log('>>>>>', newCrumbs)
-            newCrumbs[0].name = '组织';
-            this.crumbs = [...newCrumbs];
-            const subDep = await Department.GetSubDepartment(department_id);
-            const subUsers = await UserInfo.GetSubUserinfo(department_id, this.selfId);
-            subDep.forEach(s=>s.type = 'dep')
-            subUsers.forEach(c=>{
-                c.display_name = c.user_display_name || c.user_name;
-                c.avatar_url = (client.getUser(c.matrix_id) ? client.mxcUrlToHttp(client.getUser(c.matrix_id).avatarUrl || client.getUser(c.matrix_id).avatar_url) : '') || './static/Img/User/user-40px@2x.png';
-                
-            })
-            let totalArray = [...subDep, ...subUsers];
-            totalArray.forEach(t => t.choose = false)
-            this.totalList = [...totalArray];   
-        },
+
         quanxie(obj) {
             if (obj.choosen) this.tn += 1;
             if (obj.czs) {
@@ -1399,12 +1284,8 @@ export default {
             return this.mxDepMap[obj.department_id].check;
             
         },
-        quanxuanZhuangtai() {
 
-        },
         async changeLayerByCrumb(obj) {
-            console.log('caonimao', this.crumbs)
-            const client = window.mxMatrixClientPeg.matrixClient;
             let department_id = obj.department_id;
             if (department_id === 'lxr') {
                 await this.originStatus();
@@ -1412,6 +1293,7 @@ export default {
                 await this.changeLayer(obj);
             }
         },
+
         async changeLayer(obj) {
             const client = window.mxMatrixClientPeg.matrixClient;
             let department_id = obj.department_id;
@@ -1585,16 +1467,9 @@ export default {
 
             const layer = {name:'联系人', department_id:'lxr', choosen: false}
             console.log('ctsssssss', cts)
-            // const dvd = {dvd:true, txt:'我的联系人'};
-            // let myContact = {
-            //     type: 'dep',
-            //     display_name: '我的联系人',
-            //     department_id: 'contact',
-            //     avatar: './static/Img/Main/xincontact.png'
-            // }
+
             this.rootDepId = rootDep.department_id;
             let totalArray = [rootDep, ...cts];
-            // totalArray.forEach(t => t.choosen = false)
             this.totalList = [...totalArray];
             this.crumbs = [layer];
         }

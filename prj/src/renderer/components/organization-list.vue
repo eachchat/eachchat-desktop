@@ -121,10 +121,7 @@ export default {
 
         departmentMenuItemClicked:async function(department, level) {
             var id = department.department_id;
-            var name = department.display_name;
-
             var departmentModels = await Department.GetSubDepartment(id);
-            var tempDepartments = [];
             var organization = {};
             organization.departments = departmentModels.sort(this.compare("show_order")); //tempDepartments;
             organization.users = await UserInfo.GetSubUserinfo(id);

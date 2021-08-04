@@ -103,7 +103,7 @@
             </div>
         </el-aside>
         <el-container class="right-container">
-            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" ></organizationList>
+            <organizationList  v-show='bOrganizeShow' :parentInfo="rootDepartment" :currentDepartment="currentDepartment" :key = "organizationKey"></organizationList>
             <!-- <contactList v-if='bContactShow' :parentInfo="currentDepartment" :key = 'contactListKey'></contactList> -->
             <contactRoomList v-if='bContactRoomShow' :parentInfo="currentDepartment" :key = 'contactListKey'>
             </contactRoomList>
@@ -157,6 +157,7 @@ export default {
             }) 
             this.contactListKey++;
             this.inviteRoomKey++;
+            this.organizationKey++;
         },
 
         receiveSearchKey: function() {
@@ -198,6 +199,7 @@ export default {
             searchUserInfoKey: 0,
             searchUserInfoPosition:{},
             contactType:"organise",
+            organizationKey: 0,
             contactListKey: 0,
             inviteRoomKey: 0,
             bInviteRoomShow: false,
@@ -522,6 +524,7 @@ export default {
                 this.bContactRoomShow = false;
                 this.bInviteRoomShow = false;
                 global.services.common.UpdateUserinfo();
+                this.organizationKey++;
             }
             else if(department.display_name == this.contactMenuName){
                 this.bOrganizeShow = false;
