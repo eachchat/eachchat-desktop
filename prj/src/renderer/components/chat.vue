@@ -950,7 +950,7 @@ export default {
             } else {
                 this.alertContnets = {
                     "Details": `是否${text}聊天记录？`,
-                    "Abstrace": `${text}删除聊天记录`
+                    "Abstrace": `${text}聊天记录`
                 }
                 this.showAlertDlg = true;
             }
