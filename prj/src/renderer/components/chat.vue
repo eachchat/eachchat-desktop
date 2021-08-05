@@ -1713,6 +1713,45 @@ export default {
                 return msgs[0].file_local_path;
             return '';
         },
+        calcImgSize(imgSize, limitSize) {
+            let imgWidth = imgSize.width;
+            let imgHeight = imgSize.height;
+            let limitWidth = limitSize.width;
+            let limitHeight = limitSize.height;
+            let finalSize = Object.assign({}, imgSize);
+            if(imgWidth > imgHeight) {
+                if(imgWidth > limitWidth ){
+                    finalSize.height = imgHeight/(imgWidth/limitWidth);
+                    finalSize.width = limitWidth;
+                    if(finalSize.height > limitHeight) {
+                        finalSize.width = imgWidth/(imgHeight/limitHeight)
+                        finalSize.height = limitHeight;
+                    }
+                }
+                else {
+                    if(imgHeight > limitHeight) {
+                        finalSize.width = imgWidth/(imgHeight/limitHeight)
+                        finalSize.height = limitHeight;
+                    }
+                }
+            }
+            else {
+                if(imgHeight > limitHeight) {
+                    finalSize.width = imgWidth/(imgHeight/limitHeight)
+                    finalSize.height = limitHeight;
+                    if(finalSize.width > limitWidth ){
+                        finalSize.height = imgHeight/(imgWidth/limitWidth);
+                        finalSize.width = limitWidth;
+                    }
+                }
+                else {
+                    if(imgWidth > limitWidth ){
+                        finalSize.height = imgHeight/(imgWidth/limitWidth);
+                        finalSize.width = limitWidth;
+                    }
+                }
+            }
+        },
         async showImageOfMessage(distEvent) {
             var showImageInfoList = [];
             var distImageInfo = {};
@@ -1723,7 +1762,7 @@ export default {
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
-                    let maxSize = 390;
+                    let maxSize = 480;
                     var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
         
                     let info = {
@@ -1737,6 +1776,11 @@ export default {
                         info.h = maxSize;
                     if(!info.w)
                         info.w = maxSize;
+
+                    if(info.h < 320 || info.w < 334) {
+                        info.h = parseInt(info.h * 1.5);
+                        info.w = parseInt(info.w * 1.5);
+                    }
 
                     var curImageInfo = {
                         imageUrl: curUrl,
@@ -1782,7 +1826,12 @@ export default {
                     info.h = maxSize;
                 if(!info.w)
                     info.w = maxSize;
-                    
+                
+                if(info.h < 320 || info.w < 334) {
+                    info.h = parseInt(info.h * 1.5);
+                    info.w = parseInt(info.w * 1.5);
+                }
+
                 distImageInfo = {
                     imageUrl: curUrl,
                     localPath: localPath,
