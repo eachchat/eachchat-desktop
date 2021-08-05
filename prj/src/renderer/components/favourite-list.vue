@@ -162,6 +162,7 @@ import { ComponentUtil } from '../script/component-util.js';
 import AlertDlg from './alert-dlg.vue'
 import emoji from './emoji'
 import {EmojiTextToHtml} from '../../packages/core/Utils.js'
+import * as fs from 'fs-extra';
 
 
 export default {
@@ -404,7 +405,14 @@ export default {
         },
         DownloadFile: function(file){
             let filepath = file.localPath;
+            let bExist = true;
             if(filepath.length == 0){
+                bExist = false;
+            }
+            else{
+                bExist = fs.existsSync(filepath);
+            }
+            if(!bExist){
                 var distElement = document.getElementById(file.collection_id);
                 distElement.style.display = "block";
                 var chatGroupMsgContent = file.collection_content;
@@ -422,9 +430,10 @@ export default {
                     }
                     reader.readAsArrayBuffer(blob);
                 })
-                return;
             }
-            shell.showItemInFolder(filepath);
+            else{
+                shell.showItemInFolder(filepath);
+            }
         },
 
         fileListClicked:async function(file) {
