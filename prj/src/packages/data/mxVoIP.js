@@ -295,7 +295,7 @@ class mxVoIP{
         if (room_id && global.mxMatrixClientPeg.getCall(room_id)) {
             console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
             global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
-            if(reason) {
+            if(reason && reason instanceof String) {
                 global.mxMatrixClientPeg.getCall(room_id).hangup(reason);
             }
             else {
