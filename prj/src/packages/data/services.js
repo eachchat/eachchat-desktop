@@ -9,7 +9,7 @@ import {ipcRenderer} from 'electron';
 import confservice from './conf_service.js'
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import { makeFlieNameForConflict, generalGuid } from '../core/Utils.js'
+import { generalGuid } from '../core/Utils.js'
 import axios from "axios";
 import {Base64} from "js-base64";
 import {environment} from "./environment.js";

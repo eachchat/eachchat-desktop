@@ -610,13 +610,11 @@ export default {
             }
             if(!distUrl.startsWith('blob:')) {
                 let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
+                distUrl = iconPath;
                 this.downLoadImg(iconPath);
                 this.updateMsgImg();
-                return iconPath;
             }
-            else {
-                return distUrl;
-            }
+            return distUrl;
         },
         MsgIsImage: function() {
             let msgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
