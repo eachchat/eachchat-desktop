@@ -183,6 +183,7 @@ export default {
         },
 
         hangup(reason){
+            if(!(reason instanceof String) && this.state != "connected") reason = "user_hangup";
             if(global.viopChat) global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000, reason);
         },
 
@@ -286,7 +287,9 @@ export default {
 
         closeWindow(){
             if(this.roomInfo && this.roomInfo.roomID){
-                global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000);
+                let reason = undefined;
+                if(this.state != "connected") reason = "user_hangup";
+                global.viopChat.hangUp(this.roomInfo.roomID, this.nTime * 1000, reason);
                 this.hideStateText();
             }
         },
