@@ -550,7 +550,7 @@ export default {
                 showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
             }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                size:{width:300,height: 480},
+                size:{width:640,height: 320},
                         roomInfo: { roomID: this.curChat.roomId,
                                     name: showName,
                                     voipType: "video",

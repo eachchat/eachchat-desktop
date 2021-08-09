@@ -53,6 +53,7 @@ class roomTimeLineHandler {
     }
 
     messageFilter(event){
+        if(!event) return false;
         if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.hangup'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
         return false;
     }
