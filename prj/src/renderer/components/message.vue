@@ -1,20 +1,19 @@
 <template>
-    <div class="message" :id="getMessageTemplateId()" v-cloak>
+    <div class="message" :id="messageTemplateId" v-cloak>
         <div class="chat-msg-body">
-            <div class="msg-info-mine" v-if="MsgIsMine()">
+            <div class="msg-info-mine" v-if="isMine">
                 <div class="msgStageDivEmpty" :key="updateStatus">
                     <div class="msgState">
                     </div>
                 </div>
                 <div class="about-msg">
-                    <div class="msg-info-username-mine" v-show=false></div>
                     <div class="chat-msg-content-mine-img"
-                        v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片" :style="getImageStyle()">
+                        v-on:click="ShowFile()" v-if="isImg">
+                        <img class="msg-image" :id="msg.event.event_id" :src="imgIcon" alt="图片" :style="imgStyle">
                     </div>
                     <div class="chat-msg-content-mine-file"
-                        v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
+                        v-on:click="ShowFile()" v-else-if="isFile">
+                        <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="msgFileIcon">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -22,43 +21,43 @@
                         </div>
                     </div>
                     <div class="chat-msg-content-mine-voice"
-                        v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
+                        v-on:click="ShowFile()" v-else-if="isVoice">
                         <img class="voice-mine-image" :id="msg.event.event_id" src="../../../static/Img/Chat/msg-mine-voice@2x.png" :alt="fileName" style="vertical-align:middle">
                         <div class="voice-info">
                             <p class="file-size" v-show="false">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
-                    <Transmit class="chat-msg-content-mine-transmit" v-else-if="MsgIsTransmit()" :Timeline="Timeline"></Transmit>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" :operate_id="operate_id" :caller_id="caller_id" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <Transmit class="chat-msg-content-mine-transmit" v-else-if="isTransmit" :Timeline="Timeline"></Transmit>
+                    <VoIP :callId="callId" :isMine="isMine" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" :operate_id="operate_id" :caller_id="caller_id" v-else-if="isVoip"></VoIP>
                     <div class="chat-msg-content-mine-txt-div"
                         v-on:click="ShowFile()" v-else>
-                        <p v-if="needHightLight(messageContent)" class="chat-msg-content-mine-txt" :id="getTextElementId()">
+                        <p v-if="msgHightLight" class="chat-msg-content-mine-txt" :id="getTextElementId()">
                             <linkify class="chat-msg-content-mine-linkify" :text="messageContent" color="rgba(255, 255, 255, 1)" textDecoration="underline"></linkify>
                         </p>
                         <p v-else class="chat-msg-content-mine-txt" :id="getTextElementId()" >
                             <emoji :text="messageContent"></emoji>
                         </p>
                     </div>
-                    <div class="chat-msg-content-mine-file-div-angle" v-if="(MsgIsFile() || MsgIsTransmit()) && !MsgIsImage()"></div>
-                    <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!MsgIsImage()"></div>
+                    <div class="chat-msg-content-mine-file-div-angle" v-if="(isFile || isTransmit) && !isImg"></div>
+                    <div class="chat-msg-content-mine-txt-div-angle" v-else-if="!isImg"></div>
                     <div class="msgStageDiv" :key="updateStatus">
-                        <div :class="getMsgStateClass()" v-if="MsgIsSending()">
+                        <div :class="msgStateClass" v-if="isSending">
                             <i class="el-icon-loading"></i>
                         </div>
-                        <div :class="getMsgStateClass()" v-else-if="MsgIsFailed()">
+                        <div :class="msgStateClass" v-else-if="isFailed">
                             <img class="sendWarning" src="../../../static/Img/Chat/sendFaile@2x.png" @click="sendAgain()">
                         </div>
-                        <div :class="getMsgStateClass()" v-else>
+                        <div :class="msgStateClass" v-else>
                         </div>
                     </div>
                 </div>
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <div class="quote-content" v-if="hasImgQuote()">
+                <img class="msg-info-user-img-no-name" :id="userIconId" :src="userIcon" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <div class="quote-content" v-if="imgQuote">
                     <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`">
                     </div>
                 </div>
-                <div class="quote-content" v-if="hasTextQuote()">
+                <div class="quote-content" v-if="textQuote">
                     <div class="quote-content-text">
                     {{quoteName}} : {{quoteText}}
                     </div>
@@ -66,17 +65,17 @@
                 
             </div>
             <div class="msg-info-others" v-else>
-                <img class="msg-info-user-img-with-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
-                <img class="msg-info-user-img-no-name" :id="getUserIconId()" :src="getUserIconSrc()" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
+                <img class="msg-info-user-img-with-name" :id="userIconId" :src="userIcon" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
+                <img class="msg-info-user-img-no-name" :id="userIconId" :src="userIcon" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup">{{getUserShowName()}}</div>
                     <div class="chat-msg-content-others-img"
-                        v-on:click="ShowFile()" v-if="MsgIsImage()">
-                        <img class="msg-image" :id="msg.event.event_id" :src="getMsgImgIcon()" alt="图片" :style="getImageStyle()">
+                        v-on:click="ShowFile()" v-if="isImg">
+                        <img class="msg-image" :id="msg.event.event_id" :src="imgIcon" alt="图片" :style="imgStyle">
                     </div>
                     <div class="chat-msg-content-others-file"
-                        v-on:click="ShowFile()" v-else-if="MsgIsFile()">
-                        <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="getMsgFileIcon()">
+                        v-on:click="ShowFile()" v-else-if="isFile">
+                        <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="msgFileIcon">
                         <div class="file-info">
                             <p class="file-name">{{this.fileName}}</p>
                             <p class="file-size">{{this.fileSize}}</p>
@@ -84,30 +83,30 @@
                         </div>
                     </div>
                     <div class="chat-msg-content-others-voice"
-                        v-on:click="ShowFile()" v-else-if="MsgIsVoice()">
+                        v-on:click="ShowFile()" v-else-if="isVoice">
                         <img class="voice-image" :id="msg.event.event_id" :alt="fileName" src="../../../static/Img/Chat/msg-voice@2x.png" style="vertical-align:middle">
                         <div class="voice-info" v-show="false">
                             <p class="file-size">{{this.voiceLenth}} ”</p>
                         </div>
                     </div>
-                    <Transmit class="chat-msg-content-other-transmit" v-else-if="MsgIsTransmit()" :Timeline="Timeline"></Transmit>
-                    <VoIP :callId="callId" :isMine="MsgIsMine()" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" :operate_id="operate_id" :caller_id="caller_id" v-else-if="MsgIsVoipCall()"></VoIP>
+                    <Transmit class="chat-msg-content-other-transmit" v-else-if="isTransmit" :Timeline="Timeline"></Transmit>
+                    <VoIP :callId="callId" :isMine="isMine" :isVideo="isVideo" :duration="duration" :hangUpReason="hangUpReason" :voipInfo="VoipInfo" :operate_id="operate_id" :caller_id="caller_id" v-else-if="isVoip"></VoIP>
                     <div class="chat-msg-content-others-txt-div"
                         v-on:click="ShowFile()" v-else>
-                        <p v-if = "needHightLight(messageContent)" class="chat-msg-content-others-txt" :id="msg.event.event_id">
+                        <p v-if = "msgHightLight" class="chat-msg-content-others-txt" :id="msg.event.event_id">
                             <linkify class="chat-msg-content-others-linkify" :text="messageContent" color="#5B6A91" textDecoration="underline"></linkify>
                         </p>
                         <p v-else class="chat-msg-content-others-txt" :id="msg.event.event_id">
                             <emoji :text="messageContent"></emoji>
                         </p>
                     </div>
-                    <div class="chat-msg-content-others-txt-div-angle" v-if="!MsgIsImage()"></div>
+                    <div class="chat-msg-content-others-txt-div-angle" v-if="!isImg"></div>
                 </div>
-                <div class="quote-content" v-if="hasImgQuote()">
+                <div class="quote-content" v-if="imgQuote">
                     <span>{{quoteName}} : </span>
                     <div v-on:click="ShowQuoteImg()" class="quote-content-img" :style="`background-image:url(${quoteUrl})`"></div>
                 </div>
-                <div class="quote-content" v-if="hasTextQuote()">
+                <div class="quote-content" v-if="textQuote">
                     <div class="quote-content-text">{{quoteName}} : {{quoteText}}</div>
                 </div>
             </div>
@@ -256,6 +255,7 @@ export default {
             }
         },
         async getFileExist() {
+            if(!this.msg.event.event_id) return '';
             let msgs = await Message.FindMessageByMesssageID(this.msg.event.event_id);
             console.log(msgs)
             if(msgs.length != 0 && msgs[0].file_local_path != "")
@@ -570,6 +570,8 @@ export default {
             const event = this.msg.event;
             const distPath = confservice.getFilePath(this.msg.event.origin_server_ts);
             const finalPath = path.join(distPath, chatGroupMsgContent.body);
+            //console.log("event_id path",event.event_id, finalPath)
+            return;
             getFileBlob(chatGroupMsgContent.info, iconUrl)
                 .then((blob) => {
                     let reader = new FileReader();
@@ -611,9 +613,8 @@ export default {
             if(!distUrl.startsWith('blob:')) {
                 let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
                 distUrl = iconPath;
-                this.downLoadImg(iconPath);
-                this.updateMsgImg();
             }
+            console.log("event_id path",this.msg.event.event_id, distUrl)
             return distUrl;
         },
         MsgIsImage: function() {
@@ -1361,7 +1362,6 @@ export default {
         },
         sendFile: async function() {
             var showfileObj = this.msg.fileObj;
-
             var roomID = this.msg.event.room_id;
             if(this.msg.event.content.msgtype == 'm.image'){
                 // this.SendImage(showfileObj, fileResult, stream)
@@ -1438,6 +1438,23 @@ export default {
     },
     data() {
         return {
+            textQuote: false,
+            imgQuote: false, 
+            msgHightLight: false,
+            messageTemplateId: '',
+            userIconId: '',
+            msgStateClass: '',
+            isFailed: false,
+            isSending: false,
+            imgStyle: '',
+            userIcon: '',
+            isTransmit: false,
+            msgFileIcon: '',
+            isVoip: false,
+            isVoice: false,
+            isImg: false,
+            isFile: false,
+            isMine: false,
             operate_id: null,
             caller_id: null,
             Timeline: null,
@@ -1464,8 +1481,8 @@ export default {
             messageContent: '',
             transmitMsgContent: '',
             transmitMsgTitle: '',
+            imgIcon: '',
             fileName: '',
-            fileIcon: '',
             fileSize: 0,
             fileSizeNum: 0,
             voiceLenth: 0,
@@ -1484,15 +1501,35 @@ export default {
             quoteName: '',
         }
     },
-    mounted: async function() {
+    mounted: async function() { 
+        this.textQuote = this.hasTextQuote();
+        this.imgQuote = this.hasImgQuote();
+        this.isMine = this.MsgIsMine();
+        this.isFile = this.MsgIsFile();
+        this.isVoice = this.MsgIsVoice();
+        this.msgFileIcon = this.getMsgFileIcon();
+        this.isTransmit = this.MsgIsTransmit();
+        this.userIcon = this.getUserIconSrc();
+        this.isVoip = this.MsgIsVoipCall();
+        this.isSending = this.MsgIsSending();
+        this.isFailed = this.MsgIsFailed();
+        this.msgStateClass = this.getMsgStateClass();
+        this.userIconId = this.getUserIconId();
+        this.messageTemplateId =  this.getMessageTemplateId();
+
+        if(this.MsgIsImage()){
+            this.imgIcon = this.getMsgImgIcon();
+            this.isImg = true;
+            this.imgStyle = this.getImageStyle();
+        }
         if(this.msg.event.content.msgtype != "m.text" && !this.msg.event.event_id) {
-        // if(this.msg.event.msgtype != "m.text") {
             console.log("====== message this.msg is ", this.msg);
             this.sendFile();
         }
         else if(this.msg.event.content.msgtype == "m.text" && !this.msg.event.event_id) {
             this.sendText();
         }
+        
         setTimeout(() => {
             this.$nextTick(() => {
                 this.MsgBelongUserImg();
@@ -1502,6 +1539,7 @@ export default {
                 else {
                     this.MsgContent(false);
                 }
+                this.msgHightLight = this.needHightLight(this.messageContent);
                 setTimeout(() => {
                     // console.log("show state");
                     this.showState = true;
@@ -1509,6 +1547,7 @@ export default {
                 }, 500)
             })
         }, 0)
+
         if (this.hasQuote()){
             const sender = this.msg.event.content.quote_event.sender
             this.quoteName = await ComponentUtil.GetDisplayNameByMatrixID(
@@ -1517,10 +1556,8 @@ export default {
         }
         window.openUrl=this.openUrl;
     },
-    created: async function() {
+    created: function() {
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
-        this.loginInfo = undefined;
-        this.curUserInfo = undefined;
     },
     beforeDestroy: function() {
         if(this.amr != null) {
