@@ -158,12 +158,12 @@
                         <img 
                             src="../../../static/Img/Main/sandian.png" 
                             class="memberItemOptionsImg"
-                            v-if="currentUser.powerLevel && (currentUser.powerLevel > item.powerLevel) && (item.membership === 'join')"
+                            v-if="currentUser.powerLevel && (currentUser.powerLevel > item.powerLevel)"
                         >
                         <div class="memberItemOptions" v-show="item.choosen" :class="{'memberItemOptionsUp':up, 'memberItemOptionsDown':!up}">
-                            <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100">设为群主</div>
-                            <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 &&  item.powerLevel !== 50">设为群管理员</div>
-                            <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 && item.powerLevel !== 0">设为群成员</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 100, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=100 && item.membership !== 'invite'" >设为群主</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 50, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 &&  item.powerLevel !== 50 && item.membership !== 'invite'">设为群管理员</div>
+                            <div class="optionItem" @click.stop="setPowerLevel(item, 0, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=50 && item.powerLevel !== 0 && item.membership !== 'invite'">设为群成员</div>
                             <div class="optionItem" @click.stop="kickMember(item, index)" v-if="currentUser.powerLevel > item.powerLevel && currentUser.powerLevel>=showGroupInfo.totalLevels.canKick">移除成员</div>
                         </div>
                     </div>
@@ -541,7 +541,7 @@ export default {
                         warning += '  这个群组不是公开的，退出后无法直接加入';
                     }
                 }
-                if(this.isOwnerAndNoAnotherOwner()) {
+                if(this.isOwnerAndNoAnotherOwner() && this.mxMembers.length > 3) {
                     warning = `请您先设置一位群主，以确保群组管理的正常使用。`;
                     vtx.$warningDlg({
                         title: `退出${room.name}`,
