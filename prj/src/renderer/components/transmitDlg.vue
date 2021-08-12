@@ -340,7 +340,7 @@ export default {
             this.searchGroup = await this.searchRoom(this.searchKey);
 
             setTimeout(() => {
-                this.$nextTick(function(){
+                this.$nextTick(() => {
                     this.updageSearchChatNameAndImg();
                 });
             }, 0)
@@ -349,19 +349,23 @@ export default {
             this.searchKey = '';
             this.showSearchView = false;
         },
+        deleteDistGroupFromSelect(group) {
+            for(let i = 0; i < this.selectedGroups.length; i++) {
+                if(this.selectedGroups[i].roomId == group.roomId) {
+                    this.selectedGroups.splice(i, 1);
+                    return true;
+                }
+            }
+            return false;
+        },
         deleteGroupFromSelectedGroups(group){
-            var index = this.selectedGroups.indexOf(group);
-            this.selectedGroups.splice(index, 1);
-            this.$nextTick(function(){
+            this.deleteDistGroupFromSelect(group);
+            this.$nextTick(() => {
                 this.updageSelectedChatNameAndImg();
             });
         },
         groupCheckBoxClicked(group){
-            if(this.selectedGroups.indexOf(group) != -1){
-                var index = this.selectedGroups.indexOf(group);
-                this.selectedGroups.splice(index, 1);
-            }
-            else{
+            if(!this.deleteDistGroupFromSelect(group)){
                 if(this.selectedGroups.length >= 9) {
                     this.$toastMessage({message:"最多选择9个联系人和群组", time: 2000, type:'error', showWidth:'280px'});
                     this.selectedGroups.push(group);
@@ -373,7 +377,7 @@ export default {
                 }
                 this.selectedGroups.push(group);
             }
-            this.$nextTick(function(){
+            this.$nextTick(() => {
                 this.updageSelectedChatNameAndImg();
             });
         },
