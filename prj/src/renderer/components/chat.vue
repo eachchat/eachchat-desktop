@@ -30,7 +30,7 @@
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
                     <div class="msg-loading" v-bind:key="123">
-                        <i class="el-icon-loading" v-show="true"></i>
+                        <i class="el-icon-loading" v-show="isRefreshing"></i>
                     </div>
                     <li v-for="(item, index) in messageList"
                         :class="ChatLeftOrRightClassName(item)"
