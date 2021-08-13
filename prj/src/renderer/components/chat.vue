@@ -694,11 +694,34 @@ export default {
                             menuObj.menuList.push(favouriteMenu);
                         }
                         if(showRedact) {
-                            let deleteMenu = {
-                                name: "删除",
-                                func: this.menuDelete
+                            console.log('查看当前信息', msgItem);
+                            let text = '删除';
+                            let timeLimit = 2 * 60 * 1000;
+                            const myUserId = this.curChat.myUserId;
+                            const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                            const members = this.curChat.currentState.members;
+                            const userLevel = members[myUserId].powerLevel;
+                            let redact = 50;
+                            if (currentState) {
+                                let levelObj = currentState.getContent();
+                                redact = levelObj.redact || redact;
                             }
-                            menuObj.menuList.push(deleteMenu);
+                            console.log('redact Number>>>>>', redact)
+                            console.log('userLevel Number>>>>', userLevel)
+                            if (msgItem.event.sender === myUserId) {
+                                if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            } else if (userLevel >= redact) {
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            }
                         }
                         if(!this.isSecret) {
                             let multiSelectMenu = {
@@ -862,12 +885,36 @@ export default {
                         }));
                     }
                     if(showRedact) {
-                        this.menu.append(new MenuItem({
-                            label: "删除",
-                            click: () => {
-                                this.menuDelete(msgItem)
-                            }
-                        }));
+                        console.log('查看当前信息', msgItem);
+                        let text = '删除';
+                        let timeLimit = 2 * 60 * 1000;
+                        const myUserId = this.curChat.myUserId;
+                        const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                        const members = this.curChat.currentState.members;
+                        const userLevel = members[myUserId].powerLevel;
+                        let redact = 50;
+                        if (currentState) {
+                            let levelObj = currentState.getContent();
+                            redact = levelObj.redact || redact;
+                        }
+                        console.log('redact Number>>>>>', redact)
+                        console.log('userLevel Number>>>>', userLevel)
+                        if (msgItem.event.sender === myUserId) {
+                            if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem)
+                                }
+                            }));
+                        } else if (userLevel >= redact) {
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem)
+                                }
+                            }));
+                        }
                     }
                     if(!this.isSecret) {
                         this.menu.append(new MenuItem({
