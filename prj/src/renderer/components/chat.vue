@@ -1220,15 +1220,15 @@ export default {
         },
         downloadFile(msg){
             let paths = ipcRenderer.sendSync("get_save_filepath");
-            let folders = paths.filePaths;
+            let folders = paths.filePath;
             if(folders.length == 0) return;
-            let folder = folders[0];
-            console.log(folder)
+            let newFileName = folders;
+            console.log(newFileName)
             let msgElements = this.$refs[msg.event.event_id];
             if(msgElements.length === 0) return;
             let msgElement = msgElements[0];
             var chatGroupMsgContent = msg.event.content ? msg.event.content : msg.getContent();
-            msgElement.SaveFile(chatGroupMsgContent, path.join(folder, chatGroupMsgContent.body), msg.event.event_id, false);
+            msgElement.SaveFile(chatGroupMsgContent, newFileName, msg.event.event_id, false);
         },
 
         cleanSelected() {
