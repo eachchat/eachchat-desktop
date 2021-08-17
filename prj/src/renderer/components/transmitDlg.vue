@@ -196,6 +196,8 @@ export default {
                 var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
                 console.log("distUserId is ", distUserId);
                 if(!distUserId) {
+                    elementGroupName.innerHTML = distGroup.name;
+                    this.getGroupAvatarContent(this.showRecentChat[i], 'transmit');
                     continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
@@ -213,6 +215,8 @@ export default {
             
                 var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
                 if(!distUserId) {
+                    elementGroupName.innerHTML = distGroup.name;
+                    this.getGroupAvatarContent(this.selectedGroups[i], 'selected');
                     continue;
                 }
                 var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
@@ -362,6 +366,7 @@ export default {
             this.deleteDistGroupFromSelect(group);
             this.$nextTick(() => {
                 this.updageSelectedChatNameAndImg();
+                this.updageTransmitChatNameAndImg();
             });
         },
         groupCheckBoxClicked(group){
@@ -379,6 +384,7 @@ export default {
             }
             this.$nextTick(() => {
                 this.updageSelectedChatNameAndImg();
+                this.updageTransmitChatNameAndImg();
             });
         },
         compare(property){
