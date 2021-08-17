@@ -56,6 +56,7 @@ const ipcFileFunc = {
 
       GetSaveFilepath(mainWindow, event){
         dialog.showOpenDialog(mainWindow,{
+            buttonLabel: "存储",
             properties: ["openDirectory"]
           }).then(files => {
             event.returnValue = files;
