@@ -6,6 +6,7 @@ import log from 'electron-log';
 
 const audioPromises = {};
 let connectingTimer = undefined;
+let haveConnected = false;
 
 function play(audioId) {
     // TODO: Attach an invisible element for this instead
@@ -128,10 +129,12 @@ function _setVideoCallListeners(call, videoCall) {
         if (newState === "ringing") {
             _setCallState(call, call.roomId, "ringing");
             pause("ringbackAudio");
+            haveConnected = false;
         } 
         else if (newState === "invite_sent") {
             _setCallState(call, call.roomId, "ringback");
             play("ringbackAudio");
+            haveConnected = false;
             
         } else if (newState === "ended" && oldState === "connected") {
             _setCallState(undefined, call.roomId, "ended");
@@ -160,7 +163,8 @@ function _setVideoCallListeners(call, videoCall) {
             pause("ringbackAudio");
             console.log("================connected ", updateTrayNotice);
             updateTrayNotice();
-        } else if (newState === "connecting") {
+            haveConnected = true;
+        } else if (newState === "connecting" && !haveConnected) {
             connectingTimer = setTimeout(() => {
                 call.hangup("user_busy");
                 updateTrayNotice();
@@ -291,7 +295,7 @@ class mxVoIP{
         if (room_id && global.mxMatrixClientPeg.getCall(room_id)) {
             console.log("====to hangup and call is ", global.mxMatrixClientPeg.getCall(room_id));
             global.mxMatrixClientPeg.getCall(room_id).setDurationTime(time);
-            if(reason) {
+            if(reason && typeof(reason) == "string") {
                 global.mxMatrixClientPeg.getCall(room_id).hangup(reason);
             }
             else {
