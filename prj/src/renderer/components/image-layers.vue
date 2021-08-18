@@ -10,12 +10,6 @@
 
 <script>
 import {strMsgContentToJson, FileUtil} from '../../packages/core/Utils.js'
-import {services, environment} from '../../packages/data/index.js'
-import {APITransaction} from '../../packages/data/transaction.js'
-import * as fs from 'fs-extra'
-import {ipcRenderer} from 'electron'
-import confservice from '../../packages/data/conf_service.js'
-import * as path from 'path'
 export default {
     name: 'ImageLayers',
     props: ['imgSrcInfo', 'access_token'],

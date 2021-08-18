@@ -15,17 +15,11 @@
     </div>
 </template>>
 <script>
-import confservice from '../../packages/data/conf_service.js';
-import * as path from 'path';
-import * as fs from 'fs-extra'
-import {services} from '../../packages/data/index.js';
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
 export default {
     name:'reportRelationContent',
 
     data() {
         return{
-            userInfo:{},
         }
     },
 

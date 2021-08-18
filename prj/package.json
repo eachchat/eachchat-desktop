@@ -1,6 +1,6 @@
 {
   "name": "EachChat",
-  "version": "2.0.9",
+  "version": "2.0.13",
   "author": "北京爱工作科技有限公司 <support@workly.ai>",
   "description": "亿洽",
   "license": "UNLICENSED",
@@ -21,7 +21,8 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "",
-    "test": "mocha test/index.spec.js "
+    "test": "mocha test/e2e/index.spec.js ",
+    "itest": "mocha test/api"
   },
   "build": {
     "productName": "EachChat",
@@ -54,7 +55,11 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build_mac/entitlements.mac.plist",
-      "entitlementsInherit": "build_mac/entitlements.mac.plist"
+      "entitlementsInherit": "build_mac/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "请允许本程序访问您的麦克风",
+        "NSCameraUsageDescription": "请允许本程序访问您的摄像头"
+      }
     },
     "afterSign": "scripts/notarize.js",
     "win": {

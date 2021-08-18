@@ -29,6 +29,27 @@ class _MatrixClientPeg{
         console.log("default display name is ", this.defaultDisplayName);
         this._hasSentOutPatchDirectAccountDataPatch = false;
         this.mediaConfig = null;
+        this.callList = {};
+        this.roomTimeLineHandler = null;
+        this.timelineHandler = null;
+    }
+
+    addCall(roomId, call) {
+      this.callList[roomId] = call;
+    }
+
+    removeCall(roomId) {
+        try{
+            delete this.callList[roomId];
+        }
+        catch(e) {
+
+        }
+    }
+
+    getCall(roomId) {
+      if(roomId) return this.callList[roomId];
+      else return this.callList;
     }
 
     setRecoveryKey(recoveryKey) {
@@ -373,7 +394,7 @@ class _MatrixClientPeg{
       }
       if(accessToken && userId && hsUrl) {
         let ops = {
-          baseUrl: this.homeserve,
+          baseUrl: hsUrl,
           userId: userId,
           accessToken: accessToken,
           deviceId: deviceId,

@@ -1,6 +1,6 @@
 <template>
     <div class="emojiDiv">
-      <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" :style="{fontSize: ind % 2 ? fontSize : null,
+      <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" :style="{fontSize: (ind % 2 && item !== '。') ? fontSize : null,
         paddingLeft: '1px', paddingRight: '1px'}">{{item}}</span>
     </div>
 </template>
@@ -16,8 +16,10 @@ export default {
           default: ''
         }
     },
-    data: {
-      fontSize: "18px",
+    data() {
+      return{
+        fontSize: "18px",
+      }
     },
     methods: {
       isWindows() {

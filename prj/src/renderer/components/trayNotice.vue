@@ -1,16 +1,28 @@
 <template>
-    <div class="trayNotice" id="trayNoticeId" v-on:mouseover="setToShow" v-on:mouseout="setToHide">
-      <div class="trayNoticeTitle" v-on:mouseover="setToShow" v-on:mouseout="setToHide">新消息（{{totalUnreadCount}}）</div>
+    <div class="trayNotice" id="trayNoticeId" v-on:mouseover="mousein" v-on:mouseout="mouseout">
+      <div class="trayNoticeTitle" v-on:mouseover="mousein" v-on:mouseout="mouseout">{{unreadLabel}}</div>
       <div class="noticeListDiv">
-        <ul class="noticeList">
-          <li class="noticeItem" v-for="noticeItem in noticeList" v-on:click="jumpToDistChat(noticeItem)" v-on:mouseover="setToShow" v-on:mouseout="setToHide">
-            <img class="noticeItemIcon" :src="noticeItem.imgUrl" v-on:mouseover="setToShow" v-on:mouseout="setToHide">
-            <div class="noticeItemName" v-on:mouseover="setToShow" v-on:mouseout="setToHide">{{noticeItem.chatName}}</div>
-            <p :class="getUnreadClass(noticeItem.unreadCount)" v-on:mouseover="setToShow" v-on:mouseout="setToHide">{{noticeItem.unreadCount}}</p>
+        <ul class="noticeList" v-show="!hasVoIP">
+          <li class="noticeItem" v-for="noticeItem in noticeList" v-on:click="jumpToDistChat(noticeItem)" v-on:mouseover="mousein" v-on:mouseout="mouseout">
+            <img class="noticeItemIcon" :src="noticeItem.imgUrl" v-on:mouseover="mousein" v-on:mouseout="mouseout">
+            <div class="noticeItemName" v-on:mouseover="mousein" v-on:mouseout="mouseout">{{noticeItem.chatName}}</div>
+            <p :class="getUnreadClass(noticeItem.unreadCount)" v-on:mouseover="mousein" v-on:mouseout="mouseout">{{noticeItem.unreadCount}}</p>
+          </li>
+        </ul>
+        <ul class="noticeVoIPList" v-show="hasVoIP" v-on:mouseover="mousein">
+          <li class="noticeVoIP" v-for="voIPNoticeItem in voIPNoticeList" v-on:mouseover="mousein">
+            <div class="noticeItem" v-on:mouseover="mousein">
+              <img class="noticeItemIcon" :src="voIPNoticeItem.imgUrl" v-on:mouseover="mousein">
+              <div class="voIPNoticeItemName" v-on:mouseover="mousein">{{voIPNoticeItem.showContent}}</div>
+            </div>
+            <div class="noticeVoIPControl" v-on:mouseover="mousein">
+              <img class="noticeVoIPControlAnswer" src="../../../static/Img/VoIP/noticeAnswer@2x.png" @click="Answer(voIPNoticeItem)" v-on:mouseover="mousein">
+              <img class="noticeVoIPControlHangup" src="../../../static/Img/VoIP/noticeHangup@2x.png" @click="Hangup(voIPNoticeItem)" v-on:mouseover="mousein">
+            </div>
           </li>
         </ul>
       </div>
-      <div class="cleanAll" v-on:click="clearAll" v-on:mouseover="setToShow" v-on:mouseout="setToHide">忽略全部</div>
+      <div class="cleanAll" v-on:click="clearAll" v-show="!hasVoIP" v-on:mouseover="mousein" v-on:mouseout="mouseout">忽略全部</div>
     </div>
 </template>
 <script>
@@ -19,36 +31,158 @@ export default {
     name: 'trayNotice',
     data() {
         return {
-          totalUnreadCount: 0,
+          MsgUnreadCount: 0,
+          VoIPUnreadCount: 0,
           trayNoticeElement: undefined,
-          OpacityElement: undefined,
           noticeList: [],
+          voIPNoticeList: [],
           hideInterval: null,
+          hasVoIP: false,
+          hasMsg: false,
+          voIPRoomId: "",
+          forceHide: false,
+          unreadLabel: "新消息",
         }
     },
     methods: {
+      Hangup(item) {
+        let width = 300;
+        let height = 480;
+        if(item.notictType === "video"){
+            width = 640;
+            height = 320;
+        }
+        ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+            size:{width:width,height: height},
+                    roomInfo: { roomID: item.roomId,
+                                name: item.chatName,
+                                url:item.imgUrl,
+                                voipType: item.notictType,
+                                direction: "from",
+                                action: "hangup"}});
+
+        for(let i = 0; i < this.voIPNoticeList.length; i++) {
+          if(this.voIPNoticeList[i].roomID == item.roomId) {
+            this.voIPNoticeList.splice(i, 1);
+            break;
+          }
+        }
+        this.VoIPUnreadCount = 0;//this.voIPNoticeList.length;
+        this.toHideTrayWindow(true);
+      },
+      Answer(item) {
+        let width = 300;
+        let height = 480;
+        if(item.notictType === "video"){
+            width = 640;
+            height = 320;
+        }
+        ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+            size:{width:width,height: height},
+                    roomInfo: { roomID: item.roomId,
+                                name: item.chatName,
+                                url:item.imgUrl,
+                                voipType: item.notictType,
+                                direction: "from",
+                                action: "answer"}});
+
+        for(let i = 0; i < this.voIPNoticeList.length; i++) {
+          if(this.voIPNoticeList[i].roomID == item.roomId) {
+            this.voIPNoticeList.splice(i, 1);
+            break;
+          }
+        }
+        this.VoIPUnreadCount = 0;//this.voIPNoticeList.length;
+        this.toHideTrayWindow(true);
+      },
+      async showVoIPPage(item) {
+        let width = 300;
+        let height = 480;
+        if(item.notictType === "video"){
+            width = 640;
+            height = 320;
+        }
+        ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+            size:{width:width,height: height},
+                    roomInfo: { roomID: item.roomId,
+                                name: item.chatName,
+                                url:item.imgUrl,
+                                voipType: item.notictType,
+                                direction: "from",
+                                action: "show"}});
+
+        for(let i = 0; i < this.voIPNoticeList.length; i++) {
+          if(this.voIPNoticeList[i].roomID == item.roomId) {
+            this.voIPNoticeList.splice(i, 1);
+            break;
+          }
+        }
+        this.VoIPUnreadCount = 0;//this.voIPNoticeList.length;
+        this.toHideTrayWindow();
+      },
       clearAll() {
         let toClearRoomIds = [];
         for(let i=0;i<this.noticeList.length;i++){
           toClearRoomIds.push(this.noticeList[i].roomId);
         }
-        ipcRenderer.send("checkClick", toClearRoomIds);
+        ipcRenderer.send("checkClick", "ClearAll", toClearRoomIds);
+        this.toHideTrayWindow(true);
       },
       jumpToDistChat(item) {
-        ipcRenderer.send("checkClick", [item.roomId]);
+        ipcRenderer.send("checkClick", "JumpToDistChat", [item.roomId]);
+        this.toHideTrayWindow(true);
       },
-      setToShow() {
+      toShowTrayWindow() {
+        if(this.forceHide) return;
         clearInterval(this.hideInterval)
         ipcRenderer.send('trayNoticeShowOrNot', true);
       },
-      setToHide() {
+      toHideTrayWindow(force=false) {
+        if(force) {
+          ipcRenderer.send('trayNoticeShowOrNot', false);
+        }
+        this.forceHide = force;
+        setTimeout(() => {
+          this.forceHide = false;
+        }, 500)
         if(this.hideInterval) {
           clearInterval(this.hideInterval)
         }
         this.hideInterval = setInterval(() => {
           ipcRenderer.send('trayNoticeShowOrNot', false);
           clearInterval(this.hideInterval)
-        }, 500);
+        }, 300);
+      },
+      mousein(e) {
+        if(!this.hasVoIP && !this.hasMsg){
+          return;
+        }
+        this.toShowTrayWindow();
+      },
+      mouseout(e) {
+        if(this.hasVoIP) return;
+        this.toHideTrayWindow();
+      },
+      updateVoIPNoticeContent(event, VoIPNoticeContent) {
+        console.log("==== updateVoIPNoticeContent ", VoIPNoticeContent);
+        this.voIPNoticeList = [];
+        this.VoIPUnreadCount = 0;
+        for(let id in VoIPNoticeContent){
+          let item = VoIPNoticeContent[id];
+          if(item["notictType"] == "voice") {
+            item["showContent"] = item["chatName"] + "邀请你语音通话";
+            this.voIPRoomId = item["roomId"];
+            this.voIPNoticeList.push(item);
+          }
+          else if(item["notictType"] == "video") {
+            item["showContent"] = item["chatName"] + "邀请你视频通话";
+            this.voIPRoomId = item["roomId"];
+            this.voIPNoticeList.push(item);
+          }
+          this.VoIPUnreadCount +=1 ;
+        }
+        // this.showVoIPPage(this.voIPNoticeList[0])
+        this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
       },
       updateNoticeContent(event, NoticeContent) {
         // let trayNoticeObj = {
@@ -57,31 +191,18 @@ export default {
         //       chatName: distName,
         //       roomId: room.roomId,
         //     }
-        console.log("==== NoticeContent ", NoticeContent);
-        this.totalUnreadCount = 0;
+        console.log("NoticeContent ", NoticeContent);
+        this.MsgUnreadCount = 0;
         this.noticeList = [];
         for(let id in NoticeContent){
-          console.log("id is ", id);
           let item = NoticeContent[id];
-          console.log("item is ", item);
-          this.totalUnreadCount += item['unreadCount'];
           this.noticeList.push(item);
+          this.MsgUnreadCount += item['unreadCount'];
         }
-        if(this.totalUnreadCount == 0) {
+        if(!this.hasMsg && !this.hasVoIP) {
           ipcRenderer.send('trayNoticeShowOrNot', false);
         }
-        // this.toUpdateCurWindowInfo();
-      },
-      toUpdateCurWindowInfo() {
-        if(!this.trayNoticeElement) {
-          this.trayNoticeElement = document.getElementById('trayNoticeId');
-        }
-        let trayNoticeWindowInfo = {
-          width: this.trayNoticeElement ? this.trayNoticeElement.offsetWidth : 0,
-          height: this.trayNoticeElement ? this.trayNoticeElement.offsetHeight : 0,
-          totalUnreadCount: this.totalUnreadCount,
-        }
-        ipcRenderer.send('updateTrayNoticeWindowInfo', trayNoticeWindowInfo);
+        this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
       },
       getUnreadClass(num) {
         if(num > 99) {
@@ -94,8 +215,28 @@ export default {
     },
     mounted() {
       ipcRenderer.on('updateTrayNotice', this.updateNoticeContent);
+      ipcRenderer.on('updateVoIPTrayNotice', this.updateVoIPNoticeContent);
     },
     watch: {
+      voIPNoticeList: function() {
+        if(this.voIPNoticeList.length == 0) {
+          this.hasVoIP = false;
+        }
+        else {
+          
+          this.hasVoIP = true;
+        }
+        // this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
+      },
+      noticeList: function() {
+        if(this.noticeList.length == 0) {
+          this.hasMsg = false;
+        }
+        else {
+          this.hasMsg = true;
+        }
+        // this.unreadLabel = "新消息" + (Number(this.MsgUnreadCount + this.VoIPUnreadCount) != 0 ? "（" + Number(this.MsgUnreadCount + this.VoIPUnreadCount) + "）" : "");
+      }
     }
 }
 </script>
@@ -162,8 +303,49 @@ export default {
     padding-bottom: 6px;
   }
 
+  .noticeVoIPList {
+    padding: 0;
+    margin: 0;
+  }
+
+  .noticeVoIP {
+    width: 240px;
+    height: 96px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  .noticeVoIPControl {
+    width: 240px;
+    height: 44px;
+  }
+
+  .noticeVoIPControlHangup {
+    width: 28px;
+    height: 28px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 8px;
+    margin-right: 8px;
+    float: right;
+    display: inline-block;
+  }
+
+  .noticeVoIPControlAnswer {
+    width: 28px;
+    height: 28px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 8px;
+    margin-right: 8px;
+    float: right;
+    display: inline-block;
+  }
+
   .cleanAll {
-    width: 60px;
+    width: 100%;
     float: right;
     height: 32px;
     padding-right: 16px;
@@ -189,20 +371,6 @@ export default {
     cursor: pointer;
   }
 
-  .noticeItem:hover {
-    width: 206px;
-    height: 40px;
-    line-height: 40px;
-    font-size: 0px;
-    font-family: PingFangSC-Regular;
-    font-weight: 500;
-    padding-left: 16px;
-    padding-right: 18px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    background-color: rgba(247, 248, 250, 1);;
-  }
-
   .noticeItemIcon {
     vertical-align: middle;
     width: 36px;
@@ -220,6 +388,39 @@ export default {
     display: inline-block;
     vertical-align: middle;
     width: calc(100% - 70px);
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 500;
+    margin-left: 6px;
+    margin-right: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .noticeItemName:hover {
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(100% - 70px);
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    font-family: PingFangSC-Regular;
+    font-weight: 500;
+    margin-left: 6px;
+    margin-right: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .voIPNoticeItemName {
+    display: inline-block;
+    vertical-align: middle;
+    width: calc(100% - 50px);
     height: 40px;
     line-height: 40px;
     font-size: 14px;

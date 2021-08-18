@@ -8,7 +8,7 @@
             <el-menu
                 class="nav-menu">
                 <el-menu-item 
-                    :disabled = 'navEnable || dataIsLoading || dbDataNotFinished'
+                    :disabled = 'navEnable || dataIsLoading'
                     class="nav-item"
                     v-for="(tabitem, index) in Navigate"
                     v-bind:key="index"
@@ -23,23 +23,24 @@
             <div class="NavSetUp" @click="showSetUpPage">
                 <div class="NavSetUpImg" :class="{active: 3===curindex}"></div>
                 <span class="tooltiptext">{{getToolTipContent(index)}}</span>
+                <div v-show = "bshowNewversionDot" class = "newversiondot"></div>
             </div>
             <p :class="getUnreadClass(this.unReadCount)">{{getUnReadCount(this.unReadCount)}}</p>
         </el-aside>
-        <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading && !dbDataNotFinished">
+        <el-main class="tabcontainer" v-show="!navEnable && !dataIsLoading" >
             <!-- <component :is="curView"></component> -->
             <keep-alive>
                 <router-view :distUserId="distUserId" :distGroupId="distGroupId" :setToRealAll="setToRealAll" :receiveSearchKey="searchKey" :updateImg="updateImg" :scrollToRecentUnread="scrollToRecentUnread" @matrixSyncEnd = "matrixSyncEnd"
-                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" @toDataOk="toDataOk"/>
+                :organizationClick = "organizationClick" :toSaveDraft="toSaveDraft" :toUpdateTrayNotice="toUpdateTrayNotice" :toUpdateRooms="toUpdateRooms" @toDataOk="toDataOk" :dbDataFinished = "dbDataFinished"/>
             </keep-alive>
         </el-main>
-        <div class="loadingDiv" v-show="navEnable || dataIsLoading || dbDataNotFinished">
+        <div class="loadingDiv" v-show="navEnable || dataIsLoading">
             <div class="loadingInfo">
                 <img class="isLoading" id="isLoadingId" src="../../../static/Img/Main/mainLoading@2x.png">
                 <div class="loadingText">正在加载数据</div>
             </div>
         </div>
-        <personalCenter v-if="showPersonalCenter" :key="personalCenterKey" @showPersonalInfoHanlder="showPersonalInfoHanlder"></personalCenter>
+        <personalCenter v-if="showPersonalCenter"></personalCenter>
         <userInfoContent :userInfo="userInfo" :originPosition="pagePosition" v-if="showPersonalInfo" :key="userInfoTipKey"  :userType="userType" :isOwn="isOwn"></userInfoContent>
         <UpdateAlertDlg v-show="showUpgradeAlertDlg" :showUpgradeAlertDlg = "showUpgradeAlertDlg" @closeUpgradeDlg="closeUpgradeAlertDlg" :upgradeInfo="upgradeInfo"/>
         <AlertDlg :AlertContnts="alertContnets" v-show="showAlertDlg" @closeAlertDlg="closeAlertDlg" @clearCache="toChangePassword" :haveBG="true"/>
@@ -48,22 +49,16 @@
 </template>
 
 <script>
-import os from 'os';
-import * as path from 'path'
 import * as fs from 'fs-extra'
 import macWindowHeader from './macWindowHeader.vue'
 import organization from './organization.vue'
 import ChatContent from './chat-content.vue'
 import favourite from './favourite.vue'
-import {services} from '../../packages/data/index.js'
-//import {ServerApi} from '../server/serverapi.js'
-import {downloadGroupAvatar} from '../../packages/core/Utils.js'
 import confservice from '../../packages/data/conf_service.js'
 import {ipcRenderer, remote} from 'electron'
 import {FileUtil} from '../../packages/core/Utils.js'
-import {environment} from '../../packages/data/environment.js'
 import personalCenter from './personalCenter.vue'
-import {UserInfo, Message} from '../../packages/data/sqliteutil.js';
+import {Message, Config, sqliteutil} from '../../packages/data/sqliteutil.js';
 import { models } from '../../packages/data/models.js';
 import userInfoContent from './user-info';
 import {ComponentUtil} from '../script/component-util.js'
@@ -108,14 +103,17 @@ export default {
     },
     data () {
         return {
+            lastSyncTime: 0,
+            bshowNewversionDot: false,
             toUpdateTrayNotice: 0,
+            toUpdateRooms: 0,
             setToRealAll: [],
             isNormal: true,
             isFullScreen: false,
             toSaveDraft: 0,
             navEnable: true,
             dataIsLoading: true,
-            dbDataNotFinished: true, 
+            dbDataFinished: false, 
             scrollToRecentUnread: false,
             showChangePassword: false,
             alertContnets: {},
@@ -123,7 +121,7 @@ export default {
             displayName: '',
             userInfo: undefined,
             isOwn: true,
-            userInfoTipKey: 1,   //用户信息弹窗强制更新
+            userInfoTipKey: 1,
             pagePosition:{},
             userType: "mainUserInfo",
             unReadCount: 0,
@@ -162,10 +160,10 @@ export default {
     
             showPersonalCenter:false,
             showPersonalInfo: false,
-            personalCenterKey: 0,
             loadingInterval: undefined,
             loadingElement: undefined,
             curRotate: 0,
+            version: ""
         }
     },
     methods: {
@@ -218,23 +216,7 @@ export default {
             this.closeAlertDlg();
             this.showChangePassword = true;
         },
-        showPersonalInfoHanlder: async function(value){
-            if(value){
-                this.personalCenterKey ++;
-                const userId = window.localStorage.getItem("mx_user_id");
 
-                let userInfo = await ComponentUtil.ShowOrgInfoByMatrixID(userId);
-                if(userInfo){
-                    this.showPersonalCenter = true;
-                    this.showPersonalInfo = true;
-                    this.userInfo = userInfo;
-                    this.userInfo.displayName = this.displayName;
-                }
-                else{
-                    alert("数据库没有找到用户信息")
-                }
-            }
-        },
         getUnReadCount(unReadCount) {
             if(unReadCount === 0) return "";
             else return unReadCount > 99 ? "..." : unReadCount;
@@ -291,6 +273,7 @@ export default {
         },
         closeUpgradeAlertDlg: function() {
             this.showUpgradeAlertDlg = false;
+            Config.SetNewVersion(this.version);
         },
         clearCache: function() {
             this.showUpgradeAlertDlg = false;
@@ -456,147 +439,43 @@ export default {
             this.showPersonalInfo = false;
             var profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(global.mxMatrixClientPeg.matrixClient.getUserId());
             this.displayName = profileInfo.displayname;
-            this.personalCenterKey ++;
         },
-        startCheckUpgrade: function() {
-            async function checkUpgrade(self) {
-                var newVersion = await global.services.common.GetNewVersion();
-                console.log("newversion is ", newVersion);
-                if(newVersion == undefined || newVersion == false)
-                {
-                    return;
-                }
-                else {
-                    var sOsType = newVersion.osType;
-                    var sUrl = newVersion.downloadUrl;
-                    var sDescription = newVersion.description;
-                    //let sDescription = "1.功能更新-托盘增加注销<br>2.功能更新-聊天列表宽度可拖拽调整<br>3.功能更新-当前聊天页面增加新消息提示<br>4.功能更新-增加撤回功<br>5.功能更新-增加群组删除功能<br>6.功能更新-群描述增加邮箱识别<br>7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来<br>8.修复-消息防止xss注入代码<br>9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容<br>10.修复- @用户有时候会无效的bug<br>11.修复-群组头像查看打开大图<br>12.修复- 群组成员编辑菜单位置自适应<br>13.修复 - 群成员信息隐藏公司信息<br>14.UI -整体ui中所有确认与取消的按钮间距调整"
-                    sDescription = sDescription.replace(/\r\n/g, '<br>')
-                    var smd5Hash = newVersion.md5Hash;
-                    var sId = newVersion.id;
-                    var sUpdateTime = newVersion.updateTime;
-                    var sVerCode = newVersion.verCode;
-                    try{
-                        var sVerCodeSplit = sVerCode.split('.');
-                    }
-                    catch(err) {
+        startCheckUpgrade: async function() {
+            var newVersion = await global.services.common.GetNewVersion();
+            console.log("newversion is ", newVersion);
+            if(newVersion == undefined || newVersion == false)
+            {
+                return;
+            }
+            else {
+                var packageFile = require("../../../package.json");
+                var lVersion = packageFile.version;
+                var sVerCode = newVersion.verCode;
+                this.version = sVerCode;
+                var needUpdate = ComponentUtil.needUpgradeVersion(lVersion, sVerCode)
+                var sUrl = newVersion.downloadUrl;
+                var sDescription = newVersion.description;
+                sDescription = sDescription.replace(/\r\n/g, '<br>')
+                var sId = newVersion.id;
+                var sVerName = newVersion.verName;
+                let sProductName = sUrl.split("/").pop();
+                if(needUpdate) {
+                    this.bshowNewversionDot = true;
+                    let dbVersion = await Config.GetNewVersion();
+                    if(dbVersion && dbVersion.new_version === sVerCode){
                         return;
                     }
-                    var sMajor_Version_Number = undefined;
-                    var sMinor_Version_Number = undefined;
-                    var sRevision_Number = undefined;
-                    if(sVerCodeSplit.length >= 3) {
-                        sMajor_Version_Number = sVerCodeSplit[0];
-                        sMinor_Version_Number = sVerCodeSplit[1];
-                        sRevision_Number = sVerCodeSplit[2];
-                    }
-                    else if(sVerCodeSplit.length == 2) {
-                        sMajor_Version_Number = sVerCodeSplit[0];
-                        sMinor_Version_Number = sVerCodeSplit[1];
-                    }
-                    else if(sVerCodeSplit.length == 1) {
-                        sMajor_Version_Number = sVerCodeSplit[0];
-                    }
-                    else {
-                        return;
-                    }
-
-                    var packageFile = require("../../../package.json");
-                    var lVersion = packageFile.version;
-
-                    console.log("lVersion is ", lVersion)
-                    var lVerCodeSplit = lVersion.split('.');
-                    var lMajor_Version_Number = undefined;
-                    var lMinor_Version_Number = undefined;
-                    var lRevision_Number = undefined;
-                    if(lVerCodeSplit.length >= 3) {
-                        lMajor_Version_Number = lVerCodeSplit[0];
-                        lMinor_Version_Number = lVerCodeSplit[1];
-                        lRevision_Number = lVerCodeSplit[2];
-                    }
-                    else if(lVerCodeSplit.length == 2) {
-                        lMajor_Version_Number = lVerCodeSplit[0];
-                        lMinor_Version_Number = lVerCodeSplit[1];
-                    }
-                    else if(lVerCodeSplit.length == 1) {
-                        lMajor_Version_Number = lVerCodeSplit[0];
-                    }
-                    else {
-                        return;
-                    }
-                    console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
-                    console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
-                    var sVerName = newVersion.verName;
-                    let sProductName = sUrl.split("/").pop();
-                    var sForceUpdate = newVersion.forceUpdate;
-                    var needUpdate = false;
-   
-                    if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
-                        if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
-                            return;
-                        }
-                        else if(Number.parseInt(lMajor_Version_Number) == Number.parseInt(sMajor_Version_Number)) {
-                            if(lMinor_Version_Number != undefined && sMinor_Version_Number != undefined) {
-                                if(Number.parseInt(lMinor_Version_Number) > Number.parseInt(sMinor_Version_Number)) {
-                                    return;
-                                }
-                                else if(Number.parseInt(lMinor_Version_Number) == Number.parseInt(sMinor_Version_Number)) {
-                                    if(lRevision_Number != undefined && sRevision_Number != undefined) {
-                                        if(Number.parseInt(lRevision_Number) >= Number.parseInt(sRevision_Number)) {
-                                            return;
-                                        }
-                                        else {
-                                            needUpdate = true;
-                                        }
-                                    }
-                                }
-                                else {
-                                    needUpdate = true;
-                                }
-                            }
-                        }
-                        else {
-                            needUpdate = true;
-                        }
-                    }
-                    
-                    if(sForceUpdate != undefined && sForceUpdate){
-                        if(needUpdate) {
-                            self.showUpgradeAlertDlg = true;
-                            self.upgradeInfo = {
-                                "downloadUrl": sUrl,
-                                "description": sDescription,
-                                "verName": sVerName,
-                                "verId": sId,
-                            };
-                        }
-                    }
-                    else {
-                        if(needUpdate) {
-                            self.showUpgradeAlertDlg = true;
-                            self.upgradeInfo = {
-                                "downloadUrl": sUrl,
-                                "description": sDescription,
-                                "verName": sVerName,
-                                "productName": sProductName,
-                                "verId": sId,
-                            };
-                        }
-                    }
+                    this.showUpgradeAlertDlg = true;
+                    this.upgradeInfo = {
+                        "downloadUrl": sUrl,
+                        "description": sDescription,
+                        "verName": sVerName,
+                        "productName": sProductName,
+                        "verId": sId,
+                    };
                 }
             }
-            checkUpgrade(this);
-            setInterval(() => {
-                checkUpgrade(this);
-            }, 1000 * 3600)
-        },
-        startRefreshToken: function() {
-            async function refreshToken(self) {
-               
-            }
-            setTimeout(() => {
-                refreshToken(this);
-            }, 1000 * 3600 * 3.5)
+            
         },
 
         async logoutMenuItemClick(){
@@ -615,6 +494,11 @@ export default {
                 ipcRenderer.send("showLoginPageWindow");
                 return;
             }
+        },
+        updateRooms() {
+            setTimeout(() => {
+                this.toUpdateRooms += 1;
+            }, 1000)
         },
         async _doBootstrapUIAuth(makeRequest) {
             let response = null;
@@ -670,6 +554,11 @@ export default {
                 }
             }
         },
+        checkSync: function() {
+            if(this.lastSyncTime != 0 && new Date().getTime() - this.lastSyncTime > 40 * 1000) {
+                global.mxMatrixClientPeg.matrixClient.retryImmediately();
+            }
+        },
     },
 
     components: {
@@ -694,38 +583,72 @@ export default {
         ipcRenderer.on('setUnreadCount', (e, count) => {
             this.unReadCount = count;
         })
-
+        let backToLogin = () => {
+            global.mxMatrixClientPeg.logout();
+            ipcRenderer.send("showLoginPageWindow");
+            return;
+        }
+        
+        let getServerInfo = async (host) => {
+            var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
+            if(appServerInfo.status != 200) {
+                backToLogin();
+            }
+            if(appServerInfo.data['m.identity_server'] != undefined) {
+                global.localStorage.setItem("mx_is_url", appServerInfo.data['m.identity_server']['base_url']);
+            }
+        }
+        let checkHomeServer = async (domain, gmshost) => {
+            if(domain == "") {
+                backToLogin();
+            }
+            
+            var gmsRet = await global.services.common.newGmsConfiguration(domain, gmshost);
+            console.log("gmsRet is ", gmsRet);
+            if(!gmsRet){
+                backToLogin();
+            }
+            global.services.common.setGmsConfiguration(gmsRet);
+            var host = window.localStorage.getItem("mx_hs_url");
+            if(host == null) {
+                backToLogin();
+            }
+            await getServerInfo(host);
+            var appserver = window.localStorage.getItem("app_server");
+            var loginSettingRet = await global.services.common.getLoginConfig(appserver);
+            if(!loginSettingRet) {
+                backToLogin();
+            }
+        }
         await global.services.common.login();
         this.startCheckUpgrade();
         global.services.common.InitDbData().then(ret => {
-            this.dbDataNotFinished = false;
+            this.dbDataFinished = true;
         });
-        if(global.mxMatrixClientPeg.homeserve == '') {
-            var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-            var flows = await global.mxMatrixClientPeg.checkHomeServer(host)
-            this.supportedIdentity = flows;
-            for (let i = 0; i < flows.length; i++ ) {
-                var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo(host);
-                global.services.common.setGmsConfiguration(appServerInfo.data);
-                break;
-            }
-            
-            this.loginState = this.$t("invalidServerAddress");
-            this.organizationButtonDisabled = false;
+        
+        var host = window.localStorage.getItem("mx_hs_url");
+        if(host == null) {
+            backToLogin();
+        }
+        var domain = window.localStorage.getItem("Domain");
+        let gmsHost = window.localStorage.getItem("gms_host");
 
+        if(global.mxMatrixClientPeg.homeserve == '') {
+            await checkHomeServer(domain, gmsHost);
+            
             var ret = await global.mxMatrixClientPeg.restoreFromLocalStorage();
             console.log("========= ret ", ret)
-                if(ret == undefined) {
-                    global.mxMatrixClientPeg.logout();
-                    ipcRenderer.send("showLoginPageWindow");
-                    return;
-                }
-                if(ret.language) {
-                    this.$i18n.locale = ret.language;
-                    console.log("=======language is ", ret.language)
-                }
-                console.log("the matrix client is ", global.mxMatrixClientPeg)
-                this.matrixClient = global.mxMatrixClientPeg.matrixClient;
+            if(ret == undefined) {
+                global.mxMatrixClientPeg.logout();
+                ipcRenderer.send("showLoginPageWindow");
+                return;
+            }
+            if(ret.language) {
+                this.$i18n.locale = ret.language;
+                console.log("=======language is ", ret.language)
+            }
+            console.log("the matrix client is ", global.mxMatrixClientPeg)
+            this.matrixClient = global.mxMatrixClientPeg.matrixClient;
         }
         let ops = {
         }
@@ -751,6 +674,13 @@ export default {
               this.$store.dispatch('syncPrepare');
               console.log('matrix sync prepared.');
               break;
+            case "ERROR":
+                break;
+            case "CATCHUP":
+                break;
+            case "SYNCING":
+                this.lastSyncTime = new Date().getTime();
+                if(prevState == "CATCHUP") this.updateRooms();
             default:
               break;
           }
@@ -774,6 +704,7 @@ export default {
         var _this = this;
         document.addEventListener('click',function(e){
             // console.log("e.target.classname is ", e.target.className)
+            // _this.checkSync();
             if(e.target.className.indexOf('personalCenter') == -1 && e.target.className.indexOf('login-logo') == -1 && e.target.className.indexOf('userInfo') == -1){
                 if(e.target.className.indexOf('cropper') == -1){
                     // console.log("============")
@@ -791,7 +722,7 @@ export default {
             }
         });
 
-        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId)=>{
+        ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId, needOpen)=>{
             let msgs = await Message.FindMessageByMesssageID(eventId);
             if(msgs.length != 0){
                 msgs[0].file_local_path = finalName;
@@ -819,8 +750,6 @@ export default {
         ipcRenderer.on('clearAll', this.clearAll);
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         this.getAppBaseData();
-        
-        // this.startRefreshToken();
     },
 }
 </script>
@@ -1289,6 +1218,16 @@ export default {
         z-index: 1;
     }
 
+    .newversiondot{
+        width: 8px;
+        height: 8px;
+        background: #CE514F;
+        position: relative;
+        border-radius: 50%;
+        left:20px;
+        bottom: 30px;
+    }
+
     .NavSetUp:hover .tooltiptext {
         visibility: visible;
     }
@@ -1329,8 +1268,8 @@ export default {
 
     .loadingDiv {
         padding: 0px;
-        width: calc(100% - 70px);
-        height: 100%;
+        width: 890px;
+        height: 600px;
         vertical-align: top;
         margin: 0px;
         overflow-y:hidden;

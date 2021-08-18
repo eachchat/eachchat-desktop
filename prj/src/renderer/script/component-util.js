@@ -231,6 +231,51 @@ const ComponentUtil = {
         return linkHight;
     },
 
+    numToTime(num){
+        let nHour = Math.floor(num / 3600);
+        let nMinute = Math.floor(num / 60) % 60;
+        let nSec = num % 60;
+        let str = "";
+        if(nHour != 0){
+            str += nHour;
+            str += ":"
+        }
+        if(nMinute >= 10){
+            str += nMinute;
+        }
+        else{
+            str += "0";
+            str += nMinute;
+        }
+        str += ":"
+        if(nSec >= 10){
+            str += nSec
+        }
+        else{
+            str += "0";
+            str += nSec;
+        }
+        return str;
+    },
+
+    needUpgradeVersion(oldVersion, newVersion){
+        let oldArray = oldVersion.split('.');
+        let newArray = newVersion.split('.');
+        let oldArrayLen = oldArray.length;
+        let newArrayLen = newArray.length;
+        let len = Math.min(oldArrayLen, newArrayLen);
+ 
+        if(oldVersion === newVersion){
+            return false;
+        }
+        for(let index = 0; index < len; index++){
+            if(parseInt(oldArray[index]) > parseInt(newArray[index])){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
 
 export{

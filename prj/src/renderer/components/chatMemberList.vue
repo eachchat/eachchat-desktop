@@ -13,13 +13,7 @@
     </div>
 </template>
 <script>
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import {services} from '../../packages/data/index.js'
-import {downloadGroupAvatar, FileUtil, sliceReturnsOfString} from '../../packages/core/Utils.js'
-import confservice from '../../packages/data/conf_service.js'
-import {ipcRenderer, remote} from 'electron'
-import {getElementTop, getElementLeft, pathDeal} from '../../packages/core/Utils.js'
+import {sliceReturnsOfString} from '../../packages/core/Utils.js'
 import { nextTick } from 'process'
 import {ComponentUtil} from '../script/component-util'
 import axios from "axios";

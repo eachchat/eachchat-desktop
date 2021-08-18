@@ -1,12 +1,12 @@
 <template>
-    <div class="imageViewerPage">
+    <div class="imageViewerPage" @mousewheel="zoomimg($event)">
         <div class="imageWindowHeader">
             <macImageWinHeadbar class="macWindowHeader" :isNormal="isNormal" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
         </div>
         <div class="imageBox" id="imageBoxId" @mousedown="holeDown" @mouseup="holeUp">
             <i class="el-icon-loading" v-show="isLoading"></i>
-            <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" @mousewheel="zoomimg($event)" v-show="this.curImage.imageUrl != undefined">
+            <img class="imageViewerStage" draggable="false" id="imageViewerStageId" :style="'top: '+imgtop+'px;left: '+imgleft+'px;'" @contextmenu="rightClick($event)" v-show="this.curImage.imageUrl != undefined">
         </div>
         <div class="viewerToolBox">
             <div class="viewerToolbar" v-show="!isPersonalImg">
@@ -146,6 +146,8 @@ export default {
             }
         },
         Close: function() {
+            let imgDom = document.getElementById("imageViewerStageId");
+            imgDom.onmousemove = undefined;
             this.curUrl = "";
             this.curImage = {};
             ipcRenderer.send("image-win-close");
@@ -453,6 +455,10 @@ export default {
     mounted: function() {
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on("timelines", (event, imageInfos, distImageInfo, screenSize) => {
+            let imgDom = document.getElementById("imageViewerStageId");
+            if(!imgDom.onmousemove) {
+                imgDom.onmousemove = this.mouseMove;
+            }
             this.stageElement = document.getElementById("imageViewerStageId");
             this.stageElement.setAttribute("src", "");
             console.log("*** screenSize ", screenSize);
@@ -582,7 +588,6 @@ export default {
             }
         });
         window.addEventListener('keydown', this.keyHandle);
-        document.onmousemove = this.mouseMove;
     },
 }
 </script>
@@ -673,6 +678,7 @@ export default {
         width: 320px;
         height: 366px;
         z-index: 1;
+        border: 1px solid #dddddd;
     }
 
     .imageBox {

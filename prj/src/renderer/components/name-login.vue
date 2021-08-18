@@ -495,7 +495,7 @@ export default {
             this.isMatrixPwd = false;
             this.isRecetPwd = true;
             this.toVerfyEmail = false;
-            var identityUrl = global.localStorage.getItem("mx_i_url");
+            var identityUrl = global.localStorage.getItem("mx_is_url");
             var homeServerUel = global.localStorage.getItem("mx_hs_url");
             this.pwdResetClient = Matrix.createClient({
                 baseUrl: homeServerUel,
@@ -658,7 +658,7 @@ export default {
             //     global.localStorage.setItem("mx_hs_url", appServerInfo.data['m.homeserver']['base_url']);
             // }
             if(appServerInfo.data['m.identity_server'] != undefined) {
-                global.localStorage.setItem("mx_i_url", appServerInfo.data['m.identity_server']['base_url']);
+                global.localStorage.setItem("mx_is_url", appServerInfo.data['m.identity_server']['base_url']);
             }
             // if(appServerInfo.data['m.appserver'] != undefined) {
             //     var appServerHostInfo = appServerInfo.data['m.appserver']['base_url'];
@@ -721,6 +721,7 @@ export default {
                 this.organizationButtonDisabled = false;
                 return false;
             }
+            global.services.common.setGmsConfiguration(gmsRet);
             var host = window.localStorage.getItem("mx_hs_url");
             if(host == null) {
                 return false;
@@ -776,40 +777,11 @@ export default {
                     if(window.localStorage.getItem("Domain") == null) {
                         return false;
                     }
-                    else {
-                        return true;
-                    }
-                    // var appServerInfo = await global.mxMatrixClientPeg.getAppServerInfo();
-                    // console.log('appServerInfo is ', appServerInfo);
-                    // if(appServerInfo.status != 200) {
-                    //     this.loginState = this.$t("invalidServerAddress");
-                    //     return false;
-                    // }
-                    // if(appServerInfo.data['m.gms'] != undefined) {
-                    //     var gmsHost = appServerInfo.data['m.gms']['base_url'];
-                    //     var gmsValue = appServerInfo.data['m.gms']['tid'];
-                    //     var gmsRet = await global.services.common.gmsConfiguration(gmsValue, gmsHost);
-                    //     if(!gmsRet){
-                    //         this.loginState = "未找到该组织";
-                    //         this.organizationButtonDisabled = false;
-                    //         return false;
-                    //     }
-                    //     else {
-                    //         this.organizationButtonDisabled = false;
-                    //         return true;
-                    //     }
-                    // }
-                    // else if(appServerInfo.data['m.appserver'] != undefined){
-                    //     global.services.common.setGmsConfiguration(appServerInfo.data);
-                    //     return true;
-                    // }
+                    return true;
                 }
-                
-                // this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
                 return false;
             },(err) => {
-                // this.loginState = this.$t("invalidServerAddress");
                 this.organizationButtonDisabled = false;
                 return false;
             })
@@ -1861,13 +1833,13 @@ export default {
             this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
             // this.loginState = "登录成功";
             this.showLoginView = false;
-            this.showLoadingView = true;
-            this.tokenRefreshing = true;
+            this.showLoadingView = false;
+            this.tokenRefreshing = false;
+            this.$router.push("/main")
             setTimeout(async () => {
                 // ipcRenderer.send('showMainPageWindow', true); 
                 ipcRenderer.send("showMainPageWindow")
-                this.$router.push("/main")
-            }, 1000);
+            }, 0);
             
             this.isLoading = false;
             this.loginButtonDisabled = false;
@@ -1913,27 +1885,22 @@ export default {
                     return
                 }
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
+                    this.tokenRefreshing = false;
+                    this.showLoadingView = false;
+                    this.showLoginView = false;
                     if(ret == undefined) {
-                        this.tokenRefreshing = false;
-                        this.showLoadingView = false;
                         this.showLoginView = true;
                         return;
                     }
                     
-                    // var address = window.localStorage.getItem("Domain") == null ? "matrixdev.each.chat" : window.localStorage.getItem("Domain");
-                    // var host = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
-                    // var result = await services.common.gmsConfiguration(address, host);
-                    // if(!result){
-                    //     this.loginState = "未找到该组织";
-                    //     this.organizationButtonDisabled = false;
-                    //     return;
-                    // }
-                    
                     if(ret.language) {
                         this.$i18n.locale = ret.language;
                     }
-                    ipcRenderer.send("showMainPageWindow")
                     this.$router.push("/main")
+                    setTimeout(async () => {
+                        // ipcRenderer.send('showMainPageWindow', true); 
+                        ipcRenderer.send("showMainPageWindow")
+                    }, 0);
                 })
             })
         

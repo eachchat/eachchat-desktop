@@ -19,7 +19,7 @@ class RenderWindowBuilder{
     }
     
     setWindowSize(size){
-        this.childWindow.setSize(size.width, size.height);
+        this.childWindow.setContentSize(size.width, size.height);
     }
 }
 

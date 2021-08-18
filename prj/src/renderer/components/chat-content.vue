@@ -3,9 +3,9 @@
       <div class="chat-panel" id="chat-panel-id">
         <div class="chat-list" id="chat-list-id">
           <div class="list-header">
-            <listHeader 
-              :cleanSearchKey="cleanSearchKey" 
-              @getCreateGroupInfo="getCreateGroupInfo" 
+            <listHeader
+              :cleanSearchKey="cleanSearchKey"
+              @getCreateGroupInfo="getCreateGroupInfo"
               @toSearch="toSearch"
               @viewRoom="viewRoom"
             />
@@ -19,7 +19,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bCollections && !chatGroupItem.localRemoved'>
+                  v-show='bCollections && !chatGroupItem.localRemoved && !isSecret(chatGroupItem)'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-fav-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -51,7 +51,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite" && !chatGroupItem.localRemoved'>
+                  v-show='bRooms && chatGroupItem.getMyMembership() != "invite" && !chatGroupItem.localRemoved && !isSecret(chatGroupItem)'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -81,7 +81,7 @@
                   @contextmenu="rightClick($event, chatGroupItem)"
                   v-bind:key="ChatGroupId(chatGroupItem)"
                   :id="ChatGroupId(chatGroupItem)"
-                  v-show='bRooms && !chatGroupItem.localRemoved'>
+                  v-show='bRooms && !chatGroupItem.localRemoved && !isSecret(chatGroupItem)'>
                 <div :class = 'getGroupDivClassName(chatGroupItem)("group-div")' :id='ChatGroupDivId(chatGroupItem)'>
                   <!-- <listItem @groupInfo="chatGroupItem"/> -->
                   <div class="group-img">
@@ -105,26 +105,6 @@
             <!-- </transition-group> -->
           </div>
           <div class="search-list-content" id="search-list-content-id" v-show="isSearch">
-            <div class="search-list-content-people" id="search-list-content-people-id" v-show="showSearchPeople && false">
-              <div class="search-list-content-label">联系人</div>
-              <div class="search-list-content-content">
-                <ul class="search-list-content-list">
-                  <li class="search-item"
-                      v-for="searchPeopleItem in searchPeopleItems"
-                      @click="showPeopleInfo($event, searchPeopleItem)"
-                      >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemPeopleImgElementId(searchPeopleItem.matrix_id)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name" :id="getSearchItemPeopleNameElementId(searchPeopleItem.matrix_id)">{{searchPeopleItem.user_display_name}}</p>
-                      <p class="search-item-position">{{searchPeopleItem.user_title}}</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="search-list-content-more-div" @click="showAllSearchUsers" v-show="showSearchAllMember">查看全部 >></div>
-            </div>
             <div class="search-list-chat-message" id="search-list-chat-message-id" v-show="showSearchAllDMChat">
               <div class="search-list-chat-label">联系人</div>
               <div class="search-list-chat-content">
@@ -163,6 +143,7 @@
                   <li class="search-item"
                       v-for="searchChatItem in searchChatItems"
                       @click="toShowDistChat(searchChatItem)"
+                      v-show="!isSecret(searchChatItem)"
                       >
                     <div class="search-list-chat-list-div">
                       <div class="search-item-img-div">
@@ -194,6 +175,7 @@
                   <li :class = 'getGroupClassName(searchMessageItem)("search-item")'
                       v-for="searchMessageItem in searchMessageItems"
                       @click="showGroup(searchMessageItem)"
+                      v-show="!isSecret(searchMessageItem)"
                       >
                     <div :class = 'getGroupDivClassName(searchMessageItem)("search-list-content-list-div")' >
                       <div class="search-item-img-div">
@@ -218,28 +200,6 @@
                 </ul>
               </div>
             </div>
-            <div class="search-list-content-file" id="search-list-content-file-id" v-show="showSearchFile && false">
-              <div class="search-list-content-label">文件</div>
-              <div class="search-list-content-content">
-                <ul class="search-list-content-list">
-                  <li class="search-item"
-                      v-for="searchFileItem in searchFileItems"
-                      @click="showFileInfo(searchFileItem)"
-                      >
-                    <div class="search-item-img-div">
-                      <img class="search-item-img-ico" :id="getSearchItemElementId(searchFileItem.timelineId)" src="../../../static/Img/User/user-40px@2x.png"/>
-                    </div>
-                    <div class="search-item-info">
-                      <p class="search-item-name">{{searchFileItem.content.fileName}}</p>
-                      <p class="search-item-position" :id="getFileNameItemElementId(searchFileItem.timelineId)">{{searchFileItem.position}}</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div class="search-list-content-more-div" v-show="showsearchAllFile">
-                <div class="search-list-content-more-label" @click="showAllSearchFiles">查看全部 >></div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="chat-empty-middle" id="chat-empty-middle-id" v-show="isEmpty">
@@ -262,61 +222,48 @@
           <ChatPage ref="chatPageRef" :chat="curChat" :updateImg="toUpdateMyImg" :newMsg="newMsg" :searchKeyFromList="searchKeyFromList" :searchChat="searchChat" :toBottom="toBottom" :updateRoomStata="updateRoomStata" @updateChatList="updateChatList" @showImageOfMessage="showImageOfMessage" @getCreateGroupInfo="getCreateGroupInfo" @leaveGroup="leaveGroup" @updateChatGroupStatus="updateChatGroupStatus" @closeUserInfoTip="closeUserInfoTip" @DeleteGroup="DeleteGroup" @JoinRoom="JoinRoom" @isSearching="isSearching" @showImportE2EKey="showImportE2EKey" @JumpToDistRoom="JumpToDistRoom" @CloseSearchPage = "CloseSearchPage"></ChatPage>
         </div>
       </div>
-      <searchSenderSelecterDlg v-show="showSearchSelectedSenderDlg" @closeSearchSenderSelectDlg="closeSearchSenderSelectDlg" :rootDepartments="searchSelectedSenderDialogRootDepartments" :selectedUsers="searchSelectedSenders" :dialogTitle="searchSelectedSenderDialogTitle" :key="searchAddSenderKey">
-      </searchSenderSelecterDlg>
-      <searchChatSelecterDlg  v-show="showSearchSelecterDlg" @closeSearchChatFilterDlg="closeSearchChatFilterDlg" :searchSelectedGroupIds="searchSelectedGroupIds" :recentGroups="recentGroups" :key="searchSelectedGroupKey">
-      </searchChatSelecterDlg>
       <imageLayer :imgSrcInfo="imageLayersSrcInfo" v-show="showImageLayers" @closeImageOfMessage="closeImageOfMessage"/>
       <div class="TheBorder" v-show="showImportE2EKeyPage">
           <ImportE2EKeypage @closeE2EImportPage="closeE2EImportPage"></ImportE2EKeypage>
       </div>
-      <userInfoContent 
-        id="userInfoId" 
-        :userInfo="userInfo" 
-        :isOwn="isOwn" 
-        :originPosition="userInfoPosition" 
-        v-if="showUserInfoTips" 
-        @JumpToDistRoom="JumpToDistRoom" 
+      <userInfoContent
+        id="userInfoId"
+        :userInfo="userInfo"
+        :isOwn="isOwn"
+        :originPosition="userInfoPosition"
+        v-if="showUserInfoTips"
+        @JumpToDistRoom="JumpToDistRoom"
         :key="userInfoTipKey"
         @close="closeUserInfoTip"
       >
-      </userInfoContent> 
+      </userInfoContent>
     </div>
 </template>
 
 <script>
 import * as path from 'path'
-import * as fs from 'fs-extra'
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services, environment} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/index.js'
 import ChatPage from './chat.vue'
 import winHeaderBar from './win-header.vue'
 import winHeaderBarWhite from './win-header-login.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
-import searchChatSelecterDlg from './searchChatSelecter.vue'
-import searchSenderSelecterDlg from './searchSenderSelect.vue'
-// import listItem from './list-item.vue'
-import {downloadGroupAvatar, Appendzero, strMsgContentToJson, JsonMsgContentToString, FileUtil, changeStr, getIconPath} from '../../packages/core/Utils.js'
+import {changeStr, getIconPath} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department, Message, Contact  } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
-import { UpdateUserAvater } from '../../utils/commonFuncs.js'
-// import avatarBlock from './avatar.vue';
-import {shell} from 'electron'
-import confservice from '../../packages/data/conf_service.js'
+import { UpdateUserAvater, checkIsTesting } from '../../utils/commonFuncs.js'
 import DMRoomMap from '../../packages/data/DMRoomMap.js'
-import log from 'electron-log';
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
-const {Menu, MenuItem, clipboard, nativeImage} = remote;
+const {Menu, MenuItem} = remote;
 import {mapState} from 'vuex';
 import * as RoomUtil from '../script/room-util';
 import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
-import axios from "axios";
-import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
+import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
+import { checkIsEmptyRoom } from "../../packages/data/Rooms";
 export default {
   components: {
     ChatPage,
@@ -324,12 +271,8 @@ export default {
     winHeaderBar,
     winHeaderBarWhite,
     imageLayer,
-    searchChatSelecterDlg,
-    searchSenderSelecterDlg,
     userInfoContent,
     ImportE2EKeypage,
-    // avatarBlock,
-    // listItem
   },
   props: {
     toUpdateTrayNotice: {
@@ -359,9 +302,69 @@ export default {
     scrollToRecentUnread: {
       type: Boolean,
       default: false
+    },
+    toUpdateRooms: {
+      type: Number,
+      default: 0
+    },
+
+    dbDataFinished:{
+      type: Boolean,
+      default: false
     }
   },
   watch: {
+    dbDataFinished(){
+      console.log(this.dbDataFinished);
+      if(this.bGetLastShowMessage){
+        this.showGroupIconName()
+        this.sortGroup();
+        this.$emit('toDataOk');  
+      }
+    },
+
+    toUpdateRooms: function() {
+        this.showGroupList.length = 0;
+        global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
+          // console.log("this is ", r);
+          // console.log("r.getMyMembership() ", r.getMyMembership());
+          // console.log("roomname ", r.name)
+          if(r.getMyMembership() != "leave") {
+            this.showGroupList.push(r);
+          }
+        })
+
+        let removedRoomIds = [];
+        let ls = localStorage.getItem('removedRoomIds');
+        if (ls) {
+          removedRoomIds = ls.split(',');
+        }
+        console.log('-----created removedRoomIds-----', removedRoomIds)
+        removedRoomIds = [...removedRoomIds];
+        let sg = [...this.showGroupList];
+        console.log('kankanSg----', sg)
+        sg.forEach(s => {
+          if (removedRoomIds.indexOf(sg.roomId) >= 0) {
+            s.localRemoved = true
+          } else {
+            s.localRemoved = false
+          }
+        })
+        this.showGroupList = [...sg];
+
+        this.ShowAllGroup();
+        this.$nextTick(() => {
+          this.showGroupIconName()
+            .then((ret) => {
+              setTimeout(() => {
+                this.sortGroup();
+                this.updateTrayNoticeInfo()
+              }, 2000)
+            })
+          this.$emit('matrixSyncEnd', true);
+        })
+
+    },
     toUpdateTrayNotice: function() {
       console.log("to update tray notice ");
       try{
@@ -492,7 +495,6 @@ export default {
         console.log('-----created removedRoomIds-----', removedRoomIds)
         removedRoomIds = [...removedRoomIds];
         let sg = [...this.showGroupList];
-        console.log('kankanSg----', sg)
         sg.forEach(s => {
           if (removedRoomIds.indexOf(sg.roomId) >= 0) {
             s.localRemoved = true
@@ -502,7 +504,7 @@ export default {
         })
         this.showGroupList = [...sg];
 
-        this.ShowAllGroup(); 
+        this.ShowAllGroup();
         if(this.showGroupList.length != 0)
           this.curChat = this.showGroupList[0];
         try{
@@ -546,11 +548,11 @@ export default {
             }
             console.log("this.selfuserid is ", this.selfUserId);
             console.log("user id is ", member.userId);
-            
+
             if(member.membership == "leave") {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
               if(!newRoom) return;
-              if(member.userId == this.selfUserId){ 
+              if(member.userId == this.selfUserId){
                 console.log("***8 new room is ", newRoom);
                 console.log("88888888 leave group");
                 setTimeout(() => {
@@ -573,6 +575,10 @@ export default {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
               console.log("***8 new room is ", newRoom);
               if(!newRoom) return;
+              if(this.isSecret(newRoom)) {
+                console.log(newRoom)
+                return;
+              }
               this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
               if(this.dealShowGroupList.every(item=>{
                   return item.roomId != newRoom.roomId
@@ -607,7 +613,7 @@ export default {
 
             }
         });
-        
+
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
             // console.log('chat-content membership member is ', member);
             if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
@@ -620,7 +626,12 @@ export default {
                 console.log("membership ", member.membership)
                 //join leave invite
                 let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if(this.isSecret(newRoom)) return;
                 if (member.membership == 'invite') {
+                  if(this.isSecret(newRoom)) {
+                    console.log(newRoom)
+                    return;
+                  }
                   this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
                   if(this.dealShowGroupList.every(item=>{
                       return item.roomId != newRoom.roomId
@@ -654,6 +665,7 @@ export default {
                   return;
                 }
                 let getRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
+                if(this.isSecret(getRoom)) return;
                 if(getRoom) {
                   getRoom.distTimeLine = event;
                 }
@@ -661,7 +673,7 @@ export default {
               }
             },320)
         })
-        
+
         global.mxMatrixClientPeg.matrixClient.on("Room.tags", this.handleRoomTags);
         global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
         global.mxMatrixClientPeg.matrixClient.on("Room.name", this.onRoomName);
@@ -676,6 +688,7 @@ export default {
   },
   data() {
     return {
+      voiceChat: null,
       updateRoomStata: 0,
       isNormal: true,
       showSearchAllDMChat: true,
@@ -690,8 +703,8 @@ export default {
       selfUserId: undefined,
       isFirstLogin: true,
       showImportE2EKeyPage: false,
-      toBottom: false,  
-      showAllSearchAllChat: false,   
+      toBottom: false,
+      showAllSearchAllChat: false,
       showSearchAllMember: false,
       showsearchAllFile: false,
       showUserInfoTips: false,
@@ -703,15 +716,6 @@ export default {
       unreadCount: 0,
       cleanSearchKey: false,
       dealedMsgSequenceId:[],
-      searchSelectedSenderDialogRootDepartments: [], 
-      searchSelectedSenderDialogTitle: "",
-      searchSelectedSenders: [], 
-      searchAddSenderKey: 199, 
-      recentGroups: [],
-      searchSelectedGroupKey: 99, 
-      searchSelectedGroupIds:[], 
-      showSearchSelectedSenderDlg: false, 
-      showSearchSelecterDlg: false, 
       showSearchMessage: true,
       showSearchAllChat: true,
       showSearchAllChatMsg: true,
@@ -729,7 +733,7 @@ export default {
       curindex: -1,
       searchKey: '',
       normalGroupList: [],
-      encryptGroupList: [], 
+      encryptGroupList: [],
       showGroupList: [],
       topGroupVar: [],
       showImageLayers: false,
@@ -738,8 +742,8 @@ export default {
       isEmpty: true,
       groupListElement: null,      //dom
       newMsg: null,
-      mqttGroupVar: [],  
-      searchId: 0, 
+      mqttGroupVar: [],
+      searchId: 0,
       matrixClient: undefined,
       roomToUser: null,
       bInvites: true,
@@ -760,7 +764,8 @@ export default {
       oldElementGroupDiv: null,
       unreadIndex: -1,
       hasUnreadItems: [],
-      removedRoomIds: []
+      removedRoomIds: [],
+      bGetLastShowMessage: false
     };
   },
   methods: {
@@ -819,7 +824,7 @@ export default {
       }
       removedRoomIds = [...removedRoomIds, roomId];
       removedRoomIds = removedRoomIds.join(',');
-      console.log('----removeGroup----', removedRoomIds);      
+      console.log('----removeGroup----', removedRoomIds);
       localStorage.setItem('removedRoomIds', removedRoomIds);
       let favouriteRooms = [...this.favouriteRooms];
       let dealShowGroupList = [...this.dealShowGroupList];
@@ -925,7 +930,7 @@ export default {
             return 'group-div-clicked'
           return className
         }
-      }  
+      }
     },
 
     getShowUnreadCountId(chatGroupItem) {
@@ -951,7 +956,7 @@ export default {
       if(searchChatItem.firstChat.body == undefined) {
         return "";
       }
-      
+
       var fileName = searchChatItem.firstChat.body;
       // showContent = showContent + ' ';
       if(this.searchKey.length == 0) {
@@ -1091,6 +1096,10 @@ export default {
       let nInviteRooms = 0;
       this.showGroupList.forEach(async (item)=>{
         if(item.getMyMembership() == "invite") {
+          if(this.isSecret(item)) {
+            console.log(item)
+            return;
+          }
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
           if(this.dealShowGroupList.every(dealitem=>{
                 return dealitem.roomId != item.roomId
@@ -1143,7 +1152,7 @@ export default {
       if(room.timeline) {
         for(var i=room.timeline.length-1;i>=0;i--) {
           var timeLineTmp = room.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.invite'].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', 'm.room.create', "m.call.hangup"].indexOf(timeLineTmp.getType()) >= 0) {
             if(!timeLineTmp.isRedacted()) {
               return timeLineTmp.event.origin_server_ts;
             }
@@ -1190,7 +1199,7 @@ export default {
         if(this.favouriteRooms.every(item=>{
           return item.roomId != room.roomId
         }))
-        this.favouriteRooms.unshift(room);    
+        this.favouriteRooms.unshift(room);
       }
       else if(room.tags['m.lowpriority']){
         this.DeleteFromGroups(this.dealShowGroupList, room.roomId);
@@ -1198,7 +1207,7 @@ export default {
         if(this.lowPriorityGroupList.every(item=>{
           return item.roomId != room.roomId
         }))
-        this.lowPriorityGroupList.unshift(room); 
+        this.lowPriorityGroupList.unshift(room);
       }
       else{
         this.DeleteFromGroups(this.favouriteRooms, room.roomId);
@@ -1254,7 +1263,8 @@ export default {
       setTimeout(()=>{this.viewRoom(room)}, 160);
     },
     isSecret(item) {
-      return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId);
+      if(!item) return;
+      return global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(item.roomId ? item.roomId : item.room_id);
     },
     ChatGroupId(item) {
       return "chat-v-bind-" + item.roomId;
@@ -1285,11 +1295,25 @@ export default {
           }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
             return sender + ":[图片]";
-          } 
+          }
           else if(chatGroupMsgContent.msgtype == "each.chat.merge") {
             return sender + ":[聊天记录]";
           }
       }
+      // else if(chatGroupMsgType === "m.call.hangup") {
+      //   let isVoice = true;
+      //   if (chatGroupMsgContent.offer && chatGroupMsgContent.offer.sdp &&
+      //           chatGroupMsgContent.offer.sdp.indexOf('m=video') !== -1) {
+      //     isVoice = false;s
+      //   }
+
+      //   if(isVoice){
+      //     return  sender + "：" + "[语音通话]";
+      //   }
+      //   else {
+      //     return sender + ":" + "[视频通话]";
+      //   }
+      // }
       else if(chatGroupMsgType === "m.room.encrypted") {
           // chatGroupMsgContent = this.msg.getContent();
           return "收到一条加密消息";
@@ -1300,7 +1324,7 @@ export default {
             var sender = event.sender.name;
             var content = chatGroupMsgContent.body;
             return sender + ":" + content;
-          } 
+          }
           else if(chatGroupMsgContent.msgtype == 'm.image'){
             return "[图片]";
           }
@@ -1308,7 +1332,7 @@ export default {
              return this.messageContent = chatGroupMsgContent.body;
           }
       }
-        return "收到一条新消息";
+        return "收到一条短消息";
 
     },
     sortFavourete() {
@@ -1334,9 +1358,9 @@ export default {
               if(global.mxMatrixClientPeg.DMCheck(room))
                   distUrl = "./static/Img/User/user-40px@2x.png";
               else
-                  distUrl = "./static/Img/User/group-40px@2x.png";  
+                  distUrl = "./static/Img/User/group-40px@2x.png";
           }
-          
+
           var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
           if(!distUserId) {
             distName = this.getShowGroupName(room);
@@ -1344,12 +1368,13 @@ export default {
           else {
             distName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
           }
-          
+
           let trayNoticeObj = {
             unreadCount: notificationCount,
             imgUrl: distUrl,
             chatName: distName,
             roomId: room.roomId,
+            notictType: "message",
           }
           this.trayNoticeInfo[room.roomId] = trayNoticeObj;
           console.log("*** updateTrayNotice ", this.trayNoticeInfo)
@@ -1360,7 +1385,7 @@ export default {
     sortGroup(){
       if(this.favouriteRooms.length != 0)
         this.favouriteRooms.sort(this.SortGroupByTimeLine);
-      
+
       if(this.dealShowGroupList.length != 0)
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
 
@@ -1384,20 +1409,21 @@ export default {
         }
       }
     },
-    async onRoomTimeline(ev, room, toStartOfTimeline, removed, data) { //todo 新消息事件
+    async onRoomTimeline(ev, room, toStartOfTimeline, removed, data) { //todo
       // console.log("*** data ", data);
       // console.log("*** room ", room.name);
       // console.log("*** this.curChat ", this.curChat);
       // console.log("**********************************");
+      if(this.isSecret(room)) return;
       this.setRemovedTab(ev)
-      
+
       if(this.dealingEventIds.indexOf(ev.event.event_id) >=0) {
         return;
       }
       else {
         this.dealingEventIds.push(ev.event.event_id);
       }
-      if(ev.event.type.indexOf("m.call.") >= 0 && ev.event.type != "m.call.invite") {
+      if(ev.event.type.indexOf("m.call.") >= 0 && ev.event.type != "m.call.hangup") {
         return;
       };
       if(this.isFirstLogin) {
@@ -1410,7 +1436,7 @@ export default {
         if(this.curChat && room.roomId == this.curChat.roomId && !this.isFirstLogin) {
           this.newMsg = ev;
         }
-        this.updateChatList(ev); //处理数组
+        this.updateChatList(ev); 
         if(ev.event.sender != global.mxMatrixClientPeg.matrixClient.getUserId() && !ev.isRedacted()) {
           if(this.isWindows()) {
             if((this.curChat && room.roomId != this.curChat.roomId) || this.isFirstLogin || this.isBlure) {
@@ -1420,9 +1446,9 @@ export default {
                   if(global.mxMatrixClientPeg.DMCheck(room))
                       distUrl = "./static/Img/User/user-40px@2x.png";
                   else
-                      distUrl = "./static/Img/User/group-40px@2x.png";  
+                      distUrl = "./static/Img/User/group-40px@2x.png";
               }
-              
+
               var distUserId = global.mxMatrixClientPeg.getDMMemberId(room);
               if(!distUserId) {
                 distName = this.getShowGroupName(room);
@@ -1430,12 +1456,13 @@ export default {
               else {
                 distName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
               }
-              
+
               let trayNoticeObj = {
                 unreadCount: this.getUnReadCount(room),
                 imgUrl: distUrl,
                 chatName: distName,
                 roomId: room.roomId,
+                notictType: "message",
               }
               this.trayNoticeInfo[room.roomId] = trayNoticeObj;
               ipcRenderer.send("updateTrayNotice", this.trayNoticeInfo);
@@ -1443,7 +1470,7 @@ export default {
           }
         }
       }
-      
+
       if(this.dealingEventIds.length > 20) {
           this.dealingEventIds.splice(19, this.dealingEventIds.length - 20);
       }
@@ -1452,9 +1479,9 @@ export default {
         //     this.$emit("updateChatList", ev);
         // }
        UpdateUserAvater(ev);
-        
+
         // if (data.timeline.getTimelineSet() !== this.timeLineSet) return;
-        
+
         // // let bottom = this.IsBottom();
         // // this._timelineWindow.paginate("f", 1, false).then(() => {
         // //     this.messageList = this._getEvents();
@@ -1472,14 +1499,14 @@ export default {
         //     }, 100)
         // }
     },
-    async updateChatList(newMsg) { //todo 新消息后更新组
+    async updateChatList(newMsg) { //todo
       console.log('-----updateChatList------', newMsg)
       if(newMsg.isState()) {
         return;
       }
-      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id); 
-      this.updateGroupMsgContent([groupInfo]); //更新组的消息
-      this.sortGroup(); //重新排序
+      var groupInfo = await global.mxMatrixClientPeg.matrixClient.getRoom(newMsg.event.room_id);
+      this.updateGroupMsgContent([groupInfo]); 
+      this.sortGroup(); 
       var fromName = "";
       var fromUserName = "";
       // console.log("msg.messagefromid ", msg.message_from_id);
@@ -1499,6 +1526,7 @@ export default {
         }, 100)
         return;
       }
+      if(newMsg.event.type == "m.call.candidates") return;
       if(newMsg.event.sender == global.mxMatrixClientPeg.matrixClient.getUserId() || newMsg.isRedacted()) {
         return;
       }
@@ -1540,6 +1568,10 @@ export default {
     },
     showNotice(fromName, notificateContent) {
       if(this.isWindows()) {
+        // if(notificateContent.indexOf("[语音通话]") >= 0 || notificateContent.indexOf("[视频通话]") >= 0) {
+        //   ipcRenderer.send("flashIcon", fromName, notificateContent);
+        // }
+        // else
         if(global.localStorage.getItem("message_notice") == undefined || global.localStorage.getItem("message_notice") == "true") {
           ipcRenderer.send("flashIcon", fromName, notificateContent);
         }
@@ -1567,43 +1599,7 @@ export default {
         this.callback(newMsg, false);
       }
     },
-    closeSearchChatFilterDlg() {
-        this.showSearchSelecterDlg = false;
-        this.searchSelectedGroupIds = [];
-    },
-    closeSearchSenderSelectDlg() {
-      this.showSearchSelectedSenderDlg = false;
-      this.searchSelectedSenders = [];
-    },
-    async SearchAddGroup(event, selectedIds) {
-        console.log("SearchAddGroup ", selectedIds);
-        this.searchSelectedGroupIds = selectedIds;
-        
-        this.recentGroups = await Group.GetGroupByTime();
-        this.searchSelectedGroupKey ++;
-        this.showSearchSelecterDlg = true;
-    },
-    async searchAddSenders(event, selectedSenderIds) {
-      console.log("selectedSenderIds ", selectedSenderIds);
-        for(let i=0;i<selectedSenderIds.length;i++) {
-          let selectedSenderVar = await UserInfo.GetUserInfo(selectedSenderIds[i]);
-          if(selectedSenderVar != undefined) {
-            this.searchSelectedSenders.push(selectedSenderVar);
-          }
-        }
-        var root = await Department.GetRoot();
-        var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-        var temp = [];
-        for(let i = 0; i < rootDepartmentModels.length; i ++) {
-            var department = rootDepartmentModels[i];
-            temp[department.show_order] = department;
-        }
-        this.searchSelectedSenderDialogRootDepartments =  temp;
-       
-        this.searchAddSenderKey ++;
-        this.showSearchSelectedSenderDlg = true;
-        this.searchSelectedSenderDialogTitle = "指定发送人";
-    },
+
     getSearchChatItemImgElementId: function(itemId) {
       return "all-search-chat-img-" + itemId;
     },
@@ -1632,27 +1628,7 @@ export default {
       return "file-name-element-" + itemId;
     },
     showFileInfo: async function(fileInfo) {
-      console.log("showfileINfo file info is ", fileInfo);
-      var targetPath = await services.common.GetFilePath(fileInfo.msgId);
-      var chatGroupMsgContent = fileInfo.content;
-      var targetFileName = chatGroupMsgContent.fileName;
-      var theExt = path.extname(targetFileName);
-      if(!fs.existsSync(targetPath)) {
-        var targetDir = confservice.getFilePath(fileInfo.timestamp);
-        var targetPath = path.join(targetDir, targetFileName);
-      }
-      var needOpen = false;
-      console.log("targetPath is ", targetPath)
-      if(!fs.existsSync(targetPath)){
-        // console.log("this.msg.timelineid is ", fileInfo.timelineId)
-        // console.log("targetfilename is ", targetFileName);
-        
-        services.common.downloadFile(fileInfo.timelineId, fileInfo.timestamp, targetFileName, true, chatGroupMsgContent.fileSize);
-        this.$toastMessage({message:'文件正在下载，请稍后', time:1500, type:'success'});
-      }
-      else {
-        shell.openItem(targetPath);
-      }
+      
     },
     closeUserInfoTip: function() {
       this.showUserInfoTips = false;
@@ -1665,7 +1641,7 @@ export default {
       this.cleanSearchKey = !this.cleanSearchKey;
       this.toSearch("");
       this.showUserInfoTips = false;
-      
+
       setTimeout(() => {
         this.$nextTick(() => {
           for(let i in this.dealShowGroupList){
@@ -1679,7 +1655,7 @@ export default {
                 this.showGroupIconName(groupInfo);
               }
               return;
-            } 
+            }
           }
           for(let i in this.favouriteRooms){
             if(this.favouriteRooms[i].roomId == groupInfo.roomId) {
@@ -1692,7 +1668,7 @@ export default {
                 this.showGroupIconName(groupInfo);
               }
               return;
-            } 
+            }
           }
           for(let i in this.lowPriorityGroupList){
             if(this.lowPriorityGroupList[i].roomId == groupInfo.roomId) {
@@ -1705,7 +1681,7 @@ export default {
                 this.showGroupIconName(groupInfo);
               }
               return;
-            } 
+            }
           }
         })
       }, 0)
@@ -1742,7 +1718,7 @@ export default {
       tempUserInfo.workDescription = user.work_description;
       tempUserInfo.managerId = user.manager_id;
       tempUserInfo.departmentId = user.belong_to_department_id;
-      
+
       //get department
       var department = await Department.GetDepartmentInfoByUserID(distUserInfo.id);
       tempUserInfo.department = department;
@@ -1791,7 +1767,7 @@ export default {
           if(middleElement) middleElement.left = middleElement.offsetLeft;
           if(chatElement) {
             chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
-          } 
+          }
           if(emptyMiddleElement) emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
           if(chatEmptyElement) {
             chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
@@ -1837,6 +1813,66 @@ export default {
         // if(this.checkClassName.indexOf(e.target.className) == -1) {
         //     return;
         // }
+        if(checkIsTesting()) {
+          let unread = groupItem.getUnreadNotificationCount();
+
+          let menuObj = {
+            distItem: groupItem,
+            menuList: [
+            ],
+            position: {
+              clientX: e.clientX,
+              clientY: e.clientY
+            }
+          }
+          
+          if(unread != 0) {
+            let readerState = {
+              name: "标记已读",
+              func: this.SetRoomReader
+            }
+            menuObj.menuList.push(readerState);
+          }
+          
+          if(this.groupIsInFavourite(groupItem)) {
+            let favouriteMenu = {
+              name: "取消置顶",
+              func: this.unFavouriteIt
+            }
+            menuObj.menuList.push(favouriteMenu);
+          }
+          else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
+            let favouriteMenu = {
+              name: "置顶聊天",
+              func: this.favouriteIt
+            }
+            menuObj.menuList.push(favouriteMenu);
+          }
+          
+          if(this.groupIsInLowPriority(groupItem)){
+            let lowPriorityMenu = {
+              name: "取消置底",
+              func: this.DelRoomLowpriority
+            }
+            menuObj.menuList.push(lowPriorityMenu);
+          }
+          else if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem)){
+            let lowPriorityMenu = {
+              name: "置底聊天",
+              func: this.SetRoomLowpriority
+            }
+            menuObj.menuList.push(lowPriorityMenu);
+          }
+
+          let deleteMenu = {
+            name: "删除",
+            func: this.removeGroup
+          }
+          menuObj.menuList.push(deleteMenu);
+
+          this.$contextMenu(menuObj);
+          return;
+        }
 
         this.menu = new Menu();
         let unread = groupItem.getUnreadNotificationCount();
@@ -1846,30 +1882,9 @@ export default {
             click: () => {
                 this.SetRoomReader(groupItem)
             }
-          })); 
-        }
-        
-        /*
-        if(this.groupIsSlience(groupItem)) {
-          this.menu.append(new MenuItem({
-              label: "允许消息通知",
-              click: () => {
-                  this.setUnSlience(groupItem)
-              }
           }));
         }
-        else {
-          if(this.groupIsInFavourite(groupItem) || this.groupIsInGroups(groupItem))
-          {
-            this.menu.append(new MenuItem({
-                label: "消息免打扰",
-                click: () => {
-                    this.setSlience(groupItem)
-                }
-            }));  
-          }
-        }
-        */
+
         if(this.groupIsInFavourite(groupItem)) {
           this.menu.append(new MenuItem({
               label: "取消置顶",
@@ -1879,7 +1894,7 @@ export default {
           }));
         }
         else if(this.groupIsInGroups(groupItem) || this.groupIsInLowPriority(groupItem)){
-          this.menu.append(new MenuItem({ //todo 加功能
+          this.menu.append(new MenuItem({
               label: "置顶聊天",
               click: () => {
                   this.favouriteIt(groupItem)
@@ -1915,7 +1930,7 @@ export default {
             click: () => {
                 this.deleteGroup(groupItem)
             }
-        }));   
+        }));
         */
         this.menu.popup(remote.getCurrentWindow());
     },
@@ -1940,32 +1955,7 @@ export default {
     unFavouriteIt: function(groupItem){
       global.mxMatrixClientPeg.matrixClient.deleteRoomTag(groupItem.roomId, "m.favourite");
     },
-    setSlience: async function(groupItem){
-      var groupIsTop = this.groupIsTop(groupItem);
-      services.common.GroupStatus(groupItem.group_id, groupIsTop, true)
-          .then((ret) => {
-              this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
-              this.unreadCount = this.unreadCount - groupItem.un_read_count;
-              if(this.unreadCount < 0) {
-                this.unreadCount = 0;
-              }
-              ipcRenderer.send("updateUnreadCount", this.unreadCount);
-          })
-    },
-    setUnSlience: async function(groupItem){
-      var groupIsTop = this.groupIsTop(groupItem);
-      services.common.GroupStatus(groupItem.group_id, groupIsTop, false)
-          .then((ret) => {
-              this.updateChatGroupStatus(groupItem.group_id, ret, "slience");
-              this.unreadCount = this.unreadCount + groupItem.un_read_count;
-              if(this.unreadCount < 0) {
-                this.unreadCount = 0;
-              }
-              ipcRenderer.send("updateUnreadCount", this.unreadCount);
-              console.log("slienceStateChange ", ret);
-          })
-    },
-    
+
     getUidFromUids(groupInfo) {
       var containUids = groupInfo.contain_user_ids;
       var containUidsList = containUids.split(",");
@@ -1989,7 +1979,7 @@ export default {
             if(global.mxMatrixClientPeg.DMCheck(distGroup))
                 distUrl = "./static/Img/User/user-40px@2x.png";
             else
-                distUrl = "./static/Img/User/group-40px@2x.png";  
+                distUrl = "./static/Img/User/group-40px@2x.png";
         }
         if(elementImg != undefined && distUrl) {
           elementImg.setAttribute("src", distUrl);
@@ -2052,7 +2042,13 @@ export default {
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
-        var distTimeLineInfo = await this.GetLastShowMessage(item);
+        let distTimeLineInfo = [];
+        try{
+          distTimeLineInfo = await this.GetLastShowMessage(item);
+        }
+        catch(e) {
+          console.log("updateGroupContent GetLastShowMessage exception of ", item, " and exception is ", e);
+        }
         var distTimeLine = distTimeLineInfo[0];
         var distTimeTimeLine = distTimeLineInfo[1];
         if(distTimeLine == undefined) {
@@ -2091,7 +2087,7 @@ export default {
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = senderName + "：" + "[图片]";// + chatGroupMsgContent.body;
-              } 
+              }
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = senderName + ":" + "[语音]";
               }
@@ -2108,7 +2104,7 @@ export default {
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;
-              } 
+              }
               else if(chatGroupMsgContent.msgtype == "m.audio") {
                 distContentElement.innerHTML = "[语音]";
               }
@@ -2117,8 +2113,33 @@ export default {
               }
             }
         }
-        else if(chatGroupMsgType === "m.call.invite") {
-            distContentElement.innerHTML = "收到一条新消息";
+        else if(chatGroupMsgType === "m.call.hangup") {
+          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
+          if(sender.userId) {
+            sender = sender.userId;
+          }
+          let isVoice = true;
+          if (event.content.offer && event.content.offer.sdp &&
+                  event.content.offer.sdp.indexOf('m=video') !== -1) {
+            isVoice = false;
+          }
+          if(sender != this.selfUserId && !global.mxMatrixClientPeg.DMCheck(item)) {
+            var senderName = await ComponentUtil.GetDisplayNameByMatrixID(sender);
+            if(isVoice){
+              distContentElement.innerHTML =  senderName + "：" + "[语音通话]";
+            }
+            else {
+              distContentElement.innerHTML = senderName + ":" + "[视频通话]";
+            }
+          }
+          else {
+            if(isVoice){
+              distContentElement.innerHTML =  "[语音通话]";
+            }
+            else {
+              distContentElement.innerHTML = "[视频通话]";
+            }
+          }
         }
         else if(chatGroupMsgType === "m.room.encrypted") {
             distContentElement.innerHTML = "收到一条加密消息";
@@ -2150,10 +2171,7 @@ export default {
       }
       let curIdSpliterInfo = this.selfUserId.split(":");
       let curDomainKey = curIdSpliterInfo.pop();
-      let allUid = [];
-      let checkingInterval = null;
-      let maxTimes = 60;
-      let curTimes = 0;
+
       let isOtherDomain = matrix_id => {
         let idSplitInfo = matrix_id.split(":");
         let idDomainKey = idSplitInfo.pop();
@@ -2162,61 +2180,25 @@ export default {
         if(curDomainKey == idDomainKey) return false;
         else return true;
       }
-      let toGet = async () => {
-        for(let i=0;i<this.showGroupList.length;i++) {
-          let item = this.showGroupList[i];
-          if(isOtherDomain(item.roomId)) continue;
-          var distTimeLineInfo = await this.GetLastShowMessage(item);
-          var distTimeLine = distTimeLineInfo[0];
-          if(distTimeLine == undefined) continue;
 
-          var sender = distTimeLine.sender ? distTimeLine.sender : distTimeLine.event.sender;
-          if(sender.userId) {
-            sender = sender.userId;
+      for(let item of this.showGroupList) {
+          if(isOtherDomain(item.roomId)) continue;
+          try{
+            await this.GetLastShowMessage(item);
           }
-          if(allUid.indexOf(sender) < 0) {
-            allUid.push(sender);
+          catch(e) {
+            console.log("getNeededUid GetLastShowMessage exception of ", item, " and exception is ", e);
           }
-        }
       }
-      let toCheck = async () => {
-        let loadingFinished = true;
-        for(let i=0;i<allUid.length;i++) {
-          if(curTimes > maxTimes) {
-            break;
-          }
-          curTimes += 1;
-          let matrix_id = allUid[i];
-          let userInfo = await UserInfo.GetUserInfoByMatrixID(matrix_id);
-          console.log("=======userInfo ", userInfo);
-          if(userInfo && userInfo.user_display_name.length != 0)
-          {
-            continue;
-          }
-          if(isOtherDomain(matrix_id)) {
-            continue;
-          }
-          console.log("========matrix_id is ", matrix_id);
-          loadingFinished = false;
-          break;
-        }
-        return loadingFinished;
+
+      this.bGetLastShowMessage = true;
+      if(this.dbDataFinished){
+        this.showGroupIconName()
+        this.sortGroup();
+        this.$emit('toDataOk');  
       }
-      await toGet();
-      checkingInterval = setInterval(() => {
-        toCheck().then((ret) => {
-          console.log("=========tucheck ret is ", ret);
-          if(ret) {
-            clearInterval(checkingInterval);
-            this.showGroupIconName()
-              .then((ret) => {
-                  this.sortGroup();
-                  this.$emit('toDataOk');
-                })
-          }
-        })
-      }, 500)
     },
+
     showGroupIconName: async function(distGroup=undefined) {
       // setTimeout(async () => {
       if(distGroup){
@@ -2319,14 +2301,14 @@ export default {
       // console.log("searchkey is ", searchKey.trim());
       this.searchKey = searchKey.trim();
       console.log("searchkey is ", this.searchKey);
-      
+
       if(this.searchKey.length != 0) {
         var showFavouriteRooms = await this.searchRoom(this.favouriteRooms, searchKey);
         var showDealGroupList = await this.searchRoom(this.dealShowGroupList, searchKey);
         var showLowPriorityGroupList = await this.searchRoom(this.lowPriorityGroupList, searchKey);
         var SearchChatItems = [].concat(showFavouriteRooms.Room, showDealGroupList.Room, showLowPriorityGroupList.Room);
         if(SearchChatItems.length > 3) {
-          this.showAllSearchAllChat = true; 
+          this.showAllSearchAllChat = true;
         }
         if(SearchChatItems.length == 0) {
           this.showSearchAllChat = false;
@@ -2337,14 +2319,14 @@ export default {
         console.log("*** showDealGroupList.dmRoom ", showDealGroupList.dmRoom);
         var searchDmChatItems = [].concat(showFavouriteRooms.dmRoom, showDealGroupList.dmRoom, showLowPriorityGroupList.dmRoom)
         if(searchDmChatItems.length > 3) {
-          this.showAllSearchAllDMChat = true; 
+          this.showAllSearchAllDMChat = true;
         }
         if(searchDmChatItems.length == 0) {
           this.showSearchAllDMChat = false;
         }
         this.searchDMChatItems = searchDmChatItems.splice(0, 3);
         console.log("*** searchDMChatItems ", this.searchDMChatItems);
-        
+
         var curSearchId = new Date().getTime();
         var searchResult = {
             "id": curSearchId,
@@ -2434,7 +2416,7 @@ export default {
                     this.showGroupIconName(this.dealShowGroupList[i]);
                   }
                   return;
-                } 
+                }
               }
               for(let i=0;i<this.favouriteRooms.length;i++){
                 if(this.favouriteRooms[i].roomId == roomID) {
@@ -2447,7 +2429,7 @@ export default {
                     this.showGroupIconName(this.favouriteRooms[i]);
                   }
                   return;
-                } 
+                }
               }
               for(let i=0;i<this.lowPriorityGroupList.length;i++){
                 if(this.lowPriorityGroupList[i].roomId == roomID) {
@@ -2460,7 +2442,7 @@ export default {
                     this.showGroupIconName(this.lowPriorityGroupList[i]);
                   }
                   return;
-                } 
+                }
               }
             })
           }
@@ -2495,7 +2477,7 @@ export default {
                   this.showGroupIconName(this.dealShowGroupList[i]);
                 }
                 return;
-              } 
+              }
             }
             for(let i=0;i<this.favouriteRooms.length;i++){
               if(this.favouriteRooms[i].roomId == roomID) {
@@ -2508,7 +2490,7 @@ export default {
                   this.showGroupIconName(this.favouriteRooms[i]);
                 }
                 return;
-              } 
+              }
             }
             for(let i=0;i<this.lowPriorityGroupList.length;i++){
               if(this.lowPriorityGroupList[i].roomId == roomID) {
@@ -2521,7 +2503,7 @@ export default {
                   this.showGroupIconName(this.lowPriorityGroupList[i]);
                 }
                 return;
-              } 
+              }
             }
           })
         }
@@ -2534,7 +2516,7 @@ export default {
       console.log("+++++++++++++this.searchPeopleItems ",this.searchPeopleItems);
       for(let i=0;i<this.searchPeopleItems.length;i++) {
         var curSearchPeopleItem = this.searchPeopleItems[i];
-        
+
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(distGroup);
         var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
 
@@ -2564,7 +2546,7 @@ export default {
         var searchChatImgElement = document.getElementById(searchChatImgId);
         // console.log('*** showSearchResultIcon ', searchChatNameId);
         var searchChatNameElement = document.getElementById(searchChatNameId);
-        
+
         var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.roomId);
 
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
@@ -2584,7 +2566,7 @@ export default {
                 defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
             else
                 defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            searchChatImgElement.setAttribute("src", defaultGroupIcon); 
+            searchChatImgElement.setAttribute("src", defaultGroupIcon);
         }
         if(searchChatImgElement != undefined && distUrl) {
           searchChatImgElement.setAttribute("src", distUrl);
@@ -2597,7 +2579,7 @@ export default {
         var searchChatImgElement = document.getElementById(searchChatImgId);
         // console.log('*** showSearchResultIcon ', searchChatNameId);
         var searchChatNameElement = document.getElementById(searchChatNameId);
-        
+
         var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.roomId);
 
         var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
@@ -2618,7 +2600,7 @@ export default {
                 defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
             else
                 defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            searchChatImgElement.setAttribute("src", defaultGroupIcon); 
+            searchChatImgElement.setAttribute("src", defaultGroupIcon);
         }
         if(searchChatImgElement != undefined && distUrl) {
           searchChatImgElement.setAttribute("src", distUrl);
@@ -2632,33 +2614,36 @@ export default {
         var searchChatImgMsgElement = document.getElementById(searchChatMsgImgId);
         var searchChatMsgNameElement = document.getElementById(searchChatMsgNameId);
         var searchChatMsgContentElement = document.getElementById(searchChatMsgContentId);
-        
-        var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
-      
-        var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
-        if(!distUserId) {
-          searchChatMsgNameElement.innerHTML = curRoom.name;
-        }
-        else {
-          var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-          searchChatMsgNameElement.innerHTML = displayName;
-        }
 
-        var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
-        if(!distUrl || distUrl == '') {
-            let defaultGroupIcon;
-            if(global.mxMatrixClientPeg.DMCheck(curRoom))
-                defaultGroupIcon = "./static/Img/User/user-40px@2x.png";
-            else
-                defaultGroupIcon = "./static/Img/User/group-40px@2x.png";
-            searchChatImgMsgElement.setAttribute("src", defaultGroupIcon); 
+        var curRoom = global.mxMatrixClientPeg.matrixClient.getRoom(curSearchChatItem.room_id);
+
+        if(searchChatMsgNameElement){
+          var distUserId = global.mxMatrixClientPeg.getDMMemberId(curRoom);
+          let name = "";
+          if(!distUserId) {
+            name = curRoom.name;
+          }
+          else {
+            name = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
+          }
+          searchChatMsgNameElement.innerHTML = name;
         }
-        if(searchChatImgMsgElement != undefined && distUrl) {
+        
+        if(searchChatImgMsgElement){
+          var distUrl = global.mxMatrixClientPeg.getRoomAvatar(curRoom);
+          if(!distUrl || distUrl == '') {
+              if(global.mxMatrixClientPeg.DMCheck(curRoom))
+                  distUrl = "./static/Img/User/user-40px@2x.png";
+              else
+                  distUrl = "./static/Img/User/group-40px@2x.png";
+          }
           searchChatImgMsgElement.setAttribute("src", distUrl);
         }
 
-        if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
-          searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+        if(searchChatMsgContentElement){
+          if(curSearchChatItem.keywordCount > 1 || curSearchChatItem.firstChat.body == undefined) {
+            searchChatMsgContentElement.innerHTML = "包含" + curSearchChatItem.keywordCount + "条相关聊天记录";
+          }
         }
       }
       /*
@@ -2677,7 +2662,7 @@ export default {
           var fileTime = this.formatTimeFilter(this.searchFileItems[i].timestamp);
           fileDetailElement.innerHTML = fileSize + " " + fileOwnerName + " " + fileTime;
         }
-        
+
         var iconPath = this.getFileIconThroughExt(this.searchFileItems[i].content.ext);
         elementImg.setAttribute("src", iconPath);
         elementImg.setAttribute("height", 32);
@@ -2690,7 +2675,7 @@ export default {
     showAllSearchUsers: function() {
         this.$router.push(
             {
-                name: 'organization', 
+                name: 'organization',
                 params: {
                     searchKey: this.searchKey
                 }
@@ -2700,9 +2685,6 @@ export default {
         this.toSearch("");
     },
     showAllSearchFiles: function() {
-      ipcRenderer.send("showAnotherWindow", this.searchKey, "searchFilesList");
-      this.cleanSearchKey = !this.cleanSearchKey;
-      this.toSearch("");
     },
     showAllSearchDMChats: async function() {
       this.showSearchAllChat = false;
@@ -2740,7 +2722,7 @@ export default {
       this.showSearchAllChat = false;
       this.showSearchAllDMChat = false;
       this.showSearchMessage = true;
-      
+
       var searchChat = await global.services.common.searchAllChat(this.searchKey, 0);
       console.log("*** searchChat ", searchChat);
       if(searchChat.rooms.results.length != 0) {
@@ -2752,9 +2734,6 @@ export default {
             this.showSearchResultIcon();
         })
       }, 0)
-      // ipcRenderer.send("showAnotherWindow", this.searchKey, "searchMessageList");
-      // this.cleanSearchKey = !this.cleanSearchKey;
-      // this.toSearch("");
     },
     getFileIconThroughExt: function(ext) {
         var iconPath = getIconPath(ext);
@@ -2767,7 +2746,7 @@ export default {
       this.cleanSearchKey = !this.cleanSearchKey;
       this.toSearch("");
       this.showUserInfoTips = false;
-      
+
       this.$nextTick(() => {
         var groupIndex = -1;
         for(var i=0;i<this.showGroupList.length;i++) {
@@ -2777,7 +2756,7 @@ export default {
             break;
           }
         }
-        
+
         setTimeout(() => {
           this.$nextTick(() => {
             this.scrollToDistPosition(this.showGroupList[groupIndex]);
@@ -2823,7 +2802,7 @@ export default {
             dist.style.display = "block";
           }
           return;
-        } 
+        }
       }
       for(let i in this.favouriteRooms) {
         if(this.favouriteRooms[i].roomId == groupId) {
@@ -2887,7 +2866,7 @@ export default {
       var unreadCount = roomItem.getUnreadNotificationCount();
 
       // console.log(" *** unreadcount of " + roomItem.name + " unreadCount is " + unreadCount);
-      
+
       if(unreadCount == undefined || (unreadCount != undefined && unreadCount == 0)) return '';
       if(unreadCount > 99) return "...";
       return unreadCount;
@@ -2965,30 +2944,16 @@ export default {
         return "chat-groupList-name-" + groupId;
       }
     },
-    checkIsEmptyRoom(chatGroupItem) {
-      let checkMxMember = [];
-      for(let key in chatGroupItem.currentState.members) {
-          // let isAdmin = xie1.currentState.members[key].powerLevel == 100; 
-          let o = chatGroupItem.currentState.members[key];
-          if (o.membership != 'leave') checkMxMember.push(o);
-      }
-      if(checkMxMember.length == 1) {
-          var distMember = checkMxMember[0];
-          if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-              return true;
-          }
-      }
-      if(checkMxMember.length == 0) {
-        return true;
-      }
-    },
     getShowGroupName(chatGroupItem) {
       if(chatGroupItem.name.startsWith("Empty room")) {
-        if(this.checkIsEmptyRoom(chatGroupItem)) {
+        if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
+          this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        }
+        if(checkIsEmptyRoom(chatGroupItem, this.selfUserId)) {
           return "空聊天室";
         }
       }
-      
+
       return chatGroupItem.contactName ? chatGroupItem.contactName : chatGroupItem.name;
     },
     _getInviteMember: function(chatGroupItem) {
@@ -3186,7 +3151,7 @@ export default {
         let event = curMsg.event;
         let chatGroupMsgType = event.type;
         var chatGroupMsgContent = event.content;
-        // type = 0 
+        // type = 0
         /*
             // src/TextForEvent.js
             'm.room.canonical_alias': textForCanonicalAliasEvent,
@@ -3305,52 +3270,51 @@ export default {
       if(chatGroupItem.timeline) {
         for(var i=chatGroupItem.timeline.length-1;i>=0;i--) {
           var timeLineTmp = chatGroupItem.timeline[i];
-          if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(timeLineTmp.getType()) >= 0) {
+          if(['m.room.message', 'm.room.encrypted', "m.call.hangup"].indexOf(timeLineTmp.getType()) >= 0) {
             if(!timeLineTmp.isRedacted()) {
               return [timeLineTmp, distTimeItem];
             }
           }
-          continue;
         }
       }
-      
+
       var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
       var _timelineWindow = new Matrix.TimelineWindow(
-          global.mxMatrixClientPeg.matrixClient, 
+          global.mxMatrixClientPeg.matrixClient,
           timeLineSet,
           {windowLimit:Number.MAX_VALUE},
       )
       await _timelineWindow.load(undefined, 20);
       var originalFileListInfo = _timelineWindow.getEvents();
-      originalFileListInfo.forEach((item) => {
-        if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(item.getType()) >= 0) {
+      for(let item of originalFileListInfo){
+        if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
             if(!item.isRedacted()) {
               distItem = item;
-              return;
+              break;
             }
         }
-      })
+      }
       let fileListInfoTmp = [];
       while(_timelineWindow.canPaginate('b') && distItem == undefined) {
           await _timelineWindow.paginate("b", 20);
           fileListInfoTmp = await _timelineWindow.getEvents();
-          fileListInfoTmp.forEach((item) => {
-            if(['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf(item.getType()) >= 0) {
+          for(let item of fileListInfoTmp){
+            if(['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf(item.getType()) >= 0) {
               if(!item.isRedacted()) {
                 distItem = item;
-                return[undefined, undefined];
+                break;
               }
             }
-          })
+          }
       }
 
       if(distItem == undefined) {
-        fileListInfoTmp.forEach((item) => {
+        for(let item of fileListInfoTmp){
           if(item.getType() == 'm.room.create') {
               distTimeItem = item;
-              return;
+              break;
           }
-        })
+        }
       }
 
       return [distItem, distTimeItem]
@@ -3370,7 +3334,7 @@ export default {
     },
     async updateTimelineSet(room) {
         const client = global.mxMatrixClientPeg.matrixClient;
-        
+
         if (room) {
             let timelineSet;
 
@@ -3395,7 +3359,7 @@ export default {
                         "types": [
                             "m.room.message",
                             "m.room.create",
-                            "m.call.invite"
+                            "m.call.hangup"
                         ],
                     },
                 },
@@ -3409,7 +3373,7 @@ export default {
         return timelineSet;
     },
     messageFilter(event){
-        if(['m.room.message', 'm.room.create', 'm.call.invite'].indexOf(event.getType()) >= 0) return true;
+        if(['m.room.message', 'm.room.create', "m.call.hangup"].indexOf(event.getType()) >= 0) return true;
         return false;
     },
     SetGroupItemGround(id){
@@ -3471,7 +3435,6 @@ export default {
         this.showGroupIconName();
       }
       else {
-        this.searchKeyFromList = "";
         /*
         let groupItemElementID = this.ChatGroupId(chatGroup);
         let SaveChatGroupElement = this.SetGroupItemGround(groupItemElementID);
@@ -3501,11 +3464,12 @@ export default {
         unreadInfo = [chatGroup.roomId, false];
         global.mxMatrixClientPeg.updageChatUnreadState(unreadInfo);
         this.SetRoomReader(chatGroup);
-        
+
         console.log("*** ", searchKey, " *** ", index);
         this.curChat = chatGroup;
         this.searchChat = chatGroup;
-
+        this.searchKeyFromList = "";
+        
         ipcRenderer.send("stopFlash");
 
         this.curindex = index;
@@ -3534,6 +3498,10 @@ export default {
       this.hasUnreadItems = [];
       this.showGroupList.forEach((item)=>{
         if(item.getMyMembership() == "invite") {
+          if(this.isSecret(item)) {
+            console.log(item)
+            return;
+          }
           this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
         }
         else{
@@ -3568,7 +3536,7 @@ export default {
       }
       if(this.dealShowGroupList.length != 0)
         this.dealShowGroupList.sort(this.SortGroupByTimeLine);
-      
+
       // console.log("this.unreadCount is ", this.unreadCount);
       if(isNaN(this.unreadCount)) {
         this.$nextTick(() => {
@@ -3597,7 +3565,7 @@ export default {
             this.showGroupIconName(newRoom);
           }
           return;
-        } 
+        }
       }
       this.dealShowGroupList.unshift(newRoom);
       if(this.dealShowGroupIds.indexOf(newRoom.roomId) < 0) {
@@ -3617,7 +3585,7 @@ export default {
         }, 1000)
       })
     },
-  
+
     DeleteFromGroups(groups, groupID){
       if(groups.some(item=>{
         return item.roomId == groupID
@@ -3625,7 +3593,7 @@ export default {
             for(var i = 0; i < groups.length; i++) {
               if(groups[i].roomId == groupID) {
                 groups.splice(i, 1);
-              } 
+              }
             }
           }
     },
@@ -3658,7 +3626,7 @@ export default {
       this.isNormal = state;
     },
     async callback(msg, isUpdate=false) {
-      
+
     },
     delayCallback: function(msg) {
       setTimeout(() => {
@@ -3672,9 +3640,8 @@ export default {
     if(this.unreadCount < 0) {
       this.unreadCount = 0;
     }
-    
-    ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
-    ipcRenderer.on('SearchAddSenders', this.searchAddSenders)
+
+    // ipcRenderer.on('SearchAddGroup', this.SearchAddGroup)
     ipcRenderer.on('transmitFromFavDlg', this.eventUpdateChatList)
     ipcRenderer.on('roLeaveRoom', this.toLeaveGroup)
     ipcRenderer.on('isBlur', this.curWindowIsBlur)
@@ -3703,7 +3670,7 @@ export default {
             groupListElement.style.width = moveLen.toString() + "px";
             chatElement.style.width = (box.clientWidth - moveLen).toString() + "px";
           }
-          
+
           document.onmouseup = function(e) {
             isDraging = false;
             e.stopPropagation();
@@ -3729,7 +3696,7 @@ export default {
             groupListElement.style.width = moveLen.toString() + "px";
             chatEmptyElement.style.width = (box.clientWidth - moveLen).toString() + "px";
           }
-          
+
           document.onmouseup = function(e) {
             isDraging = false;
             e.stopPropagation();
@@ -3750,7 +3717,7 @@ export default {
             groupListElement.style.cursor = "default";
           }
         }
-        
+
         chatElement.onmousemove = function(e) {
           if(isDraging) {
             chatElement.style.cursor = "col-resize";
@@ -3759,7 +3726,7 @@ export default {
             chatElement.style.cursor = "default";
           }
         }
-        
+
         chatEmptyElement.onmousemove = function(e) {
           if(isDraging) {
             chatEmptyElement.style.cursor = "col-resize";
@@ -3772,7 +3739,6 @@ export default {
     })
   },
   created: async function() {
-    //global.services.common.handlemessage(this.callback);
     if(this.amr == null){
         this.amr = new BenzAMRRecorder();
         // console.log("=========================")
@@ -3854,12 +3820,12 @@ export default {
     background-color:  rgba(255, 255, 255, 1);
     display: flex;
     justify-content: center;
-    align-items: center;  
+    align-items: center;
     position: relative;
     -webkit-app-region: drag;
   }
   * {
-      
+
       -webkit-app-region: no-drag;
   }
 
@@ -3882,7 +3848,7 @@ export default {
     z-index: 1;
   }
   * {
-      
+
       -webkit-app-region: no-drag;
   }
 
@@ -3921,7 +3887,7 @@ export default {
     -webkit-app-region: drag;
   }
   * {
-      
+
       -webkit-app-region: no-drag;
   }
 
@@ -3940,7 +3906,7 @@ export default {
     height: 100%;
     overflow-y: scroll;
     scroll-behavior:smooth;
-    
+
     ::-webkit-scrollbar-track {
       border-radius: 10px;
     }
@@ -3989,7 +3955,7 @@ export default {
     height: 100%;
     overflow-y: scroll;
     scroll-behavior:smooth;
-    
+
     ::-webkit-scrollbar-track {
       border-radius: 10px;
     }
@@ -4030,7 +3996,7 @@ export default {
     height: 60px;
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
-  
+
   .search-item:hover {
     height: 60px;
     background-color: #f7f8fa;
@@ -4041,7 +4007,7 @@ export default {
     height: 32px;
     box-shadow:0px 0px 0px 0px rgba(221,221,221,1);
   }
-  
+
   .search-more-item:hover {
     height: 32px;
     background-color: #f7f8fa;
@@ -4218,7 +4184,7 @@ export default {
     margin: 0;
     display: block;
   }
- 
+
   .search-list-content-message-list {
     width: 100%;
     height: 100%;
@@ -4245,7 +4211,7 @@ export default {
     height: 100%;
     overflow: scroll;
     scroll-behavior:smooth;
-    
+
     ::-webkit-scrollbar-track {
       border-radius: 10px;
     }
@@ -4280,7 +4246,7 @@ export default {
     margin: 0;
     scroll-behavior:smooth;
   }
-  
+
 
   .group-fav-div {
     height: 60px;
@@ -4502,7 +4468,7 @@ export default {
     margin-bottom: 10px;
     vertical-align: top;
   }
-  
+
   .group-info {
     display: inline-block;
     height: 100%;
@@ -4683,7 +4649,7 @@ export default {
     border-radius: 20px;
     background-color: rgba(228, 49, 43, 0);
   }
-  
+
   .group-readall-unselected {
     position: absolute;
     top: 7px;

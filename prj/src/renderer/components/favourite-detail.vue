@@ -18,12 +18,6 @@
     </div>
 </template>>
 <script>
-import confservice from '../../packages/data/conf_service.js';
-import * as path from 'path';
-import * as fs from 'fs-extra'
-import {services} from '../../packages/data/index.js';
-import {downloadGroupAvatar, generalGuid, Appendzero, FileUtil, getIconPath, sliceReturnsOfString, strMsgContentToJson, getElementTop, getElementLeft, pathDeal, getFileSizeByNumber} from '../../packages/core/Utils.js'
-import { object } from '../../packages/core/types.js';
 import { ComponentUtil } from '../script/component-util'
 
 export default {
@@ -103,8 +97,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 ::-webkit-scrollbar {
-
-display: none;
+    display: none;
 }
 .detailPage{
     width: 100%;

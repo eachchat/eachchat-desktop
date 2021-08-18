@@ -7,11 +7,11 @@
             <img class="new-chat-content-div-img img-disable-drag" src="../../../static/Img/Main/create-new-chat-button-nor-24px@2x.png" height="30px">
         </div>
         <div class="new-chat-dropdown-content" id="new-chat-dropdown-content-id" v-show="showCreateNewChat">
-            <div class="normal-chat " @click.stop="mxDmDlgChange()"> <!--showCreateGroup-->
+            <div class="normal-chat " @click.stop="mxDmDlgChange()">
                 <img class="normal-chat-img img-disable-drag" src="../../../static/Img/Main/jdr.png">
                 <span class="normal-chat-label">发起聊天</span>
             </div>
-            <div class="normal-chat" @click.stop="openMxXxr()"> <!--mxCreateRoom showCreateGroup-->
+            <div class="normal-chat" @click.stop="openMxXxr()">
                 <img class="normal-chat-img img-disable-drag" src="../../../static/Img/Main/jql.png">
                 <span class="normal-chat-label">发起群聊</span>
             </div>
@@ -19,22 +19,12 @@
                 <img class="normal-chat-img" src="../../../static/Img/Main/cjml.png">
                 <span class="normal-chat-label">发起密聊</span>
             </div> -->
-            <div class="secret-chat" @click.stop="mxSquare()"> <!--@click="showCreateEncryptGroup(true)"-->
+            <div class="secret-chat" @click.stop="mxSquare()">
                 <img class="secret-chat-img img-disable-drag" src="../../../static/Img/Main/jgc.png">
                 <span class="secret-chat-label">发现群聊</span> <!--发起密聊-->
             </div>
         </div>
-        <!-- <el-dialog title="发起群聊" :visible.sync="dialogVisible" width="70%" @close="handleDialogClose()">
-            <div class="el-dialog-content">
-                <chatGroupCreater :disableUsers="disabledusers" ref="chatGroupCreater" @getCreateGroupUsersSelected="getUsersSelected">
-                </chatGroupCreater>
-            </div>
-            <span slot="footer" class="dialog-footer">
-                <el-button class="dialog-confirm-button" type="primary" @click="createGroup()">确 定</el-button>
-            </span>
-        </el-dialog> -->
-        <chatCreaterDlg v-show="showChatCreaterDlg" @getCreateGroupInfo="getCreateGroupInfo" @closeChatCreaterDlg="closeChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatCreaterKey">
-        </chatCreaterDlg>
+
         <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
         </encryptChatCreater>
         <mxMemberSelectDlg 
@@ -71,14 +61,8 @@
 
 
 <script>
-import {createGroup} from '../../packages/data/services'
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services} from '../../packages/data/index.js'
 import eSearch from './searchbar.vue'
-import {strMsgContentToJson} from '../../packages/core/Utils.js'
-import chatCreaterDlg from './chatCreaterDlg.vue'
 import encryptChatCreater from './encryptChatCreater.vue'
-import { Group, Message, Department, UserInfo } from '../../packages/data/sqliteutil.js'
 import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxSquareDlg from './mxSquareDlg.vue'
@@ -102,7 +86,6 @@ export default {
             chatCreaterKey:1,
             chatEncryptCreaterKey: 9,
             chatCreaterDialogTitle: '',
-            showChatCreaterDlg: false,
             showencryptChatCreaterDlg: false,
             searchKey: '',
             dialogVisible: false,
@@ -206,67 +189,9 @@ export default {
         getEncryptCreateGroupInfo(groupinfo) {
             this.$emit("getCreateGroupInfo", groupinfo);
         },
-        closeChatCreaterDlg(content) {
-            this.showChatCreaterDlg = false;
-            this.chatCreaterDisableUsers = [];
-        },
         closeEncryptChatCreaterDlg(content) {
             this.showencryptChatCreaterDlg = false;
             this.chatCreaterDisableUsers = [];
-        },
-        showCreateEncryptGroup: async function(isSecret=false) {
-            // this.disabledusers = [this.curUserInfo.id];
-            // this.dialogVisible = true;
-            // console.log("this disabledusers is ", this.disabledusers)
-            /////////////////////////////////////////////////////////
-            this.isSecret = isSecret;
-            var self = await services.common.GetSelfUserModel();
-            var selfUserInfo = await UserInfo.GetUserInfo(self.id);
-            if(selfUserInfo == undefined) {
-                selfUserInfo = {
-                    "user_id": self.id,
-                }
-            }
-            console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(selfUserInfo.user_id);
-            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = rootDepartmentModels;
-            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            this.chatEncryptCreaterKey ++;
-            this.showencryptChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "选择密聊";
-        },
-        showCreateGroup: async function(isSecret=false){
-            // this.disabledusers = [this.curUserInfo.id];
-            // this.dialogVisible = true;
-            // console.log("this disabledusers is ", this.disabledusers)
-            /////////////////////////////////////////////////////////
-            this.isSecret = isSecret;
-            var self = await services.common.GetSelfUserModel();
-            var selfUserInfo = await UserInfo.GetUserInfo(self.id);
-            if(selfUserInfo == undefined) {
-                selfUserInfo = {
-                    "user_id": self.id,
-                }
-            }
-            console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(selfUserInfo.user_id);
-            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = rootDepartmentModels;
-            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            this.chatCreaterKey ++;
-            this.showChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "添加成员";
         },
         compare(property){
             return function(a,b){
@@ -275,106 +200,7 @@ export default {
                 return value1 - value2;
             }
         },
-        createGroup: async function() {
-            var groupUserIds = [];
-            console.log("this.usersSelected = ", this.usersSelected);
-            console.log("this disabledusers is ", this.disabledusers)
-            for(var j=0;j<this.disabledusers.length;j++) {
-                groupUserIds.push(this.disabledusers[j]);
-            }
-            var groupUserName = []
-            for(var i=0;i<this.usersSelected.length;i++) {
-                groupUserIds.push(this.usersSelected[i].id)
-                if(i < 4) {
-                    groupUserName.push(this.usersSelected[i].displayName)
-                }
-            }
-            var groupName = '';
-            if(groupUserName.length > 1) {
-                groupName = groupUserName.join(",");
-            }
-            else if(groupUserName.length == 4) {
-                groupName = groupUserName.join(",");
-                groupName = groupName + "...";
-            }
-            else {
-                groupName = groupUserName[0];
-            }
-            console.log("group user ids is ", groupUserIds)
-            console.log("group groupName ids is ", groupName)
-            var contain_user_ids = groupUserIds.join(",");
-            if(this.usersSelected.length == 0) {
-                alert("选一个呗")
-            }
-            else if(this.usersSelected.length == 1) {
-                var groupItem = {};
-                var selectedId = this.usersSelected[0];
-                var userInfos = await services.common.GetDistUserinfo(selectedId.id);
-                console.log("userInfos is ", userInfos);
-                var chatUserInfo = userInfos[0];
-                var chatAvater = chatUserInfo.avatar_t_url;
-                var chatName = chatUserInfo.user_display_name;
-                var groupCheck = await Group.SearchChatByNameKey(chatName);
-                console.log("groupCheck is ", groupCheck)
-                if(groupCheck.length == 0) {
-                    groupItem["contain_user_ids"] = contain_user_ids;
-                    groupItem["group_avarar"] = chatAvater;
-                    groupItem["group_name"] = chatName;
-                    groupItem["group_type"] = 102;
-                    groupItem["last_message_time"] = 0;
-                    groupItem["message_content"] = null;
-                    groupItem["message_content_type"] = 101;
-                    groupItem["message_from_id"] = this.curUserInfo.id;
-                    groupItem["message_id"] = '';
-                    groupItem["owner"] = null;
-                    groupItem["sequence_id"] = 0;
-                    groupItem["status"] = "00000000";
-                    groupItem["un_read_count"] = 0;
-                    groupItem["updatetime"] = new Date().getTime();
-                    groupItem["user_id"] = selectedId.id;
-                }
-                else {
-                    groupItem = groupCheck[0];
-                }
-
-                this.$emit('getCreateGroupInfo', groupItem);
-                this.dialogVisible = false;
-            }
-            else {
-                services.common.CreateGroup(groupName, groupUserIds)
-                    .then((ret) => {
-                        if(ret == undefined) {
-                            console.log("!!!!!!!!!!!1 ")
-                            // ToDo exception notice.
-                            return;
-                        }
-                        ret.message_content = null;
-                        
-                        var groupItem = {};
-                        groupItem["contain_user_ids"] = ret.contain_user_ids;
-                        groupItem["group_id"] = ret.group_id;
-                        groupItem["group_avarar"] = ret.group_avarar;
-                        groupItem["group_name"] = ret.group_name;
-                        groupItem["group_type"] = ret.group_type;
-                        groupItem["last_message_time"] = ret.last_message_time;
-                        groupItem["message_content"] = null;
-                        groupItem["message_content_type"] = ret.message_content_type;
-                        groupItem["message_from_id"] = ret.message_from_id;
-                        groupItem["message_id"] = ret.message_id;
-                        groupItem["owner"] = ret.owner;
-                        groupItem["sequence_id"] = ret.sequence_id;
-                        groupItem["status"] = ret.status;
-                        groupItem["un_read_count"] = ret.un_read_count;
-                        groupItem["updatetime"] = ret.updatetime;
-                        groupItem["user_id"] = '';
-                
-                        console.log("services.CreateGroup ret is ", groupItem);
-                        this.$emit('getCreateGroupInfo', groupItem);
-                        this.dialogVisible = false;
-                    })
-
-            }
-        },
+        
         handleDialogClose() {
             this.$refs.chatGroupCreater.initData();
         },
@@ -392,7 +218,6 @@ export default {
         },
     },
     components: {
-        chatCreaterDlg,
         eSearch,
         encryptChatCreater,
         mxCreateRoomDlg,
@@ -402,8 +227,6 @@ export default {
         mxXxr
     },
     created: async function () {
-        // this.loginInfo = await services.common.GetLoginModel();
-        // this.curUserInfo = await services.common.GetSelfUserModel();
         document.addEventListener('click',this.closeInfoTip)
     }
 }

@@ -22,6 +22,7 @@ export function openBaseMenu() {
 
 export function getImgUrlByEvent (event) {
     var distUrl = (event.content.info && event.content.info.thumbnail_url && event.content.info.thumbnail_url.length != 0) ? event.content.info.thumbnail_url : event.content.url;
+    if(!distUrl) return;
     if(!distUrl.startsWith('blob:')) {
         let iconPath = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distUrl);
         return iconPath;
@@ -29,6 +30,13 @@ export function getImgUrlByEvent (event) {
     else {
         return distUrl;
     }
+}
+
+export function getTextByEvent(event){
+    if(event.content && event.content.body) {
+        return event.content.body;
+    }
+    return "";
 }
 
 export function copyImgToClipboard(url){
@@ -71,4 +79,11 @@ export function UpdateUserAvater(ev){
           
       }
   }
+}
+
+export function checkIsTesting() {
+    let checkDom = document.getElementById('chat-send');
+    console.log("check is testing dom is ", checkDom.style)
+    if(checkDom && checkDom.style.display == "none") return false;
+    else return true;
 }

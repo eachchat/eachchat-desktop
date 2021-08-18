@@ -12,16 +12,14 @@
             <div class="chatInfo">
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
-                <p class="chat-name" id="chat-group-name">{{getShowGroupName()}}</p>
+                <p class="chat-name">{{getShowGroupName()}}</p>
                 <p class="chat-group-content-num" id="chat-group-content-num"></p>
                 <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="isMute"/>
             </div>
             <div class="chat-tools">
                 <div class="chat-tool-more-div" @click.stop="More()">
                 </div>
-                <!-- <div class="chat-tool-invite-div" @click.stop="createAnother"></div>  -->
-                <!-- @click="showAddMembersPrepare()" -->
-                <div class="chat-tool-call" @click="Call()" v-show=false>
+                <div class="chat-tool-call" @click="voiceCall()" v-show=false>
                     <i class="el-icon-phone"></i>
                 </div>
             </div>
@@ -31,28 +29,24 @@
             <div class="chat-main-message" id="message-show" v-show="!isInvite">
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
-                    <li class="msg-loading" v-bind:key="123">
+                    <div class="msg-loading" v-bind:key="123">
                         <i class="el-icon-loading" v-show="isRefreshing"></i>
-                    </li>
-                    <li v-for="(item, index) in messageListShow"
+                    </div>
+                    <li v-for="(item, index) in messageList"
                         :class="ChatLeftOrRightClassName(item)"
                         @contextmenu="rightClick($event, item)"
                         v-bind:key="ChatMessageId(item)"
                         v-show="!isDeleted(item)"
                         :id="chatMsgDivId(item._txnId ? item._txnId : item.event.event_id)">
-                        <div class="msg-info-time" v-show="showTimeOrNot(item, messageListShow[index-1])">{{MsgTime(item)}}</div>
+                        <div class="msg-info-time" v-show="showTimeOrNot(item, messageList[index-1])">{{MsgTime(item)}}</div>
                         <div class="chat-notice" v-show="showNoticeOrNot(item)">{{NoticeContent(item)}}</div>
                         <div class="msgContent">
                             <input class="multiSelectCheckbox" :id="msgCheckBoxId(item)" type="checkbox" v-show="showCheckboxOrNot(item)" @change="selectChanged(item)">
-                            <imessage :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="isGroup" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @sendAgain="sendAgain" @showImportE2EKey="showImportE2EKey"></imessage>
+                            <imessage :ref = "item.event.event_id"  :msg="item" :playingMsgId="playingMsgId" :updateMsg="updateMsg" :updateUser="updateUser" :updateMsgStatus="updatemsgStatus" :updateMsgContent="updateMsgContent" :isGroup="!isDm" v-show="showMessageOrNot(item)" @showImageOfMessage="showImageOfMessage" @openUserInfoTip="openUserInfoTip" @playAudioOfMessage="playAudioOfMessage" @showImportE2EKey="showImportE2EKey"></imessage>
                         </div>
                     </li>
                 <!-- </ul> -->
                 </transition-group>
-            </div>
-            <div class="uploadingProc" v-show="showUploadProgress">
-                <label class="uploadingName">{{UploadingName}}</label>
-                <el-progress class="upload-file-progress" :percentage="curPercent" color="#11b067" :show-text="false" :width="70"></el-progress>
             </div>
             <div class="chat-input" id="chat-input-id" v-show="!multiSelect && !isInvite">
                 <div class="chat-input-operate">
@@ -68,11 +62,14 @@
                             <img class="el-icon-more" src="../../../static/Img/Chat/chat_more@3x.png">
                         </div>
                     </div>
-                    <div class="chat-send" v-show="false" @click="sendMsg()">
+                    <div class="chat-send" v-show="false" id="chat-send" @click="sendMsg()">
                         <i class="el-icon-s-promotion"></i>
                     </div>
+                    <div class="video-chat" @click="creatVideoChat()" v-show="!isSecret && isDm">
+                    </div>
+                    <div class="voice-chat" @click="creatVoiceChat()" v-show="!isSecret && isDm">
+                    </div>
                 </div>
-                <input type="file" id="fileInput" style="display:none" @change="handleFiles()" multiple>
                 <div class="text-input" @keydown="keyHandle($event)" @keyup="keyUpHandle($event)">
                     <quillEditor
                         id="chatQuillEditorId"
@@ -118,20 +115,16 @@
             :showGroupInfoTips="showGroupInfoTips"
             :showGroupInfo="groupInfo" 
             :cleanCache="cleanCache" 
-            @showAddMembers="showAddMembers"
+
             @openUserInfoTip="openUserInfoTip" 
             @leaveGroup="leaveGroup" 
             @updateChatGroupStatus="updateChatGroupStatus" 
-            @updateChatGroupNotice="updateChatGroupNotice" 
-            @showOwnerTransferDlg="showOwnerTransferDlg"
             @openSetting="mxRoomSetting"
             @openChatInfoDlg="mxChatInfoDlgSetting"
             @openChatTopicDlg="mxChatTopicDlgSetting"
             @closeGroupInfo="closeGroupInfo"
         >
         </groupInfoTip> <!--todo html-->
-        <noticeEditDlg :noticeInfo="groupNoticeInfo" @closeNoticeDlg="closeNoticeDlg" v-show="noticeDialogVisible"/>
-        <ownerTransferDlg :GroupInfo="this.ownerTransferchat" @closeOwnerTransferDlg="closeOwnerTransferDlg" v-show="ownerTransferDialogVisible"/>
         <chatMemberDlg :GroupInfo="this.chatMemberDlgchat" :showPosition="cursorPosition" :chatMemberSearchKey="chatMemberSearchKey" @clickAtMember="clickAtMember" @atMember="atMember" :selectClicked="toSelect" v-show="chatMemberDlgVisible"/>
         <userInfoContent 
             :userInfo="userInfo" 
@@ -174,32 +167,20 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.bubble.css'
 import {quillEditor} from 'vue-quill-editor'
 import * as Quill from 'quill'
-import confservice from '../../packages/data/conf_service'
-// import { ImageDrop } from 'quill-image-drop-module'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
-
-import {APITransaction} from '../../packages/data/transaction.js'
-import {services} from '../../packages/data/index.js'
 import Faces from './faces.vue';
-import userInfoTip from './userinfo-tip.vue'
 import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
-import chatGroupCreater from './chatgroup-creater'
-import transmit from './transmit.vue'
-import noticeEditDlg from './noticeEditDlg.vue'
-import ownerTransferDlg from './ownerTransfer.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
-import chatCreaterDlg from './chatCreaterDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
 import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import mxChatTopicDlg from './mxChatTopicDlg'
-import {EventTimeline} from "matrix-js-sdk";
 import {Filter} from 'matrix-js-sdk';
 import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
@@ -210,9 +191,10 @@ import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
-import { models } from '../../packages/data/models.js';
-import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard } from '../../utils/commonFuncs'
+import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard, checkIsTesting } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
+import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
+import { checkIsEmptyRoom } from "../../packages/data/Rooms";
 const {Menu, MenuItem, nativeImage} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
@@ -295,15 +277,9 @@ export default {
         quillEditor,
         imessage,
         Faces,
-        userInfoTip,
         groupInfoTip,
-        chatGroupCreater,
-        transmit,
-        noticeEditDlg,
-        ownerTransferDlg,
         chatMemberDlg,
         transmitDlg,
-        chatCreaterDlg,
         userInfoContent,
         SendFileDlg,
         mxSettingDialog,
@@ -324,25 +300,9 @@ export default {
             this.SetToBottom();
             this.haveNewMsg = false;
         },
-        checkIsEmptyRoom() {
-            let checkMxMember = [];
-            for(let key in this.curChat.currentState.members) {
-                let o = this.curChat.currentState.members[key];
-                if (o.membership != 'leave') checkMxMember.push(o);
-            }
-            if(checkMxMember.length == 1) {
-                var distMember = checkMxMember[0];
-                if((distMember.userId ? distMember.userId : distMember.user.userId) == global.mxMatrixClientPeg.matrixClient.getUserId()) {
-                    return true;
-                }
-            }
-            if(checkMxMember.length == 0) {
-                return true;
-            }
-        },
         getShowGroupName() {
             if(this.curChat && this.curChat.name && this.curChat.name.startsWith("Empty room")) {
-                if(this.checkIsEmptyRoom(this.curChat)) {
+                if(checkIsEmptyRoom(this.curChat, this.userID)) {
                     return "空聊天室";
                 }
             }
@@ -391,35 +351,7 @@ export default {
         mxSelectMember() {
 
         },
-        createAnother() {
-            console.log('this.curChat', this.curChat)
-            const client = window.mxMatrixClientPeg.matrixClient;
-            const mDirectEvent = client.getAccountData('m.direct');
-            let dmRoomMap = {};
-            if (mDirectEvent !== undefined) dmRoomMap = mDirectEvent.getContent();
-            let currentRoom = this.curChat;
-            let dmRoomIdArr = [];
-            const roomId = currentRoom.roomId;
-            const userId = client.getUserId();
-            Object.keys(dmRoomMap).forEach(k=>{
-                let arr = dmRoomMap[k];
-                arr.forEach(a=>dmRoomIdArr.push(a))
-            })
-            if (dmRoomIdArr.includes(roomId)) {
-                this.isDm = true;
-                console.log('这是一个单聊', currentRoom);
-                Object.keys(currentRoom.currentState.members).forEach(id => {
-                    if (id != userId) {
-                        let dmMember = currentRoom.currentState.members[id];
-                        console.log( 'dmMember', dmMember)
-                        console.log( 'dmMember.user', dmMember.user)
-                        if (!dmMember.user) dmMember.user = {};
-                        dmMember.user.avatarUrl = dmMember.user.avatarUrl ? client.mxcUrlToHttp(dmMember.user.avatarUrl) : "../../../static/Img/User/user-40px@2x.png";
-                        this.dmMember = dmMember;
-                    }
-                })
-            } else {this.isDm = false;}
-        },
+        
         showImportE2EKey() {
             this.$emit("showImportE2EKey");
         },
@@ -440,31 +372,6 @@ export default {
             global.mxMatrixClientPeg.matrixClient.joinRoom(this.curChat.roomId, {inviteSignUrl: undefined, viaServers: undefined})
                 .then(() => {
                     this.isInvite = false;
-                    // this.isRefreshing = true;
-                    setTimeout(() => {
-                        this.$emit('JoinRoom', this.curChat.roomId);
-                    }, 500)
-                    setTimeout(() => {
-                        this._loadTimeline(undefined, undefined, undefined)
-                            .then((ret) => {
-                                console.log("join room chat is ", this.curChat);
-                                this.isRefreshing = false;
-                                this.messageList = this._getEvents();
-                                
-                                setTimeout(() => {
-                                    this.$nextTick(() => {
-                                        this.needToBottom = true;
-                                        
-                                        let div = document.getElementById("message-show-list");
-                                        div.scrollTop = div.scrollHeight;
-                                        if(div) {
-                                            div.addEventListener('scroll', this.handleScroll);
-                                            // this.showScrollBar();
-                                        }
-                                    })
-                                }, 100)
-                            })
-                    }, 500)
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);
@@ -488,7 +395,6 @@ export default {
         mxChatInfoDlgSetting: function(close) {
             if (close) {
                 return this.mxChat = false;
-                console.log('close ccccc')
             }
             this.closeGroupInfo();
             this.mxChat = true;
@@ -503,7 +409,6 @@ export default {
         mxRoomSetting: function(close, serverAddress) {
             if (close) {
                 return this.mxRoomDlg = false;
-                console.log('closeeeeeeee')
             }
             this.closeGroupInfo();
             this.mxRoomDlg = true;
@@ -514,7 +419,7 @@ export default {
         handleCustomMatcher(node, Delta) {
             let ops = []
             Delta.ops.forEach(op => {
-                if (op.insert && typeof op.insert === 'string') {// 如果粘贴了图片，这里会是一个对象，所以可以这样处理
+                if (op.insert && typeof op.insert === 'string') {
                 ops.push({
                     insert: op.insert,
                 })
@@ -572,7 +477,6 @@ export default {
             ipcRenderer.send("fileListDlg-min");
         },
         showHistoryMsgList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -591,11 +495,9 @@ export default {
             if(this.searchKeyFromList.length != 0) {
                 this.HistorySearchRoomId = "";
                 this.$emit("CloseSearchPage")
-                // this.initMessage();
             }
         },
         showFileList: function() {
-            // ipcRenderer.send("showAnotherWindow", this.curChat.roomId, "historyMsgList");
             var chatElement = document.getElementById("chat-page-id");
             if(!chatElement) return;
             chatElement.style.backgroundColor = "rgba(255, 255, 255, 1)";
@@ -624,20 +526,36 @@ export default {
             msgHistoryMenuElement.style.top = top + "px";
             msgHistoryMenuElement.style.left = left + "px";
         },
-        showScrollBar: function(e) {
-            if(this.messageListElement == null) {
-                this.messageListElement = document.getElementById("message-show-list");
+        
+        creatVoiceChat: async function() {
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            let distUrl = this.$store.getters.getAvater(distUserId);
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
             }
-            this.messageListElement.style.overflowY = "overlay"
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:300,height: 480},
+                        roomInfo: { roomID: this.curChat.roomId,
+                                    name: showName,
+                                    url:distUrl,
+                                    voipType: "voice",
+                                    action: "call"}});
         },
-        hideScrollBar: function(e) {
-            if(this.messageListElement == null) {
-                this.messageListElement = document.getElementById("message-show-list");
+        creatVideoChat: async function(){
+            const distUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            let distUrl = this.$store.getters.getAvater(distUserId);
+            let showName = this.$store.getters.getShowName(distUserId);
+            if(showName.length == 0) {
+                showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
             }
-            this.messageListElement.style.overflowY = "hidden"
-        },
-        handleDialogClose() {
-            this.$refs.chatGroupCreater.initData();
+            ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
+                size:{width:640,height: 320},
+                        roomInfo: { roomID: this.curChat.roomId,
+                                    name: showName,
+                                    voipType: "video",
+                                    url:distUrl,
+                                    action: "call"}});
         },
         canRedact: function(curEvent) {
             const cli = global.mxMatrixClientPeg.matrixClient;
@@ -850,30 +768,49 @@ export default {
                     "Abstrace": `${text}删除聊天记录`
                 }
                 this.showAlertDlg = true;
-                // global.mxMatrixClientPeg.matrixClient.redactEvent(this.curChat.roomId, msg.event.event_id)
-                // .catch((error) => {
-                //     console.log("menuDelete ", error);
-                //     this.$toastMessage({message:'删除成功', time:1500, type:'success'});
-                //     this.multiToolsClose();
-                // })
             }
         },
-        menuQuote(msg) {
+        async menuQuote(msg) {
+            this.editor.setSelection(this.editor.selection.savedRange.index)
+            var dom = document.getElementById('quote-img')
+            const exist = !!dom
+            if (!exist) {
+                dom = document.createElement('div')
+            }
+            dom.setAttribute('class', 'quote-content')
+            dom.setAttribute('id', 'quote-text')
+            dom.setAttribute('data-roomid', this.curChat.roomId)
+            dom.setAttribute('contenteditable', false)
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             var msgContent = msg.getContent();
             var text = msgContent.body;
-            var sender = msg.sender.name;
-            var quoteText = '「' + sender + ':' + text + '」' + "<br>- - - - - - - - - - - - - - -";
-            this.content = quoteText + this.content;
-            console.log("this.curontent is ", this.content);
-            this.editor.setContents(this.content);
-            this.$nextTick(() => {
-                this.editor.insertText(this.content.length, '\n');
-                this.editor.setSelection(this.content.length + 1);
-            })
+            dom.innerHTML=`
+                <div class="quote-content-text" >${userName} :${text}</div>
+                <img class="quote-img-delete" id="quote-img-delete" src="${deleteIcon}" />
+            `
+            if (!exist) {
+                this.editor.insertText(this.editor.selection.savedRange.index,' ')
+                this.editor.insertEmbed(this.editor.selection.savedRange.index, 'span', dom)
+                this.editor.insertText(this.editor.selection.savedRange.index + 1,' ')
+                this.editor.setSelection(this.editor.selection.savedRange.index - 1)
+            }
+            const deleteBtn = document.getElementById('quote-img-delete')
+            const handler = () => {
+                if (dom && dom.parentNode){
+                    dom.parentNode.removeChild(dom)
+                }
+            }
+            deleteBtn.addEventListener('click', handler, true) 
         },
 
         getQuoteImgMsg(){
             const dom = document.getElementById('quote-img')
+            return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
+        },
+
+        getQuoteTextMsg(){
+            const dom = document.getElementById('quote-text')
             return this.$store.state.quoteMsgMap[(dom && dom.getAttribute('data-roomid')) || '']
         },
 
@@ -943,7 +880,7 @@ export default {
             this.curOperate = "multTrans";
             if(this.transmitNeedAlert) {
                 this.alertContnets = {
-                    "Details": "你选择的消息中包含语音不能转发，是否继续？",
+                    "Details": "你选择的消息中包含语音或音视频不支持转发，是否继续？",
                     "Abstrace": "提示"
                 }
                 this.showAlertDlg = true;
@@ -986,59 +923,13 @@ export default {
                 this.transmitTogether = false;
             }
         },
-        showAddMembersPrepare: async function() {
-            // var memeberList = this.curChat.contain_user_ids.split(",");
-            // this.showAddMembers(memeberList);
-            ////////////////////////////////////////////////////
-            var self = await services.common.GetSelfUserModel();
-            console.log("self is ", self);
-            this.chatCreaterDisableUsers.push(self.id);
-            console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            if(this.curChat.contain_user_ids.length != 0) {
-                var contain_user_ids = this.curChat.contain_user_ids.split(",");
-                for(var i=0;i<contain_user_ids.length;i++) {
-                    if(this.chatCreaterDisableUsers.indexOf(contain_user_ids[i]) == -1) {
-                        this.chatCreaterDisableUsers.push(contain_user_ids[i]);
-                    }
-                }
-            }
-            var root = await Department.GetRoot();
-            console.log("root is ", root);
-            var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            console.log("rootDepartmentModels is ", rootDepartmentModels);
-            var temp = rootDepartmentModels;
-            this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            this.createNewChat = false;
-            this.addMemberGroupType = this.curChat.group_type;
-            this.chatCreaterKey ++;
-            this.showChatCreaterDlg = true;
-            this.chatCreaterDialogTitle = "添加成员";
-        },
+        
         closeChatCreaterDlg(content) {
             this.showChatCreaterDlg = false;
             this.createNewChat = false;
             this.chatCreaterDisableUsers = [];
         },
-        showAddMembers: async function(existedMembers){
-            // this.chatCreaterDisableUsers = existedMembers;
-            // var self = await services.common.GetSelfUserModel();
-            // console.log("self is ", self);
-            // this.chatCreaterDisableUsers.push(self.id);
-            // console.log("chatCreaterDisableUsers is ", this.chatCreaterDisableUsers);
-            // var root = await Department.GetRoot();
-            // console.log("root is ", root);
-            // var rootDepartmentModels = await Department.GetSubDepartment(root.department_id);
-            // console.log("rootDepartmentModels is ", rootDepartmentModels);
-            // var temp = rootDepartmentModels;
-            // this.chatCreaterDialogRootDepartments =  temp.sort(this.compare("show_order"));
-            
-            // this.chatCreaterKey ++;
-            // this.createNewChat = false;
-            // this.addMemberGroupType = this.curChat.group_type;
-            // this.showChatCreaterDlg = true;
-            // this.chatCreaterDialogTitle = "添加成员";
-        },
+
         compare(property){
             return function(a,b){
                 var value1 = a[property];
@@ -1046,16 +937,7 @@ export default {
                 return value1 - value2;
             }
         },
-        AddNewMembers: async function() {
-            console.log("add member s ", this.usersSelected);
-            var addUids = [];
-            for(var i=0;i<this.usersSelected.length;i++) {
-                addUids.push(this.usersSelected[i].id)
-            }
-            var ret = await services.common.AddGroupUsers(this.curChat.group_id, addUids);
-            console.log("AddGroupUsers ret is ", ret);
-            this.dialogVisible = false;
-        },
+
         async menuFav(msg) {
             console.log("fav msg is ", msg);
             console.log("cointent is ", strMsgContentToJson(msg.message_content));
@@ -1152,22 +1034,16 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            var chatGroupMsgContent = msg.getContent();
-            getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url))
-                .then((blob) => {
-                    let reader = new FileReader();
-                    reader.onload = function() {
-                        if(reader.readyState == 2) {
-                            let a = document.createElement('a');
-                            a.href = window.URL.createObjectURL(blob);
-                            a.download = chatGroupMsgContent.body;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                        }
-                    }
-                    reader.readAsArrayBuffer(blob);
-                })
+            let paths = ipcRenderer.sendSync("get_save_filepath");
+            let folders = paths.filePaths;
+            if(folders.length == 0) return;
+            let folder = folders[0];
+            console.log(folder)
+            let msgElements = this.$refs[msg.event.event_id];
+            if(msgElements.length === 0) return;
+            let msgElement = msgElements[0];
+            var chatGroupMsgContent = msg.event.content ? msg.event.content : msg.getContent();
+            msgElement.SaveFile(chatGroupMsgContent, path.join(folder, chatGroupMsgContent.body), msg.event.event_id, false);
         },
 
         cleanSelected() {
@@ -1199,7 +1075,7 @@ export default {
                 if(!this.canRedact(k)) {
                     canShowDelete = false;
                 }
-                if(this.MsgIsVoice(k)) {
+                if(this.MsgIsVoice(k) || this.MsgIsVoipCall(k)) {
                     this.transmitNeedAlert = true;
                 }
                 if(this.MsgIsTransmit(k)) {
@@ -1233,6 +1109,10 @@ export default {
             else{
                 return false;
             }
+        },
+        MsgIsVoipCall: function(msg) {
+            if(msg.event.type.indexOf("m.call") >= 0) return true;
+            else return false;
         },
         MsgIsVoice: function(msg) {
             let chatGroupMsgType = msg.event.content.msgtype == undefined ? msg.getContent().msgtype : msg.event.content.msgtype;
@@ -1638,74 +1518,8 @@ export default {
             this.$emit('getCreateGroupInfo', groupInfo);
             this.showUserInfoTips = false;
         },
-        async updateImgTimelineSet(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-            
-            if (room) {
-                let timelineSet;
-
-                try {
-                    timelineSet = await this.fetchFileEventsServer(room);
-                } catch (error) {
-                    console.error("Failed to get or create file panel filter", error);
-                }
-                return timelineSet;
-            } else {
-                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
-            }
-        },
-        async fetchFileEventsServer(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-
-            const filter = new Filter(client.credentials.userId);
-            filter.setDefinition(
-                {
-                    "room": {
-                        "timeline": {
-                            "contains_url": true,
-                            "types": [
-                                "m.room.message",
-                                "m.call.invite"
-                            ],
-                        },
-                    },
-                },
-            );
-
-            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
-            filter.filterId = filterId;
-            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
-
-            return timelineSet;
-        },
         async toGetShowImage(distRoom) {
-            var curTimeLineSetRoomId = this.imgTimeLineSet ? this.imgTimeLineSet.room.roomId : undefined;
-            if(distRoom.roomId == curTimeLineSetRoomId) {
-                var fileListInfo = this._imgTimelineWindow.getEvents();
-                var thresholdNum = fileListInfo.length;
-                while(fileListInfo.length == thresholdNum && this._imgTimelineWindow.canPaginate('b')) {
-                    await this._imgTimelineWindow.paginate("b", 20);
-                    fileListInfo = await this._imgTimelineWindow.getEvents();
-                }
-                return fileListInfo;
-            }
-            else {
-                this.imgTimeLineSet = await this.updateImgTimelineSet(distRoom);
-                console.log("*** imgTimeLineSet ", this.imgTimeLineSet);
-                // var timeLineSet = await chatGroupItem.getUnfilteredTimelineSet();
-                this._imgTimelineWindow = new Matrix.TimelineWindow(
-                    global.mxMatrixClientPeg.matrixClient, 
-                    this.imgTimeLineSet,
-                    {windowLimit:Number.MAX_VALUE},
-                )
-                await this._imgTimelineWindow.load(undefined, 20);
-                var fileListInfo = this._imgTimelineWindow.getEvents();
-                while(fileListInfo.length == 0 && this._imgTimelineWindow.canPaginate('b')) {
-                    await this._imgTimelineWindow.paginate("b", 20);
-                    fileListInfo = await this._imgTimelineWindow.getEvents();
-                }
-                return fileListInfo;
-            }
+            return distRoom.timeline;
         },
         async getFileExist(id) {
             let msgs = await Message.FindMessageByMesssageID(id);
@@ -1767,8 +1581,8 @@ export default {
             if(!distImageInfo.imageUrl) {
                 let event = distEvent.event;
                 let localPath = await this.getFileExist(event.event_id);
-                let chatGroupMsgContent = distEvent.getContent();
-
+                let chatGroupMsgContent = event.content;
+                
                 let maxSize = 390;
                 var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
     
@@ -1865,55 +1679,6 @@ export default {
             }
             return mxMembers.length;
         },
-        showGroupName: async function(chatGroupItem) {
-            if(chatGroupItem.roomId == undefined && chatGroupItem.myUserId == undefined){
-                return "";
-            }
-            var groupIcoElement = document.getElementById("chat-group-img");
-            // var groupStateElement = document.getElementById("chat-group-state");
-            var groupContentNumElement = document.getElementById("chat-group-content-num");
-            var groupNameElement = document.getElementById("chat-group-name");
-            console.log("getShowGroupName is ", chatGroupItem)
-            
-            var distUserId = global.mxMatrixClientPeg.getDMMemberId(chatGroupItem);
-            if(!distUserId && groupNameElement) {
-                groupNameElement.innerHTML = this.getShowGroupName(chatGroupItem);
-            }
-            else {
-                var displayName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
-                if(groupNameElement) {
-                    groupNameElement.innerHTML = displayName;
-                }
-            }
-
-            var totalMemberCount = await this.mxGetMembers();
-            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
-                if(groupContentNumElement) {
-                    groupContentNumElement.innerHTML = "";
-                }
-            }
-            else {
-                if(groupContentNumElement) {
-                    groupContentNumElement.innerHTML = "(" + totalMemberCount + ")";
-                }
-            }
-
-            this.distUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
-            console.log("=================distUrl ", this.distUrl);
-            if(!this.distUrl || this.distUrl == '') {
-                let defaultGroupIcon;
-                if(global.mxMatrixClientPeg.DMCheck(this.curChat))
-                    this.distUrl = "./static/Img/User/user-40px@2x.png";
-                else
-                    this.distUrl = "./static/Img/User/group-40px@2x.png";
-                if(groupIcoElement) {
-                    groupIcoElement.setAttribute("src", this.distUrl); 
-                }
-            }
-            if(groupIcoElement != undefined && this.distUrl) {
-              groupIcoElement.setAttribute("src", this.distUrl);
-            }
-        },
         insertFace: function(item) {
             var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
             getProperty(this.editor, 'selection.savedRange.index', 0) 
@@ -1921,63 +1686,8 @@ export default {
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
-        handleFiles: function() {
-            // Select Same File Failed.
-            var fileList = this.fileInput.files;
-            console.log(fileList)
-            if(fileList === null || fileList.length === 0) {
-                alert("请选择一个文件/文件夹。");
-            }
-            else {
-                for(var i=0;i<fileList.length;i++) {
-                    var range = this.editor.getSelection();
-                    var curIndex = range==null ? 0 : range.index;
-                    var reader = new FileReader();
-                    var curPath = fileList[i].path;
-                    var fileType = fileList[i].type;
-                    var fileSize = fileList[i].size;
-                    var fileName = path.basename(fileList[i]);//getFileNameInPath(fileList[i].path)
-                    if(fileType.split("/")[0] == "image"){
-                        // Image
-                        reader.readAsDataURL(fileList[i]);
-                        reader.onloadend = () => {
-                            var img = new Image();
-                            img.src = reader.result;
-                            img.onload = function(){
-                                let srcHeight = img.height;
-                                this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "image", height: srcHeight});
-                                this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                            }
-                        }
-                    }
-                    else {
-                        // File
-                        var fileExt = fileTypeFromMIME(fileType);
-                        var iconPath = getIconPath(fileExt);
-                        var showfu = new FileUtil(iconPath);
-                        let showfileObj = showfu.GetUploadfileobj();
-                        reader.readAsDataURL(showfileObj);
-                        reader.onloadend = () => {
-                            this.editor.insertEmbed(curIndex, 'fileBlot', {localPath: curPath, src: reader.result, fileType: "file", fileHeight: 46, fileSize: fileSize, style:"vertical-align:middle;"})
-                            this.editor.setSelection(this.editor.selection.savedRange.index + 1);
-                        }
-                    }
-                }
-            }
-        },
         cleanEditor: function() {
             this.editor.container.getElementsByClassName("ql-editor")[0].innerHTML = "";
-        },
-        insertPic: function() {
-            // File
-            if(this.canSelecteFile) {
-                this.canSelecteFile = false;
-                ipcRenderer.send('open-image-dialog', 'openFile');
-            }
-            if(!this.ipcPicInited){
-                this.ipcPicInited = true;
-                ipcRenderer.on('selectedImageItem', this.nHandleFiles);
-            }
         },
         insertFiles: function() {
             if(this.canSelecteFile) {
@@ -1988,9 +1698,6 @@ export default {
                 this.ipcInited = true;
                 ipcRenderer.on('selectedItem', this.nHandleFiles);
             }
-        },
-        insertImg: function() {
-            // console.log("============== this is ", this);
         },
         nHandleFiles: async function(e, paths) {
             // Select Same File Failed.
@@ -2014,8 +1721,6 @@ export default {
                 for(let i=0;i<fileList.length;i++) {
                     let fileinfo = {};
                     let fileSize = await getFileSizeNum(fileList[i]);
-                    this.curTotal += fileSize;
-                    this.needUpdatefilesNum += 1;
                     fileinfo.path = fileList[i];
                     fileinfo.size = fileSize;
                     fileinfo.name = path.basename(fileList[i])
@@ -2030,79 +1735,16 @@ export default {
                     }
                     varTmp.push(fileinfo);
                 }
-                if(true) {
-                    this.SendFiles(varTmp);
-                }
-                else {
-                    this.showSendFileDlg = true;
-                    this.sendFileInfos = {
-                        paths: varTmp,
-                        distGroupInfo: this.curChat
-                    }
-                }
-            }
-        },
-        getDistUidThroughUids: function(uids) {
-            if(uids.length > 2) {
-                return "";
-            }
-            else if(uids.length == 1) {
-                return uids[0];
-            }
-            else {
-                if(uids[0] == this.curUserInfo.id) {
-                    return uids[1];
-                }
-                else {
-                    return uids[0];
-                }
-            }
-        },
-        sendAgain: async function(retryMsg) {
-            var sendBody = retryMsg.event.content.body;
-            try{
-                global.mxMatrixClientPeg.matrixClient.sendMessage(this.curChat.roomId, sendBody, retryMsg._txnId)
-            }
-            catch(error) {
-                console.log("error is ", error);
+                this.SendFiles(varTmp);
             }
         },
         SendFiles: function(fileinfos) {
             for(let i=0;i<fileinfos.length;i++) {
-                // this.sendFile(fileinfos[i]);
-                this.newSendFile(fileinfos[i]);
+                this.pushFileMsg(fileinfos[i]);
             }
             this.closeSendFileDlg();
         },
-        myArrayBuffer(theFile) {
-            // this: File or Blob
-            return new Promise((resolve) => {
-                let fr = new FileReader();
-                fr.onload = () => {
-                    resolve(fr.result);
-                };
-                fr.readAsArrayBuffer(theFile);
-            })
-        },
-        onUploadProgress(ev) {
-            console.log("=========== ",ev);
-            this.sendLength = ev.loaded + this.curProcess;
-            this.contentLength = this.curTotal != 0 ? this.curTotal : ev.total;
-            console.log("=========== contentLength ",this.contentLength);
-            var curPercent = parseInt(this.sendLength*100/Number(this.contentLength));
-            if(curPercent > this.lastPercent) {
-                this.lastPercent = curPercent;
-                this.curPercent = curPercent;
-            }
-            if(this.sendLength >= this.contentLength) {
-                console.log("*** onProgerss hide upload progerss");
-                this.showUploadProgress = false;
-                this.curTotal = 0;
-                this.lastPercent = 0.01;
-                this.curPercent = 0.01;
-            }
-        },
-        newSendFile: async function(fileinfo) {
+        pushFileMsg: async function(fileinfo) {
             var showfileObj = undefined;
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
@@ -2111,6 +1753,15 @@ export default {
                 var showfu = new FileUtil(fileinfo.path);
                 showfileObj = showfu.GetUploadfileobj();
             }
+            
+            let r = null;
+            try{
+                r = await this.loadImageElement(showfileObj);
+            }
+            catch(e) {
+                console.log("******** ", e);
+            }
+
             const content = {
                 body: fileinfo.name || 'Attachment',
                 info: {
@@ -2118,13 +1769,15 @@ export default {
                 },
                 msgtype: "", // set later
             };
+            if(r && r.width && r.height) {
+                content.info.w = r.width;
+                content.info.h = r.height;
+            }
             // extend(content.info, showfileObj);
             var reader = new FileReader();
             reader.readAsDataURL(showfileObj);
             reader.onload = () => {
                 let type = GetFileType(reader.result);
-                // content.info.mimetype = fileinfo.type;
-                let fileResult = reader.result;
                 let curTimeSeconds = new Date().getTime();
                 var eventTmp = {
                     event: {
@@ -2152,175 +1805,17 @@ export default {
                 else{
                     eventTmp.event.content.msgtype = "m.file";
                 }
-                this.$store.commit("saveSendingEvents", eventTmp);
-                this.sendingList.push(eventTmp);
+                this.$store.commit("saveSendingEvents", Object.assign({}, eventTmp));
                 this.messageList.push(eventTmp);
                 setTimeout(() => {
                     this.$nextTick(() => {
-                        var div = document.getElementById("message-show-list");
+                        var div = this.getMsgListElement();
                         if(div) {
                             div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
                         }
                     })
                 }, 100)
             }
-        },
-        sendFile: async function(fileinfo) {
-            console.log("fileinfo is ", fileinfo);
-            const content = {
-                body: fileinfo.name || 'Attachment',
-                info: {
-                    size: fileinfo.size,
-                },
-                msgtype: "", // set later
-            };
-            var showfileObj = undefined;
-            var stream = "";
-            var encryptInfo;
-            var uploadPromise;
-            if(!fs.existsSync(fileinfo.path)) {
-                showfileObj = this.path2File[fileinfo.path];
-                var arrayBuf = await this.myArrayBuffer(showfileObj);
-                stream = Buffer.from(arrayBuf);
-            }
-            else {
-                var showfu = new FileUtil(fileinfo.path);
-                showfileObj = showfu.GetUploadfileobj();
-                stream = showfu.ReadfileSync(fileinfo.path);
-            }
-            var reader = new FileReader();
-            reader.readAsDataURL(showfileObj);
-
-            reader.onload = () => {
-                let type = GetFileType(reader.result);
-                // content.info.mimetype = fileinfo.type;
-                let fileResult = reader.result;
-                this.showUploadProgress = true;
-                this.UploadingName = fileinfo.name;
-                let filename = fileinfo.name;
-                var roomID = this.curChat.roomId;
-                if(type == 'm.image'){
-                    content.msgtype = 'm.image';
-                    // this.SendImage(showfileObj, fileResult, stream)
-                    this.infoForImageFile(this.curChat.roomId, showfileObj).then((imageInfo) => {
-                        extend(content.info, imageInfo);
-                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                        })
-                    }, (e) => {
-                        console.log("**** getInfoForImageFile Exception ", e);
-                    })
-                }
-                else{
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
-                        var prom = this.readFileAsArrayBuffer(showfileObj).then((data) => {
-                            return encrypt.encryptAttachment(data);
-                        }).then((encryptResult) => {
-                            encryptInfo = encryptResult.info;
-                            var blob = new Blob([encryptResult.data]);
-                            global.mxMatrixClientPeg.matrixClient.uploadContent(
-                                    blob,
-                                    {includeFilename: false,
-                                    progressHandler: this.onUploadProgress}
-                                ).then((url)=>{
-                                    encryptInfo.url = url;
-                                    encryptInfo.mimetype = fileinfo.type;
-                                    var content = {
-                                        msgtype: 'm.file',
-                                        body: filename,
-                                        file: encryptInfo,
-                                        url: url,
-                                        info:{
-                                            size: fileinfo.size,
-                                            mimetype: fileinfo.type
-                                        }
-                                    };
-                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                                    this.showUploadProgress = false;
-                                });
-                        })
-                    }
-                    else {
-                        let filename = fileinfo.name;
-                        this.uploadFile(this.curChat.roomId, showfileObj, this.onUploadProgress).then((ret) => {
-                        // global.mxMatrixClientPeg.matrixClient.uploadContent(showfileObj, {
-                        //     name: filename,
-                        //     progressHandler: this.onUploadProgress
-                        // }).then((ret)=>{
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            content.msgtype = 'm.file';
-                            content.file = ret.file;
-                            content.url = ret.url;
-                            console.log("*** name is ", filename);
-                            console.log("*** path.extname(filename) is ", path.extname(filename));
-                            content.info.mimetype = fileMIMEFromType(path.extname(filename).split('.')[1]);
-                            console.log("***fileMIMEFromType(path.extname(filename) is ", fileMIMEFromType(path.extname(filename).split('.')[1]));
-                            console.log("***content is ", content);
-                            // var content = {
-                            //     msgtype: 'm.file',
-                            //     body: filename,
-                            //     url: url,
-                            //     info:{
-                            //         size: fileinfo.size,
-                            //         mimetype: fileinfo.type
-                            //     }
-                            // };
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content).then(async (ret) => {
-                                console.log("*** ret is ", ret);
-                                console.log("*** filePath is ", fileinfo.path);
-                                if(fs.existsSync(fileinfo.path)) {
-                                    console.log("*** filePath is exist");
-                                    let msgs = await Message.FindMessageByMesssageID(ret.event_id);
-                                    if(msgs.length != 0){
-                                        msgs[0].file_local_path = fileinfo.path;
-                                        msgs[0].save();
-                                    }
-                                    else{
-                                        let msgValue = {
-                                            message_id: ret.event_id,
-                                            file_local_path: fileinfo.path
-                                        }
-                                        let model = await new(await models.Message)(msgValue);
-                                        model.save();
-                                    }
-                                }
-                            })
-                        });
-                    }
-                }
-                
-            }
-        },
-        readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    resolve(e.target.result);
-                };
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
         },
         /**
          * Load a file into a newly created image element.
@@ -2342,231 +1837,23 @@ export default {
                 };
             });
             img.src = objectUrl;
-
-            // // check for hi-dpi PNGs and fudge display resolution as needed.
-            // // this is mainly needed for macOS screencaps
-            // let parsePromise;
-            // if (imageFile.type === "image/png") {
-            //     // in practice macOS happens to order the chunks so they fall in
-            //     // the first 0x1000 bytes (thanks to a massive ICC header).
-            //     // Thus we could slice the file down to only sniff the first 0x1000
-            //     // bytes (but this makes extractPngChunks choke on the corrupt file)
-            //     const headers = imageFile; //.slice(0, 0x1000);
-            //     parsePromise = readFileAsArrayBuffer(headers).then(arrayBuffer => {
-            //         const buffer = new Uint8Array(arrayBuffer);
-            //         const chunks = extractPngChunks(buffer);
-            //         for (const chunk of chunks) {
-            //             if (chunk.name === 'pHYs') {
-            //                 if (chunk.data.byteLength !== PHYS_HIDPI.length) return;
-            //                 return chunk.data.every((val, i) => val === PHYS_HIDPI[i]);
-            //             }
-            //         }
-            //         return false;
-            //     });
-            // }
-
             // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
             const [hidpi] = await Promise.all([imgPromise]);
             const width = hidpi ? (img.width >> 1) : img.width;
             const height = hidpi ? (img.height >> 1) : img.height;
             return {width, height, img};
         },
-        /**
-         * Read the metadata for an image file and create and upload a thumbnail of the image.
-         *
-         * @param {MatrixClient} matrixClient A matrixClient to upload the thumbnail with.
-         * @param {String} roomId The ID of the room the image will be uploaded in.
-         * @param {File} imageFile The image to read and thumbnail.
-         * @return {Promise} A promise that resolves with the attachment info.
-         */
-        infoForImageFile(roomId, imageFile) {
-            let thumbnailType = "image/png";
-            if (imageFile.type === "image/jpeg") {
-                thumbnailType = "image/jpeg";
-            }
-
-            let imageInfo;
-            return this.loadImageElement(imageFile).then((r) => {
-                return this.createThumbnail(r.img, r.width, r.height, thumbnailType);
-            }).then((result) => {
-                imageInfo = result.info;
-                return this.uploadFile(roomId, result.thumbnail);
-            }).then((result) => {
-                imageInfo.thumbnail_url = result.url;
-                imageInfo.thumbnail_file = result.file;
-                return imageInfo;
-            });
-        },
-        /**
-         * Upload the file to the content repository.
-         * If the room is encrypted then encrypt the file before uploading.
-         *
-         * @param {MatrixClient} matrixClient The matrix client to upload the file with.
-         * @param {String} roomId The ID of the room being uploaded to.
-         * @param {File} file The file to upload.
-         * @param {Function?} progressHandler optional callback to be called when a chunk of
-         *    data is uploaded.
-         * @return {Promise} A promise that resolves with an object.
-         *  If the file is unencrypted then the object will have a "url" key.
-         *  If the file is encrypted then the object will have a "file" key.
-         */
-        uploadFile(roomId, file) {
-            let canceled = false;
-            if (global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(roomId)) {
-                // If the room is encrypted then encrypt the file before uploading it.
-                // First read the file into memory.
-                let uploadPromise;
-                let encryptInfo;
-                const prom = readFileAsArrayBuffer(file).then((data) => {
-                    return encrypt.encryptAttachment(data);
-                }).then((encryptResult) => {
-                    // Record the information needed to decrypt the attachment.
-                    encryptInfo = encryptResult.info;
-                    // Pass the encrypted data as a Blob to the uploader.
-                    const blob = new Blob([encryptResult.data]);
-                    uploadPromise = global.mxMatrixClientPeg.matrixClient.uploadContent(blob, {
-                        progressHandler: this.onUploadProgress,
-                        includeFilename: false,
-                    });
-                    return uploadPromise;
-                }).then((url) => {
-                    // If the attachment is encrypted then bundle the URL along
-                    // with the information needed to decrypt the attachment and
-                    // add it under a file key.
-                    encryptInfo.url = url;
-                    if (file.type) {
-                        encryptInfo.mimetype = file.type;
-                    }
-                    return {"file": encryptInfo};
-                });
-            } else {
-                const basePromise = global.mxMatrixClientPeg.matrixClient.uploadContent(file, {
-                    progressHandler: this.onUploadProgress,
-                });
-                const promise1 = basePromise.then((url) => {
-                    // If the attachment isn't encrypted then include the URL directly.
-                    return {"url": url};
-                });
-                return promise1;
-            }
-        },
-        createThumbnail(element, inputWidth, inputHeight, mimeType) {
-            return new Promise((resolve) => {
-                let targetWidth = inputWidth;
-                let targetHeight = inputHeight;
-                if (targetHeight > MAX_HEIGHT) {
-                    targetWidth = Math.floor(targetWidth * (MAX_HEIGHT / targetHeight));
-                    targetHeight = MAX_HEIGHT;
-                }
-                if (targetWidth > MAX_WIDTH) {
-                    targetHeight = Math.floor(targetHeight * (MAX_WIDTH / targetWidth));
-                    targetWidth = MAX_WIDTH;
-                }
-
-                const canvas = document.createElement("canvas");
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-                canvas.getContext("2d").drawImage(element, 0, 0, targetWidth, targetHeight);
-                canvas.toBlob((thumbnail) => {
-                    resolve({
-                        info: {
-                            thumbnail_info: {
-                                w: targetWidth,
-                                h: targetHeight,
-                                mimetype: thumbnail.type,
-                                size: thumbnail.size,
-                            },
-                            w: inputWidth,
-                            h: inputHeight,
-                        },
-                        thumbnail: thumbnail,
-                    });
-                }, mimeType);
-            });
-        },
-        SendImage: function(fileinfo, fileResult, stream){
-                var img = new Image();
-                img.src = fileResult;
-                var encryptInfo;
-                var uploadPromise;
-                this.showUploadProgress = true;
-                this.UploadingName = fileinfo.name;
-                //let tt1 = fileResult.substring(fileResult.indexOf("\,") + 1)
-                //let tt0 = Buffer.from(tt1, "base64");
-                img.onload = ()=>{
-                    var roomID = this.curChat.roomId;
-                    let filename = fileinfo.name;
-                    if(global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId)) {
-                        var prom = this.readFileAsArrayBuffer(fileinfo).then((data) => {
-                            return encrypt.encryptAttachment(data);
-                        }).then((encryptResult) => {
-                            encryptInfo = encryptResult.info;
-                            var blob = new Blob([encryptResult.data]);
-                            global.mxMatrixClientPeg.matrixClient.uploadContent(
-                                    blob,
-                                    {includeFilename: false,
-                                    progressHandler: this.onUploadProgress}
-                                ).then((url)=>{
-                                    encryptInfo.url = url;
-                                    encryptInfo.mimetype = fileinfo.type;
-                                    var content = {
-                                        msgtype: 'm.image',
-                                        body: filename,
-                                        file: encryptInfo,
-                                        url: url,
-                                        info:{
-                                            size: fileinfo.size,
-                                            w: img.width,
-                                            h: img.height,
-                                            mimetype: fileinfo.type,
-                                            thumbnail_url: encryptInfo.url,
-                                            thumbnail_file: encryptInfo,
-                                        }
-                                    };
-                                    uploadPromise = global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                                    this.showUploadProgress = false;
-                                    return uploadPromise;
-                                });
-                        })
-                    }
-                    else {
-                        global.mxMatrixClientPeg.matrixClient.uploadContent({
-                            stream: stream,
-                            name: filename,
-                            progressHandler: this.onUploadProgress
-                        }).then((url)=>{
-                            if(this.curUpdateFilesNum >= this.needUpdatefilesNum - 1) {
-                                this.showUploadProgress = false;
-                                this.curUpdateFilesNum = 0;
-                                this.needUpdatefilesNum = 0;
-                                this.curProcess = 1;
-                            }
-                            else {
-                                this.curProcess = this.sendLength;
-                                this.curUpdateFilesNum += 1;
-                            }
-                            var content = {
-                                msgtype: 'm.image',
-                                body: filename,
-                                url: url,
-                                info:{
-                                    size: fileinfo.size,
-                                    w: img.width,
-                                    h: img.height,
-                                    mimetype: fileinfo.type,
-                                }
-                            };
-                            global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, content);
-                        });
-                    }
-                }
-        },
-
         SendText: function(sendBody, varcontent){
             const quoteImgMsg = this.getQuoteImgMsg()
             if (quoteImgMsg) {
                 sendBody.quote_event = quoteImgMsg
             }
+
+            const quatoTextMsg = this.getQuoteTextMsg()
+            if(quatoTextMsg){
+                sendBody.quote_event = quatoTextMsg
+            }
+
             this.cleanEditor();
             let curTimeSeconds = new Date().getTime();
             var eventTmp = {
@@ -2584,12 +1871,11 @@ export default {
                 _txnId: curTimeSeconds,
                 message_status: 1,
             };
-            this.$store.commit("saveSendingEvents", eventTmp);
-            this.sendingList.push(eventTmp);
+            this.$store.commit("saveSendingEvents", Object.assign({}, eventTmp));
             this.messageList.push(eventTmp);
             setTimeout(() => {
                 this.$nextTick(() => {
-                    var div = document.getElementById("message-show-list");
+                    var div = this.getMsgListElement();
                     if(div) {
                         div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
                     }
@@ -2609,11 +1895,7 @@ export default {
                 alert("不能发送空白信息。")
                 return;
             }
-            // console.log("varcontent is ", varcontent);
-            var uid = this.curChat.user_id;
-            var gorupId = this.curChat.group_id == null ? '' : this.curChat.group_id;
             let sendText = '';
-            let exsitAt = false;
             let sendBody = {
                 msgtype: "m.text",
                 body: sendText
@@ -2621,14 +1903,12 @@ export default {
             for(var i=0;i<varcontent.ops.length;i++){
                 // console.log("i is ", i);
                 let curMsgItem = varcontent.ops[i].insert;
-                let curTimeSeconds = new Date().getTime();
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    if (curMsgItem.span.id !== 'quote-img') {    
+                    if (curMsgItem.span.id !== 'quote-img' && curMsgItem.span.id !== 'quote-text') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
-                        var filePath = msgInfo.path;
                         var fileType = msgInfo.type;
                         if(fileType == "at") {
                             sendText += ("@" + msgInfo.atName + " ");
@@ -2875,7 +2155,7 @@ export default {
             let event = curMsg.event;
             let chatGroupMsgType = event.type;
             var chatGroupMsgContent = event.content;
-            // 数据库缺省type = 0 
+            //type = 0 
             /*
                 // src/TextForEvent.js
                 'm.room.canonical_alias': textForCanonicalAliasEvent,
@@ -3036,58 +2316,6 @@ export default {
         msgCheckBoxId: function(curMsg) {
             return "message-checkbox-" + curMsg.event.event_id;
         },
-        msgCanNotCheck(curMsg) {
-            var content = curMsg.getContent();
-            if(content.msgtype == "m.audio") {
-                return true;
-            }
-            return false;
-        },
-        msgSelectOrNotClassName: function(curMsg) {
-            //class="msgContent"
-            var hasSelected = false;
-            for(let i=0;i<this.selectedMsgs.length;i++) {
-                if(this.selectedMsgs[i].curMsg.event.event_id == curMsg.event.event_id) {
-                    this.selectedMsgs.splice(i, 1);
-                    hasSelected = true;
-                    break;
-                }
-            }
-            if(hasSelected) {
-                return "msgContentActive";
-            }
-            else {
-                return "msgContent";
-            }
-        },
-        Call: function() {
-            console.log("make a call");
-        },
-        groupIsInFavourite(groupInfo) {
-            if(groupInfo.status == 0) {
-                return false;
-            }
-            else {
-                if(groupInfo.status.substr(4, 1) == "1") {
-                    return true;
-                }
-                return false;
-            }
-        },
-        groupIsTop(groupInfo) {
-            // console.log("groupInfo.status ", groupInfo.status)
-            // console.log("groupInfo.status.substring(6, 1) = ", groupInfo.status.substr(6, 1))
-            // console.log("groupInfo.status.substring(6, 1) == 1 ", groupInfo.status.substr(6, 1) == 1)
-            if(groupInfo.status == 0) {
-                return false;
-            }
-            else {
-                if(groupInfo.status.substr(6, 1) == "1") {
-                    return true;
-                }
-                return false;
-            }
-        },
         More: async function() {
             console.log('check chat', this.curChat);
             this.groupInfo = {};
@@ -3115,9 +2343,7 @@ export default {
                 if (members[key].powerLevel === 100) ownerId = key;
             }
             console.log("this.curChat ", this.curChat);
-            // console.log("this.isTop ", this.groupIsTop(this.curChat))
             // console.log("this.isSlience ", this.groupIsSlience(this.curChat))
-            // console.log("this.isFav ", this.groupIsInFavourite(this.curChat))
             idsList = Object.keys(this.curChat.currentState.members);
             console.log('isOwner!!!!!!', isOwner);
             const topicEvent = this.curChat.currentState.getStateEvents("m.room.topic", "");
@@ -3155,14 +2381,14 @@ export default {
                 "memberList": idsList,
                 "groupName": name, //this.curChat.group_name,
                 "groupTopic": topic,
-                "groupAvarar": this.distUrl, //this.curChat.group_avarar,
+                "groupAvarar": this.chatIconUrl, //this.curChat.group_avarar,
                 "groupNotice": this.curChat.group_notice != undefined ? this.curChat.group_notice : '',
                 "groupId": this.curChat.roomId, //this.curChat.group_id,
                 "isGroup": true, //isGroup,
                 "isOwner": isOwner,
-                "isTop": false, //this.groupIsTop(this.curChat),
+                "isTop": false,
                 "isSlience": false, //this.groupIsSlience(this.curChat),
-                "isFav": false, //this.groupIsInFavourite(this.curChat),
+                "isFav": false,
                 "ownerId": ownerId, //this.curChat.owner,
                 "groupType": 100, //this.curChat.group_type,
                 "isSecret": false, // (this.curChat.group_type == 102 && this.curChat.key_id != undefined && this.curChat.key_id.length != 0)
@@ -3181,47 +2407,8 @@ export default {
             this.cleanCache = false;
             console.log("more more more ", this.groupInfo)
         },
-        compareMsg: function(){
-            return function(a, b)
-            {
-                var value1 = a.sequence_id;
-                var value2 = b.sequence_id;
-                return value2 - value1;
-            }
-        },
-        getLatestMessageSequenceIdAndCount: function() {
-            var ret = {
-                "latestSequenceId": "",
-                "count": 20
-            };
-            for(var i=0;i<this.messageList.length;i++) {
-                if(this.messageList[i].sequence_id.length != 0) {
-                    ret.latestSequenceId = this.messageList[i].sequence_id;
-                    break;
-                }
-            }
-            if(ret.latestSequenceId.length == 0) {
-                ret.latestSequenceId = this.curChat.sequence_id;
-                ret.count = this.messageList.length + 20;
-            }
-            return ret;
-        },
-        _loadTimeline: function(eventId, pixelOffset, offsetBase, distChat=this.curChat, num=20) {
-            this.timeLineSet = distChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            return this._timelineWindow.load(eventId, num);
-        },
-        _getEvents() {
-            var events = this._timelineWindow.getEvents();
-            // console.log("========== getEvent ", events);
-            return events;
-        },
         jumpToEvent: function(eventId, distChat) {
-            let div = document.getElementById("message-show-list");
+            let div = this.getMsgListElement();
             div.removeEventListener('scroll', this.handleScroll);
             this.existingMsgId = [];
             this.distEventId = eventId;
@@ -3231,38 +2418,64 @@ export default {
             this.isSerach = false;
             this.isJumpPage = true;
             this.messageList = [];
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
             // this.curChat.resetLiveTimeline();
             this.curChat = distChat;
-            this._loadTimeline(eventId, undefined, undefined, distChat, 1).then(() => {
-                this.messageList = this._getEvents().concat(this.sendingList.length == 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                console.log("*** this.messageList is ", this.messageList);
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        this.scrollToDistMsg(eventId);
-                        let uldiv = document.getElementById("message-show-list");
-                        if(uldiv.clientHeight < uldiv.offsetHeight) {
-                            this.paginageForwork();
-                        }
-                        div.addEventListener('scroll', this.handleScroll);
-                    })
-                }, 500);
-            })
+            roomTimeLineHandler.shareInstance().getDistTimeLine(distChat, eventId)
+                .then((distEvent) => {
+                    this.isRefreshing = false;
+                    this.messageList = distEvent;
+                    console.log("*** this.messageList is ", this.messageList);
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.scrollToDistMsg(eventId);
+                            let uldiv = this.getMsgListElement();
+                            this.lastScrollHeight = uldiv.scrollHeight;
+                            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
+                            if(uldiv.clientHeight >= uldiv.scrollHeight) {
+                                roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
+                                    .then((ret) => {
+                                        console.log("ret is ", ret);
+                                        for(let i = ret.length - 1; i >= 0 ; i--){
+                                            this.messageList.push(ret[i]);
+                                        }
+
+                                        setTimeout(() => {
+                                            this.$nextTick(() => {
+                                                this.checkScrollBar();
+                                            })
+                                        }, 0);
+                                    })
+                            }
+                            div.addEventListener('scroll', this.handleScroll);
+                        })
+                    }, 500);
+                })
             this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(distChat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
             this.existingMsgId = [];
-            this.showGroupName(distChat);
-            if(this.editor == undefined) {
-                this.editor = this.$refs.chatQuillEditor.quill;
+            this.initDraft();
+        },
+        checkScrollBar: function() {
+            let uldiv = this.getMsgListElement();
+            uldiv.removeEventListener('scroll', this.handleScroll);
+            console.log("uldiv.clientHeight ", uldiv.clientHeight, " uldiv.offsetHeight ", uldiv.scrollHeight)
+            if(uldiv.clientHeight >= uldiv.scrollHeight) {
+                roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
+                    .then((ret) => {
+                        for(let i=ret.length - 1;i>0;i--){
+                            this.messageList.unshift(ret[i]);
+                        }
+
+                        setTimeout(() => {
+                            this.$nextTick(() => {
+                                console.log("---------update croll top is ", uldiv.scrollHeight);
+                                
+                                uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight;
+                                this.isRefreshing = false;
+                            })
+                        }, 0);
+                    })
             }
-            var content = this.$store.getters.getDraft(distChat.roomId);
-            this.editor.setContents(content);
-            this.editor.setSelection(this.content.length + 1);
-            setTimeout(() => {
-                this.showGroupName(distChat);
-            }, 1000);
-            this.$store.commit("setCurChatId", distChat.roomId);
+            uldiv.addEventListener('scroll', this.handleScroll);
         },
         getTxnIdFromEventId: function(eventId) {
             for(var i=0;i<this.messageList.length;i++) {
@@ -3272,7 +2485,7 @@ export default {
             }
         },
         scrollToDistMsg: function(eventId) {
-            var ulDiv = document.getElementById("message-show-list");
+            var ulDiv = this.getMsgListElement();
             var distMsgDiv = document.getElementById(this.chatMsgDivId(eventId));
             if(!distMsgDiv) {
                 var distTxnId = this.getTxnIdFromEventId(eventId);
@@ -3332,124 +2545,24 @@ export default {
         },
 
         IsBottom: function(){
-            let uldiv = document.getElementById("message-show-list");
+            let uldiv = this.getMsgListElement();
             let client = document.getElementById("message-show");
-            console.log("======IsBottom uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight ", uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight)
+            // console.log("======IsBottom uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight ", uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight)
             if(uldiv && client && Math.abs(uldiv.scrollHeight - uldiv.scrollTop - client.clientHeight) < 150)
                 return true;
             return false;
         },
 
         SetToBottom: function(){
-            let div = document.getElementById("message-show-list");
+            let div = this.getMsgListElement();
             if(div) {
                 this.$nextTick(() => {
                     div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' });
                 })
             }
         },
-
-        messageFilter(event){
-            if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.invite'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
-            return false;
-        },
-
-        async getDistShowMessage(msgFileter, num, type)
-        {
-            let msgList = [];
-            while(this._timelineWindow.canPaginate(type)){
-                await this._timelineWindow.paginate(type, 20);
-                let tmpList = this._getEvents();
-                let index = 0;
-                msgList = [];
-                tmpList.forEach(item => {
-                    if(msgFileter(item) && item.event.content){
-                        if(!this.isDeleted(item)){
-                            msgList.push(item);
-                            index++;
-                        } 
-                    }
-                })
-                if(index > num) break;
-            }
-            return msgList;
-        },
-        async getShowMessage(msgFileter, num, type)
-        {
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
-            let msgList = this._getEvents();
-            let dealed = false;
-            while(this._timelineWindow.canPaginate(type)){
-                dealed = true;
-                await this._timelineWindow.paginate(type, 20);
-                let tmpList = this._getEvents();
-                let index = 0;
-                msgList = [];
-
-                for(var i=tmpList.length - 1;i>0;i--){
-                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
-                        msgList.unshift(tmpList[i]);
-                        index++;
-                    }
-                }
-
-                if(index > num) break;
-            }
-
-            if(!dealed) {
-                let tmpList = msgList;
-                msgList = [];
-                for(var i=tmpList.length - 1;i>0;i--){
-                    if(msgFileter(tmpList[i]) && tmpList[i].event.content){
-                        msgList.unshift(tmpList[i]);
-                        index++;
-                    }
-                }
-            }
-
-            return msgList;
-        },
-        paginageForwork: function() {
-            let uldiv = document.getElementById("message-show-list");
-            if(!uldiv)
-                return;
-            var canForwardPaginate = this._timelineWindow.canPaginate("f");
-            if(!canForwardPaginate) {
-                this.isRefreshing = false;
-                return;
-            }
-            this.isScroll = true;
-            this.lastScrollTop = uldiv.scrollTop;
-            console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
-            // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-            let curNum = this.messageList.length;
-            this.getDistShowMessage(this.messageFilter, curNum + 10, 'f')
-                .then((ret) => {
-                    this.messageList = ret
-                    this.isRefreshing = false;
-                    setTimeout(() => {
-                        this.$nextTick(() => {
-                            // console.log("---------update croll top is ", uldiv.scrollHeight);
-                            uldiv.scrollTop = this.lastScrollTop;
-                            this.isScroll = false;
-                            if(this.messageList.length < 10) {
-                                this.handleScroll(true);
-                            }
-                            // console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
-                            // uldiv.scrollTop = uldiv.scrollHeight - this.lastScrollHeight - 30;
-                        })
-                    }, 0)
-                    this.needToBottom = false;
-                })
-        },
         handleScroll: function(toBottom=false) {
-            let uldiv = document.getElementById("message-show-list");
+            let uldiv = this.getMsgListElement();
             if(!uldiv)
                 return;
             let client = document.getElementById("message-show");
@@ -3459,32 +2572,36 @@ export default {
             // console.log("=====uldiv.scrollTop is ", uldiv.scrollTop);
             // console.log("=====isRefreshing is ", this.isRefreshing);
         
+            if(this.IsBottom()) {
+                this.haveNewMsg = false;
+            }
             if(uldiv.scrollTop == 0){
                 console.log("to update msg")
                 var curTime = new Date().getTime();
-                var canBackPaginate = this._timelineWindow.canPaginate("b");
-                if(!canBackPaginate) {
+                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.curChat.roomId, "b")) {
                     this.isRefreshing = false;
                     return;
                 }
                 // console.log("curTime - this.lastRefreshTime ", curTime - this.lastRefreshTime)
-                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing && this.needScrollTop){
+                if(curTime - this.lastRefreshTime > 0.5 * 1000 && !this.isRefreshing){
                     this.isScroll = true;
                     this.lastScrollHeight = uldiv.scrollHeight;
                     this.isRefreshing = true;
                     this.lastRefreshTime = new Date().getTime();
-                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    let curNum = this.messageList.length;
-                    this.getShowMessage(this.messageFilter, curNum + 10, 'b')
+                    roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
-                            this.messageList = ret.concat(this.sendingList);
-                            setTimeout(() => {
+                            
+                            for(let i=ret.length - 1;i>0;i--){
+                                this.messageList.unshift(ret[i]);
+                            }
+
+                            // setTimeout(() => {
                                 this.$nextTick(() => {
                                     console.log("---------update croll top is ", uldiv.scrollHeight);
                                     console.log("*** toBottom is ", toBottom)
                                     if(toBottom === true) {
-                                        uldiv.scrollTop = uldiv.scrollHeight + 52;
+                                        uldiv.scrollTop = uldiv.scrollHeight;
                                         this.isRefreshing = false;
                                     }
                                     else {
@@ -3493,15 +2610,14 @@ export default {
                                     }
                                     this.isScroll = false;
                                 })
-                            }, 0);
+                            // }, 0);
                         })
                     }
             }
             else if(uldiv.scrollHeight - uldiv.scrollTop < client.clientHeight) {
                 console.log("=======wo bottom");
                 var curTime = new Date().getTime();
-                var canForwardPaginate = this._timelineWindow.canPaginate("f");
-                if(!canForwardPaginate) {
+                if(!roomTimeLineHandler.shareInstance().canLoadMore(this.curChat.roomId, "f")) {
                     this.isRefreshing = false;
                     return;
                 }
@@ -3510,12 +2626,11 @@ export default {
                     this.lastScrollTop = uldiv.scrollTop;
                     console.log("---------update uldiv.scrollTop is ", uldiv.scrollTop);
                     this.lastRefreshTime = new Date().getTime();
-                    // let latestSequenceIdAndCount = this.getLatestMessageSequenceIdAndCount();
-                    let curNum = this.messageList.length;
-                    this.getShowMessage(this.messageFilter, curNum + 10, 'f')
+                    roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
-                            this.messageList = ret.concat(this.sendingList);
-                            let index = 0;
+                            for(let i = ret.length - 1; i >= 0 ; i--){
+                                this.messageList.push(ret[i]);
+                            }
                             this.isRefreshing = false;
                             setTimeout(() => {
                                 this.$nextTick(() => {
@@ -3545,49 +2660,11 @@ export default {
         },
         leaveGroup(roomId) {
             this.$emit("leaveGroup", roomId);
-            if(roomId == this.curChat.roomId) {
-
-            }
         },
-        updateChatGroupNotice(groupId, originalNotice, isOwner) {
-            // console.log("==========")
-            this.noticeDialogVisible = true;
-            this.groupNoticeInfo = {};
-            this.groupNoticeInfo.originalNotice = originalNotice;
-            this.groupNoticeInfo.groupId = groupId;
-            this.groupNoticeInfo.isOwner = isOwner;
-        },
-        closeNoticeDlg(content) {
-            if(content.length == 0) {
-                this.noticeDialogVisible = false;
-                this.groupNoticeInfo = {};
-            }
-            else {
-                this.noticeDialogVisible = false;
-            }
-        },
-        showOwnerTransferDlg() {
-            this.ownerTransferDialogVisible = true;
-            this.ownerTransferchat = this.curChat;
-        },
-        closeOwnerTransferDlg() {
-            this.ownerTransferDialogVisible = false;
-            this.ownerTransferchat = {};
-        },
-        updateMsgFile(e, localPath, eventId) {
+        updateMsgFile(e, localPath, eventId, needOpen) {
             console.log("updateMsgfile ", localPath, eventId);
-            var myPackage = [localPath, eventId];
+            var myPackage = [localPath, eventId, needOpen];
             this.updateMsg = myPackage;
-            if(!eventId && path.extname(localPath) != ".mp3") {
-                shell.openPath(localPath);
-            }
-            this.curTotal = 0;
-            this.lastPercent = 0.01;
-            this.curPercent = 0.01;
-        },
-        updateUserImage(e, args) {
-            console.log("updateUserImage ", args);
-            // this.updateUser = args;
         },
         setFocuse(e) {
             if(this.editor == undefined) {
@@ -3626,8 +2703,6 @@ export default {
                 fileinfo.path = files[i].path;
                 fileinfo.size = files[i].size;
                 fileinfo.name = files[i].name;
-                this.curTotal += fileinfo.size;
-                this.needUpdatefilesNum += 1;
                 
                 var limitSize = 50 * 1024 * 1024;
                 if(global.mxMatrixClientPeg.mediaConfig != null) {
@@ -3644,21 +2719,7 @@ export default {
             console.log("files is ", files);
             if(files.length == 0)
                 return;
-            if(true) {
-                this.SendFiles(varTmp);
-            }
-            else{
-                this.showSendFileDlg = true;
-                this.sendFileInfos = {
-                    distGroupInfo: this.curChat,
-                    paths: varTmp
-                }
-            }
-        },
-        onEventDecrypted(e) {
-            this.updateMsgContent = {
-                "id" : e.event.event_id
-            };
+            this.SendFiles(varTmp);
         },
         checkClipboard(e) {
             //const strBuffer = clipboard.readRTF()
@@ -3689,161 +2750,117 @@ export default {
                     fileinfo.size = blod.size;
                     fileinfo.name = blod.name;
                     this.path2File[fileinfo.path] = blod;
-                    if(false) {
-                        this.SendFiles([fileinfo]);
-                    }
-                    else {
-                        this.showSendFileDlg = true;
-                        this.sendFileInfos = {
-                            distGroupInfo: this.curChat,
-                            paths: [fileinfo]
-                        }
-                    }
+
+                    this.showSendFileDlg = true;
+                    this.sendFileInfos = {
+                        distGroupInfo: this.curChat,
+                        paths: [fileinfo]
+                    } 
                 }
             }
         },
-        async updateTimelineSet(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-            
-            if (room) {
-                let timelineSet;
-
-                try {
-                    timelineSet = await this.fetchFileEventsServer(room);
-                } catch (error) {
-                    console.error("Failed to get or create file panel filter", error);
-                }
-                return timelineSet;
-            } else {
-                console.error("Failed to add filtered timelineSet for FilePanel as no room!");
-            }
+        getMsgListElement: function() {
+            if(!this.msgListDivElement) this.msgListDivElement = document.getElementById("message-show-list");
+            return this.msgListDivElement;
         },
-        async fetchFileEventsServer(room) {
-            const client = global.mxMatrixClientPeg.matrixClient;
-
-            const filter = new Filter(client.credentials.userId);
-            filter.setDefinition(
-                {
-                    "room": {
-                        "timeline": {
-                            "types": [
-                                "m.room.message",
-                                "m.call.invite"
-                            ],
-                        },
-                    },
-                },
-            );
-
-            const filterId = await client.getOrCreateFilter("FILTER_LAST_MSG_" + client.credentials.userId, filter);
-            filter.filterId = filterId;
-            const timelineSet = room.getOrCreateFilteredTimelineSet(filter);
-
-            return timelineSet;
+        setShowSearch: function() {
+            this.isSerach = true;
         },
-        async toGetShowMessage() {
-            // this.timeLineSet = await this.updateTimelineSet(this.curChat);
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            let existingId = [];
-            await this._timelineWindow.load(undefined, 20);
-            var fileListInfo = [];
-            var originalFileListInfo = this._timelineWindow.getEvents();
-
-            for(var i=originalFileListInfo.length - 1;i>0;i--){
-                if(this.messageFilter(originalFileListInfo[i]) && originalFileListInfo[i].event.content){
-                    if(existingId.indexOf(originalFileListInfo[i].event.event_id) < 0) {
-                        fileListInfo.unshift(originalFileListInfo[i]);
-                        existingId.push(originalFileListInfo[i].event.event_id);
-                    }
-                }
+        initPage: function() {
+            this.CloseFileListPage();
+            this.multiToolsClose();
+            this.updateGroupIcon();
+            this.updateGroupName();
+        },
+        updateGroupIcon: function() {
+            if(!this.groupIconElement) {
+                this.groupIconElement = document.getElementById("chat-group-img");
+                if(!this.groupIcoElement) return;
             }
 
-            while(fileListInfo.length < 10 && this._timelineWindow.canPaginate('b')) {
-                await this._timelineWindow.paginate("b", 20);
-                var fileListInfoTmp = await this._timelineWindow.getEvents();
-                
-                for(var i=fileListInfoTmp.length - 1;i>0;i--){
-                    if(this.messageFilter(fileListInfoTmp[i]) && fileListInfoTmp[i].event.content){
-                        if(existingId.indexOf(fileListInfoTmp[i].event.event_id) < 0) {
-                            fileListInfo.unshift(fileListInfoTmp[i]);
-                            existingId.push(fileListInfoTmp[i].event.event_id);
-                        }
-                    }
-                }
-                
+            console.log("=================distUrl ", this.chatIconUrl);
+            if(!this.chatIconUrl || this.chatIconUrl == '') {
+                if(this.isDm)
+                    this.chatIconUrl = "./static/Img/User/user-40px@2x.png";
+                else
+                    this.chatIconUrl = "./static/Img/User/group-40px@2x.png";
             }
-            return fileListInfo;
+            if(this.chatIconUrl) {
+              this.groupIconElement.setAttribute("src", this.chatIconUrl);
+            }
         },
-        initMessage: function() {
-            if(!this.curChat) return;
-            if(this.$store.getters.getCurChatId() != this.curChat.roomId) return;
-            // global.mxMatrixClientPeg.matrixClient.on("Event.decrypted", this.onEventDecrypted);
-            if(this.curChat.getMyMembership() == "invite") {
-                this.isRefreshing = false;
-                this.inviterInfo = global.mxMatrixClientPeg.getInviteMember(this.curChat);
-                this.isInvite = true;
+        updateGroupName: function() {
+            if(!this.groupContentNumElement) {
+                this.groupContentNumElement = document.getElementById("chat-group-content-num");
+                if(!this.groupContentNumElement) return;
+            }
+            if(this.isDm) {
+                this.groupContentNumElement.innerHTML = "";
             }
             else {
-                this._loadTimeline(undefined, undefined, undefined, this.chat, this.chat.timeline.length)
-                if(this.messageList.length > 10) {
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.addEventListener('scroll', this.handleScroll);
-                    }
-                }
-                console.log("*** initMessage 。。。。 ");
-                this.toGetShowMessage()
-                    .then((ret) => {
-                        if(ret[0].event.room_id != this.curChat.roomId) {
-                            return;
-                        }
-                        this.isRefreshing = false;
-
-                        this.messageList = ret.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                        
-                        this.$nextTick(() => {
-                            this.needToBottom = true;
-
-                            let div = document.getElementById("message-show-list");
-                            if(div) {
-                                div.scrollTop = div.scrollHeight + 52;
-                                div.addEventListener('scroll', this.handleScroll);
-                                // this.showScrollBar();
-                            }
-                            
-                            if(div && (div.clientHeight < div.offsetHeight)) {
-                                this.handleScroll(true);
-                            }
-                            
-                        })
+                this.mxGetMembers()
+                    .then((totalMemberCount) => {
+                        this.groupContentNumElement.innerHTML = " (" + totalMemberCount + ")";
                     })
             }
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
-            this.existingMsgId = [];
-            this.showGroupName(this.curChat);
-            if(this.editor == undefined) {
+        },
+        initDraft: function() {
+            if(!this.editor) {
                 this.editor = this.$refs.chatQuillEditor.quill;
             }
             var content = this.$store.getters.getDraft(this.curChat.roomId);
             this.editor.setContents(content);
             this.editor.setSelection(this.content.length + 1);
-            setTimeout(() => {
-                this.showGroupName(this.curChat);
-            }, 1000);
+        },
+        initData: function() {
+            if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
+                this.isDm = true;
+            }
+            else{
+                this.isDm = false;
+            }
+            this.newMsgNum = 0;
+            this.inviterInfo = undefined;
+            this.isInvite = false;
+            this.initSearchKey = '';
+            this.haveNewMsg = false;
+            this.isJumpPage = false;
+            this.curGroupId = this.curChat.roomId;
+            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
+            this.chatIconUrl = global.mxMatrixClientPeg.getRoomAvatar(this.curChat);
+            this.dmUserId = global.mxMatrixClientPeg.getDMMemberId(this.curChat);
+            if(!global.mxMatrixClientPeg.mediaConfig) {
+                global.mxMatrixClientPeg.ensureMediaConfigFetched();
+            }
+            this.needToBottom = false;
+            this.existingMsgId = [];
+        },
+        initMessage: function() {
+            this.messageList = [];
+            roomTimeLineHandler.shareInstance().getRoomShowTimeline(this.curChat)
+                .then((messageList) => {
+                    console.log("==========", messageList);
+                    if(!messageList) return;
+                    for(let i=messageList.length - 1;i>0;i--){
+                        this.messageList.unshift(messageList[i]);
+                    }
+
+                    setTimeout(() => {
+                        this.$nextTick(() => {
+                            this.checkScrollBar();
+                        })
+                    }, 100);
+                })
         }
     },
     data() {
         return {
+            dmUserId: undefined,
+            groupIconElement: undefined,
+            groupContentNumElement: undefined,
+            msgListDivElement: undefined,
             newMsgNum: 0,
             haveNewMsg: false,
-            sendingList: [],
             isMute: false,
             transmitNeedAlert: false,
             curOperate: "",
@@ -3863,14 +2880,6 @@ export default {
                 }
             },
             isScroll: false,
-            UploadingName: '',
-            showUploadProgress: false,
-            curPercent: 0.01,
-            lastPercent: 0.01,
-            curTotal: 0,
-            curProcess: 1,
-            needUpdatefilesNum: 0,
-            curUpdateFilesNum: 0,
             toSelect: false,
             ulElement: undefined,
             curSelectedIndex: 0,
@@ -3895,8 +2904,6 @@ export default {
                 "id": "",
             },
             needToBottom: false,
-            needScrollTop: true,
-            needScrollBottom: true,
             isOwn: false,
             createNewChat: false,
             addMemberGroupType: 101,
@@ -3915,7 +2922,6 @@ export default {
             messageListElement: null,
             checkClassName: ["emojiDiv", "emoji", "chat-msg-content-mine-linkify", "chat-msg-content-others-linkify", "linkify", "msg-info-user-img-with-name", "file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
-            groupNoticeInfo: {},
             updateUser: 1,
             updateMsg: {},
             menu: null,
@@ -3923,8 +2929,6 @@ export default {
             playingMsgId: '',
             multiSelect: false,
             dialogVisible: false,
-            noticeDialogVisible: false,
-            ownerTransferDialogVisible: false,
             chatMemberDlgVisible: false,
             chatMemberSearchKey: null,
             canCheckChatMemberSearch: false,
@@ -3985,6 +2989,20 @@ export default {
                                 handler: function (range) {
                                     return false;
                                 }
+                            },
+                            indent: {
+                                key: 9,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return true;
+                                }
+                            },
+                            'list autofill': {
+                                key: 32,
+                                ctrlKey: false,
+                                handler: function (range) {
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -4012,13 +3030,20 @@ export default {
             initSearchKey: '',
         }
     },
+    destroyed: function() {
+        if(this.msgListDivElement) this.msgListDivElement.removeEventListener('scroll', this.handleScroll);
+    },
     mounted: function() {
         // When Mounting Can Not Get The Element. Here Need SetTimeout
         setTimeout(() => {
             this.$nextTick(() => {
+                this.groupIconElement = document.getElementById("chat-group-img");
+                // var groupStateElement = document.getElementById("chat-group-state");
+                this.groupContentNumElement = document.getElementById("chat-group-content-num");
+                this.msgListDivElement = document.getElementById("message-show-list");
+                this.msgListDivElement.addEventListener('scroll', this.handleScroll);
                 // console.log("==============ipc on")
                 ipcRenderer.on('SAVED_FILE', this.updateMsgFile);
-                ipcRenderer.on('updateUserImage', this.updateUserImage);
                 ipcRenderer.on('transmitFromSoloDlg', this.transmitFromSoloDlg);
                 ipcRenderer.on('setFocuse', this.setFocuse);
                 ipcRenderer.on('checkClipBoard', this.checkClipboard);
@@ -4028,8 +3053,6 @@ export default {
                 console.log(this.$refs.chatQuillEditor);
                 this.$refs.chatQuillEditor.$el.style.height='150px';
                 // this.$refs.chatQuillEditor
-                this.fileInput = document.getElementById("fileInput");
-                this.showGroupName(this.curChat);
                 // this.dropWrapper = document.getElementById('chat-main');
                 // this.dropWrapper.addEventListener('drop', this.dealDrop);
                 const editorEle = this.editor.container.getElementsByClassName("ql-editor")[0]
@@ -4047,22 +3070,45 @@ export default {
         });
     },
     created: async function() {
-        this.loginInfo = undefined;//await services.common.GetLoginModel();
-        this.curUserInfo = undefined;//await services.common.GetSelfUserModel();
+        this.loginInfo = undefined;
+        this.curUserInfo = undefined;
         this.userID = window.localStorage.getItem("mx_user_id");
         this.matrixClient = window.mxMatrixClientPeg.matrixClient;
         this.services = global.services.common;
     },
     computed: {
-        messageListShow: {
-            get: function() {
-                // var final = this.messageList;//.sort(this.mxEvCompare());
-                // console.log("final msglist is ", final);
-                return this.messageList;
-            }
+    },
+    props: {
+        chat: {
+            type: Object,
+            default: null
+        },
+        newMsg: {
+            type: Object,
+            default: null
+        },
+        toBottom: {
+            type: Boolean,
+            default: false
+        },
+        searchKeyFromList: {
+            type: String,
+            default: ''
+        },
+        searchChat: {
+            type: Object,
+            default: null
+        },
+        updateImg: {
+            type: Number,
+            default: 0
+        },
+        updateRoomStata: {
+            type: Number,
+            default: 0
         }
     },
-    props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg', 'updateRoomStata'],
+    // props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg', 'updateRoomStata'],
     watch: {
         updateRoomStata: function() {
             this.groupIsSlience();
@@ -4074,210 +3120,43 @@ export default {
             if(!this.chat || (this.chat && !this.chat.roomId)) {
                 return;
             }
-            this.newMsgNum = 0;
             this.curChat = this.chat;
-            this.initSearchKey = '';
-            this.inviterInfo = undefined;
-            this.isInvite = false;
-            this.newMsgNum = 0;
-            this.haveNewMsg = false;
-            this.isJumpPage = false;
-            this.curGroupId = this.chat.roomId;
             console.log("***1 chat")
-            this.isSerach = false;
-            this.CloseFileListPage();
-            this.multiToolsClose();
             console.log("chat ============", this.chat);
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
-            let messageListTmp = this.chat.timeline;
-            this.messageList = [];
-            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-            for(let i=messageListTmp.length - 1;i>0;i--){
-                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                if(exitEventIndex >= 0) {
-                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                }
-                if(this.messageFilter(messageListTmp[i])){
-                    this.messageList.unshift(messageListTmp[i]);
-                }
-            }
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-            for(let i=this.sendingList.length - 1;i>0;i--){
-                this.messageList.unshift(this.sendingList[i]);
-            }
+            this.initDraft();
+            this.initData();
+            this.initPage();
+            this.initMessage();
 
-            this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-            this.needScrollTop = true;
-            this.needScrollBottom = true;
-            this.existingMsgId = [];
-            this.showGroupName(this.curChat);
-            if(this.editor == undefined) {
-                this.editor = this.$refs.chatQuillEditor.quill;
-            }
-            var content = this.$store.getters.getDraft(this.curChat.roomId);
-            this.editor.setContents(content);
-            this.editor.setSelection(this.content.length + 1);
-            setTimeout(() => {
-                this.showGroupName(this.curChat);
-            }, 1000);
-
+            this.groupIsSlience();
             setTimeout(() => {
                 this.$nextTick(() => {
                     let div = document.getElementById("message-show-list");
                     if(div) {
                         div.scrollTop = div.scrollHeight;
-                        setTimeout(() => {
-                            this.initMessage();
-                        }, 500)
+                        // setTimeout(() => {
+                        //     this.initMessage();
+                        // }, 500)
                     }
                 })
             }, 90)
             
-            this.groupIsSlience();
         },
         searchKeyFromList: function() {
             if(this.searchKeyFromList != '') {
-                this.inviterInfo = undefined;
-                this.isInvite = false;
-                this.isJumpPage = false;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.curGroupId = this.curChat.roomId;
                 console.log("***1 searchKeyFromList")
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
                 
                 this.initSearchKey = this.searchKeyFromList;
                 this.showHistoryMsgList();
-            }
-            else {
-                this.newMsgNum = 0;
-                this.initSearchKey = '';
-                this.inviterInfo = undefined;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.isInvite = false;
-                this.isJumpPage = false;
-                this.curGroupId = this.curChat.roomId;
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                
-                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-                for(let i=messageListTmp.length - 1;i>0;i--){
-                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                    if(exitEventIndex >= 0) {
-                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                    }
-                    if(this.messageFilter(messageListTmp[i])){
-                        this.messageList.unshift(messageListTmp[i]);
-                    }
-                }
-                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-                for(let i=this.sendingList.length - 1;i>0;i--){
-                    this.messageList.unshift(this.sendingList[i]);
-                }
-                
-                this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
-                this.showGroupName(this.curChat);
-                if(this.editor == undefined) {
-                    this.editor = this.$refs.chatQuillEditor.quill;
-                }
-                var content = this.$store.getters.getDraft(this.curChat.roomId);
-                this.editor.setContents(content);
-                this.editor.setSelection(this.content.length + 1);
-                setTimeout(() => {
-                    this.showGroupName(this.curChat);
-                }, 1000);
-
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight;
-                            setTimeout(() => {
-                                this.initMessage();
-                            }, 500)
-                        }
-                        
-                    })
-                }, 90)
             }
         },
         searchChat: function() {
             if(this.searchKeyFromList != '') {
-                this.inviterInfo = undefined;
-                this.isInvite = false;
-                this.isJumpPage = false;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.curGroupId = this.curChat.roomId;
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
-                
                 this.initSearchKey = this.searchKeyFromList;
                 this.showHistoryMsgList();
-            }
-            else {
-                this.newMsgNum = 0;
-                this.initSearchKey = '';
-                this.inviterInfo = undefined;
-                this.isInvite = false;
-                this.newMsgNum = 0;
-                this.haveNewMsg = false;
-                this.isJumpPage = false;
-                this.curGroupId = this.curChat.roomId;
-                this.isSerach = false;
-                this.CloseFileListPage();
-                this.multiToolsClose();
-                
-                let messageListTmp = this.chat.timeline.concat(this.sendingList.length === 0 ? [] : this.sendingList.slice(0, this.sendingList.length));
-                this.messageList = [];
-                for(var i=messageListTmp.length - 1;i>0;i--){
-                    if(this.messageFilter(messageListTmp[i])){
-                        this.messageList.unshift(messageListTmp[i]);
-                    }
-                }
-
-                this.isSecret = global.mxMatrixClientPeg.matrixClient.isRoomEncrypted(this.curChat.roomId);
-                this.needScrollTop = true;
-                this.needScrollBottom = true;
-                this.existingMsgId = [];
-                this.showGroupName(this.curChat);
-                if(this.editor == undefined) {
-                    this.editor = this.$refs.chatQuillEditor.quill;
-                }
-                var content = this.$store.getters.getDraft(this.curChat.roomId);
-                this.editor.setContents(content);
-                this.editor.setSelection(this.content.length + 1);
-                setTimeout(() => {
-                    this.showGroupName(this.curChat);
-                }, 1000);
-
-                setTimeout(() => {
-                    this.$nextTick(() => {
-                        let div = document.getElementById("message-show-list");
-                        if(div) {
-                            div.scrollTop = div.scrollHeight;
-                            setTimeout(() => {
-                                this.initMessage();
-                            }, 500)
-                        }
-                    })
-                }, 90)
             }
         },
         toBottom: function() {
@@ -4286,7 +3165,7 @@ export default {
                 return;
             }
             if(this.toBottom == true) {
-                let div = document.getElementById("message-show-list");
+                let div = this.getMsgListElement();
                 if(div) {
                     this.$nextTick(() => {
                         div.scrollTop = div.scrollHeight;
@@ -4297,35 +3176,10 @@ export default {
                 }
                 this.editor.setSelection(this.editor.selection.savedRange.index);
             }
-            
-            let messageListTmp = this.curChat.timeline;
-            this.messageList = [];
-            let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-            for(let i=messageListTmp.length - 1;i>0;i--){
-                let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                if(exitEventIndex >= 0) {
-                    this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                }
-                if(this.messageFilter(messageListTmp[i])){
-                    this.messageList.unshift(messageListTmp[i]);
-                }
-            }
-            this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-            for(let i=this.sendingList.length - 1;i>0;i--){
-                this.messageList.unshift(this.sendingList[i]);
-            }
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    let div = document.getElementById("message-show-list");
-                    if(div) {
-                        div.scrollTop = div.scrollHeight + 52;
-                        setTimeout(() => {
-                            this.initMessage();
-                        }, 500)
-                    }
-                })
-            }, 0)
-            
+                
+            this.initData();
+            this.initPage();
+            this.initMessage();
             this.updateUser++;
         },
         newMsg: async function() {
@@ -4333,14 +3187,31 @@ export default {
             if(this.newMsg == null) {
                 return;
             }
+            if(this.newMsg.event.room_id != this.curChat.roomId) return;
+            roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 1);
             
-            this.timeLineSet = this.curChat.getUnfilteredTimelineSet();
-            this._timelineWindow = new Matrix.TimelineWindow(
-                global.mxMatrixClientPeg.matrixClient, 
-                this.timeLineSet,
-                {windowLimit:Number.MAX_VALUE},
-            )
-            await this._timelineWindow.load(undefined, this.curChat.timeline.length - 1);
+            if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) || !this.newMsg._txnId) {
+                this.messageList.push(this.newMsg);
+            }
+            else {
+                this.messageList = [];
+                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.curChat.roomId);
+                
+                for(let i = 0; i < this.curChat.timeline.length; i++){
+                    let exitEventIndex = this.curChat.timeline[i]._txnId ? sendingTxIds.indexOf(this.curChat.timeline[i]._txnId) : -1;
+                    if(exitEventIndex >= 0) {
+                        this.$store.commit('removeSendingEvents', this.curChat.timeline[i]);
+                    }
+                    if(roomTimeLineHandler.shareInstance().messageFilter(this.curChat.timeline[i])){
+                        this.messageList.push(this.curChat.timeline[i]);
+                    }
+                }
+                let sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
+                for(let i=sendingList.length - 1; i > 0; i--){
+                    this.messageList.unshift(sendingList[i]);
+                }
+            }
+
             let toBottom = false;
 
             if(this.IsBottom()) {
@@ -4349,34 +3220,9 @@ export default {
             }
             else {
             }
-            this.showGroupName(this.curChat);
-            this._timelineWindow.paginate("f", 10).then(() => {
-                console.log("=======this.sendingList ", this.sendingList);
-                
-                let messageListTmp = this.chat.timeline;
-                this.messageList = [];
-                var div = document.getElementById("message-show-list");
-                if(div) {
-                    div.removeEventListener('scroll', this.handleScroll);
-                }
-                let sendingTxIds = this.$store.getters.getSendingEventsTxnIds(this.chat.roomId);
-                for(let i=messageListTmp.length - 1;i>0;i--){
-                    let exitEventIndex = messageListTmp[i]._txnId ? sendingTxIds.indexOf(messageListTmp[i]._txnId) : -1;
-                    if(exitEventIndex >= 0) {
-                        this.$store.commit('removeSendingEvents', messageListTmp[i]);
-                    }
-                    if(this.messageFilter(messageListTmp[i])){
-                        this.messageList.unshift(messageListTmp[i]);
-                    }
-                }
-                this.sendingList = this.$store.getters.getSendingEvents(this.curChat.roomId);
-                for(let i=this.sendingList.length - 1;i>0;i--){
-                    this.messageList.unshift(this.sendingList[i]);
-                }
-            })
             setTimeout(() => {
                 this.$nextTick(() => {
-                    var div = document.getElementById("message-show-list");
+                    var div = this.getMsgListElement();
                     if(toBottom) {
                         if(div) {
                             div.scrollTo({ top:div.scrollHeight, behavior: 'smooth' })
@@ -4384,12 +3230,12 @@ export default {
                     }
                     else{
                         if(((this.newMsg.sender ? this.newMsg.sender.userId : this.newMsg.event.sender) != this.$store.state.userId) && 
-                            (['m.room.message', 'm.room.encrypted', 'm.call.invite'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
+                            (['m.room.message', 'm.room.encrypted', 'm.call.hangup'].indexOf((this.newMsg.event && this.newMsg.event.type) ? this.newMsg.event.type : this.newMsg.getType()) >= 0)) {
                             this.newMsgNum += 1;
                             this.haveNewMsg = true;
                         }
                     }
-                    div.addEventListener('scroll', this.handleScroll);
+                    // div.addEventListener('scroll', this.handleScroll);
                 })
             }, 100)
         }
@@ -4399,7 +3245,7 @@ export default {
 
 <style lang="scss" scoped>
     ::-webkit-scrollbar-track-piece {
-        background-color: #F1F1F1;
+        background-color: #f1f1f1;
         border-radius: 10px;
     }
 
@@ -4703,7 +3549,7 @@ export default {
     }
 
     .msg-list-enter-active, .msg-list-leave-active {
-        transition: all .1s;
+        transition: all .05s;
     }
 
     .msg-list-enter, .msg-list-leave-to {
@@ -4712,6 +3558,7 @@ export default {
     }
 
     .msg-loading {
+        height: 34px;
         width: 100%;
         margin: 5px 0 5px 0;
         text-align: center;
@@ -5112,6 +3959,45 @@ export default {
         background-size: contain;
     }
 
+    .video-chat {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 16px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVideoBtn@2x.png");
+        background-size: contain;
+    }
+
+    .video-chat:hover {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 16px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVideoBtn-hover@2x.png");
+        background-size: contain;
+    }
+
+    .voice-chat {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVoiceBtn@2x.png");
+        background-size: contain;
+    }
+    .voice-chat:hover {
+        float: right;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        margin: 8px 6px 8px 6px;
+        background-image: url("../../../static/Img/Chat/VoIPVoiceBtn@2x-hover.png");
+        background-size: contain;
+    }
+
     .el-icon-historys {
         width: 24px;
         height: 24px;
@@ -5284,35 +4170,6 @@ export default {
     .el-dialog-content {
         height: 300px;
         width: 600px;
-        overflow: hidden;
-    }
-
-    .uploadingProc{
-        display: block;
-        width: 100%;
-        float: right;
-        height: 18px;
-    }
-
-    .upload-file-progress {
-        display: inline-block;
-        width: 90%;
-        float: left;
-        margin-top: 6px;
-        margin-bottom: 6px;
-    }
-
-    .uploadingName {
-        display: inline-block;
-        width: 10%;
-        font-size: 12px;
-        height: 18px;
-        line-height: 18px;
-        font-family: 'PingFangSC-Regular';
-        float: left;
-        color: rgba(221, 221, 221, 1);
-        white-space: nowrap;
-        text-overflow: ellipsis;
         overflow: hidden;
     }
 

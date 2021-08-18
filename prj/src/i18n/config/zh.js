@@ -2,6 +2,7 @@ import organization from "./zh/organization"
 import contact from "./zh/contact"
 import setting from "./zh/setting"
 import favourite from "./zh/favourite"
+import general from "./zh/general"
 
 const zh = {
     appName: "亿洽",
@@ -100,7 +101,8 @@ const zh = {
     organization: organization,
     contact: contact,
     setting: setting,
-    favourite: favourite
+    favourite: favourite,
+    general: general,
 }
 
 export default zh;

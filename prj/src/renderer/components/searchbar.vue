@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import {services, environment} from '../../packages/data/index.js'
+import {environment} from '../../packages/data/index.js'
 import { openBaseMenu } from '../../utils/commonFuncs'
 import { ipcRenderer } from 'electron';
 export default {
@@ -28,13 +28,19 @@ export default {
     data () {
         return {
             searchKey: '',
-            bShowDelIco: false
+            bShowDelIco: false,
+            toSearchInterval: null,
         }
     },
     methods: {
         inputChange: function() {
-            console.log("this.searchKey is ", this.searchKey);
-            this.$emit("toSearch", this.searchKey);
+            if(this.toSearchInterval) {
+                clearTimeout(this.toSearchInterval);
+            }
+            this.toSearchInterval = setTimeout(() => {
+                console.log("this.searchKey is ", this.searchKey);
+                this.$emit("toSearch", this.searchKey);
+            }, 500)
             if(this.searchKey == "worklyai-open-dev-tools") {
                 ipcRenderer.send("openDevTools");
             }

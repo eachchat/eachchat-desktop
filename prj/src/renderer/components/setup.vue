@@ -21,13 +21,14 @@
           <div class="setup-list-item" @click="jumpToAboutSetup">
             <img class="setupAboutImage" src="../../../static/Img/Setup/about-20px@2x.png">
             <label class="setupAboutLabel">{{$t("setting.about")}}</label>
+            <div v-show = "needUpdate" class = "newversiondot"></div>
           </div>
         </div>
         <div class="setup-details" id="setup-details-id">
             <label class="setup-title" id="setup-details-general-id">{{$t("setting.general")}}</label>
-            <div class="setup-array">
+            <div class="setup-array" @click="showOwnerInfo">
                 <label class="setup-array-label">{{$t("setting.myInformation")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showOwnerInfo">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
             <div class="setup-with-drop-down" v-show="false">
                 <label class="setup-with-drop-down-label">多语言</label>
@@ -60,19 +61,19 @@
                 <label class="setup-array-with-label-label2" id="setup-security-import-keys-label2-id">从本地文件导入密钥</label>
                 <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="importSecurityKey">
             </div>
-            <div class="setup-array" v-show="canChangePwd">
+            <div class="setup-array" v-show="canChangePwd" @click="changePassword">
                 <label class="setup-array-label">{{$t("setting.change_password")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="changePassword">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
-            <div class="setup-array-with-label">
+            <div class="setup-array-with-label" @click="showDeviceList">
                 <label class="setup-array-with-label-label">{{$t("setting.session_management")}}</label>
                 <label class="setup-array-with-label-label2" id="setup-security-devict-list-label2-id"></label>
-                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showDeviceList">
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
             </div>
-            <div class="setup-array-with-label">
+            <div class="setup-array-with-label" @click="accountManager">
                 <label class="setup-array-with-label-label">{{$t("setting.account_management")}}</label>
                 <label class="setup-array-with-label-label2" id="setup-security-account-manager-label2-id"></label>
-                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="accountManager">
+                <img class="setup-array-with-label-ico" src="../../../static/Img/Setup/arrow-20px@2x.png">
             </div>
             <label class="setup-title" id="setup-details-sys-id">{{$t("setting.system")}}</label>
             <div class="setup-with-switch">
@@ -96,17 +97,18 @@
             </div>
             <div class="setup-title" id="setup-about-id">{{$t("setting.about")}}</div>
             <div class="setup-array-only-label">
-                <label class="setup-array-only-label-label">{{$t("setting.current_version")}}</label>
+                <label class="setup-array-only-newversion-label1">{{$t("setting.current_version")}}</label>
+                <label v-show = "needUpdate" class="setup-array-only-newversion-label2">New</label>
                 <label class="setup-array-only-label-label2">{{lVersion}}</label>
                 <div class="setup-clear-cache-btn" @click="CheckUpdate">{{$t("setting.check_for_update")}}</div>
             </div>
-            <div class="setup-array">
+            <div class="setup-array" @click="showAgreement">
                 <label class="setup-array-label">{{$t("setting.user_agreement")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showAgreement">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
-            <div class="setup-array">
+            <div class="setup-array" @click="showPrivacy">
                 <label class="setup-array-label">{{$t("setting.privacy_policy")}}</label>
-                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" @click="showPrivacy">
+                <img class="setup-array-ico" src="../../../static/Img/Setup/arrow-20px@2x.png" >
             </div>
             <div class="setup-logout" @click="logout()">{{$t("setting.sign_out")}}</div>
         </div>
@@ -221,6 +223,7 @@ export default {
       canSelecteFile: true,
       showChangePassword: false,
       showGeneralRecoveryKeyPage: false,
+      needUpdate: false,
     };
   },
   methods: {
@@ -236,153 +239,35 @@ export default {
         this.showUpgradeAlertDlg = false;
         this.upgradeInfo = {};
     },
-    startCheckUpgrade: function() {
-        async function checkUpgrade(self) {
-            var newVersion = await global.services.common.GetNewVersion();
-            console.log("newversion is ", newVersion);
-            if(newVersion == undefined || newVersion == false)
-            {
-              self.showNotUpgradeAlertDlg = true;
-              self.notUpgradeContents = {
-                "Details": "目前已经是最新版本",
-                "Abstrace": "提示"
-              };
-              return;
-            }
-            else {
-                var sOsType = newVersion.osType;
-                var sUrl = newVersion.downloadUrl;
-                var sDescription = newVersion.description;
-                //let sDescription = "1.功能更新-托盘增加注销<br>2.功能更新-聊天列表宽度可拖拽调整<br>3.功能更新-当前聊天页面增加新消息提示<br>4.功能更新-增加撤回功<br>5.功能更新-增加群组删除功能<br>6.功能更新-群描述增加邮箱识别<br>7.修复-聊天页面搜索，搜索i可搜出来，搜索io搜不出来<br>8.修复-消息防止xss注入代码<br>9.修复-重新安装登录后，群组列表最新一条消息发送者未显示组织或联系人内容<br>10.修复- @用户有时候会无效的bug<br>11.修复-群组头像查看打开大图<br>12.修复- 群组成员编辑菜单位置自适应<br>13.修复 - 群成员信息隐藏公司信息<br>14.UI -整体ui中所有确认与取消的按钮间距调整"
-                sDescription = sDescription.replace(/\r\n/g, '<br>')
-                var smd5Hash = newVersion.md5Hash;
-                var sId = newVersion.id;
-                var sUpdateTime = newVersion.updateTime;
-                var sVerCode = newVersion.verCode;
-                try{
-                    var sVerCodeSplit = sVerCode.split('.');
-                }
-                catch(err) {
-                    return;
-                }
-                var sMajor_Version_Number = undefined;
-                var sMinor_Version_Number = undefined;
-                var sRevision_Number = undefined;
-                if(sVerCodeSplit.length >= 3) {
-                    sMajor_Version_Number = sVerCodeSplit[0];
-                    sMinor_Version_Number = sVerCodeSplit[1];
-                    sRevision_Number = sVerCodeSplit[2];
-                }
-                else if(sVerCodeSplit.length == 2) {
-                    sMajor_Version_Number = sVerCodeSplit[0];
-                    sMinor_Version_Number = sVerCodeSplit[1];
-                }
-                else if(sVerCodeSplit.length == 1) {
-                    sMajor_Version_Number = sVerCodeSplit[0];
-                }
-                else {
-                    return;
-                }
-
-                var packageFile = require("../../../package.json");
-                var lVersion = packageFile.version;
-
-                console.log("lVersion is ", lVersion)
-                var lVerCodeSplit = lVersion.split('.');
-                var lMajor_Version_Number = undefined;
-                var lMinor_Version_Number = undefined;
-                var lRevision_Number = undefined;
-                if(lVerCodeSplit.length >= 3) {
-                    lMajor_Version_Number = lVerCodeSplit[0];
-                    lMinor_Version_Number = lVerCodeSplit[1];
-                    lRevision_Number = lVerCodeSplit[2];
-                }
-                else if(lVerCodeSplit.length == 2) {
-                    lMajor_Version_Number = lVerCodeSplit[0];
-                    lMinor_Version_Number = lVerCodeSplit[1];
-                }
-                else if(lVerCodeSplit.length == 1) {
-                    lMajor_Version_Number = lVerCodeSplit[0];
-                }
-                else {
-                    return;
-                }
-                console.log("localversion ", lMajor_Version_Number, " ", lMinor_Version_Number, " ", lRevision_Number);
-                console.log("serverversion ", sMajor_Version_Number, " ", sMinor_Version_Number, " ", sRevision_Number);
-                var sVerName = newVersion.verName;
-                let sProductName = sUrl.split("/").pop();
-                var sForceUpdate = newVersion.forceUpdate;
-                var needUpdate = false;
-
-                if(lMajor_Version_Number != undefined && sMajor_Version_Number != undefined) {
-                    if(Number.parseInt(lMajor_Version_Number) > Number.parseInt(sMajor_Version_Number)) {
-                        return;
-                    }
-                    else if(Number.parseInt(lMajor_Version_Number) == Number.parseInt(sMajor_Version_Number)) {
-                        if(lMinor_Version_Number != undefined && sMinor_Version_Number != undefined) {
-                            if(Number.parseInt(lMinor_Version_Number) > Number.parseInt(sMinor_Version_Number)) {
-                                self.showNotUpgradeAlertDlg = true;
-                                self.notUpgradeContents = {
-                                  "Details": "目前已经是最新版本",
-                                  "Abstrace": "提示"
-                                };
-                                return;
-                            }
-                            else if(Number.parseInt(lMinor_Version_Number) == Number.parseInt(sMinor_Version_Number)) {
-                                if(lRevision_Number != undefined && sRevision_Number != undefined) {
-                                    if(Number.parseInt(lRevision_Number) >= Number.parseInt(sRevision_Number)) {
-                                        self.showNotUpgradeAlertDlg = true;
-                                        self.notUpgradeContents = {
-                                          "Details": "目前已经是最新版本",
-                                          "Abstrace": "提示"
-                                        };
-                                        return;
-                                    }
-                                    else {
-                                        needUpdate = true;
-                                    }
-                                }
-                            }
-                            else {
-                                needUpdate = true;
-                            }
-                        }
-                    }
-                    else {
-                        needUpdate = true;
-                    }
-                }
-                
-                if(sForceUpdate != undefined && sForceUpdate){
-                    if(needUpdate) {
-                        self.upgradeInfo = {
-                            "downloadUrl": sUrl,
-                            "description": sDescription,
-                            "verName": sVerName,
-                            "productName": sProductName,
-                            "verId": sId,
-                        };
-                        self.showUpgradeAlertDlg = true;
-                    }
-                }
-                else {
-                    if(needUpdate) {
-                        self.upgradeInfo = {
-                            "downloadUrl": sUrl,
-                            "description": sDescription,
-                            "verName": sVerName,
-                            "productName": sProductName,
-                            "verId": sId,
-                        };
-                        self.showUpgradeAlertDlg = true;
-                    }
-                }
-            }
+    startCheckUpgrade: async function() {
+        var newVersion = await global.services.common.GetNewVersion();
+        console.log("newversion is ", newVersion);
+        if(newVersion == undefined || newVersion == false)
+        {
+            return;
         }
-        checkUpgrade(this);
-        setInterval(() => {
-            checkUpgrade(this);
-        }, 1000 * 3600)
+        else {
+          var packageFile = require("../../../package.json");
+          var lVersion = packageFile.version;
+          var sVerCode = newVersion.verCode;
+          var needUpdate = ComponentUtil.needUpgradeVersion(lVersion, sVerCode)
+          var sUrl = newVersion.downloadUrl;
+          var sDescription = newVersion.description;
+          sDescription = sDescription.replace(/\r\n/g, '<br>')
+          var sId = newVersion.id;
+          var sVerName = newVersion.verName;
+          let sProductName = sUrl.split("/").pop();
+          if(needUpdate) {
+              this.showUpgradeAlertDlg = true;
+              this.upgradeInfo = {
+                  "downloadUrl": sUrl,
+                  "description": sDescription,
+                  "verName": sVerName,
+                  "productName": sProductName,
+                  "verId": sId,
+              };
+          }
+        }
     },
     CloseownerInfo() {
       this.showOwnerDlg = false;
@@ -629,6 +514,12 @@ export default {
     },
   },
   mounted: async function() {
+    global.services.common.GetNewVersion().then(newVersion => {
+        var packageFile = require("../../../package.json");
+        var lVersion = packageFile.version;
+        var sVerCode = newVersion.verCode;
+        this.needUpdate = ComponentUtil.needUpgradeVersion(lVersion, sVerCode)
+    });
   },
   created: async function() {
     var message_sound = global.localStorage.getItem("message_sound");
@@ -1174,6 +1065,34 @@ export default {
     display: block;
     letter-spacing: 0px;
   }
+  .setup-array-only-newversion-label1 {
+    height:48px;
+    line-height: 48px;
+    font-family: PingFangSC-Regular;
+    font-size: 14px;
+    display: inline-block;
+    font-size:14px;
+    font-weight:400;
+    letter-spacing: 0px;
+    vertical-align: top;
+  }
+
+  .setup-array-only-newversion-label2 {
+    width: 28px;
+    height: 14px;
+    font-size: 10px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 13px;
+    display: inline-block;
+    vertical-align: top;
+    border-radius: 2px;
+    background: #EF403A;
+    text-align: center;
+    margin-top: 17px;
+    
+  }
 
   .setup-array-only-label-label {
     width:calc(100% - 212px);
@@ -1227,9 +1146,10 @@ export default {
     font-family: PingFangSC-Regular;
     font-size: 14px;
     color:rgba(255, 255, 255, 1);
-    margin: 5px 0px 5px 12px;
+    margin: 5px 15px 5px 12px;
     display: inline-block;
     text-align: center;
+    float: right;
   }
 
   .setup-clear-cache-btn:hover {
@@ -1241,14 +1161,16 @@ export default {
     font-family: PingFangSC-Regular;
     font-size: 14px;
     color:rgba(255, 255, 255, 1);
-    margin: 5px 0px 5px 12px;
+    margin: 5px 15px 5px 12px;
     display: inline-block;
     text-align: center;
+    float: right;
     cursor: pointer;
   }
 
   .setup-array-only-label-label2 {
-    width:94px;
+    position: absolute;
+    right: 115px;
     height:48px;
     line-height: 48px;
     font-family: PingFangSC-Regular;
@@ -1261,7 +1183,6 @@ export default {
     color: rgba(153,153,153,1);
     white-space: nowrap;
     text-overflow: ellipsis;
-    text-align:right;
   }
 
   .setup-with-switch {
@@ -1363,5 +1284,15 @@ export default {
     background: rgba(0, 0, 0, 0.6);
     z-index:3;
   }
+
+  .newversiondot{
+        width: 8px;
+        height: 8px;
+        background: #CE514F;
+        position: relative;
+        display: inline-block;
+        border-radius: 50%;
+        bottom: 18px;
+    }
 
 </style>
