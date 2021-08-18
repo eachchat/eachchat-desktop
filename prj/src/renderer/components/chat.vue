@@ -30,7 +30,7 @@
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
                     <div class="msg-loading" v-bind:key="123">
-                        <i class="el-icon-loading" v-show="true"></i>
+                        <i class="el-icon-loading" v-show="isRefreshing"></i>
                     </div>
                     <li v-for="(item, index) in messageList"
                         :class="ChatLeftOrRightClassName(item)"
@@ -547,7 +547,7 @@ export default {
                 showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
             }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                size:{width:300,height: 480},
+                size:{width:640,height: 320},
                         roomInfo: { roomID: this.curChat.roomId,
                                     name: showName,
                                     voipType: "video",

@@ -5,8 +5,8 @@
         </div>
         <div class="voipTimeZero" v-show="duration == 0">
             <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
-            <div class="voip-notime" v-show="!isMine" alt="已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
-            <div class="voip-notime-mine" v-show="isMine" alt="对方已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
+            <div class="voip-notime" v-show="!isMine" :id="generalLabelId()" alt="已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
+            <div class="voip-notime-mine" v-show="isMine" :id="generalLabelId()" alt="对方已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
         </div>
         <div class="voipTime" v-show="duration > 0">
             <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
@@ -62,6 +62,7 @@ export default {
             voipType: "",
             userInfo: {},
             voipElementId: "",
+            voipLabelElementId: "",
             unableClick: false,
         }
     },
@@ -72,6 +73,11 @@ export default {
         generalId() {
             let id = this.callId + "-" + Math.random().toString(36).slice(6);
             this.voipElementId = id;
+            return id;
+        },
+        generalLabelId() {
+            let id = "stateLabel" + this.callId + "-" + (Math.random()+1).toString(36).slice(6);
+            this.voipLabelElementId = id;
             return id;
         },
         getVoipImg() {
@@ -114,6 +120,7 @@ export default {
             setTimeout(() => {
                 this.$nextTick(() => {
                     let msgElement = document.getElementById(this.voipElementId);
+                    let msgLabelElement = document.getElementById(this.voipLabelElementId);
                     if(this.isVideo == -1 || this.duration == -1) {
                         this.voipTimeLabel = "通话结束";
                     }
@@ -125,11 +132,17 @@ export default {
                             else if(this.hangUpReason == "user_hangup"){
                                 if(this.isMine) {
                                     if(this.operate_id != this.caller_id) this.voipTimeLabel = "对方已取消";
-                                    else this.voipTimeLabel = "已取消";
+                                    else {
+                                        this.voipTimeLabel = "已取消";
+                                        msgLabelElement.style.width = "52px";
+                                    }
                                 }
                                 else {
                                     console.log("this.operate is ", this.operate_id, " this.call is ", this.caller_id)
-                                    if(this.operate_id != this.caller_id) this.voipTimeLabel = "已取消";
+                                    if(this.operate_id != this.caller_id) {
+                                        this.voipTimeLabel = "已取消";
+                                        msgLabelElement.style.width = "52px";
+                                    }
                                     else this.voipTimeLabel = "对方已取消";
                                 }
                             }
