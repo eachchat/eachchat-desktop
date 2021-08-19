@@ -2696,7 +2696,7 @@ export default {
                                 roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                                     .then((ret) => {
                                         console.log("ret is ", ret);
-                                        for(let i = ret.length - 1; i >= 0 ; i--){
+                                        for(let i = ret.length - 2; i >= 0 ; i--){
                                             this.messageList.push(ret[i]);
                                         }
 
@@ -2722,9 +2722,7 @@ export default {
             if(uldiv.clientHeight >= uldiv.scrollHeight) {
                 roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                     .then((ret) => {
-                        for(let i=ret.length - 1;i>0;i--){
-                            this.messageList.unshift(ret[i]);
-                        }
+                        this.messageList = ret;
 
                         setTimeout(() => {
                             this.$nextTick(() => {
@@ -2852,10 +2850,7 @@ export default {
                     roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
-                            
-                            for(let i=ret.length - 1;i>0;i--){
-                                this.messageList.unshift(ret[i]);
-                            }
+                            this.messageList = ret;
 
                             // setTimeout(() => {
                                 this.$nextTick(() => {
@@ -2889,6 +2884,7 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
+                            this.messageList = [];
                             for(let i = ret.length - 1; i >= 0 ; i--){
                                 this.messageList.push(ret[i]);
                             }
@@ -3102,9 +3098,7 @@ export default {
                 .then((messageList) => {
                     console.log("==========", messageList);
                     if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.unshift(messageList[i]);
-                    }
+                    this.messageList = messageList;
 
                     setTimeout(() => {
                         this.$nextTick(() => {
