@@ -1717,14 +1717,15 @@ export default {
             var showImageInfoList = [];
             var distImageInfo = {};
             var imgMsgList = await this.toGetShowImage(this.curChat);
-            imgMsgList.forEach(async curEvent => {
+            for(let i = 0; i < imgMsgList.length; i++) {
+                let curEvent = imgMsgList[i];
                 let event = curEvent.event;
                 let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
                     let maxSize = 390;
-                    var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    let curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
         
                     let info = {
                         w: maxSize,
@@ -1762,36 +1763,107 @@ export default {
                     }
                     showImageInfoList.unshift(curImageInfo);
                 }
-            });
+            }
             if(!distImageInfo.imageUrl) {
-                let event = distEvent.event;
-                let localPath = await this.getFileExist(event.event_id);
-                let chatGroupMsgContent = event.content;
-                
+                let curUrl = "";
+                let localPath = "";
                 let maxSize = 390;
-                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-    
-                let info = {
-                    w: maxSize,
-                    h: maxSize
-                };
-                console.log("*** image info is ", chatGroupMsgContent.info);
-                if(chatGroupMsgContent.info)
-                    info = chatGroupMsgContent.info
-                if(!info.h)
-                    info.h = maxSize;
-                if(!info.w)
-                    info.w = maxSize;
+                if(distEvent.event.content && distEvent.path && distEvent.path.startsWith('blob:')) {
+                    curUrl = distEvent.path;
+                    var img = new Image();
+                    img.onload = () => {
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(distEvent.event.content.info)
+                            info = distEvent.event.content.info
+                        if(!info.h)
+                            info.h = img.height;
+                        if(!info.w)
+                            info.w = img.width;
+
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            localPath: localPath,
+                            url: curUrl,
+                            imageEventId: "",
+                            info: info,
+                            body: distEvent.event.content.body,
+                            sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                            origin_server_ts: distEvent.event.origin_server_ts
+                        }
+                        showImageInfoList.unshift(distImageInfo);
+                        ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
+                        return;
+                    }
+                    img.onerror = () => {
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(distEvent.event.content.url.startsWith('mxc://')) {
+                            curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distEvent.event.content.url);
+                            if(distEvent.event.content.info)
+                                info = distEvent.event.content.info
+                            if(!info.h)
+                                info.h = maxSize;
+                            if(!info.w)
+                                info.w = maxSize;
+                        }
+                        else {
+                            if(!info.h)
+                                info.h = maxSize;
+                            if(!info.w)
+                                info.w = maxSize;
+                        }
+
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            localPath: localPath,
+                            url: curUrl,
+                            imageEventId: "",
+                            info: info,
+                            body: distEvent.event.content.body,
+                            sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                            origin_server_ts: distEvent.event.origin_server_ts
+                        }
+                        showImageInfoList.unshift(distImageInfo);
+                        ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
+                        return;
+                    }
+                    img.src = curUrl;
+                }
+                else {
+                    let event = distEvent.event;
+                    localPath = await this.getFileExist(event.event_id);
+                    let chatGroupMsgContent = event.content;
                     
-                distImageInfo = {
-                    imageUrl: curUrl,
-                    localPath: localPath,
-                    url: chatGroupMsgContent.url,
-                    imageEventId: event.event_id,
-                    info: info,
-                    body: chatGroupMsgContent.body,
-                    sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
-                    origin_server_ts: distEvent.event.origin_server_ts
+                    curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+
+                    let info = {
+                        w: maxSize,
+                        h: maxSize
+                    };
+                    console.log("*** image info is ", chatGroupMsgContent.info);
+                    if(chatGroupMsgContent.info)
+                        info = chatGroupMsgContent.info
+                    if(!info.h)
+                        info.h = maxSize;
+                    if(!info.w)
+                        info.w = maxSize;
+                        
+                    distImageInfo = {
+                        imageUrl: curUrl,
+                        localPath: localPath,
+                        url: chatGroupMsgContent.url,
+                        imageEventId: event.event_id,
+                        info: info,
+                        body: chatGroupMsgContent.body,
+                        sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                        origin_server_ts: distEvent.event.origin_server_ts
+                    }
+                    showImageInfoList.unshift(distImageInfo);
                 }
             }
             ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
@@ -1933,6 +2005,7 @@ export default {
         },
         pushFileMsg: async function(fileinfo) {
             var showfileObj = undefined;
+            var objectUrl = "";
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
             }
@@ -1985,7 +2058,7 @@ export default {
                 };
 
                 if(type == 'm.image'){
-                    const objectUrl = URL.createObjectURL(showfileObj);
+                    objectUrl = URL.createObjectURL(showfileObj);
                     eventTmp.event.content.msgtype = "m.image";
                     eventTmp.event.content.url = objectUrl;
                 }
