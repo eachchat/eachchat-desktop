@@ -199,6 +199,7 @@ export default {
     },
     data() {
         return {
+            bSupportEachChat: false,
             name:'',
             isPublic:false,
             commu: false,
@@ -353,7 +354,9 @@ export default {
                 //         };
                 //     }
                 // }  
-
+                if(this.bSupportEachChat){
+                    return global.services.common.directInvite(roomId, addr);
+                }
                 return client.invite(roomId, addr);
             } else {
                 throw new Error('Unsupported address');
@@ -1491,6 +1494,8 @@ export default {
         }
         console.log('+++++limit+++++', limit);
         await this.originStatus();
+        this.bSupportEachChat = global.localStorage.getItem("supportEachChat");
+
         // let hh = await Department.GetBelongDepartmentsByMatrixID("@vincentliu.ai:matrix.each.chat");
         // console.log('hhhhh', hh);
     },

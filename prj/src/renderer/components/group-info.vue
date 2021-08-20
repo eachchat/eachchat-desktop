@@ -195,12 +195,6 @@
             @close="closeEncryWarn"
             :room="currentRoom"
         />
-        <!-- <mxMemberSelectDlg 
-            v-if="mxSelectMemberOpen" 
-            @close="mxSelectMember"
-            :roomId="showGroupInfo.groupId"
-        >
-        </mxMemberSelectDlg> -->
         <mxXxr 
             v-if="mxXxrOpen" 
             @close="changeMxXxr"
@@ -210,12 +204,6 @@
             :roomId="showGroupInfo.groupId"
         >
         </mxXxr>
-        <mxDmDlg
-            v-if="mxSelectMemberOpen" 
-            @close="mxSelectMember"
-            :roomId="showGroupInfo.groupId"
-        >
-        </mxDmDlg>
     </div>
 </template>
 <script>
@@ -226,9 +214,7 @@ import { UserInfo, Contact, ContactRoom} from '../../packages/data/sqliteutil.js
 import AlertDlg from './alert-dlg.vue'
 import encryWarn from './encryptionWarning.vue'
 import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
-import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxXxr from './mxXxr.vue'
-import mxDmDlg from './mxDmDlg.vue'
 import {ComponentUtil} from '../script/component-util'
 import { common } from '../../packages/data/services.js'
 import { openRemoteMenu } from '../../utils/commonFuncs'
@@ -285,7 +271,6 @@ export default {
             encryptionWarning: false,
             currentRoom: undefined,
             dmMember: {},
-            mxSelectMemberOpen: false,
             memberFilter: '',
             mxAvatar: '',
             mxRoom: {},
@@ -302,9 +287,7 @@ export default {
         imageCropper,
         AlertDlg,
         encryWarn,
-        mxMemberSelectDlg,
         mxXxr,
-        mxDmDlg
     },
     props: {
         "showGroupInfoTips": {
@@ -442,12 +425,7 @@ export default {
             this.mxGetMembers(userId);
             this.isSearch = false;
         },
-        mxSelectMember(close) {
-            // if (close.data) this.$emit(close.handler, close.data);
-            this.mxSelectMemberOpen = false;
-        },
         mxAddMember() { //teyidian
-            // this.mxSelectMemberOpen = true;
             this.mxXxrOpen = true;
             common.UpdateUserinfo();
         },

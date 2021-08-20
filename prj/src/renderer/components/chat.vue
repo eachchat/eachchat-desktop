@@ -150,13 +150,6 @@
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
         <mxChatTopicDlg v-if="mxChatTopic" @close="mxChatTopicDlgSetting" :roomId="curChat.roomId"></mxChatTopicDlg>
-        <!-- <mxMemberSelectDlg 
-            v-if="mxSelectMemberOpen" 
-            @close="mxSelectMember"
-            :roomId="chat.roomId"
-            :isDm="isDm"
-        >
-        </mxMemberSelectDlg> -->
     </div>
 </template>
 
@@ -185,7 +178,6 @@ import Invite from './invite.vue';
 import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
-import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard, checkIsTesting } from '../../utils/commonFuncs'
@@ -285,7 +277,6 @@ export default {
         Invite,
         mxHistoryPage,
         mxFilePage,
-        mxMemberSelectDlg,
     },
     methods: {
         closeToBottom() {
@@ -3309,7 +3300,6 @@ export default {
             mxChat: false,
             mxChatTopic: false,
             services: null,
-            mxSelectMemberOpen: false,
             isDm: false,
             initSearchKey: '',
         }

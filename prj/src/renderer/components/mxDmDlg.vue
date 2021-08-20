@@ -162,6 +162,7 @@ export default {
     },
     data() {
         return {
+            bSupportEachChat: false,
             name:'',
             isPublic:false,
             commu: false,
@@ -266,7 +267,9 @@ export default {
                 //         };
                 //     }
                 // }  
-
+                if(this.bSupportEachChat){
+                    return global.services.common.directInvite(roomId, addr);
+                }
                 return client.invite(roomId, addr);
             } else {
                 throw new Error('Unsupported address');
@@ -848,6 +851,7 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         this.selfId = client.getUserId();
         await this.originStatus();
+        this.bSupportEachChat = global.localStorage.getItem("supportEachChat");
     },
     
     mounted() {

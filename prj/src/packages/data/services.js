@@ -2560,7 +2560,51 @@ const common = {
     var homeServerUel = global.localStorage.getItem("mx_hs_url");
     return axios.get(homeServerUel + "/_matrix/client/r0/login", 
         {});
+  },
+
+  async supportEachChat(){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.get(homeServerUel + "/_matrix/client/versions", 
+        {});
+  },
+
+  async createRoomAndDirectJoin(roomId, matrixID){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    return axios.post(homeServerUel + "/_matrix/client/r0/createRoomAndDirectJoin", 
+    {
+      bind_type: type
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
+  },
+
+  async directInvite(roomId, matrixID){
+    var homeServerUel = global.localStorage.getItem("mx_hs_url");
+    let id = '';
+    if(typeof matrixID == 'string'){
+      id = matrixID;
+    }
+    else if(Array.isArray(matrixID)){
+      id = matrixID.toString();
+    }
+    else{
+      return false;
+    }
+
+    return axios.post(homeServerUel + `/_matrix/client/r0/rooms/${roomId}/directInvite`, 
+    {
+      user_ids: id
+    },
+    {
+      headers:{
+        Authorization: "Bearer " + this.data.login.access_token
+      }
+    });
   }
+
 };
 
 const cache = {
