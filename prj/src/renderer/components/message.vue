@@ -7,10 +7,7 @@
                     </div>
                 </div>
                 <div class="about-msg">
-                    <div class="chat-msg-content-mine-img"
-                        v-on:click="ShowFile()" v-if="isImg">
-                        <img class="msg-image" :id="msg.event.event_id" :src="imgIcon" alt="图片" :style="imgStyle">
-                    </div>
+                    <ImageMsg class="chat-msg-content-mine-img" :Timeline="Timeline" v-if="isImg"></ImageMsg>
                     <div class="chat-msg-content-mine-file"
                         v-on:click="ShowFile()" v-else-if="isFile">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="msgFileIcon">
@@ -62,17 +59,13 @@
                     {{quoteName}} : {{quoteText}}
                     </div>
                 </div>
-                
             </div>
             <div class="msg-info-others" v-else>
                 <img class="msg-info-user-img-with-name" :id="userIconId" :src="userIcon" @click="showUserInfoTip" v-if="isGroup" onerror = "this.src = './static/Img/User/user-40px@2x.png'">
                 <img class="msg-info-user-img-no-name" :id="userIconId" :src="userIcon" @click="showUserInfoTip" onerror = "this.src = './static/Img/User/user-40px@2x.png'" v-else>
                 <div class="about-msg">
                     <div class="msg-info-username-others" :id="msgNameId()" v-show="isGroup">{{getUserShowName()}}</div>
-                    <div class="chat-msg-content-others-img"
-                        v-on:click="ShowFile()" v-if="isImg">
-                        <img class="msg-image" :id="msg.event.event_id" :src="imgIcon" alt="图片" :style="imgStyle">
-                    </div>
+                    <ImageMsg class="chat-msg-content-others-img" :Timeline="Timeline" v-if="isImg"></ImageMsg>
                     <div class="chat-msg-content-others-file"
                         v-on:click="ShowFile()" v-else-if="isFile">
                         <img class="file-image" :id="msg.event.event_id" :alt="fileName" style="vertical-align:middle" :src="msgFileIcon">
@@ -130,6 +123,7 @@ import emoji from './emoji'
 import { getImgUrlByEvent, getTextByEvent } from '../../utils/commonFuncs'
 import VoIP from './VoIP'
 import Transmit from './Transmit.vue'
+import ImageMsg from './ImageMsg.vue'
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 600;
@@ -146,6 +140,7 @@ export default {
         emoji,
         VoIP,
         Transmit,
+        ImageMsg,
     },
     props: ['msg', 'playingMsgId', 'updateMsg', 'updateUser', 'updateMsgStatus', 'isGroup', 'updateMsgContent'],
     computed: {
@@ -463,14 +458,6 @@ export default {
                         }
                     }
                     this.$emit('playAudioOfMessage', this.msg.event.event_id);
-                }
-                else if(chatGroupMsgContent.msgtype == 'm.image'){
-                    // var distUrl = this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-                    // var imageInfo = {
-                    //     url: distUrl,
-                    //     info: chatGroupMsgContent.info
-                    // }
-                    this.$emit('showImageOfMessage', this.msg);
                 }
             }
         },
@@ -961,24 +948,7 @@ export default {
                     // this.getMsgMineLinkContent(this.messageContent);
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.image'){
-                    if(chatGroupMsgContent.body)
-                        this.fileName = chatGroupMsgContent.body;
-
-                    let info = {
-                    };
-
-                    if(chatGroupMsgContent.info){
-                        if(chatGroupMsgContent.info.thumbnail_info) {
-                            info = chatGroupMsgContent.info.thumbnail_info;
-                        }
-                        else {
-                            info = chatGroupMsgContent.info;
-                        }
-                    }
-
-                    if(info.size)
-                        this.fileSizeNum = getFileSizeByNumber(info.size);
-                    this.messageContent = chatGroupMsgContent.body;
+                    this.Timeline = this.msg;
                 }
                 else if(chatGroupMsgContent.msgtype == 'm.audio'){
                     this.messageContent = chatGroupMsgContent.body;
