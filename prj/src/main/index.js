@@ -710,8 +710,8 @@ ipcMain.on('open-download-recoveryKey-dialog', function(event) {
 ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen, pipName){
   ipcFileFunc.SaveFile(event, path, buffer, eventId, needOpen, pipName);
 });
-ipcMain.on("get_save_filepath", function(event){
-  ipcFileFunc.GetSaveFilepath(mainWindow, event);
+ipcMain.on("get_save_filepath", function(event, fileName){
+  ipcFileFunc.GetSaveFilepath(mainWindow, event, fileName);
 });
 
 function downloadFile(event, arg) {

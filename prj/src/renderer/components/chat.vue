@@ -1219,7 +1219,8 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            let paths = ipcRenderer.sendSync("get_save_filepath");
+            let fileName = msg.event.content.body;
+            let paths = ipcRenderer.sendSync("get_save_filepath", fileName);
             let folders = paths.filePath;
             if(folders.length == 0) return;
             let newFileName = folders;
