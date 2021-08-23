@@ -1940,9 +1940,11 @@ export default {
         insertFace: function(item) {
             var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
             getProperty(this.editor, 'selection.savedRange.index', 0) 
-
             let faceImg = faceUtils.getFaceImg(item);
-            this.editor.insertEmbed(curIndex, 'image', faceImg);
+            let dom = document.createElement('img')
+            dom.setAttribute('src', faceImg);
+            dom.setAttribute('filepath', faceImg), 
+            this.editor.insertEmbed(curIndex, 'span', dom);
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
@@ -2166,7 +2168,9 @@ export default {
                 let curMsgItem = varcontent.ops[i].insert;
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    if (curMsgItem.span.id !== 'quote-img' && curMsgItem.span.id !== 'quote-text') {    
+                    if (curMsgItem.span.id !== 'quote-img' 
+                    && curMsgItem.span.id !== 'quote-text'
+                    && curMsgItem.span.id !== '') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
@@ -2176,11 +2180,12 @@ export default {
                             sendBody.format = "org.matrix.custom.html";
                         }
                     }
-                }
-                else if(curMsgItem.hasOwnProperty("image")){
-                    let faceImg = curMsgItem.image;
-                    let facecode = faceUtils.getFaceCode(faceImg);
-                    sendText += facecode;
+                    else if(curMsgItem.span.id === ''){
+                        let faceImg = curMsgItem.span;
+                        let filePath = faceImg.getAttribute('filepath');
+                        let facecode = faceUtils.getFaceCode(filePath);
+                        sendText += facecode;
+                    }
                 }
                 else{
                     curMsgItem = sliceReturnsOfString(curMsgItem);

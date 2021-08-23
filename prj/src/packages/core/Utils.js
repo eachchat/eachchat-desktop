@@ -1127,7 +1127,7 @@ const faceUtils = {
         return this.codePointFacesMap.get(facecode);
     },
 
-    getFaceCode(faceImg, compare = (a, b) => a === b){
+    getFaceCode(faceImg){
         let keyIterator = this.codePointFacesMap.keys();
         let key;
         while(!keyIterator.done){
