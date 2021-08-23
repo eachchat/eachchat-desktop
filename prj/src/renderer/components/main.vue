@@ -621,16 +621,6 @@ export default {
             }
         }
         await global.services.common.login();
-        global.services.common.supportEachChat().then(res => {
-            if(res.status != 200){
-                global.localStorage.setItem("supportEachChat", false)
-                return;
-            }
-            
-            if(res.data && res.data.is_supported_eachchat){
-                global.localStorage.setItem("supportEachChat", true)
-            }
-        });
 
         this.startCheckUpgrade();
         global.services.common.InitDbData().then(ret => {

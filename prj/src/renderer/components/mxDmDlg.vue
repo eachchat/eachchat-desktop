@@ -162,7 +162,6 @@ export default {
     },
     data() {
         return {
-            bSupportEachChat: false,
             name:'',
             isPublic:false,
             commu: false,
@@ -250,25 +249,6 @@ export default {
                 const member = room.getMember(addr);
                 if (member && ['join', 'invite'].includes(member.membership)) {
                     throw {errcode: "RIOT.ALREADY_IN_ROOM", error: "Member already invited"};
-                }
-
-
-                // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
-                //     try {
-                //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);
-                //         if (!profile) {
-                //             // noinspection ExceptionCaughtLocallyJS
-                //             throw new Error("User has no profile");
-                //         }
-                //     } catch (e) {
-                //         throw {
-                //             errcode: "RIOT.USER_NOT_FOUND",
-                //             error: "User does not have a profile or does not exist."
-                //         };
-                //     }
-                // }  
-                if(this.bSupportEachChat){
-                    return global.services.common.directInvite(roomId, addr);
                 }
                 return client.invite(roomId, addr);
             } else {
@@ -851,7 +831,6 @@ export default {
         const client = window.mxMatrixClientPeg.matrixClient;
         this.selfId = client.getUserId();
         await this.originStatus();
-        this.bSupportEachChat = global.localStorage.getItem("supportEachChat");
     },
     
     mounted() {

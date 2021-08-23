@@ -1415,10 +1415,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-function includeOtherfieldUser(userID, inviteIDs){
-
-}
-
 export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, utf16toEntities, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob, emojiUnicodeRanges, EmojiTextToHtml};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;
