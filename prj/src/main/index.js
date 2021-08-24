@@ -415,15 +415,15 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   openDevToolsInDevelopment(mainWindow);
   appIcon.destroy();
   mainWindow.webContents.on('dom-ready', function(){
+    if (process.env.NODE_ENV === "development") {
+      mainWindow.setResizable(true);
+    }
+    else{
+      mainWindow.setResizable(false);
+    }
     mainWindow.center();
     mainWindow.show();
   });
-  if (process.env.NODE_ENV === "development") {
-    mainWindow.setResizable(true);
-  }
-  else{
-    mainWindow.setResizable(false);
-  }
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
