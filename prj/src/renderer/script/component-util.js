@@ -265,6 +265,9 @@ const ComponentUtil = {
     },
 
     needUpgradeVersion(oldVersion, newVersion){
+        if(!oldVersion || !newVersion){
+            return false;
+        }
         let oldArray = oldVersion.split('.');
         let newArray = newVersion.split('.');
         let oldArrayLen = oldArray.length;
