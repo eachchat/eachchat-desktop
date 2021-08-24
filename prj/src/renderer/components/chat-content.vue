@@ -249,7 +249,7 @@ import winHeaderBarWhite from './win-header-login.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
-import {changeStr, getIconPath, EmojiTextToHtml} from '../../packages/core/Utils.js'
+import {changeStr, getIconPath, EmojiTextToHtml, getInviteUserID} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
@@ -478,6 +478,7 @@ export default {
     matrixSync: function() {
       if (this.matrixSync) {
         this.showGroupList.length = 0;
+        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
           // console.log("this is ", r);
           // console.log("r.getMyMembership() ", r.getMyMembership());
@@ -579,7 +580,11 @@ export default {
                 console.log(newRoom)
                 return;
               }
-              this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+              let ret = ComponentUtil.autoJoinRoom(newRoom, this.selfUserId);
+              if(!ret){
+                 this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+              }
+
               if(this.dealShowGroupList.every(item=>{
                   return item.roomId != newRoom.roomId
                 })){
@@ -632,7 +637,11 @@ export default {
                     console.log(newRoom)
                     return;
                   }
-                  this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+                  let ret = ComponentUtil.autoJoinRoom(newRoom, this.selfUserId);
+                  if(!ret){
+                    this.$store.commit("addInviteRooms", {roomID : member.roomId, roomState : 0});
+                  }
+
                   if(this.dealShowGroupList.every(item=>{
                       return item.roomId != newRoom.roomId
                     })){
@@ -1093,14 +1102,17 @@ export default {
       this.lowPriorityGroupList.length = 0; //置底组
       this.lowPriorityGroupIds = [];
       this.hasUnreadItems = [];
-      let nInviteRooms = 0;
       this.showGroupList.forEach(async (item)=>{
         if(item.getMyMembership() == "invite") {
           if(this.isSecret(item)) {
             console.log(item)
             return;
           }
-          this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState: 0});
+          let ret = ComponentUtil.autoJoinRoom(item, this.selfUserId);
+          if(!ret){
+            this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
+          }
+
           if(this.dealShowGroupList.every(dealitem=>{
                 return dealitem.roomId != item.roomId
               })){
@@ -3166,7 +3178,10 @@ export default {
             console.log(item)
             return;
           }
-          this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
+          let ret = ComponentUtil.autoJoinRoom(item, this.selfUserId);
+          if(!ret){
+            this.$store.commit("addInviteRooms", {roomID : item.roomId, roomState : 0});
+          }
         }
         else{
           this.$store.commit("updateInviteState", {roomID : item.roomId, roomState : 2});

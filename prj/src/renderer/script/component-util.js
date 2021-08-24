@@ -27,6 +27,12 @@ const ComponentUtil = {
         return matrixID.slice(endPos + 1, matrixID.length);
     },
 
+    sameAreaWithUser(matrixID1, matrixID2){
+        let area1 = this.GetDomanName(matrixID1);
+        let area2 = this.GetDomanName(matrixID2);
+        return area1 === area2;
+    },
+
     GetDisplayName(displayName, userid){
         if(displayName == '' && userid)
         {
@@ -274,8 +280,42 @@ const ComponentUtil = {
             }
         }
         return true;
-    }
+    },
 
+    getInviteUserID(room){
+        const myUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
+        if(global.mxMatrixClientPeg.isDMInvite(room) || global.mxMatrixClientPeg.DMCheck(room)){
+            var myMember = global.mxMatrixClientPeg.getMyMember(room);
+            let directMember = myMember.getDMInviter();
+            if(!directMember){
+                let members = room.currentState.members;
+                for(let memberItem in members){
+                    if(memberItem != myUserId){
+                        return directMember;
+                    }
+                }
+            }
+        }
+        else{
+            const inviteEvent = room.currentState.getMember(myUserId);
+            if (!inviteEvent) {
+                return;
+            }
+            const inviterUserId = inviteEvent.events.member.getSender();
+            return room.currentState.getMember(inviterUserId);
+        }
+    },
+    
+    autoJoinRoom(newRoom, selfUserID){
+        let inviteUser = this.getInviteUserID(newRoom);
+        let userID = inviteUser.userId;
+        let sameArea = ComponentUtil.sameAreaWithUser(userID, selfUserID);
+        if(sameArea === true){
+            global.mxMatrixClientPeg.matrixClient.joinRoom(newRoom.roomId, {inviteSignUrl: undefined, viaServers: undefined});
+        }
+        return sameArea;
+    }
+    
 }
 
 export{
