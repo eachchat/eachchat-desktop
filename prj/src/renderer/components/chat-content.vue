@@ -476,7 +476,9 @@ export default {
       this.sortGroup();
     },
     matrixSync: function() {
-      if (this.matrixSync) {
+      if (!this.matrixSync) {
+        return;
+      }
         this.showGroupList.length = 0;
         this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
         global.mxMatrixClientPeg.matrixClient.getRooms().forEach((r) => {
@@ -544,9 +546,6 @@ export default {
             console.log('RoomState.members event ', event);
             console.log('RoomState.members state ', state);
             console.log('RoomState.members member ', member);
-            if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-              this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-            }
             console.log("this.selfuserid is ", this.selfUserId);
             console.log("user id is ", member.userId);
 
@@ -620,10 +619,6 @@ export default {
         });
 
         global.mxMatrixClientPeg.matrixClient.on('RoomMember.membership', (event, member) => {
-            // console.log('chat-content membership member is ', member);
-            if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-              this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-            }
             setTimeout(async ()=>{
               if (member.userId == this.selfUserId) {
                 console.log("event is ", event);
@@ -687,7 +682,7 @@ export default {
         global.mxMatrixClientPeg.matrixClient.on("Room.timeline", this.onRoomTimeline);
         global.mxMatrixClientPeg.matrixClient.on("Room.name", this.onRoomName);
         global.mxMatrixClientPeg.matrixClient.on("accountData", this.handleAccountDataUpdate);
-      }
+      
     }
   },
   computed: {
@@ -2048,9 +2043,6 @@ export default {
       }
     },
     updateGroupContent: async function(item) {
-      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-      }
       var distContentElement = document.getElementById(this.getChatContentElementId(item.roomId));
       var distTimeElement = document.getElementById(this.getChatGroupTimeElementId(item.roomId));
       if(distContentElement) {
@@ -2171,17 +2163,11 @@ export default {
       }
     },
     updateGroupMsgContent: async function(groups) {
-      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-      }
       for(let item of groups) {
         this.updateGroupContent(item);
       }
     },
     getNeededUid: async function() {
-      if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-        this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-      }
       let curIdSpliterInfo = this.selfUserId.split(":");
       let curDomainKey = curIdSpliterInfo.pop();
 
@@ -2364,34 +2350,6 @@ export default {
             else {
               this.showSearchMessage = false;
             }
-            if(false) {
-              this.searchFileItems = searcheRet[i].files.slice(0, 3);
-              if(this.searchFileItems.length == 0) {
-                this.showSearchFile = false;
-              }
-              else {
-                this.showSearchFile = true;
-              }
-              if(searcheRet[i].files.length > 3) {
-                this.showsearchAllFile = true;
-              }
-              else {
-                this.showsearchAllFile = false;
-              }
-            }
-            // if(searchUsers.length != 0) {
-            //   this.searchPeopleItems = searchUsers.slice(0, 3);
-            //   this.showSearchPeople = true;
-            //   if(searchUsers.length > 3) {
-            //     this.showSearchAllMember = true;
-            //   }
-            //   else {
-            //     this.showSearchAllMember = false;
-            //   }
-            // }
-            // else {
-            //     this.showSearchPeople = false;
-            // }
           }
         }
         catch(e) {
@@ -2935,9 +2893,6 @@ export default {
     },
     getShowGroupName(chatGroupItem) {
       if(chatGroupItem.name.startsWith("Empty room")) {
-        if(this.selfUserId == undefined && global.mxMatrixClientPeg.matrixClient) {
-          this.selfUserId = global.mxMatrixClientPeg.matrixClient.getUserId();
-        }
         if(checkIsEmptyRoom(chatGroupItem, this.selfUserId)) {
           return "空聊天室";
         }
