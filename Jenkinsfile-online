@@ -17,42 +17,100 @@ pipeline {
     }
 
     stages{
-            stage('window build'){
-                agent {
-                    label 'eachchat-desktop-win10'
-                }
-                
-                steps {
-                    checkout(scm)
-
-                    withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
-                        withSonarQubeEnv('sonar') {
-                            bat "sonar-scanner.bat -Dsonar.projectKey=eachchat-desktop -Dsonar.sources=./prj -Dsonar.host.url=http://103.61.37.73:30610 -Dsonar.login=8c326403bae435be96bc5e4eb82a257e3ea91fdf"
-                        }
-                    }
-                    timeout(time: 1, unit: 'HOURS') {
-                        waitForQualityGate abortPipeline: true
-                    }
-
-                    bat '''
-                    cd ./prj
-                    yarn run build
-                    '''
-                }
-                
-                post {
-                    failure {
-                        mail to: 'chengfang@workly.ai',
-                        subject: "Window Failed Pipeline: ${currentBuild.fullDisplayName}",
-                        body: "${env.BUILD_URL}"
-                    }
-                    success {
-                        mail to: 'chengfang@workly.ai',
-                        subject: 'Window Successed Pipeline: ${currentBuild.fullDisplayName}',
-                        body: "${env.BUILD_URL}"
-                    }
-                }              
+        stage('window build'){
+            agent {
+                label 'eachchat-desktop-win10'
             }
+            
+            steps {
+                checkout(scm)
+
+                withCredentials([string(credentialsId: "$SONAR_CREDENTIAL_ID", variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('sonar') {
+                        bat 'sonar-scanner.bat -D"sonar.projectKey=eachchat-desktop" -D"sonar.sources=prj/src" -D"sonar.host.url=http://103.61.37.213:32129" -D"sonar.login=b3f63bdb13aaeb8338fe3d4c992f04f240b4f47d"'
+                    }
+                }
+
+                bat '''
+                cd ./prj
+                yarn run build
+                '''
+
+                bat '''
+                cd ./prj
+                yarn test
+                '''
+            }
+            
+            post {
+                failure {
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
+                    subject: "Window Failed Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "Something is wrong with ${env.BUILD_URL}"
+                }
+                success {
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
+                    subject: 'Window Successed Pipeline: ${currentBuild.fullDisplayName}',
+                    body: "${env.BUILD_URL}"
+                }
+            }              
+        }
+        stage('mac build'){
+            agent {
+                label 'eachchat-desktop-mac'
+            }
+            
+            steps {
+                checkout(scm)
+
+                sh '''
+                cd ./prj
+                yarn run build
+                yarn test
+                '''
+            }
+            
+            post {
+                failure {
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
+                    subject: "mac Failed Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "Something is wrong with ${env.BUILD_URL}"
+                }
+                success {
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
+                    subject: 'mac Successed Pipeline: ${currentBuild.fullDisplayName}',
+                    body: "${env.BUILD_URL}"
+                }
+            }              
+        }
+        stage('ubuntu build'){
+            agent {
+                label 'eachchat-desktop-ubuntu'
+            }
+            
+            steps {
+                checkout(scm)
+
+                sh '''
+                cd ./prj
+                yarn run build
+                '''
+            }
+            
+            post {
+                failure {
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
+                    subject: "ubuntu Failed Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "Something is wrong with ${env.BUILD_URL}"
+                }
+                success {
+                    mail to: 'chengfang@workly.ai wangxin@workly.ai',
+                    subject: 'ubuntu Successed Pipeline: ${currentBuild.fullDisplayName}',
+                    body: "${env.BUILD_URL}"
+                }
+            }              
+        }
+
     }
 }
 

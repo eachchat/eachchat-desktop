@@ -4,8 +4,8 @@
             <li v-for="item in faceList" :style="{
               fontSize: isMac() ? '22px' : '18px'
             }">
-                <!-- <img :src="faceMap[item]" :alt="item" :title="item" @click="insertFace(item)"/> -->
-                <div v-html="item" :title="item" @click="insertFace(item)"></div>
+                <img :src="getFaceImg(item)" @click="insertFace(item)"/>
+                <!-- <div v-html="item" :title="item" @click="insertFace(item)"></div> -->
             </li>
         </ul>
     </div>
@@ -13,18 +13,21 @@
 <script>
 import {faceUtils} from '../../packages/core/Utils.js'
 import {environment} from '../../packages/data/index.js'
-// const faceUtils = require('../server/Utils.js');
 
 export default {
   name: 'faces',
   components: {},
   data() {
     return {
-      faceList: faceUtils.alt,
-      faceMap: faceUtils.faces()
+      faceList: faceUtils.GetPointFaces(),
+      faceMap: faceUtils.GetPointFaceMap()
     };
   },
   methods: {
+    getFaceImg(item){
+      return this.faceMap.get(item);
+    },
+
     isMac() {
       return environment.os.isOSX;
     },

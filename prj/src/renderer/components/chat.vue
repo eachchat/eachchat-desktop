@@ -170,32 +170,29 @@ import * as Quill from 'quill'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
 import Faces from './faces.vue';
-import {makeFlieNameForConflict, getFileSizeNum, generalGuid, fileMIMEFromType, Appendzero, FileUtil, findKey, pathDeal, changeStr, fileTypeFromMIME, getIconPath, uncodeUtf16, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, insertStr, getFileSize, FileToContentType, FilenameToContentType, GetFileType, getFileBlob} from '../../packages/core/Utils.js'
+import {getFileSizeNum, generalGuid, FileUtil, uncodeUtf16, strMsgContentToJson, sliceReturnsOfString, GetFileType, faceUtils} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatMemberDlg from './chatMemberList.vue'
 import transmitDlg from './transmitDlg.vue'
 import SendFileDlg from './send-file-dlg.vue'
-import { Group, Message, Department, UserInfo, sqliteutil, Contact } from '../../packages/data/sqliteutil.js'
+import { Message, UserInfo, Contact } from '../../packages/data/sqliteutil.js'
 import userInfoContent from './user-info';
 import mxSettingDialog from './mxSettingDialog';
 import mxChatInfoDlg from './mxChatInfoDlg';
 import mxChatTopicDlg from './mxChatTopicDlg'
-import {Filter} from 'matrix-js-sdk';
-import * as Matrix from 'matrix-js-sdk';
 import Invite from './invite.vue';
-import encrypt from 'browser-encrypt-attachment';
 import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
 import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
-import { getRoomNotifsState, setRoomNotifsState, MUTE, ALL_MESSAGES } from "../../packages/data/RoomNotifs.js"
+import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard, checkIsTesting } from '../../utils/commonFuncs'
 import deleteIcon from '../../../static/Img/Chat/quote-delete.png'
 import { roomTimeLineHandler } from '../../packages/data/roomTimelineHandler'
 import { checkIsEmptyRoom } from "../../packages/data/Rooms";
-const {Menu, MenuItem, nativeImage} = remote;
+const {Menu, MenuItem} = remote;
 const { clipboard } = require('electron')
 var isEnter = false;
 var canNewLine = false;
@@ -567,6 +564,23 @@ export default {
         async rightClick(e, msgItem) {
             console.log("msg is ", msgItem);
             console.log("*** e.target.className ", e.target.className);
+            
+            let element = document.getElementById(msgItem.event.event_id || msgItem.event.origin_server_ts);
+            let textElement;
+            if(element){
+                textElement = element.children[0];
+            }
+            let selectedObj = window.getSelection();
+            let selectedTxt = selectedObj.toString();
+
+            if (selectedTxt.length === 0 && textElement) {
+                let selection = window.getSelection();
+                let range = document.createRange();
+                range.selectNodeContents(textElement);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
             var showRedact = this.canRedact(msgItem);
             var senderId = msgItem.sender.userId ? msgItem.sender.userId : msgItem.event.sender;
             var showName = await ComponentUtil.GetDisplayNameByMatrixID(senderId);
@@ -576,6 +590,177 @@ export default {
             if(this.multiSelect) {
                 return;
             }
+            
+            if(checkIsTesting()) {
+                let menuObj = {
+                    distItem: msgItem,
+                    menuList: [
+                        ],
+                    position: {
+                        clientX: e.clientX,
+                        clientY: e.clientY
+                    }
+                }
+                
+                if(e.target.className == "msg-info-user-img-with-name") {
+                    if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
+                        return;
+                    }
+                    let aiteMenu = {
+                        name: "@" + showName,
+                        func: this.atSomeOne
+                    }
+                    menuObj.menuList.push(aiteMenu);
+                }
+                else {
+                    var content = msgItem.getContent();
+                    if(content.msgtype == 'm.text') {
+                        let copyMenu = {
+                            name: "复制",
+                            func: this.menuCopy
+                        }
+                        menuObj.menuList.push(copyMenu);
+
+                        if(!this.isSecret) {
+                            let transmitMenu = {
+                                name: "转发",
+                                func: this.transMit
+                            }
+                            menuObj.menuList.push(transmitMenu);
+                            
+                            let favouriteMenu = {
+                                name: "收藏",
+                                func: this.menuFav
+                            }
+                            menuObj.menuList.push(favouriteMenu);
+                        }
+                        if(showRedact) {
+                            console.log('查看当前信息', msgItem);
+                            let text = '删除';
+                            let timeLimit = 2 * 60 * 1000;
+                            const myUserId = this.curChat.myUserId;
+                            const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                            const members = this.curChat.currentState.members;
+                            const userLevel = members[myUserId].powerLevel;
+                            let redact = 50;
+                            if (currentState) {
+                                let levelObj = currentState.getContent();
+                                redact = levelObj.redact || redact;
+                            }
+                            console.log('redact Number>>>>>', redact)
+                            console.log('userLevel Number>>>>', userLevel)
+                            if (msgItem.event.sender === myUserId) {
+                                if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            } else if (userLevel >= redact) {
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            }
+                        }
+                        if(!this.isSecret) {
+                            let multiSelectMenu = {
+                                name: "多选",
+                                func: this.msgMultiSelect
+                            }
+                            menuObj.menuList.push(multiSelectMenu);
+                        }
+                        
+                        let quoteMenu = {
+                            name: "引用",
+                            func: this.menuQuote
+                        }
+                        menuObj.menuList.push(quoteMenu);
+                    }
+                    else if(content.msgtype == "m.file" || content.msgtype == "m.image") {
+                        if(!this.isSecret) {
+                            let transmitMenu = {
+                                name: "转发",
+                                func: this.transMit
+                            }
+                            menuObj.menuList.push(transmitMenu);
+                        }
+                        if(!this.isSecret) {
+                            let favouriteMenu = {
+                                name: "收藏",
+                                func: this.menuFav
+                            }
+                            menuObj.menuList.push(favouriteMenu);
+                        }
+                        if(showRedact) {
+                            let deleteMenu = {
+                                name: "删除",
+                                func: this.menuDelete
+                            }
+                            menuObj.menuList.push(deleteMenu);
+                        }
+                        if(!this.isSecret) {
+                            let multiSelectMenu = {
+                                name: "多选",
+                                func: this.msgMultiSelect
+                            }
+                            menuObj.menuList.push(multiSelectMenu);
+                        }
+                        let saveToMenu = {
+                            name: "另存为",
+                            func: this.downloadFile
+                        }
+                        menuObj.menuList.push(saveToMenu);
+                        if (content.msgtype == "m.image"){
+                            let quoteMenu = {
+                                name: "引用",
+                                func: this.menuQuote
+                            }
+                            menuObj.menuList.push(quoteMenu);
+                            
+                            let copyMenu = {
+                                name: "复制",
+                                func: this.menuCopy
+                            }
+                            menuObj.menuList.push(copyMenu);
+                        }
+                    }
+                    else if(content.msgtype == "m.audio") {
+                        if(showRedact) {
+                            let deleteMenu = {
+                                name: "删除",
+                                func: this.menuDelete
+                            }
+                            menuObj.menuList.push(deleteMenu);
+                        }
+                    }
+                    else if(content.msgtype == "each.chat.merge") {
+                        let transmitMenu = {
+                            name: "转发",
+                            func: this.transMit
+                        }
+                        menuObj.menuList.push(transmitMenu);
+                        if(showRedact) {
+                            let deleteMenu = {
+                                name: "删除",
+                                func: this.menuDelete
+                            }
+                            menuObj.menuList.push(deleteMenu);
+                        }
+                        if(!this.isSecret) {
+                            let multiSelectMenu = {
+                                name: "多选",
+                                func: this.msgMultiSelect
+                            }
+                            menuObj.menuList.push(multiSelectMenu);
+                        }
+                    }
+                }
+                this.$contextMenu(menuObj);
+                return;
+            }
+
             if(e.target.className == "msg-info-user-img-with-name") {
                 if(global.mxMatrixClientPeg.DMCheck(this.curChat)) {
                     return;
@@ -708,7 +893,7 @@ export default {
                         this.menu.append(new MenuItem({
                             label: "复制",
                             click: () => {
-                               copyImgToClipboard(getImgUrlByEvent(msgItem.event))
+                            copyImgToClipboard(getImgUrlByEvent(msgItem.event))
                             }
                         }));
                     }
@@ -1034,16 +1219,17 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            let paths = ipcRenderer.sendSync("get_save_filepath");
-            let folders = paths.filePaths;
+            let fileName = msg.event.content.body;
+            let paths = ipcRenderer.sendSync("get_save_filepath", fileName);
+            let folders = paths.filePath;
             if(folders.length == 0) return;
-            let folder = folders[0];
-            console.log(folder)
+            let newFileName = folders;
+            console.log(newFileName)
             let msgElements = this.$refs[msg.event.event_id];
             if(msgElements.length === 0) return;
             let msgElement = msgElements[0];
             var chatGroupMsgContent = msg.event.content ? msg.event.content : msg.getContent();
-            msgElement.SaveFile(chatGroupMsgContent, path.join(folder, chatGroupMsgContent.body), msg.event.event_id, false);
+            msgElement.SaveFile(chatGroupMsgContent, newFileName, msg.event.event_id, false);
         },
 
         cleanSelected() {
@@ -1532,14 +1718,15 @@ export default {
             var showImageInfoList = [];
             var distImageInfo = {};
             var imgMsgList = await this.toGetShowImage(this.curChat);
-            imgMsgList.forEach(async curEvent => {
+            for(let i = 0; i < imgMsgList.length; i++) {
+                let curEvent = imgMsgList[i];
                 let event = curEvent.event;
                 let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
                     let maxSize = 390;
-                    var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    let curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
         
                     let info = {
                         w: maxSize,
@@ -1577,36 +1764,107 @@ export default {
                     }
                     showImageInfoList.unshift(curImageInfo);
                 }
-            });
+            }
             if(!distImageInfo.imageUrl) {
-                let event = distEvent.event;
-                let localPath = await this.getFileExist(event.event_id);
-                let chatGroupMsgContent = event.content;
-                
+                let curUrl = "";
+                let localPath = "";
                 let maxSize = 390;
-                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-    
-                let info = {
-                    w: maxSize,
-                    h: maxSize
-                };
-                console.log("*** image info is ", chatGroupMsgContent.info);
-                if(chatGroupMsgContent.info)
-                    info = chatGroupMsgContent.info
-                if(!info.h)
-                    info.h = maxSize;
-                if(!info.w)
-                    info.w = maxSize;
+                if(distEvent.event.content && distEvent.path && distEvent.path.startsWith('blob:')) {
+                    curUrl = distEvent.path;
+                    var img = new Image();
+                    img.onload = () => {
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(distEvent.event.content.info)
+                            info = distEvent.event.content.info
+                        if(!info.h)
+                            info.h = img.height;
+                        if(!info.w)
+                            info.w = img.width;
+
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            localPath: localPath,
+                            url: curUrl,
+                            imageEventId: "",
+                            info: info,
+                            body: distEvent.event.content.body,
+                            sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                            origin_server_ts: distEvent.event.origin_server_ts
+                        }
+                        showImageInfoList.unshift(distImageInfo);
+                        ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
+                        return;
+                    }
+                    img.onerror = () => {
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(distEvent.event.content.url.startsWith('mxc://')) {
+                            curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distEvent.event.content.url);
+                            if(distEvent.event.content.info)
+                                info = distEvent.event.content.info
+                            if(!info.h)
+                                info.h = maxSize;
+                            if(!info.w)
+                                info.w = maxSize;
+                        }
+                        else {
+                            if(!info.h)
+                                info.h = maxSize;
+                            if(!info.w)
+                                info.w = maxSize;
+                        }
+
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            localPath: localPath,
+                            url: curUrl,
+                            imageEventId: "",
+                            info: info,
+                            body: distEvent.event.content.body,
+                            sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                            origin_server_ts: distEvent.event.origin_server_ts
+                        }
+                        showImageInfoList.unshift(distImageInfo);
+                        ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
+                        return;
+                    }
+                    img.src = curUrl;
+                }
+                else {
+                    let event = distEvent.event;
+                    localPath = await this.getFileExist(event.event_id);
+                    let chatGroupMsgContent = event.content;
                     
-                distImageInfo = {
-                    imageUrl: curUrl,
-                    localPath: localPath,
-                    url: chatGroupMsgContent.url,
-                    imageEventId: event.event_id,
-                    info: info,
-                    body: chatGroupMsgContent.body,
-                    sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
-                    origin_server_ts: distEvent.event.origin_server_ts
+                    curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+
+                    let info = {
+                        w: maxSize,
+                        h: maxSize
+                    };
+                    console.log("*** image info is ", chatGroupMsgContent.info);
+                    if(chatGroupMsgContent.info)
+                        info = chatGroupMsgContent.info
+                    if(!info.h)
+                        info.h = maxSize;
+                    if(!info.w)
+                        info.w = maxSize;
+                        
+                    distImageInfo = {
+                        imageUrl: curUrl,
+                        localPath: localPath,
+                        url: chatGroupMsgContent.url,
+                        imageEventId: event.event_id,
+                        info: info,
+                        body: chatGroupMsgContent.body,
+                        sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                        origin_server_ts: distEvent.event.origin_server_ts
+                    }
+                    showImageInfoList.unshift(distImageInfo);
                 }
             }
             ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
@@ -1682,7 +1940,11 @@ export default {
         insertFace: function(item) {
             var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
             getProperty(this.editor, 'selection.savedRange.index', 0) 
-            this.editor.insertText(curIndex, uncodeUtf16(item));
+            let faceImg = faceUtils.getFaceImg(item);
+            let dom = document.createElement('img')
+            dom.setAttribute('src', faceImg);
+            dom.setAttribute('filepath', faceImg), 
+            this.editor.insertEmbed(curIndex, 'span', dom);
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
@@ -1746,6 +2008,7 @@ export default {
         },
         pushFileMsg: async function(fileinfo) {
             var showfileObj = undefined;
+            var objectUrl = "";
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
             }
@@ -1798,7 +2061,7 @@ export default {
                 };
 
                 if(type == 'm.image'){
-                    const objectUrl = URL.createObjectURL(showfileObj);
+                    objectUrl = URL.createObjectURL(showfileObj);
                     eventTmp.event.content.msgtype = "m.image";
                     eventTmp.event.content.url = objectUrl;
                 }
@@ -1905,7 +2168,9 @@ export default {
                 let curMsgItem = varcontent.ops[i].insert;
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    if (curMsgItem.span.id !== 'quote-img' && curMsgItem.span.id !== 'quote-text') {    
+                    if (curMsgItem.span.id !== 'quote-img' 
+                    && curMsgItem.span.id !== 'quote-text'
+                    && curMsgItem.span.id !== '') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
@@ -1914,6 +2179,12 @@ export default {
                             sendText += ("@" + msgInfo.atName + " ");
                             sendBody.format = "org.matrix.custom.html";
                         }
+                    }
+                    else if(curMsgItem.span.id === ''){
+                        let faceImg = curMsgItem.span;
+                        let filePath = faceImg.getAttribute('filepath');
+                        let facecode = faceUtils.getFaceCode(filePath);
+                        sendText += facecode;
                     }
                 }
                 else{
@@ -2319,7 +2590,6 @@ export default {
         More: async function() {
             console.log('check chat', this.curChat);
             this.groupInfo = {};
-            var isGroup = this.curChat.group_type == 101 ? true : false;
             var idsList = []
             // try{
             //     idsList = this.curChat.contain_user_ids.split(",");
@@ -2337,9 +2607,6 @@ export default {
             const isOwner = members[myUserId].powerLevel === 100; //owner`s powerLevel is 100?
             let ownerId;
             for(let key in members) {
-                console.log('1111', key);
-                console.log('2222', members);
-                console.log('3333', members[key]);
                 if (members[key].powerLevel === 100) ownerId = key;
             }
             console.log("this.curChat ", this.curChat);
@@ -2435,7 +2702,7 @@ export default {
                                 roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                                     .then((ret) => {
                                         console.log("ret is ", ret);
-                                        for(let i = ret.length - 1; i >= 0 ; i--){
+                                        for(let i = ret.length - 2; i >= 0 ; i--){
                                             this.messageList.push(ret[i]);
                                         }
 
@@ -2461,9 +2728,7 @@ export default {
             if(uldiv.clientHeight >= uldiv.scrollHeight) {
                 roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                     .then((ret) => {
-                        for(let i=ret.length - 1;i>0;i--){
-                            this.messageList.unshift(ret[i]);
-                        }
+                        this.messageList = ret;
 
                         setTimeout(() => {
                             this.$nextTick(() => {
@@ -2591,10 +2856,7 @@ export default {
                     roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
-                            
-                            for(let i=ret.length - 1;i>0;i--){
-                                this.messageList.unshift(ret[i]);
-                            }
+                            this.messageList = ret;
 
                             // setTimeout(() => {
                                 this.$nextTick(() => {
@@ -2628,6 +2890,7 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
+                            this.messageList = [];
                             for(let i = ret.length - 1; i >= 0 ; i--){
                                 this.messageList.push(ret[i]);
                             }
@@ -2841,9 +3104,7 @@ export default {
                 .then((messageList) => {
                     console.log("==========", messageList);
                     if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.unshift(messageList[i]);
-                    }
+                    this.messageList = messageList;
 
                     setTimeout(() => {
                         this.$nextTick(() => {
@@ -2920,7 +3181,7 @@ export default {
             fileListGroupInfo: {},
             showFileListInfo: false,
             messageListElement: null,
-            checkClassName: ["emojiDiv", "emoji", "chat-msg-content-mine-linkify", "chat-msg-content-others-linkify", "linkify", "msg-info-user-img-with-name", "file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
+            checkClassName: ["transmit-event", "emojiDiv", "emoji", "chat-msg-content-mine-linkify", "chat-msg-content-others-linkify", "linkify", "msg-info-user-img-with-name", "file-info", "msg-link-txt", "msg-link-url", "chat-msg-content-others-txt", "transmit-title", "transmit-content", "chat-msg-content-mine-transmit", "chat-msg-content-others-voice", "chat-msg-content-mine-voice", "chat-msg-content-others-txt-div", "chat-msg-content-mine-txt-div", "chat-msg-content-mine-txt", "msg-image", "chat-msg-content-others-file", "chat-msg-content-mine-file", "file-name", "file-image", "voice-info", "file-size", "voice-image"],
             groupCreaterTitle: '发起群聊',
             updateUser: 1,
             updateMsg: {},
@@ -3576,6 +3837,7 @@ export default {
         color: rgba(187, 187, 187, 1);
         margin: 5px 10px 5px 10px;
         font-weight:400;
+        user-select:none;
     }
 
     .chat-notice {
@@ -3859,6 +4121,7 @@ export default {
 
     .chat-input-tool {
         display: inline-block;
+        user-select:none;
         background: rgba(241, 241, 241, 1);
         width: calc(100%-50px);
         height: 40px;

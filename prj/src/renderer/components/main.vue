@@ -680,7 +680,7 @@ export default {
                 break;
             case "SYNCING":
                 this.lastSyncTime = new Date().getTime();
-                if(prevState == "CATCHUP") this.updateRooms();
+                if(prevState == "CATCHUP" || prevState == "ERROR" || prevState == "RECONNECTING") this.updateRooms();
             default:
               break;
           }
