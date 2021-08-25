@@ -1156,7 +1156,6 @@ export default {
                 img.onload = function() {
                     this.imgWidth = img.width;
                     this.imgHeight = img.height;
-                    URL.revokeObjectURL(objectUrl);
                     resolve(img);
                 };
                 img.onerror = function(e) {
@@ -1188,9 +1187,9 @@ export default {
             // }
 
             // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
-            const [hidpi] = await Promise.all([imgPromise]);
-            const width = hidpi ? (img.width >> 1) : img.width;
-            const height = hidpi ? (img.height >> 1) : img.height;
+            await Promise.all([imgPromise]);
+            const width = img.width;
+            const height = img.height;
             return {width, height, img};
         },
         /**
@@ -1268,7 +1267,9 @@ export default {
                 });
                 const promise1 = basePromise.then((url) => {
                     // If the attachment isn't encrypted then include the URL directly.
-                    return {"url": url};
+                    return {
+                        "url": url,
+                        "file": file};
                 });
                 return promise1;
             }
@@ -1341,8 +1342,26 @@ export default {
                         this.showProgress = false;
                         this.curProcess = 1;
                         this.msg.event.content.file = ret.file;
+                        try{
+                            URL.revokeObjectURL(this.msg.event.content.url);
+                        }
+                        catch(e) {
+
+                        }
                         this.msg.event.content.url = ret.url;
-                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, this.msg.event.content, this.msg._txnId).then((ret) => {
+                        let sendContent = {
+                            body: this.msg.event.content.body,
+                            msgtype : this.msg.event.content.msgtype,
+                            url : this.msg.event.content.url,
+                            info: {
+                                h: this.msg.event.content.info.h,
+                                w: this.msg.event.content.info.w,
+                                size: this.msg.event.content.info.size,
+                                thumbnail_url : this.msg.event.content.info.thumbnail_url,
+                                thumbnail_info: this.msg.event.content.info.thumbnail_info,
+                            },
+                        }
+                        global.mxMatrixClientPeg.matrixClient.sendMessage(roomID, sendContent, this.msg._txnId).then((ret) => {
                             this.$store.commit("removeSendingEvents", this.msg);
                             this.msg.message_status = 0;
                             this.showState = false;

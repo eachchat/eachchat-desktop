@@ -2179,7 +2179,6 @@ export default {
             const objectUrl = URL.createObjectURL(imageFile);
             const imgPromise = new Promise((resolve, reject) => {
                 img.onload = function() {
-                    URL.revokeObjectURL(objectUrl);
                     resolve(img);
                 };
                 img.onerror = function(e) {
@@ -2188,10 +2187,10 @@ export default {
             });
             img.src = objectUrl;
             // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
-            const [hidpi] = await Promise.all([imgPromise]);
-            const width = hidpi ? (img.width >> 1) : img.width;
-            const height = hidpi ? (img.height >> 1) : img.height;
-            return {width, height, img};
+            await Promise.all([imgPromise]);
+            const width = img.width;
+            const height = img.height;
+            return {width, height};
         },
         SendText: function(sendBody, varcontent){
             const quoteImgMsg = this.getQuoteImgMsg()
