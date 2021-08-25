@@ -6,7 +6,6 @@ class roomTimeLineHandler {
         this._curChat = null;
         this._timelineSet = null;
         this._timelineWindow = null;
-        this._lastTimelineNum = null;
         this._needInitTimelineWindow = true;
     }
 
@@ -41,18 +40,15 @@ class roomTimeLineHandler {
     }
 
     async _pageUp(num) {
-        this._lastTimelineNum = this._timelineWindow.getEvents().length;
-        console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
         await this._timelineWindow.paginate("b", num);
     }
 
     async _pageDown(num) {
-        this._lastTimelineNum = this._timelineWindow.getEvents().length;
-        console.log("++++ this._lastTimelineNum is ", this._lastTimelineNum);
         await this._timelineWindow.paginate("f", num);
     }
 
     messageFilter(event){
+        if(!event) return false;
         if(['m.room.message', 'm.room.encrypted', 'm.room.create', 'm.call.hangup'].indexOf((event.event && event.event.type) ? event.event.type : event.getType()) >= 0) return true;
         return false;
     }
@@ -68,8 +64,6 @@ class roomTimeLineHandler {
             {windowLimit:Number.MAX_VALUE},
         );
         this._timelineWindow.load(undefined, this._curChat.timeline.length);
-        
-        this._lastTimelineNum = this._curChat.timeline.length;
     }
 
     _initRoomTimelineWindow() {
@@ -93,7 +87,6 @@ class roomTimeLineHandler {
         this._initRoomTimelineWindow();
         await this._timelineWindow.load(distEventId, 1);
         distEvent = this._timelineWindow.getEvents();
-        this._lastTimelineNum = 1;
         return distEvent;
     }
 
@@ -104,13 +97,13 @@ class roomTimeLineHandler {
         while((messageList.length == 0 || messageList.length < num) && this._timelineWindow.canPaginate('b')) {
             let newTimeline = [];
             await this._pageUp(20);
-            this._timelineWindow.getEvents();
-            for(let i = 0; i < (this._timelineWindow.getEvents().length - this._lastTimelineNum); i++){
-                if(this.messageFilter(this._curChat.timeline[i])){
-                    newTimeline.push(this._curChat.timeline[i]);
+            let allEvents = this._timelineWindow.getEvents();
+            for(let i = 0; i < allEvents.length; i++){
+                if(this.messageFilter(allEvents[i])){
+                    newTimeline.push(allEvents[i]);
                 }
             }
-            messageList = [...newTimeline, ...messageList];
+            messageList = [...newTimeline];
         }
         if(this._isTimelineOutDated(messageList)) return null;
         return messageList;
@@ -124,13 +117,12 @@ class roomTimeLineHandler {
             let newTimeline = [];
             await this._pageDown(20);
             let allEvents = this._timelineWindow.getEvents();
-            console.log("showPageDown this._lastTimelinnum is ", this._lastTimelineNum);
-            for(let i = this._lastTimelineNum; i < allEvents.length; i++){
+            for(let i = 0; i < allEvents.length; i++){
                 if(this.messageFilter(allEvents[i])){
                     newTimeline.unshift(allEvents[i]);
                 }
             }
-            messageList = [...messageList, ...newTimeline];
+            messageList = [...newTimeline];
             console.log("the messagelist is ", messageList.length);
         }
         if(this._isTimelineOutDated(messageList)) return null;

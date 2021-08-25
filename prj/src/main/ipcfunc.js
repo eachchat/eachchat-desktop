@@ -54,9 +54,9 @@ const ipcFileFunc = {
         })
       },
 
-      GetSaveFilepath(mainWindow, event){
-        dialog.showOpenDialog(mainWindow,{
-            properties: ["openDirectory"]
+      GetSaveFilepath(mainWindow, event, fileName){
+        dialog.showSaveDialog(mainWindow,{
+          defaultPath: fileName
           }).then(files => {
             event.returnValue = files;
           })

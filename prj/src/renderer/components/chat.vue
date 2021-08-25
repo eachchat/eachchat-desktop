@@ -30,7 +30,7 @@
                 <!-- <ul class="msg-list" id="message-show-list"> -->
                 <transition-group name="msg-list" class="msg-list" id="message-show-list" tag="ul">
                     <div class="msg-loading" v-bind:key="123">
-                        <i class="el-icon-loading" v-show="true"></i>
+                        <i class="el-icon-loading" v-show="isRefreshing"></i>
                     </div>
                     <li v-for="(item, index) in messageList"
                         :class="ChatLeftOrRightClassName(item)"
@@ -547,7 +547,7 @@ export default {
                 showName = await ComponentUtil.GetDisplayNameByMatrixID(distUserId);
             }
             ipcRenderer.send("createChildWindow", {type: "videoChatWindow",
-                size:{width:300,height: 480},
+                size:{width:640,height: 320},
                         roomInfo: { roomID: this.curChat.roomId,
                                     name: showName,
                                     voipType: "video",
@@ -1219,16 +1219,17 @@ export default {
             this.selectChanged(msg);
         },
         downloadFile(msg){
-            let paths = ipcRenderer.sendSync("get_save_filepath");
-            let folders = paths.filePaths;
+            let fileName = msg.event.content.body;
+            let paths = ipcRenderer.sendSync("get_save_filepath", fileName);
+            let folders = paths.filePath;
             if(folders.length == 0) return;
-            let folder = folders[0];
-            console.log(folder)
+            let newFileName = folders;
+            console.log(newFileName)
             let msgElements = this.$refs[msg.event.event_id];
             if(msgElements.length === 0) return;
             let msgElement = msgElements[0];
             var chatGroupMsgContent = msg.event.content ? msg.event.content : msg.getContent();
-            msgElement.SaveFile(chatGroupMsgContent, path.join(folder, chatGroupMsgContent.body), msg.event.event_id, false);
+            msgElement.SaveFile(chatGroupMsgContent, newFileName, msg.event.event_id, false);
         },
 
         cleanSelected() {
@@ -1756,14 +1757,15 @@ export default {
             var showImageInfoList = [];
             var distImageInfo = {};
             var imgMsgList = await this.toGetShowImage(this.curChat);
-            imgMsgList.forEach(async curEvent => {
+            for(let i = 0; i < imgMsgList.length; i++) {
+                let curEvent = imgMsgList[i];
                 let event = curEvent.event;
                 let localPath = await this.getFileExist(event.event_id);
                 let chatGroupMsgType = event.type;
                 let chatGroupMsgContent = curEvent.getContent();
                 if(chatGroupMsgType == "m.room.message" && chatGroupMsgContent.msgtype == "m.image" && !this.isDeleted(curEvent)) {
                     let maxSize = 480;
-                    var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+                    let curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
         
                     let info = {
                         w: maxSize,
@@ -1806,41 +1808,112 @@ export default {
                     }
                     showImageInfoList.unshift(curImageInfo);
                 }
-            });
+            }
             if(!distImageInfo.imageUrl) {
-                let event = distEvent.event;
-                let localPath = await this.getFileExist(event.event_id);
-                let chatGroupMsgContent = event.content;
-                
+                let curUrl = "";
+                let localPath = "";
                 let maxSize = 390;
-                var curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
-    
-                let info = {
-                    w: maxSize,
-                    h: maxSize
-                };
-                console.log("*** image info is ", chatGroupMsgContent.info);
-                if(chatGroupMsgContent.info)
-                    info = chatGroupMsgContent.info
-                if(!info.h)
-                    info.h = maxSize;
-                if(!info.w)
-                    info.w = maxSize;
+                if(distEvent.event.content && distEvent.path && distEvent.path.startsWith('blob:')) {
+                    curUrl = distEvent.path;
+                    var img = new Image();
+                    img.onload = () => {
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(distEvent.event.content.info)
+                            info = distEvent.event.content.info
+                        if(!info.h)
+                            info.h = img.height;
+                        if(!info.w)
+                            info.w = img.width;
+
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            localPath: localPath,
+                            url: curUrl,
+                            imageEventId: "",
+                            info: info,
+                            body: distEvent.event.content.body,
+                            sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                            origin_server_ts: distEvent.event.origin_server_ts
+                        }
+                        showImageInfoList.unshift(distImageInfo);
+                        ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
+                        return;
+                    }
+                    img.onerror = () => {
+                        let info = {
+                            w: maxSize,
+                            h: maxSize
+                        };
+                        if(distEvent.event.content.url.startsWith('mxc://')) {
+                            curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(distEvent.event.content.url);
+                            if(distEvent.event.content.info)
+                                info = distEvent.event.content.info
+                            if(!info.h)
+                                info.h = maxSize;
+                            if(!info.w)
+                                info.w = maxSize;
+                        }
+                        else {
+                            if(!info.h)
+                                info.h = maxSize;
+                            if(!info.w)
+                                info.w = maxSize;
+                        }
+
+                        distImageInfo = {
+                            imageUrl: curUrl,
+                            localPath: localPath,
+                            url: curUrl,
+                            imageEventId: "",
+                            info: info,
+                            body: distEvent.event.content.body,
+                            sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                            origin_server_ts: distEvent.event.origin_server_ts
+                        }
+                        showImageInfoList.unshift(distImageInfo);
+                        ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
+                        return;
+                    }
+                    img.src = curUrl;
+                }
+                else {
+                    let event = distEvent.event;
+                    localPath = await this.getFileExist(event.event_id);
+                    let chatGroupMsgContent = event.content;
                 
                 if(info.h < 320 || info.w < 334) {
                     info.h = parseInt(info.h * 1.5);
                     info.w = parseInt(info.w * 1.5);
                 }
 
-                distImageInfo = {
-                    imageUrl: curUrl,
-                    localPath: localPath,
-                    url: chatGroupMsgContent.url,
-                    imageEventId: event.event_id,
-                    info: info,
-                    body: chatGroupMsgContent.body,
-                    sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
-                    origin_server_ts: distEvent.event.origin_server_ts
+                    curUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url);
+
+                    let info = {
+                        w: maxSize,
+                        h: maxSize
+                    };
+                    console.log("*** image info is ", chatGroupMsgContent.info);
+                    if(chatGroupMsgContent.info)
+                        info = chatGroupMsgContent.info
+                    if(!info.h)
+                        info.h = maxSize;
+                    if(!info.w)
+                        info.w = maxSize;
+                        
+                    distImageInfo = {
+                        imageUrl: curUrl,
+                        localPath: localPath,
+                        url: chatGroupMsgContent.url,
+                        imageEventId: event.event_id,
+                        info: info,
+                        body: chatGroupMsgContent.body,
+                        sender: (distEvent.sender && distEvent.sender.userId) ? distEvent.sender.userId : distEvent.event.sender,
+                        origin_server_ts: distEvent.event.origin_server_ts
+                    }
+                    showImageInfoList.unshift(distImageInfo);
                 }
             }
             ipcRenderer.send('showImageViewWindow', showImageInfoList, distImageInfo);
@@ -1916,9 +1989,11 @@ export default {
         insertFace: function(item) {
             var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
             getProperty(this.editor, 'selection.savedRange.index', 0) 
-
             let faceImg = faceUtils.getFaceImg(item);
-            this.editor.insertEmbed(curIndex, 'image', faceImg);
+            let dom = document.createElement('img')
+            dom.setAttribute('src', faceImg);
+            dom.setAttribute('filepath', faceImg), 
+            this.editor.insertEmbed(curIndex, 'span', dom);
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;
         },
@@ -1982,6 +2057,7 @@ export default {
         },
         pushFileMsg: async function(fileinfo) {
             var showfileObj = undefined;
+            var objectUrl = "";
             if(!fs.existsSync(fileinfo.path)) {
                 showfileObj = this.path2File[fileinfo.path];
             }
@@ -2034,7 +2110,7 @@ export default {
                 };
 
                 if(type == 'm.image'){
-                    const objectUrl = URL.createObjectURL(showfileObj);
+                    objectUrl = URL.createObjectURL(showfileObj);
                     eventTmp.event.content.msgtype = "m.image";
                     eventTmp.event.content.url = objectUrl;
                 }
@@ -2141,7 +2217,9 @@ export default {
                 let curMsgItem = varcontent.ops[i].insert;
                 
                 if(curMsgItem.hasOwnProperty("span")) {
-                    if (curMsgItem.span.id !== 'quote-img' && curMsgItem.span.id !== 'quote-text') {    
+                    if (curMsgItem.span.id !== 'quote-img' 
+                    && curMsgItem.span.id !== 'quote-text'
+                    && curMsgItem.span.id !== '') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
@@ -2151,11 +2229,12 @@ export default {
                             sendBody.format = "org.matrix.custom.html";
                         }
                     }
-                }
-                else if(curMsgItem.hasOwnProperty("image")){
-                    let faceImg = curMsgItem.image;
-                    let facecode = faceUtils.getFaceCode(faceImg);
-                    sendText += facecode;
+                    else if(curMsgItem.span.id === ''){
+                        let faceImg = curMsgItem.span;
+                        let filePath = faceImg.getAttribute('filepath');
+                        let facecode = faceUtils.getFaceCode(filePath);
+                        sendText += facecode;
+                    }
                 }
                 else{
                     curMsgItem = sliceReturnsOfString(curMsgItem);
@@ -2672,7 +2751,7 @@ export default {
                                 roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                                     .then((ret) => {
                                         console.log("ret is ", ret);
-                                        for(let i = ret.length - 1; i >= 0 ; i--){
+                                        for(let i = ret.length - 2; i >= 0 ; i--){
                                             this.messageList.push(ret[i]);
                                         }
 
@@ -2698,9 +2777,7 @@ export default {
             if(uldiv.clientHeight >= uldiv.scrollHeight) {
                 roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                     .then((ret) => {
-                        for(let i=ret.length - 1;i>0;i--){
-                            this.messageList.unshift(ret[i]);
-                        }
+                        this.messageList = ret;
 
                         setTimeout(() => {
                             this.$nextTick(() => {
@@ -2828,10 +2905,7 @@ export default {
                     roomTimeLineHandler.shareInstance().showPageUp(this.curChat.roomId, 10)
                         .then((ret) => {
                             console.log("++++++++++ ", ret);
-                            
-                            for(let i=ret.length - 1;i>0;i--){
-                                this.messageList.unshift(ret[i]);
-                            }
+                            this.messageList = ret;
 
                             // setTimeout(() => {
                                 this.$nextTick(() => {
@@ -2865,6 +2939,7 @@ export default {
                     this.lastRefreshTime = new Date().getTime();
                     roomTimeLineHandler.shareInstance().showPageDown(this.curChat.roomId, 10)
                         .then((ret) => {
+                            this.messageList = [];
                             for(let i = ret.length - 1; i >= 0 ; i--){
                                 this.messageList.push(ret[i]);
                             }
@@ -3078,9 +3153,7 @@ export default {
                 .then((messageList) => {
                     console.log("==========", messageList);
                     if(!messageList) return;
-                    for(let i=messageList.length - 1;i>0;i--){
-                        this.messageList.unshift(messageList[i]);
-                    }
+                    this.messageList = messageList;
 
                     setTimeout(() => {
                         this.$nextTick(() => {
