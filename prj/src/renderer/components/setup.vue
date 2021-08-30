@@ -548,7 +548,7 @@ export default {
     // var autoStart = await Config.GetAutoStart();
     // console.log("=====get config is ", config)
     console.log("=====autoStart is ", autoStart)
-    if(autoStart == null || autoStart == "true") {
+    if(autoStart == "true") {
       ipcRenderer.send("setAutoRun", true);
       global.localStorage.setItem("autoStart", true);
       this.autoRun = true;
