@@ -2214,7 +2214,7 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'PingFangSC-Light';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
@@ -2233,7 +2233,7 @@ export default {
         border-radius: 5px;
         padding: 0;
         font-size: 14px;
-        font-family: 'PingFangSC-Light';
+        font-family: 'PingFangSC-Regular';
         text-align: left;
         margin: 0px;
         white-space: pre-wrap;
