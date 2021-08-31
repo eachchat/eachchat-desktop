@@ -35,6 +35,7 @@ var leaveInter, trayBounds, point, isLeave = true;
 let emptyIconPath;
 let isLogin = false;
 let toHide = false;
+let resizeInterval = null;
 
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
@@ -157,7 +158,12 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
   mainWindow.hide();
   mainWindow.setResizable(true);
   mainWindow.setMinimumSize(720, 600);
-  mainWindow.setSize(960, 600, true);
+  if(arg && arg[0] && arg[1]) {
+    mainWindow.setSize(parseInt(arg[0]), parseInt(arg[1]), true);
+  }
+  else {
+    mainWindow.setSize(960, 600, true);
+  }
   CreateChildWindows();
   isLogin = true;
   
@@ -1188,6 +1194,15 @@ function openDevToolsInDevelopment(mainWindow) {
     }
   })
 
+  mainWindow.on('resize', (event) => {
+    clearTimeout(resizeInterval);
+    resizeInterval = setTimeout(() => {
+      if(!mainWindow) return;
+      let finalSize = mainWindow.getSize();
+      mainWindow.webContents.send("saveResize", finalSize[0], finalSize[1]);
+    }, 500);
+  })
+
   mainWindow.on('leave-full-screen', (event) => {
     console.log("====333===333===");
     if(process.platform == 'darwin'){
@@ -1207,6 +1222,7 @@ function openDevToolsInDevelopment(mainWindow) {
   mainWindow.on('maximize', (event) => {
     console.log("maximize")
     if(!mainWindow) return;
+    clearTimeout(resizeInterval);
     mainWindow.webContents.send("isNormal", false);
     mainWindow.webContents.send("reCalcuate");
   })

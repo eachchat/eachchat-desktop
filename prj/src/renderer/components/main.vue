@@ -390,6 +390,10 @@ export default {
                 }, 200)
             })
         },
+        updateCurSize: function(e, appSizeX, appSizeY) {
+            global.localStorage.setItem("appSizeX", appSizeX);
+            global.localStorage.setItem("appSizeY", appSizeY);
+        },
         jumpToChat: function(e, roomId) {
             this.distGroupId = "";
             this.$nextTick(() => {
@@ -750,6 +754,7 @@ export default {
         })
         ipcRenderer.on('jumpToChat', this.jumpToChat);
         ipcRenderer.on('clearAll', this.clearAll);
+        ipcRenderer.on('saveResize', this.updateCurSize)
         console.log("In Main Page The MatrixSdk is ", global.mxMatrixClientPeg)
         this.getAppBaseData();
         

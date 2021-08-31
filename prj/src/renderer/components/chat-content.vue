@@ -3266,7 +3266,16 @@ export default {
       setTimeout(() => {
         this.callback(msg);
       }, 100)
-    }
+    },
+    saveListAndChatWidth: function(listWidth, chatWidth, isEmpty) {
+        global.localStorage.setItem("groupListWidth", listWidth);
+        if(isEmpty) {
+          global.localStorage.setItem("chatEmptyWidth", chatWidth);
+        }
+        else {          
+          global.localStorage.setItem("chatElementWidth", chatWidth);
+        }
+    },
   },
 
   mounted: async function() {
@@ -3292,17 +3301,27 @@ export default {
         let chatEmptyElement = document.getElementById("chat-empty-id");
         let box = document.getElementById("chat-panel-id");
         let isDraging = false;
+        let chatEmptyWidth = global.localStorage.getItem("chatEmptyWidth");
+        let chatWidth = global.localStorage.getItem("chatElementWidth");
+        let groupListWidth = global.localStorage.getItem("groupListWidth");
+        if(groupListWidth) groupListElement.style.width = groupListWidth.toString() + "px";
+        if(chatEmptyWidth) chatEmptyElement.style.width = chatEmptyWidth.toString() + "px";
+        if(chatWidth) chatElement.style.width = chatWidth.toString() + "px";
 
-        middleElement.onmousedown = function(e) {
+        middleElement.onmousedown = (e) => {
           let startX = e.clientX;
           middleElement.left = middleElement.offsetLeft;
           chatElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
-          document.onmousemove = function(e) {
+          let saveTimeout = null;
+          document.onmousemove = (e) => {
             isDraging = true;
             let endX = e.clientX;
-            let moveLen = middleElement.left + (endX - startX) - 64;
+            var moveLen = middleElement.left + (endX - startX) - 64;
+            var chatWidth = box.clientWidth - moveLen;
             groupListElement.style.width = moveLen.toString() + "px";
             chatElement.style.width = (box.clientWidth - moveLen).toString() + "px";
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(this.saveListAndChatWidth(moveLen, chatWidth, false), 500)
           }
 
           document.onmouseup = function(e) {
@@ -3317,18 +3336,22 @@ export default {
           return false;
         }
 
-        emptyMiddleElement.onmousedown = function(e) {
+        emptyMiddleElement.onmousedown = (e) => {
           console.log("==== is click emptyMiddleElement ", emptyMiddleElement)
           let startX = e.clientX;
           emptyMiddleElement.left = emptyMiddleElement.offsetLeft;
           chatEmptyElement.style.width = (box.clientWidth - groupListElement.clientWidth).toString() + "px";
-          document.onmousemove = function(e) {
+          let saveTimeout = null;
+          document.onmousemove = (e) => {
             isDraging = true;
             let endX = e.clientX;
-            let moveLen = emptyMiddleElement.left + (endX - startX) - 64;
+            var moveLen = emptyMiddleElement.left + (endX - startX) - 64;
+            var chatWidth = box.clientWidth - moveLen;
             let x = chatEmptyElement.style.width;
             groupListElement.style.width = moveLen.toString() + "px";
             chatEmptyElement.style.width = (box.clientWidth - moveLen).toString() + "px";
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(this.saveListAndChatWidth(moveLen, chatWidth, true), 500)
           }
 
           document.onmouseup = function(e) {

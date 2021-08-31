@@ -1832,13 +1832,15 @@ export default {
             //this.loginButtonValue = "正在加载数据";
             this.$toastMessage({message:"登录成功", time: 3000, type:'success'});
             // this.loginState = "登录成功";
+            let appSizeX = global.localStorage.getItem("appSizeX");
+            let appSizeY = global.localStorage.getItem("appSizeY");
             this.showLoginView = false;
             this.showLoadingView = false;
             this.tokenRefreshing = false;
             this.$router.push("/main")
             setTimeout(async () => {
                 // ipcRenderer.send('showMainPageWindow', true); 
-                ipcRenderer.send("showMainPageWindow")
+                ipcRenderer.send("showMainPageWindow", [appSizeX, appSizeY])
             }, 0);
             
             this.isLoading = false;
@@ -1865,6 +1867,9 @@ export default {
         // if(window.localStorage) {
         //     this.organizationAddress = window.localStorage.getItem("mx_hs_url") == null ? "https://matrix.each.chat" : window.localStorage.getItem("mx_hs_url");
         // }
+        let appSizeX = global.localStorage.getItem("appSizeX");
+        let appSizeY = global.localStorage.getItem("appSizeY");
+
         var host = window.localStorage.getItem("mx_hs_url");
         if(host == null) {
             this.tokenRefreshing = false;
@@ -1884,6 +1889,7 @@ export default {
                     this.showLoginView = true;
                     return
                 }
+
                 global.mxMatrixClientPeg.restoreFromLocalStorage().then(async (ret) => {
                     this.tokenRefreshing = false;
                     this.showLoadingView = false;
@@ -1899,7 +1905,7 @@ export default {
                     this.$router.push("/main")
                     setTimeout(async () => {
                         // ipcRenderer.send('showMainPageWindow', true); 
-                        ipcRenderer.send("showMainPageWindow")
+                        ipcRenderer.send("showMainPageWindow", [appSizeX, appSizeY])
                     }, 0);
                 })
             })
