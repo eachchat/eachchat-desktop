@@ -88,7 +88,7 @@ function init(env) {
 }
 
 function initForLinux(env){
-  let eachChatDir = os.homedir() + "/EachChat2.0";
+  let eachChatDir = os.homedir() + "/EachChat";
 
   if (!fs.existsSync(eachChatDir)) {
     fs.mkdirSync(eachChatDir);
@@ -101,7 +101,7 @@ function initForLinux(env){
 
 function initForWindows(env) {
   var appRoamingDir = os.homedir() + "\\AppData\\Roaming";
-  var eachChatDir = appRoamingDir + "\\EachChat2.0";
+  var eachChatDir = appRoamingDir + "\\EachChat";
 
   if (!fs.existsSync(appRoamingDir)) {
     return false;
@@ -119,7 +119,7 @@ function initForWindows(env) {
 
 function initForOSX(env) {
   var appSupportDir = os.homedir() + "/Library/Application Support";
-  var eachChatDir = appSupportDir + "/EachChat2.0";
+  var eachChatDir = appSupportDir + "/chat.each";
 
   if (!fs.existsSync(appSupportDir)) {
     return false;

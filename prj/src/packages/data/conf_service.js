@@ -5,9 +5,9 @@ import {Appendzero} from '../core/Utils.js';
 
 class ConfService {
     constructor() {
-        this.appName = 'EachChat2.0';
+        this.appName = 'EachChat';
         this.companyName = 'Workly';
-        this.productName = 'EachChat2.0';
+        this.productName = 'EachChat';
         this.localAnyBoxDirName = 'AnyBoxSpaces';
         this.filesDirName = 'EachChatFile';
         this.filesFilesDirName = 'Files';
