@@ -1037,6 +1037,7 @@ export default {
             const twoLimit = this.lmaxOtherHsMembersFirstTime;
             totLen = 0;
             ohsLen = 0;
+            /*
             if (this.nextTime) {
                 const room = client.getRoom(this.roomId);
                 console.log('已存在room', room);
@@ -1052,14 +1053,15 @@ export default {
                 totLen = totLen + zong;
                 ohsLen = ohsLen + wai;
             }
-            this.choosenMembers; 
+    
             const otherHs = this.choosenMembers.filter(c => {
                 const id = c.matrix_id || c.user_id;
                 const hs = ComponentUtil.GetDomanName(id);
                 return hs !== this.myDomain;
             }); 
-            totLen = totLen + this.choosenMembers.length;
-            ohsLen = ohsLen + otherHs.length;
+            */
+            totLen = this.choosenMembers.length;
+            //ohsLen = ohsLen + otherHs.length;
             if (obj.type !== 'dep') {
                 const id = obj.matrix_id || obj.user_id;
                 const hs = ComponentUtil.GetDomanName(id);
