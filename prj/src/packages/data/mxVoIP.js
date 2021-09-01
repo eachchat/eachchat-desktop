@@ -114,9 +114,7 @@ function _setVideoCallListeners(call, videoCall) {
         log.info("Call error:", err)
     });
     call.on("hangup", function() {
-        console.log("======= hangup ", updateTrayNotice);
-        log.info("======= hangup callid:", call.roomId)
-        updateTrayNotice();
+        log.info("======= hangup callid:", call.roomId);
         videoCall.afterCallState();
         _setCallState(undefined, call.roomId, "ended");
         ipcRenderer.send("CallingState", 'free');
@@ -161,17 +159,15 @@ function _setVideoCallListeners(call, videoCall) {
             _setCallState(call, call.roomId, "connected");
             videoCall.connectedState(call.type);
             pause("ringbackAudio");
-            console.log("================connected ", updateTrayNotice);
-            updateTrayNotice();
             haveConnected = true;
         } else if (newState === "connecting" && !haveConnected) {
             connectingTimer = setTimeout(() => {
                 call.hangup("user_busy");
-                updateTrayNotice();
             }, 30 * 1000);
         }else {
             console.log("Final undeal state");
         }
+        updateTrayNotice();
     });
 }
 
