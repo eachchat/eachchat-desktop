@@ -321,9 +321,7 @@ export default {
         },
 
         createDm: function() {
-            if (this.loading) return;
-            // if (!this.choosenMembers || !this.choosenMembers) return;
-            this.loading = true;
+            this.bShowChatIcon = false;
             const client = window.mxMatrixClientPeg.matrixClient;
             console.log('-----this.userInfo----', this.userInfo)
             const targetIds = [this.userInfo.matrix_id];

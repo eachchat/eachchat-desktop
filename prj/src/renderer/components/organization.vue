@@ -474,7 +474,7 @@ export default {
                 tempUserInfo = await ComponentUtil.ShowOrgInfoByUserID(id);
             }
             this.searchUserInfo = tempUserInfo;
-            this.searchUserInfoKey ++;
+            //this.searchUserInfoKey ++;
             this.showSearchUserInfoTips = true;
             this.contactType = userType;
         },
