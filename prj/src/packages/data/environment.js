@@ -119,7 +119,7 @@ function initForWindows(env) {
 
 function initForOSX(env) {
   var appSupportDir = os.homedir() + "/Library/Application Support";
-  var eachChatDir = appSupportDir + "/chat.each";
+  var eachChatDir = appSupportDir + "/EachChat";
 
   if (!fs.existsSync(appSupportDir)) {
     return false;
