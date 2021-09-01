@@ -30,24 +30,22 @@ class UserIncrement extends BaseIncrement{
               return;
             }
             let userInfoModel = itemModel[0];
-            var foundUsers = await(await models.Login).find({
-                $reverse: true
-              });
-            let userinfos = await (await models.UserInfo).find({
-                user_id: userInfoModel.user_id
-            })
-            let updatetime;
-            if(userinfos.length == 0)
-            {
-                updatetime = userInfoModel.updatetime;
-                userInfoModel.save();
-                return;
+            await userInfoModel.save();
+
+            let userEmailModel = itemModel[1];
+            for(let index in userEmailModel){
+                await userEmailModel[index].save();
             }
-            else{
-                let findUserInfo = userinfos[0];
-                findUserInfo.values = userInfoModel.values;
-                findUserInfo.save();
+            let userAddressModel = itemModel[2];
+            await userAddressModel.save();
+            
+            let userPhoneModel = itemModel[3];
+            for(let index in userPhoneModel){
+                await userPhoneModel[index].save();
             }
+            
+            let userImModel = itemModel[4];
+            await userImModel.save();
         }
         else{
             let increment = new DepartmentIncrement(this.type, this.item, this.service);

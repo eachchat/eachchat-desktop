@@ -36,7 +36,7 @@ class Sqlite {
       //this.db.run("PRAGMA KEY = " + password);
       //this.db.run("PRAGMA CIPHER = 'aes-128-cbc'");
     })
-    let newVersion = 10;
+    let newVersion = 11;
     let version = await this.SyncAll("PRAGMA user_version");
     if(version == undefined || version.length == 0)
     {
