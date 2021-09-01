@@ -167,7 +167,10 @@ function _setVideoCallListeners(call, videoCall) {
         }else {
             console.log("Final undeal state");
         }
-        updateTrayNotice();
+
+        if(newState != "ringing") {
+            pause("ringAudio");
+        }
     });
 }
 
