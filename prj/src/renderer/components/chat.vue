@@ -2031,6 +2031,9 @@ export default {
             let dom = document.createElement('img')
             dom.setAttribute('src', faceImg);
             dom.setAttribute('filepath', faceImg), 
+            dom.setAttribute('width', 24);
+            dom.setAttribute('height', 24);
+
             this.editor.insertEmbed(curIndex, 'span', dom);
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
             this.showFace = false;

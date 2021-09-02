@@ -2,7 +2,7 @@
     <div class="emojiDiv">
       <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" >
         <span class="emoji" v-if = "ind % 2 && item !== '。' && hasFaceImg(item)" >
-          <img class="emoji" :style="{fontSize: 1, paddingLeft: '1px', paddingRight: '1px', 'vertical-align': 'middle'}" :src = "getFaceImg(item)"></img>
+          <img class="emoji" :style="{fontSize: 1, paddingLeft: '1px', paddingRight: '1px', 'vertical-align': 'middle', width: '24px', height: '24px'}" :src = "getFaceImg(item)"></img>
         </span>
         <span class="emoji" v-else>{{item}}</span>
       </span>

@@ -4,7 +4,7 @@
             <li v-for="item in faceList" :style="{
               fontSize: isMac() ? '22px' : '18px'
             }">
-                <img :src="getFaceImg(item)" @click="insertFace(item)"/>
+                <img style = "width:24px; height:24px;" :src="getFaceImg(item)" @click="insertFace(item)"/>
                 <!-- <div v-html="item" :title="item" @click="insertFace(item)"></div> -->
             </li>
         </ul>
