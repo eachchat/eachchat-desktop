@@ -98,7 +98,7 @@ export default {
             this.Details = this.upgradeInfo.description;
             this.verName = this.upgradeInfo.verName;
 
-            this.Abstrace = "软件更新";
+            this.Abstrace = "检查新版本";
             this.calcImgPosition();
         }
     }

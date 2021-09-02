@@ -19,7 +19,7 @@ const setting  = {
     privacy_policy: "隐私政策",
     sign_out: "退出",
     clear_cache: "清除缓存",
-    check_for_update: "软件更新",
+    check_for_update: "检查新版本",
     user_info: "个人信息",
     profile_picture: "头像",
     display_name: "昵称",
