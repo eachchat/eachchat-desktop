@@ -3269,12 +3269,7 @@ export default {
     },
     saveListAndChatWidth: function(listWidth, chatWidth, isEmpty) {
         global.localStorage.setItem("groupListWidth", listWidth);
-        if(isEmpty) {
-          global.localStorage.setItem("chatEmptyWidth", chatWidth);
-        }
-        else {          
-          global.localStorage.setItem("chatElementWidth", chatWidth);
-        }
+        global.localStorage.setItem("chatWidth", chatWidth);
     },
   },
 
@@ -3301,12 +3296,13 @@ export default {
         let chatEmptyElement = document.getElementById("chat-empty-id");
         let box = document.getElementById("chat-panel-id");
         let isDraging = false;
-        let chatEmptyWidth = global.localStorage.getItem("chatEmptyWidth");
-        let chatWidth = global.localStorage.getItem("chatElementWidth");
+        let chatWidth = global.localStorage.getItem("chatWidth");
         let groupListWidth = global.localStorage.getItem("groupListWidth");
         if(groupListWidth) groupListElement.style.width = groupListWidth.toString() + "px";
-        if(chatEmptyWidth) chatEmptyElement.style.width = chatEmptyWidth.toString() + "px";
-        if(chatWidth) chatElement.style.width = chatWidth.toString() + "px";
+        if(chatWidth) {
+          chatEmptyElement.style.width = chatEmptyWidth.toString() + "px";
+          chatElement.style.width = chatWidth.toString() + "px";
+        }
 
         middleElement.onmousedown = (e) => {
           let startX = e.clientX;

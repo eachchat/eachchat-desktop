@@ -729,6 +729,7 @@ export default {
 
         ipcRenderer.on("SAVED_FILE", async (e, finalName, eventId, needOpen)=>{
             console.log("SAVED_FILE ",finalName, eventId)
+            this.$store.commit("removeDownloadedEvent", eventId);
             let msgs = await Message.FindMessageByMesssageID(eventId);
             if(msgs.length != 0){
                 msgs[0].file_local_path = finalName;

@@ -37,6 +37,16 @@ let isLogin = false;
 let toHide = false;
 let resizeInterval = null;
 
+const Bobolink = require('bobolink');
+const queue = new Bobolink({
+  timeout: 2000,
+  retry: 3,
+  concurrency: 20,
+  retryPrior: true,
+  taskMode:Bobolink.TASK_MODE_FUNCTION,
+  newPrior: true,
+});
+
 if (process.env.NODE_ENV === "development") {
   iconPath = "../../static/Img/Main/logo@2x.ico";
   emptyIconPath = "../../static/Img/Main/logo-empty.ico";
@@ -433,6 +443,7 @@ ipcMain.on('showLoginPageWindow', function(event, arg) {
   if(process.platform == 'darwin'){
     app.dock.setBadge("");
   }
+  queue.destory();
 });
 
 ipcMain.on('setAutoRun', function(event, isAutoRun) {
@@ -704,8 +715,9 @@ ipcMain.on('open-download-recoveryKey-dialog', function(event) {
 });
 
 ipcMain.on("save_file", function(event, path, buffer, eventId, needOpen, pipName){
-  ipcFileFunc.SaveFile(event, path, buffer, eventId, needOpen, pipName);
+  queue.put(ipcFileFunc.SaveFile([event, path, buffer, eventId, needOpen, pipName]));
 });
+
 ipcMain.on("get_save_filepath", function(event, fileName){
   ipcFileFunc.GetSaveFilepath(mainWindow, event, fileName);
 });

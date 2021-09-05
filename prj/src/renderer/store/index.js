@@ -45,8 +45,20 @@ export default new Vuex.Store({
     nUpdateInviteRoom: 0,
     sendingEvents: {},
     sendingEventsTxnIds: [],
+    downloadingEventIds: [],
   },
   mutations: {
+    addDownloadingEvent(state, eventId) {
+      if(state.downloadingEventIds.indexOf(eventId) < 0) {
+        state.downloadingEventIds.push(eventId);
+      }
+    },
+    removeDownloadedEvent(state, eventId) {
+      let index = state.downloadingEventIds.indexOf(eventId);
+      if(index >= 0) {
+        state.downloadingEventIds.splice(index, 1);
+      }
+    },
     saveSendingEvents(state, newEvent) {
       if(newEvent._txnId && state.sendingEventsTxnIds.indexOf(newEvent._txnId) < 0) {
         state.sendingEventsTxnIds.push(newEvent._txnId);
@@ -312,6 +324,9 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    isDownloading: state => (eventId) => {
+      return state.downloadingEventIds.indexOf(eventId) >= 0;
+    },
     getSendingEvents: state => (roomId) => {
       return state.sendingEvents[roomId] == undefined ? [] : state.sendingEvents[roomId];
     },

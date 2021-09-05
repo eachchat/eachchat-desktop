@@ -318,7 +318,9 @@ export default {
         },
 
         SaveFile(content, path, event_id, needOpen){
-                getFileBlob(content.info, this.matrixClient.mxcUrlToHttp(content.url), this.ProCallback)
+            if(this.$store.getters.isDownloading(event_id)) return;
+            this.$store.commit("addDownloadingEvent", event_id);
+            getFileBlob(content.info, this.matrixClient.mxcUrlToHttp(content.url), this.ProCallback)
                 .then((blob) => {
                     let reader = new FileReader();
                     reader.onload = function() {
@@ -392,6 +394,8 @@ export default {
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                     var existLocalFile = await this.getFileExist();
                     this.checkingTmpPath = finalPath + "_tmp";
+                    if(this.$store.getters.isDownloading(event.event_id)) return;
+                    this.$store.commit("addDownloadingEvent", event.event_id);
                     if(!fs.existsSync(existLocalFile)) {
                         getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
                             .then((blob) => {
@@ -549,9 +553,7 @@ export default {
         downLoadImg: async function(iconUrl) {
             const existLocalFile = await this.getFileExist();
             if(fs.existsSync(existLocalFile)) {
-                if(this.isFileSizeSame(this.msg.event.content.info && this.msg.event.content.info.size, existLocalFile)) {
-                    return;
-                }
+                return;
             }
             const chatGroupMsgContent = this.msg.event.content ? this.msg.event.content : this.msg.getContent();
             const event = this.msg.event;
@@ -559,6 +561,8 @@ export default {
             const finalPath = path.join(distPath, chatGroupMsgContent.body);
             //console.log("event_id path",event.event_id, finalPath)
             return;
+            if(this.$store.getters.isDownloading(event.event_id)) return;
+            this.$store.commit("addDownloadingEvent", event.event_id);
             getFileBlob(chatGroupMsgContent.info, iconUrl)
                 .then((blob) => {
                     let reader = new FileReader();
@@ -600,6 +604,8 @@ export default {
             if(!distUrl.startsWith('blob:')) {
                 let iconPath = this.matrixClient.mxcUrlToHttp(this.msg.event.content.url);
                 distUrl = iconPath;
+                this.downLoadImg(iconPath);
+                this.updateMsgImg();
             }
             console.log("event_id path",this.msg.event.event_id, distUrl)
             return distUrl;
@@ -958,6 +964,8 @@ export default {
                     var finalPath = path.join(distPath, chatGroupMsgContent.body);
                     var existLocalFile = await this.getFileExist();
                     this.checkingTmpPath = finalPath + "_tmp";
+                    if(this.$store.getters.isDownloading(event.event_id)) return;
+                    this.$store.commit("addDownloadingEvent", event.event_id);
                     if(!fs.existsSync(existLocalFile)) {
                         getFileBlob(chatGroupMsgContent.info, this.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback)
                             .then((blob) => {
