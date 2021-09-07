@@ -1431,6 +1431,7 @@ export default {
             }
             if(this.curContent.indexOf("@") == -1) {
                 this.chatMemberDlgVisible = false;
+                this.curSelectedIndex = 0;
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
                 canNewLine = true;
@@ -1533,6 +1534,7 @@ export default {
             else if(event.code == "Escape") {
                 if(this.chatMemberDlgVisible) {
                     this.chatMemberDlgVisible = false;
+                    this.curSelectedIndex = 0;
                     this.charMemberDlgChat = {};
                     this.chatMemberSearchKey = null;
                     canNewLine = true;
@@ -1553,62 +1555,58 @@ export default {
                 if(this.ulElement == undefined) {
                     this.ulElement = document.getElementById("atListId");
                 }
-                console.log(this.ulElement.children);
                 switch(event.keyCode) {
                     case 38: {
-                        console.log("=======up ", this.curSelectedIndex);
+                        if(this.lastOperate == 1) {
+                            this.curSelectedIndex--;
+                        }
+                        this.lastOperate = -1;
                         if(this.curSelectedIndex == 0) {
-                            this.curSelectedIndex = this.ulElement.children.length - 1;
                             this.ulElement.children[0].style.backgroundColor = "rgba(255, 255, 255, 1)";
                             this.ulElement.children[0].style.color = "rgb(0, 0, 0)";
-                            if(this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex])) {
-                                this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
+                            if(this.ulElement.children[this.ulElement.children.length - 1] && this.checkNeedScroll(this.ulElement.children[this.ulElement.children.length - 1])) {
+                                this.ulElement.scrollTo({ top:this.ulElement.children[this.ulElement.children.length - 1].offsetTop, behavior: 'smooth' });
                             }
-                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(243, 244, 247, 1)";
-                            // this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
+                            this.ulElement.children[this.ulElement.children.length - 1].style.backgroundColor = "rgba(243, 244, 247, 1)";
+                            this.curSelectedIndex = this.ulElement.children.length - 1;
                         }
-                        else if(this.curSelectedIndex > 0 && this.curSelectedIndex < this.ulElement.children.length) {
-                            this.curSelectedIndex--;
-                            if(this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex])) {
-                                this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
-                            }
-                            this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(243, 244, 247, 1)";
-                            // this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
-                            this.ulElement.children[this.curSelectedIndex+1].style.backgroundColor = "rgba(255, 255, 255, 1)";
-                            this.ulElement.children[this.curSelectedIndex+1].style.color = "rgb(0, 0, 0)";
-                        }
-                        else if(this.curSelectedIndex == this.ulElement.children.length) {
-                            this.curSelectedIndex--;
-                            this.ulElement.children[0].style.backgroundColor = "rgba(243, 244, 247, 1)";
-                            // this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
-                            this.ulElement.scrollTo({ top:this.ulElement.children[0].offsetTop, behavior: 'smooth' });
+                        else if(this.curSelectedIndex > 0){
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(255, 255, 255, 1)";
-                            this.ulElement.children[this.curSelectedIndex].style.color = "rgba(0, 0, 0, 1)";
+                            this.ulElement.children[this.curSelectedIndex].style.color = "rgb(0, 0, 0)";
+                            this.ulElement.children[this.curSelectedIndex - 1].style.backgroundColor = "rgba(243, 244, 247, 1)";
+                            if(this.ulElement.children[this.curSelectedIndex-1] && this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex-1])) {
+                                this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex-1].offsetTop, behavior: 'smooth' });
+                            }
+                            this.curSelectedIndex--;
                         }
                         break;
                     }
                     case 40: {
-                        console.log("=======down", this.curSelectedIndex);
-                        if(this.curSelectedIndex == this.ulElement.children.length) {
-                            this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
-                            this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
-                            this.ulElement.scrollTo({ top:0, behavior: 'smooth' });
-                            this.ulElement.children[0].style.backgroundColor = "rgba(243, 244, 247, 1)";
-                            // this.ulElement.children[0].style.color = "rgb(255, 255, 255)";
-                            this.curSelectedIndex = 0;
+                        if(this.lastOperate == -1) {
+                            this.curSelectedIndex++;
                         }
-                        else if(this.curSelectedIndex < this.ulElement.children.length) {
+                        this.lastOperate = 1;
+                        if(this.curSelectedIndex < this.ulElement.children.length) {
                             this.ulElement.children[this.curSelectedIndex].style.backgroundColor = "rgba(243, 244, 247, 1)";
                             // this.ulElement.children[this.curSelectedIndex].style.color = "rgb(255, 255, 255)";
-                            if(this.ulElement.children[this.curSelectedIndex-1]){
-                                this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
-                                this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
+                            if(this.curSelectedIndex == 0) {
+                                if(this.ulElement.children[this.ulElement.children.length-1]){
+                                    this.ulElement.children[this.ulElement.children.length-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                                    this.ulElement.children[this.ulElement.children.length-1].style.color = "rgba(0, 0, 0, 1)";
+                                }
                             }
-                            this.curSelectedIndex++;
-                            if(this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex])) {
+                            else {
+                                if(this.ulElement.children[this.curSelectedIndex-1]){
+                                    this.ulElement.children[this.curSelectedIndex-1].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                                    this.ulElement.children[this.curSelectedIndex-1].style.color = "rgba(0, 0, 0, 1)";
+                                }
+                            }
+                            if(this.ulElement.children[this.curSelectedIndex + 1] && this.checkNeedScroll(this.ulElement.children[this.curSelectedIndex + 1])) {
                                 this.ulElement.scrollTo({ top:this.ulElement.children[this.curSelectedIndex].offsetTop, behavior: 'smooth' });
                             }
+                            this.curSelectedIndex++;
                         }
+                        if(this.curSelectedIndex == this.ulElement.children.length) this.curSelectedIndex = 0;
                         break;
                     }
                 }
@@ -1646,6 +1644,7 @@ export default {
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgVisible = true;
                 this.chatMemberDlgchat = this.curChat;
+                this.curSelectedIndex = 0;
                 canNewLine = false;
             }
             else if (event.code == "PageUp"){
@@ -1694,6 +1693,7 @@ export default {
             this.editor.insertText(startIndex, " ");
 
             this.chatMemberDlgVisible = false;
+            this.curSelectedIndex = 0;
             this.charMemberDlgChat = {};
             this.chatMemberSearchKey = null;
             canNewLine = true;
@@ -1733,6 +1733,7 @@ export default {
             this.editor.insertText(this.curInputIndex, " ");
 
             this.chatMemberDlgVisible = false;
+            this.curSelectedIndex = 0;
             this.charMemberDlgChat = {};
             this.chatMemberSearchKey = null;
             canNewLine = true;
@@ -1982,6 +1983,7 @@ export default {
             var chatMemberListElement = document.getElementById("atDlgId");
             if(chatMemberListElement != null && !chatMemberListElement.contains(e.target) && e.target.className != "memberItem"){
                 this.chatMemberDlgVisible = false;
+                this.curSelectedIndex = 0;
                 this.chatMemberSearchKey = null;
                 this.chatMemberDlgchat = {};
                 canNewLine = true;
@@ -3281,6 +3283,7 @@ export default {
             multiSelect: false,
             dialogVisible: false,
             chatMemberDlgVisible: false,
+            lastOperate: 0,
             chatMemberSearchKey: null,
             canCheckChatMemberSearch: false,
             curInputIndex: 0,
