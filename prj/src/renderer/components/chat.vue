@@ -1430,11 +1430,7 @@ export default {
                 this.curContent = content.text;
             }
             if(this.curContent.indexOf("@") == -1) {
-                this.chatMemberDlgVisible = false;
-                this.curSelectedIndex = 0;
-                this.chatMemberSearchKey = null;
-                this.chatMemberDlgchat = {};
-                canNewLine = true;
+                this.initAt();
             }
         },
         deleteDistContent() {
@@ -1533,11 +1529,7 @@ export default {
             }
             else if(event.code == "Escape") {
                 if(this.chatMemberDlgVisible) {
-                    this.chatMemberDlgVisible = false;
-                    this.curSelectedIndex = 0;
-                    this.charMemberDlgChat = {};
-                    this.chatMemberSearchKey = null;
-                    canNewLine = true;
+                    this.initAt();
                 }
             }
             else if(event.code == "ArrowDown" || event.code == "ArrowUp") {
@@ -1558,7 +1550,12 @@ export default {
                 switch(event.keyCode) {
                     case 38: {
                         if(this.lastOperate == 1) {
-                            this.curSelectedIndex--;
+                            if(this.curSelectedIndex == 0) {
+                                this.curSelectedIndex = this.ulElement.children.length - 1;
+                            }
+                            else{
+                                this.curSelectedIndex--;
+                            }
                         }
                         this.lastOperate = -1;
                         if(this.curSelectedIndex == 0) {
@@ -1692,11 +1689,7 @@ export default {
             this.editor.setSelection(startIndex);
             this.editor.insertText(startIndex, " ");
 
-            this.chatMemberDlgVisible = false;
-            this.curSelectedIndex = 0;
-            this.charMemberDlgChat = {};
-            this.chatMemberSearchKey = null;
-            canNewLine = true;
+            this.initAt();
         },
         async atMember(atMemberInfo) {
             // File
@@ -1732,11 +1725,7 @@ export default {
             this.editor.setSelection(this.curInputIndex);
             this.editor.insertText(this.curInputIndex, " ");
 
-            this.chatMemberDlgVisible = false;
-            this.curSelectedIndex = 0;
-            this.charMemberDlgChat = {};
-            this.chatMemberSearchKey = null;
-            canNewLine = true;
+            this.initAt();
         },
         getCreateGroupInfo(groupInfo) {
             console.log("chat get create group info is ", groupInfo);
@@ -1982,11 +1971,7 @@ export default {
             }
             var chatMemberListElement = document.getElementById("atDlgId");
             if(chatMemberListElement != null && !chatMemberListElement.contains(e.target) && e.target.className != "memberItem"){
-                this.chatMemberDlgVisible = false;
-                this.curSelectedIndex = 0;
-                this.chatMemberSearchKey = null;
-                this.chatMemberDlgchat = {};
-                canNewLine = true;
+                this.initAt();
             }
             
             var msgHistoryMenuElement = document.getElementById("history-dropdown-content-id");
@@ -3159,6 +3144,21 @@ export default {
                     })
             }
         },
+        initAt: function() {
+            this.chatMemberDlgVisible = false;
+            this.curSelectedIndex = 0;
+            this.chatMemberSearchKey = null;
+            this.chatMemberDlgchat = {};
+            canNewLine = true;
+            this.lastOperate = 0;
+            if(this.ulElement && this.ulElement.children) {
+                this.ulElement.scrollTo({ top:0 });
+                for(let i = 0; i < this.ulElement.children.length; i++) {
+                    this.ulElement.children[i].style.backgroundColor = "rgba(255, 255, 255, 1)";
+                    this.ulElement.children[i].style.color = "rgb(0, 0, 0)";
+                }           
+            } 
+        },
         initDraft: function() {
             if(!this.editor) {
                 this.editor = this.$refs.chatQuillEditor.quill;
@@ -3479,6 +3479,8 @@ export default {
             if(!global.mxMatrixClientPeg.mediaConfig) {
                 global.mxMatrixClientPeg.ensureMediaConfigFetched();
             }
+
+            this.initAt();
             this.initDraft();
             this.initData();
             this.initPage();
