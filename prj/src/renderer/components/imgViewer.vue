@@ -59,12 +59,12 @@ export default {
                 console.log("this.curmultiple is ", this.curMultiple);
                 if(delta > 0) {
                     if(this.curMultiple < 5) {
-                        this.curMultiple += 0.1;
+                        this.curMultiple += 0.03;
                     }
                 }
                 else {
                     if(this.curMultiple > 0.3) {
-                        this.curMultiple -= 0.1;
+                        this.curMultiple -= 0.03;
                     }
                 }
                 let style = "";
