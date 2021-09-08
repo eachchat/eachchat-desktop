@@ -1,5 +1,5 @@
 <template>
-    <div class="imageViewerPage" @mousewheel="zoomimg($event)">
+    <div class="imageViewerPage" id="imageViewerPageId" @mousewheel="zoomimg($event)">
         <div class="imageWindowHeader">
             <macImageWinHeadbar class="macWindowHeader" :isNormal="isNormal" @Close="Close()" @Min="Min()" @Max="Max()" :showMin="false"></macImageWinHeadbar>
             <winHeaderBar @Close="Close()" @Min="Min()" @Max="Max()"></winHeaderBar>
@@ -423,8 +423,22 @@ export default {
         mouseMove(ev) {
             if(!this.isPersonalImg) {
                 if(this.DownUp) {
-                    this.imgtop = this.imgtop + ev.movementY;
-                    this.imgleft = this.imgleft + ev.movementX;
+                    if(this.inBoxIsoutbox("imageViewerStageId", ev)) {
+                        this.imgtop = this.imgtop + ev.movementY;
+                        this.imgleft = this.imgleft + ev.movementX;
+                    }
+                    else {
+                        clearTimeout(this.setMouseUpTimeout);
+                        this.setMouseUpTimeout = setTimeout(() => {
+                            this.DownUp = false;
+                        }, 200);
+                    }
+                    if(this.mousePosition(ev).x < 10 || this.mousePosition(ev).y < 30) {
+                        clearTimeout(this.setMouseUpTimeout);
+                        this.setMouseUpTimeout = setTimeout(() => {
+                            this.DownUp = false;
+                        }, 200);
+                    }
                 }
             }
         },
@@ -434,6 +448,7 @@ export default {
         imgWindowIsBlur(e) {
             console.log("The imgage window is blur");
             window.blur();
+            this.DownUp = false;
         }
     },
     data() {
@@ -454,12 +469,13 @@ export default {
             screenWidth: 100,
             screenHeight: 100,
             isLoading: true,
+            setMouseUpTimeout: null,
         }
     },
     mounted: function() {
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on("timelines", (event, imageInfos, distImageInfo, screenSize) => {
-            let imgDom = document.getElementById("imageViewerStageId");
+            let imgDom = document.getElementById("imageViewerPageId");
             if(!imgDom.onmousemove) {
                 imgDom.onmousemove = this.mouseMove;
             }
@@ -510,7 +526,6 @@ export default {
                 }
             }
 
-            ipcRenderer.on('isNormal', this.setHeaderState)
             let style = "";
             style += "width:" + this.curImage.info.w + "px";
             style += ";"
@@ -533,6 +548,8 @@ export default {
             this.stageElement.setAttribute("style", style);
             this.stageElement.style.top = "-20px";
             this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
+            window.blur();
+            this.DownUp = false;
         });
         ipcRenderer.on("personalUrl", (event, url, screenSize) => {
             this.stageElement = document.getElementById("imageViewerStageId");
@@ -590,10 +607,14 @@ export default {
                 this.stageElement.style.top = "0px";
                 this.updateWindowSize({w: img.width > 480 ? img.width : 480, h: img.height > 502 ? img.height : 502}, true);
             }
+            window.blur();
+            this.DownUp = false;
         });
+        ipcRenderer.on('isNormal', this.setHeaderState)
         window.addEventListener('keydown', this.keyHandle);
         window.addEventListener('blur', this.imgWindowIsBlur);
         window.blur();
+        this.DownUp = false;
     },
 }
 </script>
