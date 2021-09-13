@@ -75,7 +75,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="search-view" v-if="showSearchView">
+                <div class="search-view" v-else>
                     <div class="message-view" v-if="showMessageList">
                         <ul class="message-list">
                             <li class="message"
@@ -162,6 +162,7 @@ import { ComponentUtil } from '../script/component-util.js';
 import AlertDlg from './alert-dlg.vue'
 import emoji from './emoji'
 import {EmojiTextToHtml} from '../../packages/core/Utils.js'
+import * as fs from 'fs-extra';
 
 
 export default {
@@ -404,11 +405,18 @@ export default {
         },
         DownloadFile: function(file){
             let filepath = file.localPath;
+            let bExist = true;
             if(filepath.length == 0){
+                bExist = false;
+            }
+            else{
+                bExist = fs.existsSync(filepath);
+            }
+            if(!bExist){
                 var distElement = document.getElementById(file.collection_id);
                 distElement.style.display = "block";
                 var chatGroupMsgContent = file.collection_content;
-                let msgKey = Base64.encode(chatGroupMsgContent.url, true)
+                let msgKey = file.collection_id;
                 var distPath = confservice.getFilePath(chatGroupMsgContent.fromTimestamp);
                 getFileBlob(chatGroupMsgContent.info, global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(chatGroupMsgContent.url), this.ProCallback, file.collection_id)
                 .then((blob) => {
@@ -422,9 +430,10 @@ export default {
                     }
                     reader.readAsArrayBuffer(blob);
                 })
-                return;
             }
-            shell.showItemInFolder(filepath);
+            else{
+                shell.showItemInFolder(filepath);
+            }
         },
 
         fileListClicked:async function(file) {
@@ -509,8 +518,7 @@ export default {
         },
 
         async getFileExist(file) {
-            let fileOriginUrl = file.collection_content.url;
-            let key = Base64.encode(fileOriginUrl, true);
+            let key = file.collection_id;
             let msgs = await Message.FindMessageByMesssageID(key);
             console.log(msgs)
             if(msgs.length != 0 && msgs[0].file_local_path != "")
@@ -640,11 +648,7 @@ export default {
                 }
                 temp.file = tempFiles;
             }
-            /*
-            if(tempResult.group) {
-                temp.group = this.getObjectFromServerCollectionModel(tempResult.group);
-            }
-            */
+
             this.searchResults = temp;
             this.$nextTick(function(){
                 for(var i = 0; i < this.searchResults.image.length; i ++){
@@ -653,53 +657,12 @@ export default {
             });
             return;
         },
-        updateCollectionShowImage: function(e, args) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            var needOpen = args[4];
-            if(this.showSearchView){
-                this.updateSearchCollectionResult(this.searchKey);
-            }else{
-                for (var i = 0;i < this.favourites.length; i ++){
-                    var image = this.favourites[i];
-                    var targetDir = confservice.getThumbImagePath(image.timestamp);
-                    var targetPath = path.join(targetDir, image.collection_content.fileName);
-                    if(targetPath == localPath){
-                        this.getImageCollectionContent(image);
-                    }
-                }
-            }
-
-        },
-        updateCollectionShowFile: function(e, msgId, filepath) {
-            var state = args[0];
-            var stateInfo = args[1];
-            var id = args[2];
-            var localPath = args[3];
-            var needOpen = args[4];
-            if(this.showSearchView){
-                this.updateSearchCollectionResult(this.searchKey);
-            }else{
-                for (var i = 0;i < this.favourites.length; i ++){
-                    var file = this.favourites[i];
-                    var targetDir = confservice.getFilePath(file.timestamp);
-                    var targetPath = path.join(targetDir, file.collection_content.fileName);
-                    if(targetPath == localPath){
-                        this.updateFileCollectionList();
-                    }
-                }
-            }
-
-        },
-
+        
         UpdateFileLocalPath: async function(e, finalName, eventId, needOpen){
             if(this.favouriteType !== 'file')
                 return;
             this.favourites.map(file => {
-                let fileOriginUrl = file.collection_content.url;
-                let key = Base64.encode(fileOriginUrl, true);
+                let key = file.collection_id;
                 if(key === eventId)
                     file.localPath = finalName;
                 return file;

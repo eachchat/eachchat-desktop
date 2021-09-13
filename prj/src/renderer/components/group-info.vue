@@ -449,6 +449,7 @@ export default {
         mxAddMember() { //teyidian
             // this.mxSelectMemberOpen = true;
             this.mxXxrOpen = true;
+            common.UpdateUserinfo();
         },
         changeMxXxr(closeRight) {
             this.mxXxrOpen = !this.mxXxrOpen;   

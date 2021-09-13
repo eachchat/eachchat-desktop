@@ -2647,31 +2647,7 @@ export default {
           }
         }
       }
-      /*
-      for(let i=0;i<this.searchFileItems.length;i++) {
-        var distId = this.getSearchItemElementId(this.searchFileItems[i].timelineId);
-        let elementImg = document.getElementById(distId);
-        // console.log("groupavatar is ", elementImg);
-        var targetPath = "";
-
-        var fileDetailElementId = this.getFileNameItemElementId(this.searchFileItems[i].timelineId);
-        let fileDetailElement = document.getElementById(fileDetailElementId);
-        if(fileDetailElement != undefined) {
-          var fileSize = (this.searchFileItems[i].content.fileSize /(1024*1024)).toFixed(2) + "K";
-          var fileOwnerInfo = await UserInfo.GetUserInfo(this.searchFileItems[i].fromId);
-          var fileOwnerName = fileOwnerInfo.user_display_name;
-          var fileTime = this.formatTimeFilter(this.searchFileItems[i].timestamp);
-          fileDetailElement.innerHTML = fileSize + " " + fileOwnerName + " " + fileTime;
-        }
-
-        var iconPath = this.getFileIconThroughExt(this.searchFileItems[i].content.ext);
-        elementImg.setAttribute("src", iconPath);
-        elementImg.setAttribute("height", 32);
-
-        var targetDir = confservice.getFilePath(this.searchFileItems[i].timestamp);
-        var targetPath = path.join(targetDir, this.searchFileItems[i].content.fileName);
-      }
-      */
+      
     },
     showAllSearchUsers: function() {
         this.$router.push(
