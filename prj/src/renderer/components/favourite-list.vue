@@ -548,7 +548,7 @@ export default {
                 tempFavourite.collection_id = model.collection_id;
                 tempFavourite.collection_type = model.collection_type;
                 tempFavourite.favourite_id = model.favourite_id;
-                tempFavourite.collection_content = strMsgContentToJson(model.collection_content);
+                tempFavourite.collection_content = JSON.parse(model.collection_content);
                 if(103 == tempFavourite.collection_type){
                     tempFavourite.localPath = await this.getFileExist(tempFavourite);
                 }
