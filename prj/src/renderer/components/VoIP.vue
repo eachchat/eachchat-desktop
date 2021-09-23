@@ -1,14 +1,14 @@
 <template>
     <div class="chat-msg-content-voip" :id="generalId()" v-on:click="callBack()" >
-        <div class="voipWithoutTimeAndType" v-show="isVideo == -1">
+        <div class="voipWithoutTimeAndType" v-show="isVideoAndDuration()">
             <div class="voip-notype-notime" alt="通话结束" style="vertical-align:middle">{{voipTimeLabel}}</div>
         </div>
-        <div class="voipTimeZero" v-show="duration <= 0 && isVideo != -1">
+        <div class="voipTimeZero" v-show="duration == 0">
             <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
             <div class="voip-notime" v-show="!isMine" :id="generalLabelId()" alt="已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
             <div class="voip-notime-mine" v-show="isMine" :id="generalLabelId()" alt="对方已取消" style="vertical-align:middle">{{voipTimeLabel}}</div>
         </div>
-        <div class="voipTime" v-show="duration > 0 && isVideo != -1">
+        <div class="voipTime" v-show="duration > 0">
             <img class="voip-icon" :src="getVoipImg()" style="vertical-align:middle">
             <div class="voip-time" alt="通话结束" style="vertical-align:middle">{{voipTimeLabel + voipTime}}</div>
         </div>
@@ -67,6 +67,9 @@ export default {
         }
     },
     methods: {
+        isVideoAndDuration() {
+            return (this.isVideo == -1 || this.duration == -1);
+        },
         generalId() {
             let id = this.callId + "-" + Math.random().toString(36).slice(6);
             this.voipElementId = id;
@@ -122,7 +125,7 @@ export default {
                         this.voipTimeLabel = "通话结束";
                     }
                     else {
-                        if(this.duration != 0 && this.duration != -1) {
+                        if(this.duration != 0) {
                             let duration = Math.floor(this.duration/1000);
                             let str = ComponentUtil.numToTime(duration);
                             this.voipTimeLabel = "通话时长：";
