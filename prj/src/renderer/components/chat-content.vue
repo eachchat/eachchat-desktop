@@ -548,6 +548,9 @@ export default {
             console.log('RoomState.members member ', member);
             console.log("this.selfuserid is ", this.selfUserId);
             console.log("user id is ", member.userId);
+            if(member.membership === 'leave' || member.membership === 'join'){
+              this.updateRoomNum(member.roomId);
+            }
 
             if(member.membership == "leave") {
               let newRoom = global.mxMatrixClientPeg.matrixClient.getRoom(member.roomId);
@@ -693,7 +696,10 @@ export default {
   data() {
     return {
       voiceChat: null,
-      updateRoomStata: 0,
+      updateRoomStata: {
+        updateMute: 0,
+        updateName: 0,
+      },
       isNormal: true,
       showSearchAllDMChat: true,
       searchDMChatItems: [],
@@ -773,6 +779,12 @@ export default {
     };
   },
   methods: {
+    updateRoomNum(roomId){
+      if(roomId !== this.curChat.roomId)
+        return;
+      this.updateRoomStata.updateName++;
+    },
+
     CloseSearchPage(){
       this.searchChat = undefined;
     },
@@ -860,7 +872,7 @@ export default {
       }
     },
     updateNotificationState() {
-      this.updateRoomStata+=1;
+      this.updateRoomStata.updateMute+=1;
       for(let i in this.favouriteRooms){
         this.showGroupIconName(this.favouriteRooms[i]);
         let dist = document.getElementById(this.getChatGroupIsSlienceElementId(this.favouriteRooms[i].roomId));

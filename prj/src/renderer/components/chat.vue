@@ -13,7 +13,7 @@
                 <img class="chat-img" id="chat-group-img" src="../../../static/Img/User/group-40px@2x.png" onerror = "this.src = './static/Img/User/user-40px@2x.png'"/>
                 <img class="encrypt-chat-img" src="../../../static/Img/Chat/encrypt-chat-title@2x.png" v-show="isSecret"/>
                 <p class="chat-name">{{getShowGroupName()}}</p>
-                <p class="chat-group-content-num" id="chat-group-content-num"></p>
+                <p class="chat-group-content-num" id="chat-group-content-num">{{userCount}}</p>
                 <img class="chat-state-img" src="../../../static/Img/Chat/slience@2x.png" v-show="isMute"/>
             </div>
             <div class="chat-tools">
@@ -3129,18 +3129,14 @@ export default {
             }
         },
         updateGroupName: function() {
-            if(!this.groupContentNumElement) {
-                this.groupContentNumElement = document.getElementById("chat-group-content-num");
-                if(!this.groupContentNumElement) return;
-            }
             if(this.isDm) {
-                this.groupContentNumElement.innerHTML = "";
+                this.userCount = "";
             }
             else {
                 this.mxGetMembers()
                     .then((totalMemberCount) => {
-                        if(totalMemberCount > 1) this.groupContentNumElement.innerHTML = " (" + totalMemberCount + ")";
-                        else this.groupContentNumElement.innerHTML = "";
+                        if(totalMemberCount > 1) this.userCount = " (" + totalMemberCount + ")";
+                        else this.userCount = "";
                     })
             }
         },
@@ -3208,9 +3204,9 @@ export default {
     },
     data() {
         return {
+            userCount: '',
             dmUserId: undefined,
             groupIconElement: undefined,
-            groupContentNumElement: undefined,
             msgListDivElement: undefined,
             newMsgNum: 0,
             haveNewMsg: false,
@@ -3391,8 +3387,6 @@ export default {
         setTimeout(() => {
             this.$nextTick(() => {
                 this.groupIconElement = document.getElementById("chat-group-img");
-                // var groupStateElement = document.getElementById("chat-group-state");
-                this.groupContentNumElement = document.getElementById("chat-group-content-num");
                 this.msgListDivElement = document.getElementById("message-show-list");
                 this.msgListDivElement.addEventListener('scroll', this.handleScroll);
                 // console.log("==============ipc on")
@@ -3457,15 +3451,22 @@ export default {
             default: 0
         },
         updateRoomStata: {
-            type: Number,
-            default: 0
+            type: Object,
+            default: {
+                updateMute: 0,
+                updateName: 0,
+            }
         }
     },
     // props: ['chat', 'newMsg', 'toBottom', 'searchKeyFromList', 'searchChat', 'updateImg', 'updateRoomStata'],
     watch: {
-        updateRoomStata: function() {
+        'updateRoomStata.updateMute': function() {
             this.groupIsSlience();
         },
+        'updateRoomStata.updateName': function() {
+            this.updateGroupName();
+        },
+
         updateImg: function() {
             this.updateUser++;
         },
