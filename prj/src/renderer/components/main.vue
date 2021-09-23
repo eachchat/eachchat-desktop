@@ -657,7 +657,6 @@ export default {
         ops.lazyLoadMembers = true;
         await global.mxMatrixClientPeg.matrixClient.startClient(ops);
 
-        const ctx = this;
         global.mxMatrixClientPeg.matrixClient.on('Session.logged_out', (errObj) => {
           global.mxMatrixClientPeg.logout();
           global.services.common.logout();
@@ -681,7 +680,7 @@ export default {
                 break;
             case "SYNCING":
                 this.lastSyncTime = new Date().getTime();
-                if(prevState == "CATCHUP" || prevState == "ERROR" || prevState == "RECONNECTING") this.updateRooms();
+                if(prevState == "CATCHUP" || prevState == "ERROR" || prevState == "RECONNECTING" || prevState == null) this.updateRooms();
             default:
               break;
           }
