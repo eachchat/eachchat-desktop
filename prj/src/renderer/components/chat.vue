@@ -3149,7 +3149,8 @@ export default {
             else {
                 this.mxGetMembers()
                     .then((totalMemberCount) => {
-                        this.groupContentNumElement.innerHTML = " (" + totalMemberCount + ")";
+                        if(totalMemberCount > 1) this.groupContentNumElement.innerHTML = " (" + totalMemberCount + ")";
+                        else this.groupContentNumElement.innerHTML = "";
                     })
             }
         },
