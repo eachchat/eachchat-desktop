@@ -250,23 +250,6 @@ export default {
                 if (member && ['join', 'invite'].includes(member.membership)) {
                     throw {errcode: "RIOT.ALREADY_IN_ROOM", error: "Member already invited"};
                 }
-
-
-                // if (!ignoreProfile && SettingsStore.getValue("promptBeforeInviteUnknownUsers", this.roomId)) {
-                //     try {
-                //         const profile = await MatrixClientPeg.get().getProfileInfo(addr);
-                //         if (!profile) {
-                //             // noinspection ExceptionCaughtLocallyJS
-                //             throw new Error("User has no profile");
-                //         }
-                //     } catch (e) {
-                //         throw {
-                //             errcode: "RIOT.USER_NOT_FOUND",
-                //             error: "User does not have a profile or does not exist."
-                //         };
-                //     }
-                // }  
-
                 return client.invite(roomId, addr);
             } else {
                 throw new Error('Unsupported address');

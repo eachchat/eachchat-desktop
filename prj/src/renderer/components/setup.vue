@@ -242,22 +242,19 @@ export default {
     startCheckUpgrade: async function() {
         var newVersion = await global.services.common.GetNewVersion();
         console.log("newversion is ", newVersion);
-        if(newVersion == undefined || newVersion == false)
+        if(newVersion != undefined && newVersion != false)
         {
-            return;
-        }
-        else {
           var packageFile = require("../../../package.json");
           var lVersion = packageFile.version;
           var sVerCode = newVersion.verCode;
           var needUpdate = ComponentUtil.needUpgradeVersion(lVersion, sVerCode)
-          var sUrl = newVersion.downloadUrl;
-          var sDescription = newVersion.description;
-          sDescription = sDescription.replace(/\r\n/g, '<br>')
-          var sId = newVersion.id;
-          var sVerName = newVersion.verName;
-          let sProductName = sUrl.split("/").pop();
           if(needUpdate) {
+              var sUrl = newVersion.downloadUrl;
+              var sDescription = newVersion.description;
+              sDescription = sDescription.replace(/\r\n/g, '<br>')
+              var sId = newVersion.id;
+              var sVerName = newVersion.verName;
+              let sProductName = sUrl.split("/").pop();
               this.showUpgradeAlertDlg = true;
               this.upgradeInfo = {
                   "downloadUrl": sUrl,
@@ -266,8 +263,15 @@ export default {
                   "productName": sProductName,
                   "verId": sId,
               };
+              return;
           }
         }
+        this.notUpgradeContents = {
+          "Details": "当前已是最新版本",
+          "Abstrace": "提示"
+        }
+        this.showNotUpgradeAlertDlg = true;
+
     },
     CloseownerInfo() {
       this.showOwnerDlg = false;
@@ -544,7 +548,7 @@ export default {
     // var autoStart = await Config.GetAutoStart();
     // console.log("=====get config is ", config)
     console.log("=====autoStart is ", autoStart)
-    if(autoStart == null || autoStart == "true") {
+    if(autoStart == "true") {
       ipcRenderer.send("setAutoRun", true);
       global.localStorage.setItem("autoStart", true);
       this.autoRun = true;

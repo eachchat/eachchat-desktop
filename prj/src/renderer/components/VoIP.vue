@@ -121,15 +121,21 @@ export default {
                 this.$nextTick(() => {
                     let msgElement = document.getElementById(this.voipElementId);
                     let msgLabelElement = document.getElementById(this.voipLabelElementId);
-                    if(this.isVideo == -1 || this.duration == -1) {
+                    if(this.isVideo == -1) {
                         this.voipTimeLabel = "通话结束";
                     }
                     else {
-                        if(this.duration == 0 || this.hangUpReason != "") {
+                        if(this.duration != 0) {
+                            let duration = Math.floor(this.duration/1000);
+                            let str = ComponentUtil.numToTime(duration);
+                            this.voipTimeLabel = "通话时长：";
+                            this.voipTime = str;
+                        }
+                        else {
                             if(this.hangUpReason == "user_busy") {
                                 this.voipTimeLabel = this.isMine == 1 ? "对方忙线中" : "忙线未接听";
                             }
-                            else if(this.hangUpReason == "user_hangup"){
+                            else{
                                 if(this.isMine) {
                                     if(this.operate_id != this.caller_id) this.voipTimeLabel = "对方已取消";
                                     else {
@@ -146,15 +152,6 @@ export default {
                                     else this.voipTimeLabel = "对方已取消";
                                 }
                             }
-                            else {
-                                this.voipTimeLabel = this.isMine == 1 ? "对方无应答" : "对方已取消";
-                            }
-                        }
-                        else {
-                            let duration = Math.floor(this.duration/1000);
-                            let str = ComponentUtil.numToTime(duration);
-                            this.voipTimeLabel = "通话时长：";
-                            this.voipTime = str;
                         }
                     }
                     if(msgElement) {

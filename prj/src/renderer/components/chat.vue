@@ -150,13 +150,6 @@
         <mxSettingDialog v-if="mxRoomDlg" @close="mxRoomSetting" :roomId="curChat.roomId"></mxSettingDialog>
         <mxChatInfoDlg v-if="mxChat" @close="mxChatInfoDlgSetting" :roomId="curChat.roomId"></mxChatInfoDlg>
         <mxChatTopicDlg v-if="mxChatTopic" @close="mxChatTopicDlgSetting" :roomId="curChat.roomId"></mxChatTopicDlg>
-        <!-- <mxMemberSelectDlg 
-            v-if="mxSelectMemberOpen" 
-            @close="mxSelectMember"
-            :roomId="chat.roomId"
-            :isDm="isDm"
-        >
-        </mxMemberSelectDlg> -->
     </div>
 </template>
 
@@ -185,7 +178,6 @@ import Invite from './invite.vue';
 import {ComponentUtil} from '../script/component-util';
 import mxHistoryPage from './mxHistoryMsg.vue';
 import mxFilePage from "./mxFileList.vue";
-import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import AlertDlg from './alert-dlg.vue'
 import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
 import { openRemoteMenu, getImgUrlByEvent, copyImgToClipboard, checkIsTesting } from '../../utils/commonFuncs'
@@ -285,7 +277,6 @@ export default {
         Invite,
         mxHistoryPage,
         mxFilePage,
-        mxMemberSelectDlg,
     },
     methods: {
         closeToBottom() {
@@ -694,11 +685,34 @@ export default {
                             menuObj.menuList.push(favouriteMenu);
                         }
                         if(showRedact) {
-                            let deleteMenu = {
-                                name: "删除",
-                                func: this.menuDelete
+                            console.log('查看当前信息', msgItem);
+                            let text = '删除';
+                            let timeLimit = 2 * 60 * 1000;
+                            const myUserId = this.curChat.myUserId;
+                            const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                            const members = this.curChat.currentState.members;
+                            const userLevel = members[myUserId].powerLevel;
+                            let redact = 50;
+                            if (currentState) {
+                                let levelObj = currentState.getContent();
+                                redact = levelObj.redact || redact;
                             }
-                            menuObj.menuList.push(deleteMenu);
+                            console.log('redact Number>>>>>', redact)
+                            console.log('userLevel Number>>>>', userLevel)
+                            if (msgItem.event.sender === myUserId) {
+                                if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            } else if (userLevel >= redact) {
+                                let deleteMenu = {
+                                    name: text,
+                                    func: this.menuDelete
+                                }
+                                menuObj.menuList.push(deleteMenu);
+                            }
                         }
                         if(!this.isSecret) {
                             let multiSelectMenu = {
@@ -862,12 +876,36 @@ export default {
                         }));
                     }
                     if(showRedact) {
-                        this.menu.append(new MenuItem({
-                            label: "删除",
-                            click: () => {
-                                this.menuDelete(msgItem)
-                            }
-                        }));
+                        console.log('查看当前信息', msgItem);
+                        let text = '删除';
+                        let timeLimit = 2 * 60 * 1000;
+                        const myUserId = this.curChat.myUserId;
+                        const currentState = this.curChat.currentState.getStateEvents('m.room.power_levels','');
+                        const members = this.curChat.currentState.members;
+                        const userLevel = members[myUserId].powerLevel;
+                        let redact = 50;
+                        if (currentState) {
+                            let levelObj = currentState.getContent();
+                            redact = levelObj.redact || redact;
+                        }
+                        console.log('redact Number>>>>>', redact)
+                        console.log('userLevel Number>>>>', userLevel)
+                        if (msgItem.event.sender === myUserId) {
+                            if (Date.now() - msgItem.event.origin_server_ts < timeLimit) text = '撤回';
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem)
+                                }
+                            }));
+                        } else if (userLevel >= redact) {
+                            this.menu.append(new MenuItem({
+                                label: text,
+                                click: () => {
+                                    this.menuDelete(msgItem)
+                                }
+                            }));
+                        }
                     }
                     if(!this.isSecret) {
                         this.menu.append(new MenuItem({
@@ -966,7 +1004,7 @@ export default {
             dom.setAttribute('id', 'quote-text')
             dom.setAttribute('data-roomid', this.curChat.roomId)
             dom.setAttribute('contenteditable', false)
-            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg.event;
             const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             var msgContent = msg.getContent();
             var text = msgContent.body;
@@ -1010,7 +1048,7 @@ export default {
             dom.setAttribute('id', 'quote-img')
             dom.setAttribute('data-roomid', this.curChat.roomId)
             dom.setAttribute('contenteditable', false)
-            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg.event;
             const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             dom.innerHTML=`
                 <span class="quote-content-span">${userName} : </span>
@@ -2141,7 +2179,6 @@ export default {
             const objectUrl = URL.createObjectURL(imageFile);
             const imgPromise = new Promise((resolve, reject) => {
                 img.onload = function() {
-                    URL.revokeObjectURL(objectUrl);
                     resolve(img);
                 };
                 img.onerror = function(e) {
@@ -2150,10 +2187,10 @@ export default {
             });
             img.src = objectUrl;
             // const [hidpi] = await Promise.all([parsePromise, imgPromise]);
-            const [hidpi] = await Promise.all([imgPromise]);
-            const width = hidpi ? (img.width >> 1) : img.width;
-            const height = hidpi ? (img.height >> 1) : img.height;
-            return {width, height, img};
+            await Promise.all([imgPromise]);
+            const width = img.width;
+            const height = img.height;
+            return {width, height};
         },
         SendText: function(sendBody, varcontent){
             const quoteImgMsg = this.getQuoteImgMsg()
@@ -3112,7 +3149,8 @@ export default {
             else {
                 this.mxGetMembers()
                     .then((totalMemberCount) => {
-                        this.groupContentNumElement.innerHTML = " (" + totalMemberCount + ")";
+                        if(totalMemberCount > 1) this.groupContentNumElement.innerHTML = " (" + totalMemberCount + ")";
+                        else this.groupContentNumElement.innerHTML = "";
                     })
             }
         },
@@ -3335,7 +3373,6 @@ export default {
             mxChat: false,
             mxChatTopic: false,
             services: null,
-            mxSelectMemberOpen: false,
             isDm: false,
             initSearchKey: '',
         }

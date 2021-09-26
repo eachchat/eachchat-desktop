@@ -27,12 +27,6 @@
 
         <encryptChatCreater v-show="showencryptChatCreaterDlg" @getCreateGroupInfo="getEncryptCreateGroupInfo" @closeChatCreaterDlg="closeEncryptChatCreaterDlg" :isSecret="isSecret" :rootDepartments="chatCreaterDialogRootDepartments" :disableUsers="chatCreaterDisableUsers" :dialogTitle="chatCreaterDialogTitle" :key="chatEncryptCreaterKey">
         </encryptChatCreater>
-        <mxMemberSelectDlg 
-            v-if="mxSelectMemberOpen" 
-            @close="mxSelectMember"
-            :roomId="newRoomId"
-        >
-        </mxMemberSelectDlg>
         <mxCreateRoomDlg 
             v-if="mxCreateRoomOpen" 
             @close="mxCreateRoom"
@@ -64,7 +58,6 @@
 import eSearch from './searchbar.vue'
 import encryptChatCreater from './encryptChatCreater.vue'
 import mxCreateRoomDlg from './mxCreateRoomDlg.vue'
-import mxMemberSelectDlg from './mxMemberSelectDlg.vue'
 import mxSquareDlg from './mxSquareDlg.vue'
 import mxDmDlg from './mxDmDlg.vue'
 import mxXxr from './mxXxr.vue'
@@ -93,7 +86,6 @@ export default {
             showCreateNewChat: false,
             isSecret: false,
             mxCreateRoomOpen: false,
-            mxSelectMemberOpen: false,
             newRoomId: '',
             mxSquareOpen: false,
             mxDmDlgOpen: false,
@@ -149,16 +141,10 @@ export default {
             }
             this.mxSquareOpen = true;
         },
-        mxSelectMember: function(close) {
-            // if (close.data) this.$emit(close.handler, close.data);
-            this.showCreateNewChat = false;
-            this.mxSelectMemberOpen = false;
-        },
         mxCreateRoomNextStep: function(res) {
             console.log('--mxCreateRoomNextStep--', res);
             // this.newRoomId = res.room_id;
             this.mxCreateRoomOpen = false;
-            // this.mxSelectMemberOpen = true;
             this.roomInfo = res;
             this.mxXxrOpen = true;
         },
@@ -221,7 +207,6 @@ export default {
         eSearch,
         encryptChatCreater,
         mxCreateRoomDlg,
-        mxMemberSelectDlg,
         mxSquareDlg,
         mxDmDlg,
         mxXxr

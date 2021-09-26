@@ -110,6 +110,7 @@ export default {
                 })
                 .catch((error) => {
                     console.log("========join failed and err is ", error.error);
+                    this.UpdateRoomState(roomId, 1)
                     if(error.httpStatus == 403) {
                         this.$toastMessage({message: this.$t("organization.sErrorNotPermit"), time: 2000, type:'error', showHeight: '80px'});
                     }
