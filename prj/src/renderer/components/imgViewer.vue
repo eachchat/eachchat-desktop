@@ -459,6 +459,7 @@ export default {
     mounted: function() {
         const ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.on("timelines", (event, imageInfos, distImageInfo, screenSize) => {
+            this.curRotate = 0;
             let imgDom = document.getElementById("imageViewerStageId");
             if(!imgDom.onmousemove) {
                 imgDom.onmousemove = this.mouseMove;
@@ -535,6 +536,7 @@ export default {
             this.updateWindowSize({w: this.curImage.info.w > 480 ? this.curImage.info.w : 480, h: this.curImage.info.h > 502 ? this.curImage.info.h : 502});
         });
         ipcRenderer.on("personalUrl", (event, url, screenSize) => {
+            this.curRotate = 0;
             this.stageElement = document.getElementById("imageViewerStageId");
             this.stageElement.setAttribute("src", "");
             this.screenWidth = screen.width * 0.9;

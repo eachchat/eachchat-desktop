@@ -1004,7 +1004,7 @@ export default {
             dom.setAttribute('id', 'quote-text')
             dom.setAttribute('data-roomid', this.curChat.roomId)
             dom.setAttribute('contenteditable', false)
-            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg.event;
             const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             var msgContent = msg.getContent();
             var text = msgContent.body;
@@ -1048,7 +1048,7 @@ export default {
             dom.setAttribute('id', 'quote-img')
             dom.setAttribute('data-roomid', this.curChat.roomId)
             dom.setAttribute('contenteditable', false)
-            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg
+            this.$store.state.quoteMsgMap[this.curChat.roomId] = msg.event;
             const userName = await ComponentUtil.GetDisplayNameByMatrixID(msg.event.sender)
             dom.innerHTML=`
                 <span class="quote-content-span">${userName} : </span>
