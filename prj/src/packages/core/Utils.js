@@ -1029,91 +1029,16 @@ var emojiUnicodeRanges = [
 
 
 const faceUtils = {
-    alt: [
-        '0x1F600',
-        '0x1F601',
-        '0x1F602',
-        '0x1F603',
-        '0x1F604',
-        '0x1F605',
-        '0x1F606',
-        '0x1F607',
-        '0x1F608',
-        '0x1F609',
-        '0x1F60A',
-        '0x1F60B',
-        '0x1F60C',
-        '0x1F60D',
-        '0x1F60E',
-        '0x1F60F',
-        '0x1F610',
-        '0x1F611',
-        '0x1F612',
-        '0x1F613',
-        '0x1F614',
-        '0x1F615',
-        '0x1F616',
-        '0x1F617',
-        '0x1F618',
-        '0x1F619',
-        '0x1F61A',
-        '0x1F61B',
-        '0x1F61C',
-        '0x1F61D',
-        '0x1F61E',
-        '0x1F61F',
-        '0x1F620',
-        '0x1F621',
-        '0x1F622',
-        '0x1F623',
-        '0x1F624',
-        '0x1F625',
-        '0x1F626',
-        '0x1F627',
-        '0x1F628',
-        '0x1F629',
-        '0x1F62A',
-        '0x1F62B',
-        '0x1F62C',
-        '0x1F62D',
-        '0x1F62E',
-        '0x1F62F',
-        '0x1F630',
-        '0x1F631',
-        '0x1F632',
-        '0x1F633',
-        '0x1F634',
-        '0x1F635',
-        '0x1F636',
-        '0x1F637',
-        '0x1F47B',
-        '0x1F480',
-        '0x1F383',
-        '0x1F4A9',
-    ],
-    codePointFaces: [],
-    codePointFacesMap: new Map(),
-    faceFolder: './static/Img/Chat/face/',
-    extName: ".png",
+    codePointFaces: ["😀", "😁", "😂", "😃", "😄", "😅", "😆",
+    "😇", "😈", "😉", "😊", "😋", "😌", "😍", "😎", "😏", "😐", "😑", "😒", 
+    "😓", "😔", "😕", "😖", "😗", "😘", "😙", "😚", "😛", "😜", "😝", "😞",
+    "😟", "😠", "😡", "😢", "😣", "😤", "😥", "😦", "😧", "😨", "😩", "😪",
+    "😫", "😬", "😭", "😮", "😯", "😰", "😱", "😲", "😳", "😴", "😵", "😶",
+    "😷", "🤐", "🤮", "🤯", "🤬", "👍", "👎", "👏", "🤙", "🙋‍♂️" , "🔥", "💔", 
+    "💖", "💪", "👌", "🙏", "🐷", "🌨", "❄️", "👻", "💀", "🎃", "💩"],
 
     GetPointFaces(){
-        if(this.codePointFaces.length != 0){
-            return this.codePointFaces;
-        }
-        this.alt.forEach(item => {
-            this.codePointFaces.push(String.fromCodePoint(item));
-        })
         return this.codePointFaces;
-    },
-
-    GetPointFaceMap(){
-        if(this.codePointFacesMap.size !== 0){
-            return this.codePointFacesMap;
-        }
-        this.alt.forEach(item => {
-            this.codePointFacesMap.set(String.fromCodePoint(item), this.faceFolder + item.slice(2) + this.extName);
-        })
-        return this.codePointFacesMap;
     },
 
     hasFaceCode(facecode){
@@ -1122,32 +1047,6 @@ const faceUtils = {
             return false
         return true;
     },
-
-    getFaceImg(facecode){
-        return this.codePointFacesMap.get(facecode);
-    },
-
-    getFaceCode(faceImg){
-        let keyIterator = this.codePointFacesMap.keys();
-        let key;
-        while(!keyIterator.done){
-            key = keyIterator.next().value;
-            if(this.codePointFacesMap.get(key) == faceImg){
-                return key;
-            }
-        }
-    }
-}
-
-function EmojiTextToHtml(text, imgWidth = 24){
-    let codedText = text.replace(new RegExp(emojiUnicodeRanges.join('|'), 'g'), function(emoji){
-        let path = faceUtils.getFaceImg(emoji);
-        if(path){
-            return `<img style="vertical-align: middle; width: ${imgWidth}px" src = ${path}></img>`;
-        }
-        return emoji;
-      });
-    return codedText;
 }
 
 function insertStr(source, start, newStr) {
@@ -1415,6 +1314,6 @@ function FilenameToContentType(filename){
     return 'm.file'
 }
 
-export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, utf16toEntities, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob, emojiUnicodeRanges, EmojiTextToHtml};
+export {formatCryptoKey, getFileSizeNum, generalGuid, findKey, Appendzero, pathDeal, FileUtil, getIconPath, faceUtils, fileTypeFromMIME, uncodeUtf16, utf16toEntities, downloadGroupAvatar, strMsgContentToJson, JsonMsgContentToString, sliceReturnsOfString, getFileNameInPath, getElementTop, getElementLeft, insertStr, fileMIMEFromType, makeFlieNameForConflict, getFileSizeByNumber, strFavoriteContentToJson, getdirsize, deleteall, getFileSize, changeStr, ClearDB, FileToContentType, FilenameToContentType, getMatrixDefaultDeviceDisplayName, GetFileType, decryptFile, getFileBlob, emojiUnicodeRanges};
 //exports.generalGuid = generalGuid;
 //exports.FileUtil = FileUtil;

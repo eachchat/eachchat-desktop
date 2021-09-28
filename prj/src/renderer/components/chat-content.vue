@@ -249,7 +249,7 @@ import winHeaderBarWhite from './win-header-login.vue'
 import imageLayer from './image-layers.vue'
 import listHeader from './listheader'
 import {ipcRenderer, remote} from 'electron'
-import {changeStr, getIconPath, EmojiTextToHtml, getInviteUserID} from '../../packages/core/Utils.js'
+import {changeStr, getIconPath, getInviteUserID} from '../../packages/core/Utils.js'
 import { Group, UserInfo, Department } from '../../packages/data/sqliteutil'
 import BenzAMRRecorder from 'benz-amr-recorder'
 import userInfoContent from './user-info';
@@ -2110,8 +2110,7 @@ export default {
                 distContentElement.innerHTML =  "[文件]" + chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.text'){
-                let text = chatGroupMsgContent.body;
-                distContentElement.innerHTML = EmojiTextToHtml(text, 18);
+                distContentElement.innerHTML = chatGroupMsgContent.body;
               }
               else if(chatGroupMsgContent.msgtype == 'm.image'){
                 distContentElement.innerHTML = "[图片]";// + chatGroupMsgContent.body;

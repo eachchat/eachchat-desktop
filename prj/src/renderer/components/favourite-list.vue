@@ -161,7 +161,6 @@ import favouriteDetail from './favourite-detail.vue'
 import { ComponentUtil } from '../script/component-util.js';
 import AlertDlg from './alert-dlg.vue'
 import emoji from './emoji'
-import {EmojiTextToHtml} from '../../packages/core/Utils.js'
 import * as fs from 'fs-extra';
 
 
@@ -586,8 +585,7 @@ export default {
                 let newInnerHtml = splitValue.join('<span style="color:red;">' + '' + "</span>");
                 content = newInnerHtml;
             }
-            let newContent = EmojiTextToHtml(content);
-            return newContent;
+            return content;
         },
         async getObjectFromServerCollectionModel(collectionModels) {
             var favourites = [];

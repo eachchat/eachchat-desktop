@@ -163,7 +163,7 @@ import * as Quill from 'quill'
 import {ipcRenderer, remote, shell} from 'electron'
 import { get as getProperty } from 'lodash'
 import Faces from './faces.vue';
-import {getFileSizeNum, generalGuid, FileUtil, uncodeUtf16, strMsgContentToJson, sliceReturnsOfString, GetFileType, faceUtils} from '../../packages/core/Utils.js'
+import {getFileSizeNum, generalGuid, FileUtil, uncodeUtf16, strMsgContentToJson, sliceReturnsOfString, GetFileType} from '../../packages/core/Utils.js'
 import imessage from './message.vue'
 import groupInfoTip from './group-info.vue'
 import chatMemberDlg from './chatMemberList.vue'
@@ -2014,12 +2014,7 @@ export default {
         insertFace: function(item) {
             var curIndex = getProperty(this.editor, 'selection.lastRange.index') || 
             getProperty(this.editor, 'selection.savedRange.index', 0) 
-            let faceImg = faceUtils.getFaceImg(item);
-            let dom = document.createElement('img')
-            dom.setAttribute('src', faceImg);
-            dom.setAttribute('filepath', faceImg), 
-            dom.setAttribute('width', 24);
-            dom.setAttribute('height', 24);
+            this.editor.insertText(curIndex, uncodeUtf16(item));
 
             this.editor.insertEmbed(curIndex, 'span', dom);
             this.editor.setSelection(this.editor.selection.savedRange.index + 2);
@@ -2245,8 +2240,7 @@ export default {
                 
                 if(curMsgItem.hasOwnProperty("span")) {
                     if (curMsgItem.span.id !== 'quote-img' 
-                    && curMsgItem.span.id !== 'quote-text'
-                    && curMsgItem.span.id !== '') {    
+                    && curMsgItem.span.id !== 'quote-text') {    
                         var fileSpan = curMsgItem.span;
                         var pathId = fileSpan.id;
                         var msgInfo = this.idToPath[pathId];
@@ -2255,12 +2249,6 @@ export default {
                             sendText += ("@" + msgInfo.atName + " ");
                             sendBody.format = "org.matrix.custom.html";
                         }
-                    }
-                    else if(curMsgItem.span.id === ''){
-                        let faceImg = curMsgItem.span;
-                        let filePath = faceImg.getAttribute('filepath');
-                        let facecode = faceUtils.getFaceCode(filePath);
-                        sendText += facecode;
                     }
                 }
                 else{

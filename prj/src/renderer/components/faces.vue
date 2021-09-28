@@ -4,8 +4,7 @@
             <li v-for="item in faceList" :style="{
               fontSize: isMac() ? '22px' : '18px'
             }">
-                <img style = "width:24px; height:24px;" :src="getFaceImg(item)" @click="insertFace(item)"/>
-                <!-- <div v-html="item" :title="item" @click="insertFace(item)"></div> -->
+                <div v-html="item" :title="item" @click="insertFace(item)"></div>
             </li>
         </ul>
     </div>
@@ -20,14 +19,9 @@ export default {
   data() {
     return {
       faceList: faceUtils.GetPointFaces(),
-      faceMap: faceUtils.GetPointFaceMap()
     };
   },
   methods: {
-    getFaceImg(item){
-      return this.faceMap.get(item);
-    },
-
     isMac() {
       return environment.os.isOSX;
     },

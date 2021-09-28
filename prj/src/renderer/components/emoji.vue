@@ -1,8 +1,8 @@
 <template>
     <div class="emojiDiv">
       <span class="emoji" v-for="(item, ind) in getItems()" :key="ind" >
-        <span class="emoji" v-if = "ind % 2 && item !== '。' && hasFaceImg(item)" >
-          <img class="emoji" :style="{fontSize: 1, paddingLeft: '1px', paddingRight: '1px', 'vertical-align': 'middle', width: '24px', height: '24px'}" :src = "getFaceImg(item)"></img>
+        <span class="emoji" v-if = "hasFaceCode(item)" >
+          <span class="emoji" :style="{fontSize: fontSize, 'vertical-align': 'middle', width: '24px', height: '24px'}" >{{item}}</span>
         </span>
         <span class="emoji" v-else>{{item}}</span>
       </span>
@@ -28,14 +28,8 @@ export default {
       }
     },
     methods: {
-      hasFaceImg(item){
-        faceUtils.GetPointFaces();
-        return faceUtils.hasFaceCode(item);
-      },
-
-      getFaceImg(item){
-        faceUtils.GetPointFaceMap();
-        return faceUtils.getFaceImg(item);
+      hasFaceCode(facecode){
+        return faceUtils.hasFaceCode(facecode);
       },
 
       isWindows() {
