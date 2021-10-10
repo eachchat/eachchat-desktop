@@ -745,64 +745,44 @@ ipcMain.on("toUpgradePackage", function(event, arg) {
   // console.log("downloadingList is ", downloadingList);
   var distPath = arg[4];
   var versionId = arg[5];
-  var distTemp = distPath + "_tmp";
-
-  if (typeof port == "number") {
-    port = port;
-  }
-
-  var sender = axios.create({
-    baseURL: baseURL + ":" + String(port)
-  });
-
   var path = distUrl;
-  var headers = {
-    Authorization: "Bearer " + token
-  };
-  var appendix = {
-    timeout: 60000 * 5,
-    responseType: "stream"
-  };
+  mainWindow.webContents.downloadURL(path)
+  console.log("begin download")
+  console.log(path)
+  let toUpgradePackageEvent = event;
+  mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+    console.log("distPath", distPath)
+    item.setSavePath(distPath)
+    item.on('updated', (event, state) => {
+      if (state === 'interrupted') {
+        console.log('Download is interrupted but can be resumed')
+      } else if (state === 'progressing') {
+        if (item.isPaused()) {
+          console.log('Download is paused')
+        } else {
+          console.log(`Received bytes: ${item.getReceivedBytes()}`)
+          console.log(`total bytes: ${item.getTotalBytes()}`)
+          console.log("save path", item.getSavePath())
+          console.log("filename", item.getFilename())
+          toUpgradePackageEvent.sender.send('getTotleSize', item.getReceivedBytes(), item.getTotalBytes());
 
-  var config = Object.assign({
-    headers: headers,
-  }, appendix);
-
-  if(fs.existsSync(distTemp)) {
-      fs.unlinkSync(distTemp);
-  }
-
-  if(fs.existsSync(distPath)) {
-      fs.unlinkSync(distPath);
-  }
-
-  try{
-    sender.get(path, config)
-      .then(function (ret) {
-        event.sender.send('getTotleSize', ret.headers['content-length']);
-        ret.data.pipe(fs.createWriteStream(distTemp))
-        .on('finish', function() {
-          updateVersion = false;
+        }
+      }
+    })
+    item.once('done', (event, state) => {
+      if (state === 'completed') {
+        console.log('Download successfully')
+        toUpgradePackageEvent.sender.send('finishUpdateDownload', distPath);
+        updateVersion = false;
           if(updateCancel){
             updateCancel = false;
-            return;
           } 
-          console.log("finished ")
-          
-          try{
-            fs.renameSync(distTemp, distPath);
-            event.sender.send('finishUpdateDownload', distPath);
-          }
-          catch(e) {
-            console.log("rename file failed and details is ", e);
-			event.sender.send('finishUpdateDownload', distPath);
-          }
-        });
+      } else {
+        console.log(`Download failed: ${state}`)
+      }
     })
-  }
-  catch(err) {
-    console.log("iiiiiiiiiiiiii ", err)
-  }
+  })
+  
 })
 
 
