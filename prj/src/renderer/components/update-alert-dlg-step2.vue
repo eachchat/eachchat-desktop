@@ -58,21 +58,7 @@ export default {
         },
 
         upGrade: function() {
-            global.services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.productName, this.upgradeInfo.verId);
-            var targetDir = confservice.getCurFilesDir();
-            this.checkingTmpPath = path.join(targetDir, this.upgradeInfo.productName+'_tmp');
-            if(this.downloadingInterval) {
-                clearInterval(this.downloadingInterval);
-            }
-            this.downloadingInterval = setInterval(() => {
-                if(fs.existsSync(this.checkingTmpPath)) {
-                    var checkingState = fs.statSync(this.checkingTmpPath);
-
-                    this.curPercent = parseInt(checkingState.size * 100 / (this.totleSize))
-                    console.log("this.totleSize", this.totleSize)
-                    console.log("cur path " + this.checkingTmpPath +" is ", this.curPercent)
-                }
-            }, 1000);
+            global.services.common.downloadUpgradeFile(this.upgradeInfo.downloadUrl, this.upgradeInfo.productName, this.upgradeInfo.verId);   
         },
 
         Cancle: function() {
@@ -104,10 +90,10 @@ export default {
             this.UpgradeDlgElement.style.top = top.toString() + "px"; 
         },
 
-        getTotleSize(e, ret){
-            console.log(ret)
-            this.totleSize = ret;
-        }
+        getTotleSize(e, receive, total){
+            console.log("receive", receive, total)
+            this.curPercent = parseInt(receive * 100 / total)
+        },
     },
     components: {
     },
