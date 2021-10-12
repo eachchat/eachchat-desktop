@@ -921,13 +921,18 @@ export default {
                             this.downloadFile(msgItem);
                         }
                     }));
-                    if (content.msgtype == "m.image"){
-                        this.menu.append(new MenuItem({
-                            label: "引用",
-                            click: () => {
+                    this.menu.append(new MenuItem({
+                        label: "引用",
+                        click: () => {
+                            if(content.msgtype == "m.image"){
                                 this.quoteImg(msgItem);
                             }
-                        }));
+                            else{
+                                this.menuQuote(msgItem);
+                            }                  
+                        }
+                    }));
+                    if (content.msgtype == "m.image"){
                         this.menu.append(new MenuItem({
                             label: "复制",
                             click: () => {
