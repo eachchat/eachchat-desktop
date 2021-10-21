@@ -996,9 +996,9 @@ export default {
                 this.callId = this.msg.event.content.call_id;
                 if(this.msg.event.content.isVideo != null) {
                     this.isVideo = this.msg.event.content.isVideo == true ? 1 : 0;
-                    this.duration = (this.msg.event.content.duration != null && this.msg.event.content.duration != 0) ? this.msg.event.content.duration : -1;
-                    this.hangUpReason = this.msg.event.content.reason ? this.msg.event.content.reason : "";
-                    this.caller_id = this.msg.event.content.caller_id ? this.msg.event.content.caller_id : "";
+                    this.duration = this.msg.event.content.duration;
+                    this.hangUpReason = this.msg.event.content.reason;
+                    this.caller_id = this.msg.event.content.caller_id;
                     this.operate_id = this.msg.sender ? this.msg.sender.userId : this.msg.event.sender;
                 }
                 this.generalVoipInfo();
