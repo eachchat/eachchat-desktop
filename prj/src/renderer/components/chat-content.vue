@@ -210,7 +210,9 @@
           <div class="win-header-white">
             <winHeaderBarWhite @getCreateGroupInfo="getCreateGroupInfo" :isNormal="isNormal" @Close="Close" @Min="Min" @Max="Max"></winHeaderBarWhite>
           </div>
-          <img class="chat-empty-bg" v-show="isEmpty" src="../../../static/Img/Chat/empyt2@2x.png">
+          <div class="chat-empty-bg-div">
+            <img class="chat-empty-bg" v-show="isEmpty" src="../../../static/Img/Chat/empyt2@2x.png">
+          </div>
         </div>
         <div class="chat" id="chat-page-id" v-show="!isEmpty">
           <div class="win-header" v-show="!isMsgSearch">
@@ -3485,6 +3487,16 @@ export default {
   * {
 
       -webkit-app-region: no-drag;
+  }
+
+  .chat-empty-bg-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color:  rgba(255, 255, 255, 0);
   }
 
   .chat-empty-bg {
