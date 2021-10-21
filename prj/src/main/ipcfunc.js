@@ -50,6 +50,7 @@ const ipcFileFunc = {
               else {
                 event.sender.send("SAVED_FILE", finalName, eventId, needOpen);
               }
+              resolve();
             }
           });
         });
