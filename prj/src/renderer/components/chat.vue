@@ -4223,7 +4223,7 @@ export default {
         box-shadow: 2px 2px 5px rgb(219,219,219);
         background-color: white;
         border-radius:4px;
-        width: 338px;
+        width: 344px;
     }
 
     .chat-input-expression {
