@@ -499,7 +499,7 @@ export default {
         removedRoomIds = [...removedRoomIds];
         let sg = [...this.showGroupList];
         sg.forEach(s => {
-          if (removedRoomIds.indexOf(sg.roomId) >= 0) {
+          if (removedRoomIds.indexOf(s.roomId) >= 0) {
             s.localRemoved = true
           } else {
             s.localRemoved = false
@@ -796,9 +796,12 @@ export default {
       if (!removedRoomIds) return;
       removedRoomIds = removedRoomIds.split(',');
       let idx = removedRoomIds.indexOf(roomId);
-      removedRoomIds.splice(idx, 1);
-      removedRoomIds = removedRoomIds.join(',');
-      localStorage.setItem('removedRoomIds', removedRoomIds);
+      if(idx != -1){
+        removedRoomIds.splice(idx, 1);
+        removedRoomIds = removedRoomIds.join(',');
+        localStorage.setItem('removedRoomIds', removedRoomIds);
+      }
+      
       console.log('aaaaa11', this.favouriteRooms)
       console.log('bbbbb11', this.dealShowGroupList)
       console.log('ccccc11', this.lowPriorityGroupList)
