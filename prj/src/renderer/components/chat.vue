@@ -1520,7 +1520,7 @@ export default {
             // console.log("handle down event range is ", range.index);
             var content = this.editor.getContents();
 
-            if(event.code == "Enter" && !event.ctrlKey) {
+            if((event.code == "Enter" || event.code == "NumpadEnter") && !event.ctrlKey) {
                 if(this.chatMemberDlgVisible) {
                     this.toSelect = !this.toSelect;
                     isEnter = false;
