@@ -16,16 +16,16 @@
                         <div class="SendFileImgDiv">
                             <img class="SendFileImg" :src="getFilePath(item)"/>
                         </div>
-                        <div class="SendFileInfo" @keydown="keyHandle($event)">
+                        <div class="SendFileInfo">
                             <p class="SendFileName" >{{getSendFileName(item)}}</p>
                             <p class="SendFileSize">{{getSendFileSize(item)}}</p>
                         </div>
                     </li>
                 </ul>
             </div>
-            <div class="SendFileFotter"  @keydown="tmpkeyHandle($event)">
+            <div class="SendFileFotter">
                 <button class="SendFileCancleButton" @click="closeDialog()">取消</button>
-                <button class="SendFileConfirmButton" autofocus='autofocus' @click="SendFile()">发送</button>
+                <button class="SendFileConfirmButton" @click="SendFile()">发送</button>
                 </div>
             </div>
         </div>
@@ -76,10 +76,6 @@ export default {
         }
     },
     methods: {
-        tmpkeyHandle(event){
-            console.log("senfile ", event)
-        },
-
         getDistName() {
             if(this.sendInfos.distGroupInfo != undefined && this.sendInfos.distGroupInfo.group_name != undefined){
                 return this.sendInfos.distGroupInfo.name.substring(0, 20);
