@@ -1527,6 +1527,7 @@ export default {
                 }
                 else if(isEnter) {
                     this.sendMsg();
+                    this.SendFiles(this.sendFileInfos.paths);
                     // console.log("sendmsg");
                     isEnter = false;
                     canNewLine = true;
