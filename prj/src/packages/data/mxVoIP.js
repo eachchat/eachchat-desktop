@@ -84,11 +84,20 @@ async function updateTrayNotice() {
                 noticeType = "video";
             }
     
-            let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(checkCall.roomId);
-            const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+            // let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(checkCall.roomId);
+            const distUserId = checkCall.caller_id;//global.mxMatrixClientPeg.getDMMemberId(checkRoom);
             
-            let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
-            let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            let profileInfo;
+            try{
+                profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+            }
+            catch(e) {
+
+            }
+            let distUrl;
+            if(profileInfo) {
+                distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+            }
             if(!distUrl || (distUrl && distUrl == '')) {
                 distUrl = "./static/Img/User/user-40px@2x.png";
             }
@@ -98,11 +107,11 @@ async function updateTrayNotice() {
                 unreadCount: 0,
                 imgUrl: distUrl,
                 chatName: showName,
-                roomId: checkRoom.roomId,
+                roomId: checkCall.roomId,
                 notictType: noticeType,
                 callStat: checkCall.state
             }   
-            trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+            trayNoticeInfo[checkCall.roomId + ":VoIP"] = trayNoticeObj;
         }
     }
     ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
@@ -250,8 +259,8 @@ class mxVoIP{
             return;
         }
         
-        let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
-        const distUserId = global.mxMatrixClientPeg.getDMMemberId(checkRoom);
+        // let checkRoom = global.mxMatrixClientPeg.matrixClient.getRoom(call.roomId);
+        const distUserId = call.caller_id;//global.mxMatrixClientPeg.getDMMemberId(checkRoom);
         
         call.setCallerId(distUserId);
 
@@ -268,9 +277,17 @@ class mxVoIP{
         if(call && call.type == "video") {
             noticeType = "video";
         }
+        let profileInfo = null;
+        try{
+            profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
+        }
+        catch(e) {
 
-        let profileInfo = await global.mxMatrixClientPeg.matrixClient.getProfileInfo(distUserId);
-        let distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+        }
+        let distUrl;
+        if(profileInfo) {
+            distUrl = global.mxMatrixClientPeg.matrixClient.mxcUrlToHttp(profileInfo.avatar_url);
+        }
         if(!distUrl || (distUrl && distUrl == '')) {
             distUrl = "./static/Img/User/user-40px@2x.png";
         }
@@ -281,11 +298,11 @@ class mxVoIP{
             unreadCount:0,
             imgUrl: distUrl,
             chatName: showName,
-            roomId: checkRoom.roomId,
+            roomId: call.roomId,
             notictType: noticeType
         }  
         let trayNoticeInfo = {};
-        trayNoticeInfo[checkRoom.roomId + ":VoIP"] = trayNoticeObj;
+        trayNoticeInfo[call.roomId + ":VoIP"] = trayNoticeObj;
         console.log("====ru show notice ");
         ipcRenderer.send("updateVoIPTrayNotice", trayNoticeInfo);
     }
