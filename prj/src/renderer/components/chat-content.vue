@@ -266,6 +266,8 @@ import ImportE2EKeypage from './importE2E.vue';
 import {ComponentUtil} from '../script/component-util.js';
 import { getRoomNotifsState, MUTE } from "../../packages/data/RoomNotifs.js"
 import { checkIsEmptyRoom } from "../../packages/data/Rooms";
+import * as Rooms from "../../packages/data/Rooms";
+
 export default {
   components: {
     ChatPage,

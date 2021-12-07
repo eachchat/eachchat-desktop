@@ -1,6 +1,8 @@
 
 import {UserInfo, Contact, Department} from '../../packages/data/sqliteutil.js'; 
 import {Appendzero} from '../../packages/core/Utils.js'
+import * as Rooms from "../../packages/data/Rooms";
+
 
 const linkRegExp = /((?:(http|https|Http|Https|rtsp|Rtsp|ftp|Ftp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?(?:(([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]){0,1}\.)+[a-zA-Z]{2,63}|((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9]))))(?:\:\d{1,5})?)((?:\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))+[\;\.\=\?\/\+\)][a-zA-Z0-9\%\#\&\-\_\.\~]*)|(?:\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*))?(?:\b|$|(?=[ -퟿豈-﷏ﷰ-￯]))|([\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?)/g
 
@@ -294,10 +296,12 @@ const ComponentUtil = {
                 let members = room.currentState.members;
                 for(let memberItem in members){
                     if(memberItem != myUserId){
-                        return directMember;
+                        directMember = memberItem;
                     }
                 }
             }
+            Rooms.setDMRoom(room.roomId, directMember);
+            return directMember;
         }
         else{
             const inviteEvent = room.currentState.getMember(myUserId);
@@ -305,13 +309,12 @@ const ComponentUtil = {
                 return;
             }
             const inviterUserId = inviteEvent.events.member.getSender();
-            return room.currentState.getMember(inviterUserId);
+            return room.currentState.getMember(inviterUserId).userId;
         }
     },
     
     autoJoinRoom(newRoom, selfUserID){
-        let inviteUser = this.getInviteUserID(newRoom);
-        let userID = inviteUser.userId;
+        let userID = this.getInviteUserID(newRoom);
         let sameArea = ComponentUtil.sameAreaWithUser(userID, selfUserID);
         if(sameArea === true){
             global.mxMatrixClientPeg.matrixClient.joinRoom(newRoom.roomId, {inviteSignUrl: undefined, viaServers: undefined});
