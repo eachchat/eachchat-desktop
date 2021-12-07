@@ -321,10 +321,9 @@ class mxVoIP{
     }
 
     voiceCall(room_id){
-        const room = global.mxMatrixClientPeg.matrixClient.getRoom(room_id);
+        let room = global.mxMatrixClientPeg.matrixClient.getRoom(room_id);
         if(!room) {
             console.log("err: voice call room not exist");
-            return;
         }
         const call = Matrix.createNewMatrixCall(global.mxMatrixClientPeg.matrixClient, room_id);
         call.setCallerId(global.mxMatrixClientPeg.matrixClient.getUserId());
