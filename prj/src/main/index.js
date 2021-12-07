@@ -214,7 +214,6 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     {
       label: "注销",
       click: function() {
-        DeleteChildWindows();
         mainWindow.webContents.send("LogoutMenuItemClick");
       }
     },
@@ -413,6 +412,7 @@ ipcMain.on("token-expired", function(event, arg) {
 })
 
 ipcMain.on('showLoginPageWindow', function(event, arg) {
+  DeleteChildWindows();
   if(!mainWindow) return;
   isLogin = false;
   clearFlashIconTimer();

@@ -32,6 +32,7 @@ class ChildWindow{
       this.thirdpartyBrowser = null;
       this.childrenderBrowser = null;
       this.voipBrwoser = null;
+      console.log('deleteChildWindow', this.thirdpartyBrowser, this.childrenderBrowser, this.voipBrwoser)
     }
 
     CreateThirdPartyBrowser(iconPath){
@@ -54,13 +55,17 @@ class ChildWindow{
     }
 
     CreateVoipBrowser(iconPath){
+      console.log('voipBrwoser', this.voipBrwoser)
       if(!this.voipBrwoser){
         this.voipBrwoser = this.createBrowser(iconPath);
         const voipwindowURL = process.env.NODE_ENV === 'development'
         ? `http://localhost:9080/#/voipwindow`
         : `file://${__dirname}/index.html#voipwindow`;
         this.voipBrwoser.loadURL(voipwindowURL);
+       console.log('CreateVoipBrowser', voipwindowURL)
+
       }
+      console.log("CreateVoipBrowser")
       return this.voipBrwoser;
     }
     
