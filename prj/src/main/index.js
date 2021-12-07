@@ -214,6 +214,7 @@ ipcMain.on('showMainPageWindow', function(event, arg) {
     {
       label: "注销",
       click: function() {
+        DeleteChildWindows();
         mainWindow.webContents.send("LogoutMenuItemClick");
       }
     },
@@ -1089,6 +1090,10 @@ function createWindow () {
     height = 470;
     width = 600;
   }
+}
+
+function DeleteChildWindows(){
+  childwindowFactory.deleteChildWindow();
 }
 
 function CreateChildWindows(){

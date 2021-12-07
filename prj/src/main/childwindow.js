@@ -28,6 +28,12 @@ class ChildWindow{
         });
     }
 
+    deleteChildWindow(){
+      this.thirdpartyBrowser = null;
+      this.childrenderBrowser = null;
+      this.voipBrwoser = null;
+    }
+
     CreateThirdPartyBrowser(iconPath){
       if(!this.thirdpartyBrowser){
         this.thirdpartyBrowser = this.createBrowser(iconPath);
@@ -100,6 +106,7 @@ function createChildWindow(mainwindowArgs){
         if(callingState.calling()) return;
         let VideoChatWindow = new VideoChatWindowBuilder(voipRenderWindowBrowser, mainWindow);VideoChatWindow.setArgs(ipcArg);
         VideoChatWindow.build();
+        VideoChatWindow.showWindow();
         break;
       }
 
