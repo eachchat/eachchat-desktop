@@ -105,6 +105,14 @@ class roomTimeLineHandler {
             }
             messageList = [...newTimeline];
         }
+
+        messageList = [];
+        let allEvents = this._timelineWindow.getEvents();
+        for(let i = 0; i < allEvents.length; i++){
+            if(this.messageFilter(allEvents[i])){
+                messageList.push(allEvents[i]);
+            }
+        }
         if(this._isTimelineOutDated(messageList)) return null;
         return messageList;
     }
@@ -124,6 +132,13 @@ class roomTimeLineHandler {
             }
             messageList = [...newTimeline];
             console.log("the messagelist is ", messageList.length);
+        }
+        messageList = [];
+        let allEvents = this._timelineWindow.getEvents();
+        for(let i = 0; i < allEvents.length; i++){
+            if(this.messageFilter(allEvents[i])){
+                messageList.push(allEvents[i]);
+            }
         }
         if(this._isTimelineOutDated(messageList)) return null;
         return messageList;
