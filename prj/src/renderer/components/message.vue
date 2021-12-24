@@ -1349,7 +1349,6 @@ export default {
                     this.uploadFile(this.msg.event.room_id, showfileObj, this.onUploadProgress).then((ret) => {
                         this.showProgress = false;
                         this.curProcess = 1;
-                        this.msg.event.content.file = ret.file;
                         try{
                             URL.revokeObjectURL(this.msg.event.content.url);
                         }
@@ -1394,7 +1393,6 @@ export default {
                     this.curProcess = 1;
 
                     this.msg.event.content.msgtype = 'm.file';
-                    this.msg.event.content.file = ret.file;
                     this.msg.event.content.url = ret.url;
                     this.msg.event.content.info.mimetype = fileMIMEFromType(path.extname(showfileObj.name).split('.')[1]);
                     this.msg.event.content.info.size = this.msg.event.content.info.size;
