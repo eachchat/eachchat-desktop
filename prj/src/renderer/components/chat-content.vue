@@ -1594,7 +1594,7 @@ export default {
         }
         try{
           if(global.localStorage.getItem("message_sound") == undefined || global.localStorage.getItem("message_sound") == "true") {
-            this.amr.play();
+            // this.amr.play();
           }
         }
         catch(e) {
