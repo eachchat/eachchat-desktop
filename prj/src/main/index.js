@@ -571,7 +571,8 @@ ipcMain.on("showNotice", (event, title, contnet) => {
       notification = new Notification({
         title: title,
         body: contnet,
-        icon: notificationIco
+        icon: notificationIco,
+        silent: true
       })
       notification.show();
       setTimeout(() => {
