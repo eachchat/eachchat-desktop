@@ -23,7 +23,7 @@ import { ElectronApplication, Page } from "playwright-core";
 
 describe("App launch", () => {
     const artifactsPath = path.join(process.cwd(), "test_artifacts");
-    fs.mkdirSync(artifactsPath);
+    if (!fs.existsSync(artifactsPath)) fs.mkdirSync(artifactsPath);
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "element-desktop-tests"));
     console.log("Using temp profile directory: ", tmpDir);
@@ -45,13 +45,13 @@ describe("App launch", () => {
             args,
             recordVideo: {
                 dir: artifactsPath,
-            }
+            },
         });
         window = await app.firstWindow();
     }, 30000);
 
     afterAll(async () => {
-        await app?.close().catch(e => {
+        await app?.close().catch((e) => {
             console.error(e);
         });
         fs.rmSync(tmpDir, { recursive: true });
