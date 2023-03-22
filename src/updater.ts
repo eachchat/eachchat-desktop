@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { autoUpdater, ipcMain } from "electron";
-import { checkUpdate } from "./checkUpdate";
 
 const UPDATE_POLL_INTERVAL_MS = 60 * 60 * 1000;
 const INITIAL_UPDATE_DELAY_MS = 30 * 1000;
@@ -69,9 +68,7 @@ export function start(updateBaseUrl: string): void {
         }
 
         if (url) {
-            console.log(`process: ${process}`);
             console.log(`Update URL: ${url}`);
-            checkUpdate(url);
             return
             autoUpdater.setFeedURL({ url, serverType });
             // We check for updates ourselves rather than using 'updater' because we need to

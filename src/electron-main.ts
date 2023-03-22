@@ -39,6 +39,7 @@ import * as updater from "./updater";
 import { getProfileFromDeeplink, protocolInit } from "./protocol";
 import { _t, AppLocalization } from "./language-helper";
 import Input = Electron.Input;
+import { checkUpdate } from "./checkUpdate";
 
 const argv = minimist(process.argv, {
     alias: { help: "h" },
@@ -322,6 +323,7 @@ if (global.store.get("disableHardwareAcceleration", false) === true) {
 }
 
 app.on("ready", async () => {
+    checkUpdate();
     try {
         await setupGlobals();
         await moveAutoLauncher();

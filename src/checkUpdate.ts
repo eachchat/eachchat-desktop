@@ -17,13 +17,13 @@ limitations under the License.
 import { app, dialog } from "electron";
 import { autoUpdater } from "electron-updater";
 
-export const checkUpdate = (updateBaseUrl: string)=>{
+export const checkUpdate = ()=>{
   if(process.platform == 'darwin'){  
     //我们使用koa-static将静态目录设置成了static文件夹，
     //所以访问http://127.0.0.1:9005/darwin，就相当于访问了static/darwin文件夹，win32同理
-    autoUpdater.setFeedURL(`${updateBaseUrl}darwin`)  //设置要检测更新的路径
+    autoUpdater.setFeedURL("http://127.0.0.1:9005/darwin")  //设置要检测更新的路径
   }else{
-    autoUpdater.setFeedURL(`${updateBaseUrl}win32`)
+    autoUpdater.setFeedURL("http://127.0.0.1:9005/win32")
   }
   
   //检测更新
