@@ -2,7 +2,7 @@
   "name": "element-desktop",
   "productName": "亿洽",
   "main": "lib/electron-main.js",
-  "version": "1.11.25",
+  "version": "1.11.26",
   "description": "A feature-rich client for Matrix.org",
   "author": "亿洽",
   "repository": {
@@ -49,7 +49,10 @@
     "docker:install": "scripts/in-docker.sh yarn install",
     "clean": "rimraf webapp.asar dist packages deploys lib",
     "hak": "ts-node scripts/hak/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "build:w64": "yarn run build:ts && yarn run build:res && electron-builder -w --x64",
+    "build:w32": "yarn run build:ts && yarn run build:res && electron-builder -w --ia32",
+    "build:w": "yarn run build:ts && yarn run build:res && electron-builder -w --x64 --ia32"
   },
   "dependencies": {
     "auto-launch": "^5.0.5",
@@ -120,13 +123,7 @@
     "@types/node": "16.18.12"
   },
   "build": {
-    "appId": "com.worklyai.eachchat.desktop.testing",
-    "publish": [
-      {
-        "provider": "generic",
-        "url": "http://127.0.0.1:9005/"
-      }
-    ]
+    "appId": "com.worklyai.eachchat.desktop.testing"
   },
   "jest": {
     "testEnvironment": "node",

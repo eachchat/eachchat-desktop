@@ -323,7 +323,6 @@ if (global.store.get("disableHardwareAcceleration", false) === true) {
 }
 
 app.on("ready", async () => {
-    checkUpdate();
     try {
         await setupGlobals();
         await moveAutoLauncher();
@@ -409,7 +408,10 @@ app.on("ready", async () => {
     } else if (global.vectorConfig["update_base_url"]) {
         console.log(`Starting auto update with base URL: ${global.vectorConfig["update_base_url"]}`);
         updater.start(global.vectorConfig["update_base_url"]);
-    } else {
+    } else if(global.vectorConfig["setting_defaults"]["check_update_url"]){
+        console.log(`Starting auto update with base URL: ${global.vectorConfig["setting_defaults"]["check_update_url"]}`);
+        checkUpdate(global.vectorConfig["setting_defaults"]["check_update_url"]);
+    }else {
         console.log("No update_base_url is defined: auto update is disabled");
     }
 

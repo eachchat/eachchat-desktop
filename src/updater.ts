@@ -69,7 +69,6 @@ export function start(updateBaseUrl: string): void {
 
         if (url) {
             console.log(`Update URL: ${url}`);
-            return
             autoUpdater.setFeedURL({ url, serverType });
             // We check for updates ourselves rather than using 'updater' because we need to
             // do it in the main process (and we don't really need to check every 10 minutes:
