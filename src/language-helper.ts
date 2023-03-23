@@ -18,7 +18,7 @@ import counterpart from "counterpart";
 
 import type Store from "electron-store";
 
-const FALLBACK_LOCALE = "en";
+const FALLBACK_LOCALE = "zh";
 
 export function _td(text: string): string {
     return text;
@@ -72,7 +72,7 @@ export class AppLocalization {
     private readonly localizedComponents?: Set<Component>;
 
     public constructor({ store, components = [] }: { store: TypedStore; components: Component[] }) {
-        counterpart.registerTranslations(FALLBACK_LOCALE, this.fetchTranslationJson("en_EN"));
+        counterpart.registerTranslations(FALLBACK_LOCALE, this.fetchTranslationJson("zh_Hans"));
         counterpart.setFallbackLocale(FALLBACK_LOCALE);
         counterpart.setSeparator("|");
 
