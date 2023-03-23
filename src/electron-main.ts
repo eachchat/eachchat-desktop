@@ -440,6 +440,7 @@ app.on("ready", async () => {
             //sandbox: true, // We enable sandboxing from app.enableSandbox() above
             contextIsolation: true,
             webgl: true,
+            webSecurity:false,
         },
     });
     global.mainWindow.loadURL("vector://vector/webapp/");
