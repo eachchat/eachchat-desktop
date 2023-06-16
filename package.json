@@ -2,7 +2,7 @@
   "name": "element-desktop",
   "productName": "亿洽",
   "main": "lib/electron-main.js",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "A feature-rich client for Matrix.org",
   "author": "亿洽",
   "repository": {
