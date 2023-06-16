@@ -2,7 +2,7 @@
   "name": "element-desktop",
   "productName": "亿洽",
   "main": "lib/electron-main.js",
-  "version": "1.11.26",
+  "version": "0.0.3",
   "description": "A feature-rich client for Matrix.org",
   "author": "亿洽",
   "repository": {
@@ -39,7 +39,7 @@
     "build:native:universal": "yarn run hak --target x86_64-apple-darwin fetchandbuild && yarn run hak --target aarch64-apple-darwin fetchandbuild && yarn run hak --target x86_64-apple-darwin --target aarch64-apple-darwin copyandlink",
     "build:32": "yarn run build:ts && yarn run build:res && electron-builder --ia32",
     "build:64": "yarn run build:ts && yarn run build:res && electron-builder --x64",
-    "build:universal": "yarn run build:ts && yarn run build:res && electron-builder --universal",
+    "build:universal": "yarn run build:ts && yarn run build:res && rm -rf dist && electron-builder --universal && cp -r dist/ ../element-desktop-release/static/darwin/",
     "build": "yarn run build:ts && yarn run build:res && electron-builder",
     "build:ts": "tsc",
     "build:res": "ts-node scripts/copy-res.ts",
@@ -52,7 +52,8 @@
     "test": "jest",
     "build:w64": "yarn run build:ts && yarn run build:res && electron-builder -w --x64",
     "build:w32": "yarn run build:ts && yarn run build:res && electron-builder -w --ia32",
-    "build:w": "yarn run build:ts && yarn run build:res && electron-builder -w --x64 --ia32"
+    "build:w": "yarn run build:ts && yarn run build:res && rm -rf dist && electron-builder -w --x64 --ia32 && cp -r dist/ ../element-desktop-release/static/win32/",
+    "build:mw": "yarn build:universal && yarn build:w"
   },
   "dependencies": {
     "auto-launch": "^5.0.5",
@@ -127,7 +128,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "http://element-desktop-release/"
+        "url": "http://element.desktop.release/"
       }
     ]
   },

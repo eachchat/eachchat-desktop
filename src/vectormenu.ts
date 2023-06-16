@@ -136,12 +136,12 @@ export function buildMenuTemplate(): Menu {
             accelerator: "h",
             role: "help",
             submenu: [
-                {
-                    label: _t("Element Help"),
-                    click(): void {
-                        shell.openExternal("https://element.io/help");
-                    },
-                },
+                // {
+                //     label: _t("Element Help"),
+                //     click(): void {
+                //         shell.openExternal("https://bbs.yiqia.com"); //https://element.io/help
+                //     },
+                // },
             ],
         },
     ];
