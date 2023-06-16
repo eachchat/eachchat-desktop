@@ -1,10 +1,10 @@
 {
   "name": "element-desktop",
-  "productName": "亿洽",
+  "productName": "EachChat",
   "main": "lib/electron-main.js",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "description": "A feature-rich client for Matrix.org",
-  "author": "亿洽",
+  "author": "EachChat",
   "repository": {
     "type": "git",
     "url": "https://github.com/vector-im/element-desktop"

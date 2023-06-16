@@ -136,6 +136,10 @@ export function buildMenuTemplate(): Menu {
             accelerator: "h",
             role: "help",
             submenu: [
+                {
+                    role: "about",
+                    label: _t("About") + " " + app.name,
+                },
                 // {
                 //     label: _t("Element Help"),
                 //     click(): void {
