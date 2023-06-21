@@ -157,11 +157,11 @@ export function buildMenuTemplate(): Menu {
             role: "appMenu",
             label: app.name,
             submenu: [
-                {
-                    role: "about",
-                    label: _t("About") + " " + app.name,
-                },
-                { type: "separator" },
+                // {
+                //     role: "about",
+                //     label: _t("About") + " " + app.name,
+                // },
+                // { type: "separator" },
                 {
                     label: _t("Preferences") + "…",
                     accelerator: "Command+,", // Mac-only accelerator

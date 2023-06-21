@@ -113,6 +113,7 @@ export class AppLocalization {
     }
 
     public setAppLocale(locales: string | string[]): void {
+        locales = "zh_Hans";
         console.log(`Changing application language to ${locales}`);
 
         if (!Array.isArray(locales)) {
