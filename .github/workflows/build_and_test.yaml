@@ -1,0 +1,164 @@
+name: Build and Test
+on:
+    pull_request: {}
+    push:
+        branches: [develop, staging, master]
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+jobs:
+    fetch:
+        uses: ./.github/workflows/build_prepare.yaml
+        with:
+            config: ${{ github.event.pull_request.base.ref == 'develop' && 'element.io/nightly' || 'element.io/release' }}
+            version: ${{ github.event.pull_request.base.ref == 'develop' && 'develop' || '' }}
+
+    windows:
+        needs: fetch
+        name: Windows
+        uses: ./.github/workflows/build_windows.yaml
+        strategy:
+            matrix:
+                arch: [x64, x86]
+        with:
+            arch: ${{ matrix.arch }}
+
+    # This allows core contributors to test changes to the dockerbuild image within a pull request
+    linux_docker:
+        name: Linux docker
+        runs-on: ubuntu-latest
+        if: github.event_name == 'pull_request'
+        outputs:
+            docker-image: ${{ steps.docker.outputs.image }}
+        permissions:
+            contents: read
+            packages: write
+        env:
+            REGISTRY: ghcr.io
+            IMAGE_NAME: ${{ github.repository }}-dockerbuild-pr
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: "Get modified files"
+              id: changed_files
+              uses: tj-actions/changed-files@5978e5a2df95ef20cde627d4acb5edd1f87ba46a # v36
+              with:
+                  files: |
+                      dockerbuild/*
+            - name: Log in to the Container registry
+              if: steps.changed_files.outputs.any_modified == 'true'
+              uses: docker/login-action@40891eba8c2bcd1309b07ba8b11232f313e86779
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - id: docker
+              if: steps.changed_files.outputs.any_modified == 'true'
+              run: |
+                  echo "image=$IMAGE:$PR" >> $GITHUB_OUTPUT
+              env:
+                  IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  PR: ${{ github.event.pull_request.number }}
+
+            - name: Build and push Docker image
+              if: steps.changed_files.outputs.any_modified == 'true'
+              uses: docker/build-push-action@f9efed53cc1b0364ba947400ac02042bbbaac7fc
+              with:
+                  context: dockerbuild
+                  push: true
+                  tags: ${{ steps.docker.outputs.image }}
+
+    linux:
+        needs:
+            - fetch
+            - linux_docker
+        name: "Linux (${{ matrix.arch }}) (sqlcipher: ${{ matrix.sqlcipher }})"
+        uses: ./.github/workflows/build_linux.yaml
+        strategy:
+            matrix:
+                sqlcipher: [system, static]
+                arch: [amd64, arm64]
+                exclude:
+                    # FIXME: This combination yields a broken Seshat at this time
+                    # Errors at launch with `undefined symbol: PKCS5_PBKDF2_HMAC
+                    - arch: arm64
+                      sqlcipher: static
+        with:
+            config: ${{ github.event.pull_request.base.ref == 'develop' && 'element.io/nightly' || 'element.io/release' }}
+            sqlcipher: ${{ matrix.sqlcipher }}
+            docker-image: ${{ needs.linux_docker.outputs.docker-image }}
+            arch: ${{ matrix.arch }}
+
+    macos:
+        needs: fetch
+        name: macOS
+        uses: ./.github/workflows/build_macos.yaml
+
+    test:
+        needs:
+            - macos
+            - linux
+            - windows
+        strategy:
+            matrix:
+                include:
+                    - name: macOS Universal
+                      os: macos
+                      artifact: macos
+                      executable: "/Volumes/Element/Element.app/Contents/MacOS/Element"
+                      prepare_cmd: "hdiutil attach ./dist/*.dmg -mountpoint /Volumes/Element"
+                    - name: "Linux (amd64) (sqlcipher: system)"
+                      os: ubuntu
+                      artifact: linux-amd64-sqlcipher-system
+                      executable: "element-desktop"
+                      prepare_cmd: "sudo apt install ./dist/*.deb"
+                    - name: "Linux (amd64) (sqlcipher: static)"
+                      os: ubuntu
+                      artifact: linux-amd64-sqlcipher-static
+                      executable: "element-desktop"
+                      prepare_cmd: "sudo apt install ./dist/*.deb"
+                    - name: Windows (x86)
+                      os: windows
+                      artifact: win-x86
+                      executable: "./dist/win-ia32-unpacked/Element.exe"
+                    - name: Windows (x64)
+                      os: windows
+                      artifact: win-x64
+                      executable: "./dist/win-unpacked/Element.exe"
+        name: Test ${{ matrix.name }}
+        runs-on: ${{ matrix.os }}-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - uses: actions/setup-node@v3
+              with:
+                  cache: "yarn"
+
+            - name: Install Deps
+              run: "yarn install --frozen-lockfile"
+
+            - uses: actions/download-artifact@v3
+              with:
+                  name: ${{ matrix.artifact }}
+                  path: dist
+
+            - name: Prepare for tests
+              run: ${{ matrix.prepare_cmd }}
+              if: matrix.prepare_cmd
+
+            - name: Run tests
+              uses: coactions/setup-xvfb@b6b4fcfb9f5a895edadc3bc76318fae0ac17c8b3 # v1
+              timeout-minutes: 5
+              with:
+                  run: "yarn test"
+              env:
+                  ELEMENT_DESKTOP_EXECUTABLE: ${{ matrix.executable }}
+
+            - name: Upload Artifacts
+              uses: actions/upload-artifact@v3
+              if: always()
+              with:
+                  name: ${{ matrix.artifact }}
+                  path: test_artifacts
+                  retention-days: 1

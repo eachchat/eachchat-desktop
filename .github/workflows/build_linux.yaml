@@ -1,58 +1,190 @@
+# This workflow relies on actions/cache to store the hak dependency artifacts as they take a long time to build
+# Due to this extra care must be taken to only ever run all build_* scripts against the same branch to ensure
+# the correct cache scoping, and additional care must be taken to not run untrusted actions on the develop branch.
 on:
-  workflow_call:
-    inputs:
-      sqlcipher:
-        type: string
-        required: true
-        description: "How to link sqlcipher, one of 'system' | 'static'"
+    workflow_call:
+        inputs:
+            arch:
+                type: string
+                required: true
+                description: "The architecture to build for, one of 'amd64' | 'arm64'"
+            config:
+                type: string
+                required: true
+                description: "The config directory to use"
+            version:
+                type: string
+                required: false
+                description: "Version string to override the one in package.json, used for non-release builds"
+            sqlcipher:
+                type: string
+                required: true
+                description: "How to link sqlcipher, one of 'system' | 'static'"
+            deploy-mode:
+                type: boolean
+                required: false
+                description: "Whether to arrange artifacts in the arrangement needed for deployment, skipping unrelated ones"
+            docker-image:
+                type: string
+                required: false
+                description: "The docker image to use for the build, defaults to ghcr.io/vector-im/element-desktop-dockerbuild"
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+    build:
+        runs-on: ubuntu-latest
+        container:
+            image: ${{ inputs.docker-image || format('ghcr.io/vector-im/element-desktop-dockerbuild:{0}', github.ref_name == 'master' && 'master' || 'develop') }}
+        defaults:
+            run:
+                shell: bash
+        steps:
+            - uses: kanga333/variable-mapper@master
+              id: config
+              with:
+                  key: "${{ inputs.arch }}"
+                  export_to: output
+                  map: |
+                      {
+                        "amd64": {
+                          "target": "x86_64-unknown-linux-gnu",
+                          "arch": "x86-64"
+                        },
+                        "arm64": {
+                          "target": "aarch64-unknown-linux-gnu",
+                          "arch": "aarch64",
+                          "build-args": "--arm64"
+                        }
+                      }
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: webapp
+            - uses: actions/checkout@v3
 
-      - name: Cache .hak
-        uses: actions/cache@v3
-        with:
-          key: ${{ hashFiles('./yarn.lock') }}
-          path: |
-            ./.hak
+            - uses: actions/download-artifact@v3
+              with:
+                  name: webapp
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+            - name: Cache .hak
+              id: cache
+              uses: actions/cache@v3
+              with:
+                  key: ${{ runner.os }}-${{ inputs.docker-image || github.ref_name }}-${{ inputs.sqlcipher }}-${{ inputs.arch }}-${{ hashFiles('hakHash', 'electronVersion') }}
+                  path: |
+                      ./.hak
 
-      - name: Install libsqlcipher-dev
-        if: inputs.sqlcipher == 'system'
-        run: sudo apt-get install -y libsqlcipher-dev
+            - uses: actions/setup-node@v3
+              with:
+                  cache: "yarn"
+              env:
+                  # Workaround for https://github.com/actions/setup-node/issues/317
+                  FORCE_COLOR: 0
 
-      - uses: actions/setup-node@v3
-        with:
-          cache: "yarn"
+            # Does not need branch matching as only analyses this layer
+            - name: Install Deps
+              run: "yarn install --frozen-lockfile"
 
-      # Does not need branch matching as only analyses this layer
-      - name: Install Deps
-        run: "yarn install --pure-lockfile"
+            - name: Prepare for static sqlcipher build
+              if: inputs.sqlcipher == 'static'
+              run: |
+                  echo "SQLCIPHER_BUNDLED=1" >> $GITHUB_ENV
 
-      - name: Build Natives
-        run: "yarn build:native"
-        env:
-          SQLCIPHER_STATIC: ${{ inputs.sqlcipher == 'static' && '1' || '' }}
+            # Ideally the docker image would be ready for cross-compilation but libsqlcipher-dev is not Multi-Arch compatible
+            # https://unix.stackexchange.com/a/349359
+            - name: Prepare for cross compilation
+              if: steps.cache.outputs.cache-hit != 'true' && inputs.arch == 'arm64'
+              run: |
+                  set -x
+                  sed -i 's/deb http/deb [arch=amd64] http/g' /etc/apt/sources.list
+                  echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ bionic main multiverse restricted universe" | tee -a /etc/apt/sources.list
+                  echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ bionic-updates main multiverse restricted universe" | tee -a /etc/apt/sources.list
+                  dpkg --add-architecture arm64
+                  apt-get -qq update
+                  apt-get -qq install --no-install-recommends crossbuild-essential-arm64 libsqlcipher-dev:arm64 libssl-dev:arm64 libsecret-1-dev:arm64 libgnome-keyring-dev:arm64
+                  rustup target add aarch64-unknown-linux-gnu
+                  mv dockerbuild/aarch64/.cargo .
+                  cat dockerbuild/aarch64/.env >> $GITHUB_ENV
 
-      - name: Build App
-        run: "yarn build --publish never -l"
+            - name: Build Natives
+              if: steps.cache.outputs.cache-hit != 'true'
+              run: "yarn build:native --target ${{ steps.config.outputs.target }}"
 
-      - name: Install .deb
-        run: "sudo apt install ./dist/*.deb"
+            - name: "[Nightly] Resolve version"
+              id: nightly
+              if: inputs.version != ''
+              run: |
+                  echo "config-args=--nightly '${{ inputs.version }}'" >> $GITHUB_OUTPUT
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: linux-sqlcipher-${{ inputs.sqlcipher }}
-          path: dist
-          retention-days: 1
+            - name: Generate debian files and arguments
+              id: debian
+              run: |
+                  if [ -f changelog.Debian ]; then
+                      echo "config-args=--deb-changelog changelog.Debian" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Build App
+              run: |
+                  npx ts-node scripts/generate-builder-config.ts \
+                      ${{ steps.nightly.outputs.config-args }} \
+                      ${{ steps.debian.outputs.config-args }}
+                  yarn build --publish never -l --config electron-builder.json ${{ steps.config.outputs.build-args }}
+
+            - name: Check native libraries
+              run: |
+                  set -x
+                  shopt -s globstar
+
+                  FILES=$(file dist/**/*.node)
+                  echo "$FILES"
+
+                  if [ grep -v "$ARCH" ]; then
+                      exit 1
+                  fi
+
+                  LIBS=$(readelf -d dist/**/*.node | grep NEEDED)
+                  echo "$LIBS"
+
+                  set +x
+                  assert_contains_string() { [[ "$1" == *"$2"* ]]; }
+                  ! assert_contains_string "$LIBS" "libcrypto.so.1.1"
+                  if [ "$SQLCIPHER_BUNDLED" == "1" ]; then
+                      ! assert_contains_string "$LIBS" "libsqlcipher.so.0"
+                  else
+                      assert_contains_string "$LIBS" "libsqlcipher.so.0"
+                  fi
+              env:
+                  ARCH: ${{ steps.config.outputs.arch }}
+
+            - name: Stash deb package
+              if: inputs.deploy-mode
+              uses: actions/upload-artifact@v3
+              with:
+                  name: linux-sqlcipher-${{ inputs.sqlcipher }}-deb
+                  path: dist/*.deb
+                  retention-days: 1
+
+            - name: Prepare artifacts for deployment
+              if: inputs.deploy-mode
+              run: |
+                  mv dist _dist
+                  mkdir -p "dist/install/linux/glibc-x86-64/"
+                  mv _dist/*.tar.gz "dist/install/linux/glibc-x86-64"
+
+            # We don't wish to store the tarball for every nightly ever, so we only keep the latest
+            - name: "[Nightly] Strip version from tarball"
+              if: inputs.deploy-mode && inputs.version != ''
+              run: |
+                  mv dist/install/linux/glibc-x86-64/*.tar.gz "dist/install/linux/glibc-x86-64/element-desktop-nightly.tar.gz"
+
+            - name: "[Release] Prepare release latest symlink"
+              if: inputs.deploy-mode && inputs.version == ''
+              shell: bash
+              run: |
+                  ln -s "$(find . -type f -iname "*.tar.gz" | xargs -0 -n1 -- basename)" "element-desktop.tar.gz"
+              working-directory: "dist/install/linux/glibc-x86-64"
+
+            # We exclude *-unpacked as it loses permissions and the tarball contains it with correct permissions
+            - name: Upload Artifacts
+              uses: actions/upload-artifact@v3
+              with:
+                  name: ${{ inputs.deploy-mode && 'packages.element.io' || format('linux-{0}-sqlcipher-{1}', inputs.arch, inputs.sqlcipher) }}
+                  path: |
+                      dist
+                      !dist/*-unpacked/**
+                  retention-days: 1

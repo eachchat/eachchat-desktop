@@ -1,0 +1,43 @@
+name: Dockerbuild
+on:
+    workflow_dispatch: {}
+    push:
+        branches: [master, develop]
+        paths:
+            - "dockerbuild/**"
+concurrency: ${{ github.workflow }}-${{ github.ref_name }}
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}-dockerbuild
+jobs:
+    build:
+        name: Docker Build
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Log in to the Container registry
+              uses: docker/login-action@40891eba8c2bcd1309b07ba8b11232f313e86779
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata for Docker
+              id: meta
+              uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  tags: |
+                      type=ref,event=branch
+
+            - name: Build and push Docker image
+              uses: docker/build-push-action@f9efed53cc1b0364ba947400ac02042bbbaac7fc
+              with:
+                  context: dockerbuild
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}

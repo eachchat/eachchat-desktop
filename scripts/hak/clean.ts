@@ -15,39 +15,13 @@ limitations under the License.
 */
 
 import path from "path";
-import rimraf from "rimraf";
+import { rimraf } from "rimraf";
 
 import { DependencyInfo } from "./dep";
 import HakEnv from "./hakEnv";
 
 export default async function clean(hakEnv: HakEnv, moduleInfo: DependencyInfo): Promise<void> {
-    await new Promise<void>((resolve, reject) => {
-        rimraf(moduleInfo.moduleDotHakDir, (err?: Error | null) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-
-    await new Promise<void>((resolve, reject) => {
-        rimraf(path.join(hakEnv.dotHakDir, "links", moduleInfo.name), (err?: Error | null) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-
-    await new Promise<void>((resolve, reject) => {
-        rimraf(path.join(hakEnv.projectRoot, "node_modules", moduleInfo.name), (err?: Error | null) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+    await rimraf(moduleInfo.moduleDotHakDir);
+    await rimraf(path.join(hakEnv.dotHakDir, "links", moduleInfo.name));
+    await rimraf(path.join(hakEnv.projectRoot, "node_modules", moduleInfo.name));
 }
