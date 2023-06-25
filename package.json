@@ -4,7 +4,7 @@
     "main": "lib/electron-main.js",
     "version": "3.0.0",
     "description": "A feature-rich client for Matrix.org",
-    "author": "EachChat",
+    "author": "Beijing Workly Ai Technology Co., Ltd",
     "repository": {
       "type": "git",
       "url": "https://github.com/vector-im/element-desktop"
@@ -129,7 +129,10 @@
           "provider": "generic",
           "url": "http://element.desktop.release/"
         }
-      ]
+      ],
+      "win": {
+        "icon": "build/icons/icon.ico"
+      }
     },
     "jest": {
       "testEnvironment": "node",
