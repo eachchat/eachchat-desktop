@@ -131,7 +131,13 @@
         }
       ],
       "win": {
-        "icon": "build/icons/icon.ico"
+        "icon": "build/icons/icon.ico",
+        "target": [
+          "squirrel"
+        ],
+        "signingHashAlgorithms": [
+            "sha256"
+        ]
       }
     },
     "jest": {
